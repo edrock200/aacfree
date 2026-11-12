@@ -1,0 +1,43 @@
+Caleb es una app de CAA (comunicación aumentativa y alternativa) gratuita y de código abierto para personas autistas y para las familias, docentes y terapeutas que las acompañan. Toca botones con pictogramas y palabras para armar una oración, y Caleb la dice en voz alta.
+
+Nota: por ahora la app está en inglés. El soporte para español llegará en la versión 0.3.
+
+Caleb se diseñó con lo que piden las personas autistas que usan CAA, sus familias y sus terapeutas: palabras que no cambian de lugar, "no" y "basta" siempre a mano, y privacidad.
+
+GRATIS, PRIVADA Y SIN INTERNET
+• Gratis para siempre. Sin anuncios, sin suscripciones, sin compras dentro de la app.
+• Sin cuentas, sin inicio de sesión, sin analíticas, sin rastreo.
+• Todo se guarda en tu dispositivo y funciona sin conexión a internet.
+• Código abierto (GNU AGPL-3.0).
+
+PARA LA PERSONA QUE SE COMUNICA
+• Vocabulario núcleo que no se mueve. Elige entre cuatro diseños de inicio, de 12 botones grandes a 48. Las palabras nunca cambian de lugar, así se aprenden por memoria motora. Las palabras ocultas conservan su lugar.
+• 25 carpetas temáticas con unas 770 palabras y 740 pictogramas incluidos: comida, bebidas, emociones, personas, lugares, juego, escuela, cuerpo, salud y más.
+• Colores por tipo de palabra (Clave Fitzgerald modificada), con relleno, solo borde o sin color.
+• Sí, no, basta, ayuda, espera y descanso aparecen en todas las pantallas. Hablar nunca se bloquea.
+• Formas de las palabras cuando las necesitas: plurales, tiempos verbales y comparativos.
+• Teclado con predicción de palabras privada y sugerencias de la siguiente palabra.
+• Frases listas para usar: necesidades, emociones, límites, conversación, preguntas y emergencias. Guarda tus propias frases y guiones, algo útil para quienes procesan el lenguaje de forma gestáltica.
+• Herramientas: agenda visual, tablero primero/después, temporizador visual, tablero de opciones, escalas de emociones y de dolor, mapa del cuerpo ("¿dónde te duele?"), tarjeta "Sobre mí" y pizarra para dibujar.
+• Usa cualquier voz de tu dispositivo y ajusta su velocidad y tono. Graba la voz de un familiar en cualquier botón.
+• Accesibilidad: seleccionar al mantener presionado, ignorar toques repetidos, barrido con 1 o 2 pulsadores, pulsadores Bluetooth, texto grande, temas oscuro y de alto contraste, y un estilo "Clean" más sobrio para adolescentes y adultos.
+
+PARA FAMILIAS, DOCENTES Y TERAPEUTAS
+• Área para adultos protegida con una pulsación de 2 segundos, un PIN o una multiplicación.
+• Edita en el lugar: toca un botón para cambiar su palabra, imagen, color o voz. Usa los pictogramas incluidos, la búsqueda en línea de ARASAAC, emojis o tus propias fotos. Puedes deshacer cualquier cambio.
+• Biblioteca de pictogramas organizada en carpetas. Crea tus propias categorías, como familia, escuela o programas favoritos.
+• "Buscar palabra" muestra paso a paso dónde está cada palabra. El modo modelado evita que tus toques cuenten en las estadísticas.
+• No pierdas tu trabajo: cada cambio se guarda al instante, con copias diarias y respaldos en un solo archivo.
+• Imprime tableros en papel como respaldo.
+• Comparte tableros con otras apps de CAA mediante Open Board Format (.obz).
+• Estadísticas de uso privadas y opcionales. Están desactivadas salvo que las actives, y nunca salen del dispositivo.
+• Varios perfiles en un dispositivo.
+• El botón Atrás nunca cierra la app, y Caleb funciona bien con la fijación de pantalla de Android.
+
+CRÉDITOS
+Pictogramas de Sergio Palao. Origen: ARASAAC (arasaac.org), Gobierno de Aragón (España). Licencia: CC BY-NC-SA 4.0. Como los pictogramas son de uso no comercial, Caleb siempre será gratis.
+Tipografía: Atkinson Hyperlegible, del Braille Institute.
+
+Caleb es una herramienta de comunicación, no un dispositivo médico. Elige y configura la CAA junto con un fonoaudiólogo o terapeuta de lenguaje.
+
+Código fuente, preguntas y sugerencias: github.com/edrock200/caleb
