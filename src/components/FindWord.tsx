@@ -4,6 +4,7 @@ import { Symbol } from './Symbol';
 import { useStore, useProfile } from '../store';
 import { findWord } from '../lib/boards';
 import { IconSearch } from './Icons';
+import { AddWordDialog } from './AddWordDialog';
 
 /**
  * "Where is that word?" — shows the path to a word and highlights each
@@ -13,7 +14,9 @@ export function FindWord({ onClose }: { onClose: () => void }) {
   const p = useProfile();
   const [q, setQ] = useState('');
   const results = findWord(p, q);
-  const { home, openBoard, setHighlight } = useStore.getState();
+  const { home, openBoard, setHighlight, speakText, addText, updateProfile } = useStore.getState();
+  const unlocked = useStore((st) => st.unlocked);
+  const [adding, setAdding] = useState(false);
 
   const go = (path: string[], ids: string[], target: string) => {
     home();
@@ -37,14 +40,30 @@ export function FindWord({ onClose }: { onClose: () => void }) {
               <Symbol value={r.button.symbol} />
               <span className="grow">
                 <b>{r.button.label}</b>
-                <small>{r.path.map((id) => p.boards[id]?.name).join(' › ')}</small>
+                <small>{r.path.map((id) => p.boards[id]?.name).join(' › ')}{r.button.hidden ? ' · hidden for now' : ''}</small>
               </span>
               <span className="chip">Show me</span>
             </button>
+            {r.button.hidden && unlocked && (
+              <button className="btn small" onClick={() => updateProfile((pp) => {
+                const c = pp.boards[r.boardId].cells.find((x) => x?.id === r.button.id);
+                if (c) delete c.hidden;
+              }, { undoable: true })}>Reveal</button>
+            )}
           </li>
         ))}
-        {q && results.length === 0 && <li className="muted">Not on any board yet. A grown-up can add it in edit mode, or type it on the keyboard.</li>}
       </ul>
+      {q.trim() && results.length === 0 && (
+        <div className="find-miss">
+          <p className="muted">“{q.trim()}” isn't on a board yet.</p>
+          <div className="row">
+            <button className="btn primary" onClick={() => speakText(q.trim())}>Say it</button>
+            <button className="btn" onClick={() => { addText(q.trim()); onClose(); }}>Put in message</button>
+            {unlocked && <button className="btn" onClick={() => setAdding(true)}>Add to a board…</button>}
+          </div>
+        </div>
+      )}
+      {adding && <AddWordDialog initialWord={q.trim()} onClose={() => { setAdding(false); onClose(); }} />}
     </Modal>
   );
 }

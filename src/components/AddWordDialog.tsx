@@ -1,0 +1,77 @@
+import { useMemo, useState } from 'react';
+import { useStore, useProfile } from '../store';
+import { Modal } from './Modal';
+import { Symbol } from './Symbol';
+import { SymbolPicker } from './SymbolPicker';
+import { searchLibrary } from '../lib/library';
+import { boardPaths } from '../lib/boards';
+import { uid } from '../lib/util';
+import type { AACButton, WordType } from '../types';
+
+/**
+ * Quickest way to add a word: type it, a picture is suggested, pick a board.
+ * Goes in the first empty square; if the board is full a row is added at the
+ * bottom, so existing buttons never move.
+ */
+export function AddWordDialog({ initialWord = '', boardId, onClose }: { initialWord?: string; boardId?: string; onClose: () => void }) {
+  const p = useProfile();
+  const library = useStore((s) => s.data.library);
+  const { updateProfile, showToast } = useStore.getState();
+  const [word, setWord] = useState(initialWord);
+  const [target, setTarget] = useState(boardId ?? p.rootId);
+  const [chosen, setChosen] = useState<{ symbol?: string; type?: WordType } | null>(null);
+  const [picking, setPicking] = useState(false);
+  const paths = useMemo(() => boardPaths(p), [p]);
+  const boards = Object.values(p.boards).sort((a, b) => (paths[a.id]?.length ?? 99) - (paths[b.id]?.length ?? 99) || a.name.localeCompare(b.name));
+
+  const suggestion = useMemo(() => {
+    const q = word.trim().toLowerCase();
+    if (!q) return null;
+    const hit = searchLibrary(library, q, 5).find((s) => s.label.toLowerCase() === q) ?? null;
+    return hit ? { symbol: hit.symbol, type: hit.type } : null;
+  }, [word, library]);
+  const pic = chosen ?? suggestion;
+  const board = p.boards[target];
+  const free = board?.cells.filter((c) => !c).length ?? 0;
+
+  const add = () => {
+    const label = word.trim();
+    if (!label || !board) return;
+    const btn: AACButton = { id: uid('b'), label, type: pic?.type ?? 'noun', symbol: pic?.symbol };
+    updateProfile((pp) => {
+      const b = pp.boards[target];
+      const i = b.cells.findIndex((c) => !c);
+      if (i >= 0) b.cells[i] = btn;
+      else { b.rows += 1; b.cells.push(btn, ...Array(b.cols - 1).fill(null)); }
+    }, { undoable: true });
+    showToast(`Added “${label}” to ${board.name}`);
+    onClose();
+  };
+
+  return (
+    <>
+      <Modal title="Add a word" onClose={onClose}
+        footer={<><span className="spacer" /><button className="btn" onClick={onClose}>Cancel</button>
+          <button className="btn primary" disabled={!word.trim()} onClick={add}>Add word</button></>}>
+        <div className="cat-editor">
+          <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label="Choose picture">
+            {pic?.symbol ? <Symbol value={pic.symbol} /> : <span className="muted">No picture yet</span>}
+            <span>{pic?.symbol ? 'Change picture' : 'Add picture'}</span>
+          </button>
+          <div className="grow">
+            <label className="field"><span>Word</span>
+              <input autoFocus value={word} onChange={(e) => { setWord(e.target.value); setChosen(null); }} placeholder="e.g. grandma, trampoline" />
+            </label>
+            <label className="field"><span>Put it on</span>
+              <select value={target} onChange={(e) => setTarget(e.target.value)}>
+                {boards.map((b) => <option key={b.id} value={b.id}>{b.name} ({b.cells.filter((c) => !c).length} free)</option>)}
+              </select>
+            </label>
+            <p className="muted small">{free > 0 ? 'It goes in the first empty square.' : 'This board is full, so a new row is added at the bottom. Nothing else moves.'}</p>
+          </div>
+        </div>
+      </Modal>
+      {picking && <SymbolPicker initialQuery={word} onClose={() => setPicking(false)} onPick={(symbol, label) => { setChosen({ symbol }); if (!word.trim() && label) setWord(label); setPicking(false); }} />}
+    </>
+  );
+}

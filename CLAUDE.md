@@ -31,6 +31,10 @@ npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Androi
 - `src/store.ts`: app state and actions (message bar, navigation, edits with undo, persistence, snapshots)
 - `src/lib/library.ts` + `src/components/LibraryBrowser.tsx`: the symbol library. Built-in categories come from the vocab (`builtInLibrary()` in defaults.ts); family categories and additions live in `AppData.library`, shared across profiles. Each category is shown as a folder with an icon.
 - `src/components/NewCategoryDialog.tsx`: creates a board category (folder button + board), optionally from a library category
+- `src/lib/validate.ts`: **all** loaded or restored data passes through `migrate()` → `repairProfile`/`cleanBoard`/`cleanLibrary`. Never trust stored or imported data, and allow hex-only colours.
+- Saves are revision-checked (`saveDataChecked`) and broadcast to other tabs. Don't bypass `persist()`.
+- `BoardGrid` pages boards that don't fit (fixed Previous/Next). Don't reintroduce free scrolling.
+- Tool state (timer, first/then, choices) lives in the store, so it survives leaving the Tools screen.
 - `src/lib/`: tts, morphology (word forms), prediction, scanning (`useScanner`), touch accommodations (`usePress`), backup, OBF import/export, files (web download vs Android share)
 - `src/components/`: grid/cell/message bar/quick bar/nav bar/editors/pickers
 - `src/screens/`: Talk, Keyboard, Phrases, Tools (+ `tools/*`), GrownUp (+ `grownup/*`), Onboarding

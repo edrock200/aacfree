@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { predict } from '../lib/predict';
 import { vocabularyWords } from '../lib/boards';
@@ -65,6 +65,25 @@ export function KeyboardScreen() {
       setDraft(last.text.slice(0, -1));
     }
   };
+
+  // Physical / Bluetooth keyboards type straight into the message (not into focused buttons).
+  const handlers = useRef({ type, del, space });
+  handlers.current = { type, del, space };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (s.scanning || e.ctrlKey || e.metaKey || e.altKey || t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA' || document.querySelector('.modal-root')) return;
+      if (e.key === 'Enter') { e.preventDefault(); useStore.getState().speakMessage(); return; }
+      if (e.key === 'Backspace') { e.preventDefault(); handlers.current.del(); return; }
+      if (e.key === ' ') { e.preventDefault(); handlers.current.space(); return; }
+      if (e.key.length === 1 && /[\p{L}\p{N}'.,?!-]/u.test(e.key)) {
+        e.preventDefault();
+        if (/[.,?!]/.test(e.key)) { commitDraft(); addText(e.key); } else handlers.current.type(e.key);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [s.scanning, commitDraft, addText]);
 
   return (
     <div className="keyboard">

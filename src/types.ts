@@ -84,6 +84,8 @@ export interface ScheduleStep {
   label: string;
   symbol?: SymbolRef;
   done?: boolean;
+  /** Optional length of the activity (starts the visual timer from "Now"). */
+  minutes?: number;
 }
 
 export interface Schedule {
@@ -109,6 +111,8 @@ export interface Settings {
   voiceIndex?: number;
   /** Native voice name (indexes can shift between devices/engine updates). */
   voiceName?: string;
+  /** Pronunciation fixes: written word → how to say it (applies to everything spoken). */
+  pronunciations?: Record<string, string>;
   rate: number;
   pitch: number;
   volume: number;
@@ -178,7 +182,7 @@ export interface Profile {
   createdAt: number;
 }
 
-export type LayoutId = 'big' | 'medium' | 'full';
+export type LayoutId = 'big' | 'compact' | 'medium' | 'full';
 
 /** A picture saved in the symbol library (built-in or created by the family). */
 export interface LibrarySymbol {

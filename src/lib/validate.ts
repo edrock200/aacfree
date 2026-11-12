@@ -71,7 +71,7 @@ export function repairProfile(raw: unknown): Profile | null {
   if (typeof p.id !== 'string' || !p.id) p.id = 'p' + Math.random().toString(36).slice(2, 10);
   p.name = str(p.name, 100) ?? '';
   p.quickBar = Array.isArray(p.quickBar) ? p.quickBar.map(cleanButton).filter((x): x is AACButton => !!x).slice(0, 16) : (undefined as never);
-  if (!['big', 'medium', 'full'].includes(p.layout)) p.layout = 'medium';
+  if (!['big', 'compact', 'medium', 'full'].includes(p.layout)) p.layout = 'medium';
   return p;
 }
 

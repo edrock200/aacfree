@@ -42,7 +42,7 @@ function BackupNudge({ onGo, hidden }: { onGo: () => void; hidden: boolean }) {
 export function GrownUpScreen() {
   const p = useProfile();
   const [panel, setPanel] = useState<Panel>('boards');
-  const { setScreen, setUnlocked, setEditMode } = useStore.getState();
+  const { setScreen, setEditMode } = useStore.getState();
 
   return (
     <div className="grownup">
@@ -55,7 +55,7 @@ export function GrownUpScreen() {
         ))}
         <div className="gu-nav-foot">
           <button className="btn" onClick={() => { setEditMode(true); setScreen('talk'); }}><IconEdit /> Edit boards</button>
-          <button className="btn primary" onClick={() => { setUnlocked(false); setScreen('talk'); }}><IconLock /> Lock & return</button>
+          <button className="btn primary" onClick={() => useStore.getState().lock()}><IconLock /> Lock & return</button>
         </div>
       </aside>
       <div className="gu-main" key={panel}>

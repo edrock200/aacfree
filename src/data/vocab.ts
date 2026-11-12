@@ -302,6 +302,18 @@ export const HOME_LAYOUTS: Record<string, { cols: number; rows: number; cells: s
       'x:not', 'v:like', 'v:all done@finished', '>more',
     ],
   },
+  // 5 × 6 — 30 cells, shaped for phones held upright
+  compact: {
+    cols: 5, rows: 6,
+    cells: [
+      'p:I', 'v:want', 'v:go', 'd:more', '>food',
+      'p:you', 'v:help', 'v:eat', 'v:like', '>drinks',
+      'p:it', 'v:stop', 'v:play', 'x:not', '>feelings',
+      'p:me', 'v:get', 'v:drink', 'v:look', '>play',
+      't:that', 'v:do', 'v:all done@finished', 'q:what', '>people',
+      'v:open', 'v:put', 'd:different', 'q:where', '>more',
+    ],
+  },
   // 6 × 5 — 30 cells
   medium: {
     cols: 6, rows: 5,

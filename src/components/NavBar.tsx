@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useStore, useSettings, type Screen } from '../store';
-import { IconChat, IconEdit, IconKeyboard, IconLock, IconSearch, IconSettings, IconTools, IconUnlock } from './Icons';
+import { IconChat, IconEdit, IconKeyboard, IconLock, IconPerson, IconSearch, IconSettings, IconTools, IconUnlock } from './Icons';
 import { LockGate } from './LockGate';
 import { usePress } from '../lib/usePress';
 
@@ -11,12 +11,17 @@ export function NavBar({ onFind }: { onFind: () => void }) {
   const screen = useStore((st) => st.screen);
   const unlocked = useStore((st) => st.unlocked);
   const editMode = useStore((st) => st.editMode);
-  const { setScreen, setUnlocked, setEditMode } = useStore.getState();
+  const modeling = useStore((st) => st.modeling);
+  const { setScreen, setUnlocked, setEditMode, lock, setTool, setModeling } = useStore.getState();
   const [gate, setGate] = useState(false);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [holding, setHolding] = useState(false);
 
-  const go = (sc: Screen) => setScreen(screen === sc ? 'talk' : sc);
+  const go = (sc: Screen) => {
+    // Inside a tool, "Tools" goes back to the tools menu rather than leaving.
+    if (sc === 'tools' && screen === 'tools' && useStore.getState().tool) return setTool(null);
+    setScreen(screen === sc ? 'talk' : sc);
+  };
 
   const openGrownUps = () => {
     setUnlocked(true);
@@ -64,12 +69,18 @@ export function NavBar({ onFind }: { onFind: () => void }) {
         <button className={`navbtn ${screen === 'tools' ? 'on' : ''}`} data-scan-item aria-label="Tools" {...tl}><IconTools /><span>Tools</span></button>
       )}
       <button className="navbtn" data-scan-item aria-label="Find a word" {...fd}><IconSearch /><span>Find</span></button>
+      {(s.logging || s.learnWords) && (
+        <button className={`navbtn ${modeling ? 'on modeling' : ''}`} onClick={() => setModeling(!modeling)} aria-pressed={modeling}
+          aria-label="Modelling mode: partner taps are not counted" title="Modelling: your taps aren't counted as the user's">
+          <IconPerson /><span>{modeling ? 'Modelling' : 'Model'}</span>
+        </button>
+      )}
       <span className="spacer" />
       {unlocked && (
         <button className={`navbtn ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label="Edit boards"><IconEdit /><span>{editMode ? 'Editing' : 'Edit'}</span></button>
       )}
       {unlocked && (
-        <button className="navbtn nav-lock" onClick={() => { setUnlocked(false); setScreen('talk'); }} aria-label="Lock"><IconLock /><span>Lock</span></button>
+        <button className="navbtn nav-lock" onClick={lock} aria-label="Lock"><IconLock /><span>Lock</span></button>
       )}
       <button
         className={`navbtn lockbtn scan-exempt ${holding ? 'holding' : ''} ${screen === 'grownup' ? 'on' : ''}`}

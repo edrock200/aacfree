@@ -23,6 +23,10 @@ export function HelpPanel() {
           <dt>Make a new folder</dt><dd>Edit an empty square → “Opens folder” → “New empty folder”. Then tap the folder and add words.</dd>
           <dt>Word forms</dt><dd>Long-press a word (or tap a word in the message bar) to choose go → went / going / goes. Plurals and “-er/-est” work too.</dd>
           <dt>Record a family voice</dt><dd>Edit a button or phrase → Record voice. That clip plays instead of the computer voice.</dd>
+          <dt>Hide or show words quickly</dt><dd>In edit mode, tap “Show/Hide”, then tap words to mask or reveal them. “Reveal 5 more” grows the board step by step.</dd>
+          <dt>Model without skewing data</dt><dd>When usage insights or learning are on, a “Model” button appears in the bottom bar. Turn it on while you demonstrate.</dd>
+          <dt>Fix how a word sounds</dt><dd>Voice → Pronunciations. For example, “Siobhan” → “shi-vawn”.</dd>
+          <dt>Forgot the PIN?</dt><dd>On the PIN screen tap “Forgot PIN?”, hold for 10 seconds and type the sentence shown. Only the PIN is removed.</dd>
           <dt>Start small</dt><dd>Boards &amp; words → “Starter words only” hides all but key words on Home (they keep their places). Reveal more over time by editing a hidden button and unticking “Hide”.</dd>
           <dt>Print paper boards</dt><dd>Boards &amp; words → Print boards. Keep a laminated copy for the bath, the pool or a flat battery.</dd>
           <dt>Share a message as text</dt><dd>Tap the share icon in the message bar to send what was typed by text or email, or to copy it.</dd>

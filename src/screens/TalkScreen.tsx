@@ -2,13 +2,14 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { BoardGrid } from '../components/BoardGrid';
 import { NewCategoryDialog } from '../components/NewCategoryDialog';
+import { AddWordDialog } from '../components/AddWordDialog';
 import { ButtonEditor } from '../components/ButtonEditor';
 import { FormsPopover } from '../components/FormsPopover';
 import { Modal } from '../components/Modal';
 import { Symbol } from '../components/Symbol';
 import { resizeBoard, orphanBoards } from '../lib/boards';
 import type { AACButton, Board } from '../types';
-import { IconCheck, IconEye, IconEyeOff, IconPlus, IconSettings, IconUndo } from '../components/Icons';
+import { IconCheck, IconEyeOff, IconPlus, IconSettings, IconUndo } from '../components/Icons';
 
 export const TalkScreen = memo(function TalkScreen() {
   const p = useProfile();
@@ -17,7 +18,7 @@ export const TalkScreen = memo(function TalkScreen() {
   const editMode = useStore((st) => st.editMode);
   const highlight = useStore((st) => st.highlight);
   const undo = useStore((st) => st.undo);
-  const { pressButton, updateProfile, undoEdit, setEditMode, addWord, speakText, showToast, updateSettings, openBoard } = useStore.getState();
+  const { pressButton, updateProfile, undoEdit, setEditMode, addWord, speakText, showToast, openBoard } = useStore.getState();
 
   const boardId = boardStack[boardStack.length - 1];
   const board = p.boards[boardId] ?? p.boards[p.rootId];
@@ -26,12 +27,25 @@ export const TalkScreen = memo(function TalkScreen() {
   const [formsButton, setFormsButton] = useState<AACButton | null>(null);
   const [boardSettings, setBoardSettings] = useState(false);
   const [newCat, setNewCat] = useState(false);
+  const [addingWord, setAddingWord] = useState(false);
+  /** Show/Hide mode: one tap masks or reveals a word (to grow vocabulary over time). */
+  const [hideMode, setHideMode] = useState(false);
 
   // A pending Move belongs to the board it started on.
   useEffect(() => { setMoveFrom(null); }, [board.id, editMode]);
+  useEffect(() => { if (!editMode) setHideMode(false); }, [editMode]);
 
   const onCellImpl = (index: number, b: AACButton | null) => {
     if (editMode) {
+      if (hideMode) {
+        if (b && !b.link && !b.action) {
+          updateProfile((pp) => {
+            const c = pp.boards[board.id].cells[index];
+            if (c) { if (c.hidden) delete c.hidden; else c.hidden = true; }
+          }, { undoable: true });
+        }
+        return;
+      }
       if (moveFrom !== null) {
         if (moveFrom !== index) {
           updateProfile((pp) => {
@@ -81,10 +95,15 @@ export const TalkScreen = memo(function TalkScreen() {
           {editMode && (
             <div className="edit-tools">
               {moveFrom !== null && <span className="hint">Now tap where it should go</span>}
+              {hideMode && <span className="hint">Tap words to hide or show them</span>}
+              <button className={`btn small ${hideMode ? 'primary' : ''}`} onClick={() => setHideMode(!hideMode)}><IconEyeOff size={18} /> {hideMode ? 'Done hiding' : 'Show/Hide'}</button>
+              {hideMode && board.cells.some((c) => c?.hidden) && (
+                <button className="btn small" onClick={() => updateProfile((pp) => {
+                  pp.boards[board.id].cells.filter((c) => c?.hidden).slice(0, 5).forEach((c) => { delete c!.hidden; });
+                }, { undoable: true })}>Reveal 5 more</button>
+              )}
+              <button className="btn small" onClick={() => setAddingWord(true)}><IconPlus size={18} /> Word</button>
               <button className="btn small" onClick={undoEdit} disabled={!undo.length}><IconUndo size={18} /> Undo</button>
-              <button className="btn small" onClick={() => updateSettings({ babble: !s.babble })}>
-                {s.babble ? <IconEye size={18} /> : <IconEyeOff size={18} />} {s.babble ? 'Showing hidden' : 'Hidden masked'}
-              </button>
               <button className="btn small" onClick={() => setNewCat(true)}><IconPlus size={18} /> Category</button>
               <button className="btn small" onClick={() => setBoardSettings(true)}><IconSettings size={18} /> Board</button>
               <button className="btn small primary" onClick={() => { setEditMode(false); setMoveFrom(null); }}><IconCheck size={18} /> Done</button>
@@ -128,6 +147,7 @@ export const TalkScreen = memo(function TalkScreen() {
           }}
         />
       )}
+      {addingWord && <AddWordDialog boardId={board.id} onClose={() => setAddingWord(false)} />}
       {newCat && <NewCategoryDialog parentBoardId={board.id} onClose={() => setNewCat(false)} />}
       {boardSettings && <BoardSettings board={board} isRoot={board.id === p.rootId} onClose={() => setBoardSettings(false)} />}
       {editMode && boardStack.length === 1 && orphanBoards(p).length > 0 && (

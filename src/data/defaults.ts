@@ -115,7 +115,7 @@ export function buildProfile(name: string, layout: LayoutId): Profile {
   boards.home = homeBoard;
 
   // Category boards share the home board's column count where sensible.
-  const catCols = layout === 'big' ? 4 : layout === 'medium' ? 6 : 8;
+  const catCols = layout === 'big' ? 4 : layout === 'compact' ? 5 : layout === 'medium' ? 6 : 8;
   for (const c of CATEGORIES) {
     boards[c.id] = makeBoard(c.id, c.name, catCols, c.items, c.type, catNames, 1, symbolFor(c.icon));
   }

@@ -1,4 +1,5 @@
 import { COMMON_WORDS } from '../data/words';
+import { BIGRAMS } from '../data/bigrams';
 
 /**
  * Simple, private, on-device word prediction.
@@ -36,6 +37,7 @@ export function predict(prefix: string, prev: string | undefined, ctx: PredictCo
         const ws = h.text.toLowerCase().match(/[a-z']+/g) ?? [];
         for (let i = 0; i < ws.length - 1; i++) if (ws[i] === pl) add(ws[i + 1], 400);
       }
+      (BIGRAMS[pl] ?? []).forEach((w, i) => add(w, 300 - i * 10));
     }
     STARTERS.forEach((w, i) => add(w, 100 - i));
     return rank(scores, n);

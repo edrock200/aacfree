@@ -18,6 +18,7 @@ async function unlock() {
   const box = await page.locator('.lockbtn').boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up();
+  if (await page.isVisible('.lockgate')) for (const d of '1234') await page.click(`.pinpad .btn:text-is("${d}")`);
   await page.waitForSelector('.grownup');
 }
 
@@ -145,6 +146,7 @@ await unlock();
 await page.click('.gu-tab:has-text("Backup")');
 const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('text=Restore from file…')]);
 await chooser.setFiles(backupPath);
+await page.click('.modal-foot button:has-text("Replace with backup")');
 await page.waitForTimeout(800);
 await page.click('.gu-nav-foot button:has-text("Lock")');
 await page.waitForSelector('.grid');
@@ -217,6 +219,48 @@ check(!(await page.$('.modal input')), 'switch keys drive scanning inside Find w
   await page.click('.setting:has-text("Turn on scanning") .switch');
   check(!(await page.isChecked('.setting:has-text("Turn on scanning") input')), 'scanning can be turned off');
 }
+
+// --- v0.2 features
+await page.click('.gu-nav-foot button:has-text("Lock")');
+await page.waitForSelector('.grid');
+check(!(await page.$('.board-title')), 'locking returns to the Home board');
+// paging: Food has 72 words → pages with Next/Previous
+await page.click('.grid .cell[aria-label="Food folder"]');
+check(await page.isVisible('.page-bar'), 'big folders are split into pages');
+const firstPage = await cells();
+await page.click('.page-btn[aria-label="Next page"]');
+const secondPage = await cells();
+check(secondPage.join() !== firstPage.join() && secondPage.length === firstPage.length, 'next page shows other words in the same-size grid');
+await page.click('.nav-home');
+// timer keeps running when you leave it
+await page.click('.navbtn[aria-label="Tools"]');
+await page.click('.tool-tile[aria-label="Timer"]');
+await page.click('.timer .btn:has-text("1 min")');
+await page.click('.timer .btn:has-text("Start")');
+await page.click('.nav-home');
+check(await page.isVisible('.timer-chip'), 'running timer shows a chip on the Talk screen');
+await page.click('.timer-chip');
+check(await page.isVisible('.timer-face'), 'timer chip returns to the timer');
+await page.click('.timer .btn:has-text("Reset")');
+await page.click('.nav-home');
+// Find word: miss offers Say it / Put in message
+await page.click('.navbtn[aria-label="Find a word"]');
+await page.fill('.modal input', 'dinosaur nuggets');
+await page.click('.find-miss button:has-text("Put in message")');
+check((await msgText()).includes('dinosaur nuggets'), 'find word miss can put the words in the message');
+// hardware keyboard typing on the keyboard screen
+await page.click('.navbtn[aria-label="Keyboard"]');
+await page.keyboard.type('i am ok ');
+check((await msgText()).endsWith('I am ok'), 'physical keyboard types into the message (and capitalises I)');
+await page.click('.nav-home');
+// Show/Hide mode in edit mode
+await unlock();
+await page.click('.gu-nav-foot button:has-text("Edit")');
+await page.click('.edit-tools button:has-text("Show/Hide")');
+await page.click('.grid .cell[aria-label="want"]');
+await page.click('.edit-tools button:has-text("Done hiding")');
+await page.click('.edit-tools button:has-text("Done")');
+check(!(await cells()).includes('want'), 'show/hide mode hides a word with one tap');
 
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();

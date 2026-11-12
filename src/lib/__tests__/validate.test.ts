@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cleanBoard, cleanButton, cleanLibrary, safeColor } from '../validate';
-import { migrate, DATA_VERSION } from '../../store';
+import { applyPronunciations, migrate, DATA_VERSION } from '../../store';
 import { buildProfile } from '../../data/defaults';
 import { buttonColor } from '../colors';
 import type { AppData } from '../../types';
@@ -65,5 +65,13 @@ describe('migrate (loading saved data / backups)', () => {
     const d = good() as Partial<AppData>;
     delete d.onboarded;
     expect(migrate(d as AppData).onboarded).toBe(true);
+  });
+});
+
+describe('pronunciations', () => {
+  it('replaces whole words only, case-insensitively', () => {
+    const m = { Siobhan: 'shi-vawn', AAC: 'A A C' };
+    expect(applyPronunciations('Hi siobhan, I use AAC.', m)).toBe('Hi shi-vawn, I use A A C.');
+    expect(applyPronunciations('Siobhanna', m)).toBe('Siobhanna');
   });
 });

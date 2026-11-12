@@ -47,6 +47,7 @@ export function SpeechPanel() {
         <Slider label="Volume" value={s.volume} min={0.1} max={1} step={0.05} onChange={(volume) => updateSettings({ volume })} format={(v) => `${Math.round(v * 100)}%`} />
         <button className="btn primary" onClick={() => speak('I want to go to the park, please.', s)}>Test voice</button>
       </Section>
+      <Pronunciations />
       <Section title="Speaking">
         <Toggle label="Speak each word when tapped" hint="Turn off for silent sentence building." checked={s.speakOnTap} onChange={(speakOnTap) => updateSettings({ speakOnTap })} />
         <Toggle label="Say folder names when opened" checked={s.speakFolders} onChange={(speakFolders) => updateSettings({ speakFolders })} />
@@ -122,5 +123,32 @@ export function AccessPanel() {
         <p className="muted small">2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the 🔒 button.</p>
       </Section>
     </>
+  );
+}
+
+/** Fix how the voice says names and unusual words (applies to buttons, typing and phrases). */
+function Pronunciations() {
+  const s = useProfile().settings;
+  const { updateSettings } = useStore.getState();
+  const map = s.pronunciations ?? {};
+  const [word, setWord] = useState('');
+  const [say, setSay] = useState('');
+  const set = (m: Record<string, string>) => updateSettings({ pronunciations: m });
+  return (
+    <Section title="Pronunciations" intro="If the voice says a name or word wrong, write how it should sound. For example, Siobhan → shi-vawn.">
+      {Object.entries(map).map(([w, v]) => (
+        <div key={w} className="pron-row">
+          <b>{w}</b><span>→</span><span className="grow">{v}</span>
+          <button className="btn small" onClick={() => speak(v, s)}>Test</button>
+          <button className="btn small danger-outline" onClick={() => { const m = { ...map }; delete m[w]; set(m); }}>Remove</button>
+        </div>
+      ))}
+      <div className="row">
+        <input value={word} onChange={(e) => setWord(e.target.value)} placeholder="Written word" aria-label="Written word" />
+        <input value={say} onChange={(e) => setSay(e.target.value)} placeholder="Say it like" aria-label="Say it like" />
+        <button className="btn" disabled={!say.trim()} onClick={() => speak(say, s)}>Test</button>
+        <button className="btn primary" disabled={!word.trim() || !say.trim()} onClick={() => { set({ ...map, [word.trim()]: say.trim() }); setWord(''); setSay(''); }}>Add</button>
+      </div>
+    </Section>
   );
 }

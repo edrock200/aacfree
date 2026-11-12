@@ -15,7 +15,8 @@ import { NewCategoryDialog } from '../../components/NewCategoryDialog';
 export const STARTER_WORDS = ['i', 'you', 'want', 'more', 'help', 'stop', 'go', 'like', 'not', 'all done', 'eat', 'drink', 'play', 'what', 'look', 'open', 'turn', 'different', 'get', 'it'];
 
 export const LAYOUTS: { id: LayoutId; name: string; desc: string }[] = [
-  { id: 'big', name: 'Big buttons · 12', desc: '4 × 3 grid. Beginners, phones, or harder motor access.' },
+  { id: 'big', name: 'Big buttons · 12', desc: '4 × 3 grid. Beginners, or harder motor access.' },
+  { id: 'compact', name: 'Phone core · 30', desc: '5 × 6 grid shaped for phones held upright.' },
   { id: 'medium', name: 'Medium · 30', desc: '6 × 5 grid. Good starting point for most people.' },
   { id: 'full', name: 'Full core · 48', desc: '8 × 6 grid with Universal Core words. Tablets; lots of room to grow.' },
 ];
@@ -158,7 +159,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
 }
 
 export function LayoutThumb({ id }: { id: LayoutId }) {
-  const dims = { big: [4, 3], medium: [6, 5], full: [8, 6] }[id];
+  const dims = { big: [4, 3], compact: [5, 6], medium: [6, 5], full: [8, 6] }[id];
   const colors = ['#fff1a8', '#c5efb4', '#c5efb4', '#c4dcff', '#e3d1ff', '#ffd8b0', '#efe3cf', '#efe3cf'];
   return (
     <span className="layout-thumb" style={{ gridTemplateColumns: `repeat(${dims[0]}, 1fr)` }}>

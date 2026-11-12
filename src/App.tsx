@@ -63,6 +63,29 @@ function Main() {
 
   useEffect(() => { setKeepAwake(s.keepAwake); }, [s.keepAwake]);
 
+  // Grown-up mode re-locks itself after 5 idle minutes, or after the app has been in the background
+  // for over a minute (short trips, like taking a photo for a button, don't lock).
+  const unlocked = useStore((st) => st.unlocked);
+  useEffect(() => {
+    if (!unlocked) return;
+    let idle = setTimeout(() => useStore.getState().lock(), 5 * 60 * 1000);
+    let hiddenAt = 0;
+    const bump = () => { clearTimeout(idle); idle = setTimeout(() => useStore.getState().lock(), 5 * 60 * 1000); };
+    const vis = () => {
+      if (document.visibilityState === 'hidden') hiddenAt = Date.now();
+      else if (hiddenAt && Date.now() - hiddenAt > 60 * 1000) useStore.getState().lock();
+    };
+    window.addEventListener('pointerdown', bump, true);
+    window.addEventListener('keydown', bump, true);
+    document.addEventListener('visibilitychange', vis);
+    return () => {
+      clearTimeout(idle);
+      window.removeEventListener('pointerdown', bump, true);
+      window.removeEventListener('keydown', bump, true);
+      document.removeEventListener('visibilitychange', vis);
+    };
+  }, [unlocked]);
+
   // Speech must never fail silently.
   useEffect(() => {
     setTtsFailureHandler(() => useStore.getState().showToast('Speech is not working on this device.', { label: 'Install voices', run: openTtsInstall }));
@@ -136,6 +159,7 @@ function Main() {
           }}
         />
       )}
+      <TimerChip />
       {toast && (
         <div className="toast" role="status">
           {toast}
@@ -163,5 +187,22 @@ function MessageWordForms() {
       onPick={(f) => replaceWord(formsFor.index, f)}
       onRemove={() => removeWord(formsFor.index)}
     />
+  );
+}
+
+/** Small countdown chip shown on every screen while the visual timer runs. */
+function TimerChip() {
+  const timer = useStore((st) => st.timer);
+  const onTimer = useStore((st) => st.screen === 'tools' && st.tool === 'timer');
+  if (!timer.endAt || onTimer) return null;
+  const mm = Math.floor(timer.left / 60);
+  const ss = String(timer.left % 60).padStart(2, '0');
+  const frac = timer.total ? timer.left / timer.total : 0;
+  return (
+    <button className="timer-chip" aria-label={`Timer: ${mm} minutes ${ss} seconds left`}
+      onClick={() => { useStore.getState().setScreen('tools'); useStore.getState().setTool('timer'); }}>
+      <span className="timer-chip-dial" style={{ background: `conic-gradient(var(--timer) ${frac * 360}deg, var(--timer-bg) 0)` }} />
+      {mm}:{ss}
+    </button>
   );
 }

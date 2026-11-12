@@ -11,7 +11,7 @@ export function Onboarding() {
   const { completeOnboarding } = useStore.getState();
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
-  const [layout, setLayout] = useState<LayoutId>(() => (Math.min(window.innerWidth, window.innerHeight) < 600 ? 'big' : 'medium'));
+  const [layout, setLayout] = useState<LayoutId>(() => (Math.min(window.innerWidth, window.innerHeight) < 600 ? 'compact' : 'medium'));
   const [voices, setVoices] = useState<VoiceInfo[]>([]);
   const [patch, setPatch] = useState<Partial<Settings>>({});
   const [style, setStyle] = useState<'playful' | 'clean'>('playful');

@@ -47,7 +47,8 @@ export const CellButton = memo(function CellButton({
   }
 
   const masked = button.hidden && !s.babble;
-  if (masked && !editMode) return <div className="cell cell-empty" aria-hidden />;
+  // Hidden words stay invisible — except while Find word is pointing at them.
+  if (masked && !editMode && !highlighted) return <div className="cell cell-empty" aria-hidden />;
 
   const bg = buttonColor(button.type, dark, button.color);
   const style: CSSProperties = {};

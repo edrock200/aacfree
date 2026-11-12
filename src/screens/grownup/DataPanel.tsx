@@ -18,7 +18,10 @@ export function DataPanel() {
 
   const stats = useMemo(() => {
     const since = Date.now() - range * DAY;
-    const inRange = log.filter((e) => e.t >= since);
+    const all = log.filter((e) => e.t >= since);
+    // Partner modelling is shown separately: it is not the person's own communication.
+    const modeled = all.filter((e) => e.modeled).length;
+    const inRange = all.filter((e) => !e.modeled);
     const words = inRange.filter((e) => e.kind === 'word');
     const counts = new Map<string, number>();
     words.forEach((w) => counts.set(w.text.toLowerCase(), (counts.get(w.text.toLowerCase()) ?? 0) + 1));
@@ -34,20 +37,20 @@ export function DataPanel() {
     const newWords = [...counts.keys()].filter((w) => !before.has(w));
     const sentences = inRange.filter((e) => e.kind === 'sentence');
     const avgLen = sentences.length ? sentences.reduce((a, e) => a + e.text.split(/\s+/).length, 0) / sentences.length : 0;
-    return { total: inRange.length, words: words.length, unique: counts.size, top, days, newWords, sentences, avgLen, phrases: inRange.filter((e) => e.kind === 'phrase').length };
+    return { modeled, total: inRange.length, words: words.length, unique: counts.size, top, days, newWords, sentences, avgLen, phrases: inRange.filter((e) => e.kind === 'phrase').length };
   }, [log, range]);
 
   const max = Math.max(1, ...stats.days.map((d) => d.n));
 
   const exportCsv = async () => {
-    const rows = [['time', 'kind', 'text'], ...log.map((e) => [new Date(e.t).toISOString(), e.kind, `"${e.text.replace(/"/g, '""')}"`])];
+    const rows = [['time', 'kind', 'by', 'text'], ...log.map((e) => [new Date(e.t).toISOString(), e.kind, e.modeled ? 'partner' : 'user', `"${e.text.replace(/"/g, '""')}"`])];
     const msg = await saveFile(`caleb-usage-${p.name || 'profile'}.csv`, new Blob([rows.map((r) => r.join(',')).join('\n')], { type: 'text/csv' }));
     showToast(msg);
   };
 
   return (
     <>
-      <Section title="Usage insights" intro="Off by default. When on, Caleb keeps a private log on this device only. It is never uploaded. Remember: number of taps isn't the same as communication — use this to spot words to model and celebrate growth.">
+      <Section title="Usage insights" intro="Off by default. When on, Caleb keeps a private log on this device only. It is never uploaded. Remember: number of taps isn't the same as communication — use this to spot words to model and celebrate growth. Turn on “Model” in the bottom bar while you demonstrate, so your taps aren't counted as theirs.">
         <Toggle label="Keep a usage log" checked={s.logging} onChange={(logging) => updateSettings({ logging })} />
       </Section>
       {log.length > 0 && (
@@ -61,6 +64,7 @@ export function DataPanel() {
             <div className="stat"><b>{stats.sentences.length}</b><small>messages spoken</small></div>
             <div className="stat"><b>{stats.avgLen.toFixed(1)}</b><small>words per message</small></div>
             <div className="stat"><b>{stats.phrases}</b><small>phrases used</small></div>
+            <div className="stat"><b>{stats.modeled}</b><small>modelled by partners (not counted)</small></div>
           </div>
           <h4>Activity per day</h4>
           <div className="bars" role="img" aria-label="Activity per day chart">

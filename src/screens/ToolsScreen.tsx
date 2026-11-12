@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { Symbol } from '../components/Symbol';
 import { symbolFor } from '../data/defaults';
@@ -28,7 +27,8 @@ const TOOLS: { id: ToolId; name: string; icon: string; desc: string }[] = [
 ];
 
 export function ToolsScreen() {
-  const [tool, setTool] = useState<ToolId | null>(null);
+  const tool = useStore((st) => st.tool) as ToolId | null;
+  const setTool = useStore.getState().setTool;
   const p = useProfile();
   const { speakText } = useStore.getState();
 

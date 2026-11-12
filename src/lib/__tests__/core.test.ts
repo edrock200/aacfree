@@ -70,7 +70,7 @@ describe('prediction', () => {
 });
 
 describe('default vocabulary', () => {
-  for (const layout of ['big', 'medium', 'full'] as const) {
+  for (const layout of ['big', 'compact', 'medium', 'full'] as const) {
     it(`builds a valid ${layout} profile`, () => {
       const p = buildProfile('Test', layout);
       expect(p.boards[p.rootId]).toBeTruthy();

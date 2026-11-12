@@ -12,7 +12,12 @@ export const DATA_VERSION = 1;
 
 export type Screen = 'talk' | 'keyboard' | 'phrases' | 'tools' | 'grownup';
 
+export interface PickedItem { label: string; symbol?: string }
+
 interface UIState {
+  timer: { total: number; left: number; endAt: number | null };
+  firstThen: { first: PickedItem | null; then: PickedItem | null; firstDone: boolean };
+  choices: { items: PickedItem[]; offering: boolean; chosen: number | null };
   loaded: boolean;
   data: AppData;
   screen: Screen;
@@ -68,6 +73,20 @@ interface Actions {
   speakMessage: () => void;
   speakText: (text: string, opts?: { audio?: string; log?: 'word' | 'phrase' | 'sentence' }) => void;
   setUnlocked: (v: boolean) => void;
+  /** Lock grown-up mode and return the person to their Home board. */
+  lock: () => void;
+  tool: string | null;
+  setTool: (t: string | null) => void;
+  /** A partner is modelling: taps are tagged in the log and don't train prediction. */
+  modeling: boolean;
+  setModeling: (v: boolean) => void;
+  /** Visual timer keeps running when you leave the Timer tool. */
+  timer: { total: number; left: number; endAt: number | null };
+  setTimer: (t: Partial<UIState['timer']>) => void;
+  firstThen: { first: PickedItem | null; then: PickedItem | null; firstDone: boolean };
+  setFirstThen: (p: Partial<UIState['firstThen']>) => void;
+  choices: { items: PickedItem[]; offering: boolean; chosen: number | null };
+  setChoices: (p: Partial<UIState['choices']>) => void;
   setEditMode: (v: boolean) => void;
   showToast: (msg: string, action?: { label: string; run: () => void }) => void;
   setFormsFor: (v: { index: number } | null) => void;
@@ -83,6 +102,18 @@ interface UndoEntry {
   quickBar: Profile['quickBar'];
   rootId: string;
   layout: Profile['layout'];
+}
+
+/** Replace whole words with their pronunciation fixes (case-insensitive). */
+export function applyPronunciations(text: string, map?: Record<string, string>): string {
+  if (!map) return text;
+  let out = text;
+  for (const [word, say] of Object.entries(map)) {
+    if (!word.trim() || !say.trim()) continue;
+    const esc = word.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    out = out.replace(new RegExp(`(^|[^\\p{L}\\p{N}'])${esc}(?=$|[^\\p{L}\\p{N}'])`, 'giu'), (_m, pre) => pre + say);
+  }
+  return out;
 }
 
 export const emptyLibrary = (): SymbolLibrary => ({ categories: [], additions: {} });
@@ -366,7 +397,7 @@ export const useStore = create<Store>((set, get) => ({
     }
     get().addWord({ text, symbol: b.symbol, type: b.type, audio: b.audio });
     if (s.speakOnTap) get().speakText(text, { audio: b.audio });
-    if (s.logging) logUsage({ profileId: get().profile().id, kind: 'word', text });
+    if (s.logging) logUsage({ profileId: get().profile().id, kind: 'word', text, modeled: get().modeling || undefined });
     // Auto-return to the home board after choosing a word inside a folder.
     const stack = get().boardStack;
     if (s.returnHome && stack.length > 1 && !get().editMode) {
@@ -379,7 +410,8 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   addText(text) {
-    const words = text.split(/\s+/).filter(Boolean);
+    // Always capitalise the pronoun "I" (and I'm, I'll, I've, I'd).
+    const words = text.split(/\s+/).filter(Boolean).map((w) => (/^i('(m|ll|ve|d))?$/i.test(w) ? 'I' + w.slice(1) : w));
     set((s) => ({ message: [...s.message, ...words.map((t) => ({ id: uid('w'), text: t }))] }));
   },
 
@@ -432,7 +464,7 @@ export const useStore = create<Store>((set, get) => ({
     get().speakText(text, { audio, log: 'sentence' });
     get().updateProfile((p) => {
       if (p.history[0]?.text !== text) p.history = [{ text, t: Date.now() }, ...p.history].slice(0, 100);
-      if (s.learnWords) {
+      if (s.learnWords && !get().modeling) {
         const lexicon = { ...p.lexicon };
         for (const w of text.toLowerCase().match(/[a-z']+/g) ?? []) lexicon[w] = (lexicon[w] ?? 0) + 1;
         p.lexicon = lexicon;
@@ -443,12 +475,35 @@ export const useStore = create<Store>((set, get) => ({
 
   speakText(text, opts = {}) {
     const s = get().settings();
-    speak(text, s, { audio: opts.audio });
-    if (opts.log && s.logging) logUsage({ profileId: get().profile().id, kind: opts.log, text });
+    speak(applyPronunciations(text, s.pronunciations), s, { audio: opts.audio });
+    if (opts.log && s.logging) logUsage({ profileId: get().profile().id, kind: opts.log, text, modeled: get().modeling || undefined });
   },
 
   setUnlocked(v) {
     set({ unlocked: v, editMode: v ? get().editMode : false });
+  },
+  lock() {
+    set({ unlocked: false, editMode: false, screen: 'talk', boardStack: [get().profile().rootId], formsFor: null });
+  },
+  tool: null,
+  setTool(tool) {
+    set({ tool });
+  },
+  modeling: false,
+  setModeling(modeling) {
+    set({ modeling });
+  },
+  timer: { total: 300, left: 300, endAt: null },
+  setTimer(t) {
+    set((st) => ({ timer: { ...st.timer, ...t } }));
+  },
+  firstThen: { first: null, then: null, firstDone: false },
+  setFirstThen(p) {
+    set((st) => ({ firstThen: { ...st.firstThen, ...p } }));
+  },
+  choices: { items: [], offering: false, chosen: null },
+  setChoices(p) {
+    set((st) => ({ choices: { ...st.choices, ...p } }));
   },
   setEditMode(v) {
     set({ editMode: v, screen: v ? 'talk' : get().screen });
@@ -465,6 +520,21 @@ export const useStore = create<Store>((set, get) => ({
     set({ highlight: ids });
   },
 }));
+
+// Timer tick lives outside any component so it keeps running (and alarms) on every screen.
+if (typeof window !== 'undefined') {
+  setInterval(() => {
+    const { timer } = useStore.getState();
+    if (!timer.endAt) return;
+    const left = Math.max(0, Math.round((timer.endAt - Date.now()) / 1000));
+    if (left !== timer.left) useStore.setState({ timer: { ...timer, left } });
+    if (left === 0) {
+      useStore.setState({ timer: { ...timer, left: 0, endAt: null } });
+      import('./lib/feedback').then(({ alarm }) => alarm());
+      setTimeout(() => useStore.getState().speakText('Time is up! All done.'), 1800);
+    }
+  }, 250);
+}
 
 // Never lose the last edit when the app is backgrounded or closed.
 if (typeof document !== 'undefined') {

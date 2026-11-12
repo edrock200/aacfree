@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 — 2026-11-12
+Built from two parallel reviews of v0.1 (see docs/reviews/v0.1-review.md).
+- **Phone core layout** (5×6) and **paged folders** with fixed Previous/Next buttons instead of scrolling
+- **Show/Hide mode** and **+ Word** in edit mode; Find word reveals hidden words and offers Say it / Put in message / Add
+- **Timer keeps running** across screens with a countdown chip; First/Then and Choices remember their state
+- **Schedules:** pictures, durations (start a timer from Now) and duplicate
+- **Modelling mode:** partner taps are not counted in Insights or learning
+- **Pronunciations** list; physical keyboard typing; auto-capitalised “I”; built-in next-word suggestions
+- **Grown-ups:** usable on phones, auto-relock, lock returns Home, Forgot-PIN recovery
+- **Reliability:** multi-window safe saves, validated restores with confirmation, crash recovery screen,
+  save-failure banner, asset clean-up, hardened OBF import, print-view escaping, Android voice fallback,
+  updates never reload mid-sentence, faster boards
+- Dark and high-contrast themes put a light plate behind pictures
+
 ## 0.1.0 — 2026-11-12
 First public build.
 - **Symbol library:** pictures organised into category folders, each with an icon. Families can create their own categories and symbols (photos, online ARASAAC, emoji) and save online pictures and photos to the library while editing.

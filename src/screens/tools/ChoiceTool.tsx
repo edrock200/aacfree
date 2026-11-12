@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { useStore } from '../../store';
+import { useStore, type PickedItem } from '../../store';
 import { Symbol } from '../../components/Symbol';
-import { VocabPicker, type PickedItem } from '../../components/VocabPicker';
+import { VocabPicker } from '../../components/VocabPicker';
 import { IconPlus, IconClose } from '../../components/Icons';
 
 /** Quick choice board: a grown-up (or the person) sets up 2–6 options. */
 export function ChoiceTool() {
-  const { speakText } = useStore.getState();
-  const [items, setItems] = useState<PickedItem[]>([]);
+  const { speakText, setChoices } = useStore.getState();
+  const { items, offering, chosen } = useStore((st) => st.choices);
   const [picking, setPicking] = useState(false);
-  const [chosen, setChosen] = useState<number | null>(null);
-  const [setup, setSetup] = useState(true);
+  const setup = !offering;
+  const setItems = (items: PickedItem[]) => setChoices({ items });
+  const setChosen = (chosen: number | null) => setChoices({ chosen });
+  const setSetup = (v: boolean) => setChoices({ offering: !v });
 
   return (
     <div className="choice">

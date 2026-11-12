@@ -14,13 +14,13 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 
 | Platform | How |
 |---|---|
-| **Android** (7.0+) | Download [`release/caleb-latest.apk`](release/caleb-latest.apk) (v0.1), open it, and allow "install unknown apps". |
+| **Android** (7.0+) | Download [`release/caleb-latest.apk`](release/caleb-latest.apk) (v0.2), open it, and allow "install unknown apps". |
 | **Any browser / iPad / iPhone / Chromebook / PC** | Open the web app (GitHub Pages, see [Website](#website)) and choose **Install** / **Add to Home Screen**. It then works offline. |
 
 ## Features
 
 ### For the person communicating
-- **Motor-planning friendly core vocabulary.** Three home layouts: Big 4×3, Medium 6×5, and Full 8×6 with the Universal Core words. Words never move. Hidden words keep their place.
+- **Motor-planning friendly core vocabulary.** Four home layouts: Big 4×3, Phone core 5×6, Medium 6×5, and Full 8×6 with the Universal Core words. Words never move. Hidden words keep their place. Big folders are split into fixed pages with Previous/Next buttons, with no scrolling.
 - **25 topic folders, about 770 different words**, with 740 bundled [ARASAAC](https://arasaac.org) pictograms. Includes food, drinks, feelings, people, places, play, actions, describing words, little words, social, questions, body, clothes, animals, colours, numbers, time, school, routines, calm & sensory, weather, at home, tech & media, shopping, and health.
 - **Modified Fitzgerald Key colour coding.** It can be filled, border-only, or turned off.
 - **Always-on quick bar:** yes · no · stop · help · wait · break · I don't know · Hey! Protest words are always reachable.
@@ -29,7 +29,9 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **Keyboard with private word prediction.** Uses the built-in dictionary plus the person's own vocabulary, and can optionally learn from their sentences. Next-word suggestions come from their history.
 - **Phrases:** ready-made Needs, Feelings, **Boundaries** ("Please stop", "I need space"), Chat, Questions and Emergency groups. Save favourites and scripts (gestalt language support), keep recent sentences, and record a custom voice for any phrase.
 - **Tools:** visual schedule (Now/Next, check-off), first/then board, visual countdown timer, choice board, "How big is my feeling" scale, pain scale 0–10, body "where does it hurt", About-me card for new people and emergencies, drawing pad, and a get-attention chime.
-- **Find word** shows the path to any word and walks through it button by button. It is great for modelling.
+- **Find word** shows the path to any word, even a hidden one, and walks through it button by button. If a word isn't on any board you can say it, put it in the message, or add it.
+- **Modelling mode:** partners can demonstrate without their taps counting as the user's.
+- **Pronunciations:** fix how the voice says names and unusual words.
 - **Voices:** any device voice, with speed, pitch and volume. Record family voices on individual buttons.
 - **Access:** hold-to-select, ignore repeated taps, select on touch, 1-switch auto scanning and 2-switch step scanning (rows → buttons or one by one, with optional auditory cues), Bluetooth switch keys (Space/Enter), large text, light, dark and high-contrast themes, a calmer "Clean" style for teens and adults, reduced motion, and keep screen awake.
 - **Babble mode** shows every hidden word so the person can explore.
@@ -40,6 +42,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **New categories on boards:** add a folder button with an icon in one tap. It can start empty or be filled from any library category.
 - **Edit in place:** tap a button to change its label, spoken text, picture (built-in symbols, online ARASAAC search, emoji, camera or gallery photo), word type and colour, recorded voice, word forms, or folder link. Tap Move, then a target, to swap two buttons. **Hide instead of delete.** Undo is always available.
 - Create folders and boards, resize boards (positions are preserved), and edit the quick bar.
+- **Quick editing:** Show/Hide mode reveals words one tap at a time, and "+ Word" adds a word with a suggested picture. A full board gets a new row, and nothing moves.
 - **Paper boards:** print any boards, with the quick bar on every page, as a low-tech backup.
 - **Data safety:** every change is saved instantly, plus automatic daily snapshots (the last 15) and snapshots before any restore, import or layout change. A one-file backup (including photos and recordings) works for moving devices, and the app asks the browser to keep storage persistently.
 - **Open Board Format** `.obz` export and import, to share boards with CoughDrop, Cboard and others.
@@ -87,7 +90,7 @@ For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 releas
 Suggestions are welcome. Open an issue.
 
 ## Privacy
-Caleb has no servers, analytics, ads or accounts. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, or when the device's text-to-speech engine uses an online voice.
+Caleb has no servers, analytics, ads or accounts. On Android, the system's own Auto Backup may include the app's data in the family's Google account backup. That is a safety net Android provides, and you can turn it off in Android settings. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, or when the device's text-to-speech engine uses an online voice.
 
 ## Credits and licence
 - App code: [GNU AGPL-3.0-or-later](LICENSE). If you run a modified version for others, including as a website, you must share its source. See [NOTICE](NOTICE).

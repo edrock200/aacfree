@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { useStore, useProfile } from '../../store';
 import { Symbol } from '../../components/Symbol';
 import { VocabPicker } from '../../components/VocabPicker';
-import { IconCheck, IconPlus, IconTrash, IconBack } from '../../components/Icons';
+import { IconCheck, IconPlus, IconTrash, IconBack, IconEdit, IconTimer } from '../../components/Icons';
+import { Modal } from '../../components/Modal';
+import { SymbolPicker } from '../../components/SymbolPicker';
+import type { ScheduleStep } from '../../types';
 import { uid } from '../../lib/util';
 
 /** Visual schedule: steps with pictures, Now / Next, tap to mark done. */
@@ -12,6 +15,7 @@ export function ScheduleTool() {
   const { updateProfile, speakText } = useStore.getState();
   const [sid, setSid] = useState<string | undefined>(p.schedules[0]?.id);
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<number | null>(null);
   const sched = p.schedules.find((x) => x.id === sid) ?? p.schedules[0];
 
   const mutate = (fn: (steps: NonNullable<typeof sched>['steps']) => void) =>
@@ -44,12 +48,25 @@ export function ScheduleTool() {
         <div className="row">
           <input className="inline-input" value={sched.name} onChange={(e) => updateProfile((pp) => { pp.schedules.find((x) => x.id === sched.id)!.name = e.target.value; })} aria-label="Schedule name" />
           <button className="btn small" onClick={() => mutate((st) => st.forEach((x) => (x.done = false)))}>Reset</button>
+          <button className="btn small" onClick={() => {
+            const id = uid('s');
+            updateProfile((pp) => { pp.schedules.push({ id, name: `${sched.name} (copy)`, steps: sched.steps.map((x) => ({ ...x, id: uid('st'), done: false })) }); });
+            setSid(id);
+          }}>Duplicate</button>
           <button className="btn small danger-outline" onClick={() => { updateProfile((pp) => { pp.schedules = pp.schedules.filter((x) => x.id !== sched.id); }); setSid(undefined); }}><IconTrash size={18} /> Delete</button>
         </div>
       )}
       {nowIndex >= 0 && (
         <div className="now-next">
-          <div className="nn now"><small>Now</small><Symbol value={sched.steps[nowIndex].symbol} /><b>{sched.steps[nowIndex].label}</b></div>
+          <div className="nn now"><small>Now</small><Symbol value={sched.steps[nowIndex].symbol} /><b>{sched.steps[nowIndex].label}</b>
+            {sched.steps[nowIndex].minutes ? (
+              <button className="btn small" data-scan-item onClick={() => {
+                const m = sched.steps[nowIndex].minutes!;
+                useStore.getState().setTimer({ total: m * 60, left: m * 60, endAt: Date.now() + m * 60000 });
+                useStore.getState().setTool('timer');
+              }}><IconTimer size={18} /> {sched.steps[nowIndex].minutes} min timer</button>
+            ) : null}
+          </div>
           {sched.steps[nowIndex + 1] && <div className="nn next"><small>Next</small><Symbol value={sched.steps[nowIndex + 1].symbol} /><b>{sched.steps[nowIndex + 1].label}</b></div>}
         </div>
       )}
@@ -61,7 +78,7 @@ export function ScheduleTool() {
           <li key={st.id} className={`step ${st.done ? 'done' : ''} ${i === nowIndex ? 'current' : ''}`}>
             <button className="step-main" data-scan-item onClick={() => { speakText(st.label); }} aria-label={st.label}>
               <Symbol value={st.symbol} />
-              <span>{st.label}</span>
+              <span>{st.label}{st.minutes ? <small className="muted"> · {st.minutes} min</small> : null}</span>
             </button>
             <button className="iconbtn check" data-scan-item aria-label={st.done ? 'Mark not done' : 'Mark done'} onClick={() => {
               mutate((steps) => { steps[i].done = !steps[i].done; });
@@ -72,6 +89,7 @@ export function ScheduleTool() {
             {unlocked && (
               <span className="step-edit">
                 <button className="iconbtn small" aria-label="Move up" disabled={i === 0} onClick={() => mutate((s) => { [s[i - 1], s[i]] = [s[i], s[i - 1]]; })}><IconBack style={{ transform: 'rotate(90deg)' }} /></button>
+                <button className="iconbtn small" aria-label="Edit step" onClick={() => setEditing(i)}><IconEdit size={18} /></button>
                 <button className="iconbtn small" aria-label="Remove step" onClick={() => mutate((s) => { s.splice(i, 1); })}><IconTrash size={18} /></button>
               </span>
             )}
@@ -80,10 +98,40 @@ export function ScheduleTool() {
       </ol>
       {unlocked && <button className="btn primary" onClick={() => setAdding(true)}><IconPlus /> Add step</button>}
       {!unlocked && sched.steps.length === 0 && <p className="muted">A grown-up can add steps (unlock Grown-ups first).</p>}
+      {editing !== null && sched.steps[editing] && (
+        <StepEditor step={sched.steps[editing]} onClose={() => setEditing(null)}
+          onSave={(st) => { mutate((steps) => { steps[editing] = st; }); setEditing(null); }} />
+      )}
       {adding && <VocabPicker title="Add a step" onClose={() => setAdding(false)} onPick={(it) => {
         mutate((s) => { s.push({ id: uid('st'), label: it.label, symbol: it.symbol }); });
         setAdding(false);
       }} />}
     </div>
+  );
+}
+
+function StepEditor({ step, onSave, onClose }: { step: ScheduleStep; onSave: (s: ScheduleStep) => void; onClose: () => void }) {
+  const [st, setSt] = useState(step);
+  const [picking, setPicking] = useState(false);
+  return (
+    <>
+      <Modal title="Edit step" onClose={onClose}
+        footer={<><span className="spacer" /><button className="btn" onClick={onClose}>Cancel</button>
+          <button className="btn primary" disabled={!st.label.trim()} onClick={() => onSave({ ...st, label: st.label.trim() })}>Save</button></>}>
+        <div className="cat-editor">
+          <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label="Choose picture">
+            {st.symbol ? <Symbol value={st.symbol} /> : <IconPlus size={40} />}
+            <span>{st.symbol ? 'Change picture' : 'Add picture'}</span>
+          </button>
+          <div className="grow">
+            <label className="field"><span>Step</span><input value={st.label} onChange={(e) => setSt({ ...st, label: e.target.value })} /></label>
+            <label className="field"><span>How long? (minutes, optional)</span>
+              <input type="number" min={0} max={240} value={st.minutes ?? ''} onChange={(e) => setSt({ ...st, minutes: Number(e.target.value) || undefined })} />
+            </label>
+          </div>
+        </div>
+      </Modal>
+      {picking && <SymbolPicker initialQuery={st.label} onClose={() => setPicking(false)} onPick={(symbol) => { setSt({ ...st, symbol }); setPicking(false); }} />}
+    </>
   );
 }

@@ -15,6 +15,8 @@ export interface LogEntry {
   profileId: string;
   kind: 'word' | 'sentence' | 'phrase';
   text: string;
+  /** Tapped by a communication partner while modelling (not the person's own use). */
+  modeled?: boolean;
 }
 
 export interface Snapshot {

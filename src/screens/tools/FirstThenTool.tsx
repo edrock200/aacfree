@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import { useStore } from '../../store';
+import { useStore, type PickedItem } from '../../store';
 import { Symbol } from '../../components/Symbol';
-import { VocabPicker, type PickedItem } from '../../components/VocabPicker';
+import { VocabPicker } from '../../components/VocabPicker';
 import { IconSpeak } from '../../components/Icons';
 
 export function FirstThenTool() {
-  const { speakText } = useStore.getState();
-  const [first, setFirst] = useState<PickedItem | null>(null);
-  const [then, setThen] = useState<PickedItem | null>(null);
+  const { speakText, setFirstThen } = useStore.getState();
+  const { first, then, firstDone } = useStore((st) => st.firstThen);
   const [picking, setPicking] = useState<'first' | 'then' | null>(null);
-  const [firstDone, setFirstDone] = useState(false);
+  const setFirstDone = (firstDone: boolean) => setFirstThen({ firstDone });
 
   const say = () => {
     if (first && then) speakText(`First ${first.label}, then ${then.label}.`);
@@ -38,7 +37,7 @@ export function FirstThenTool() {
       </div>
       {picking && (
         <VocabPicker title={picking === 'first' ? 'First…' : 'Then…'} onClose={() => setPicking(null)}
-          onPick={(it) => { (picking === 'first' ? setFirst : setThen)(it); setFirstDone(false); setPicking(null); }} />
+          onPick={(it) => { setFirstThen(picking === 'first' ? { first: it, firstDone: false } : { then: it, firstDone: false }); setPicking(null); }} />
       )}
     </div>
   );
