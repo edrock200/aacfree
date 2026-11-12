@@ -86,6 +86,8 @@ export async function printBoards(p: Profile, boardIds: string[]): Promise<strin
       w.document.open();
       w.document.write(html);
       w.document.close();
+      // The view inherits the app's Content-Security-Policy, which blocks the inline onclick.
+      w.document.querySelector('.bar button')?.addEventListener('click', () => w.print());
       return t('Print view opened');
     }
   }

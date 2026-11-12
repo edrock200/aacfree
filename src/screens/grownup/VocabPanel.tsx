@@ -8,7 +8,6 @@ import { buildProfile } from '../../data/defaults';
 import { uid } from '../../lib/util';
 import type { LayoutId } from '../../types';
 import { IconEdit, IconPlus } from '../../components/Icons';
-import { printBoards } from '../../lib/print';
 import { NewCategoryDialog } from '../../components/NewCategoryDialog';
 import { t, type Lang } from '../../i18n';
 import { addSnapshot } from '../../lib/db';
@@ -148,7 +147,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
           footer={<><span className="spacer" /><button className="btn" onClick={() => setPrintSel(null)}>{t('Cancel')}</button>
             <button className="btn primary" disabled={!printSel.length || printing} onClick={async () => {
               setPrinting(true);
-              try { showToast(await printBoards(p, boards.map((b) => b.id).filter((id) => printSel.includes(id)))); } finally { setPrinting(false); setPrintSel(null); }
+              try { const { printBoards } = await import('../../lib/print'); showToast(await printBoards(p, boards.map((b) => b.id).filter((id) => printSel.includes(id)))); } finally { setPrinting(false); setPrintSel(null); }
             }}>{printing ? t('Preparing…') : t('Print boards: {n}', { n: printSel.length })}</button></>}>
           <div className="print-pick">
             {boards.map((b) => (

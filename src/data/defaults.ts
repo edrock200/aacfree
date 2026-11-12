@@ -61,7 +61,7 @@ export const DEFAULT_SETTINGS: Settings = {
   blinkSelect: false,
   keyboardLayout: 'qwerty',
   learnWords: false,
-  lock: 'hold',
+  downloadSymbols: true,
   logging: false,
   autoBackup: true,
 };

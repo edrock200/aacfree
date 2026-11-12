@@ -52,22 +52,5 @@ export function vibrate(ms = 15) {
   }
 }
 
-let wakeLock: { release: () => Promise<void> } | null = null;
-
-export async function setKeepAwake(on: boolean) {
-  try {
-    if (on && !wakeLock && 'wakeLock' in navigator) {
-      wakeLock = await (navigator as unknown as { wakeLock: { request: (t: string) => Promise<{ release: () => Promise<void> }> } }).wakeLock.request('screen');
-    } else if (!on && wakeLock) {
-      await wakeLock.release();
-      wakeLock = null;
-    }
-  } catch { /* not supported */ }
-}
-
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && wakeLock) {
-    wakeLock = null;
-    setKeepAwake(true);
-  }
-});
+// Keep screen awake (Screen Wake Lock API, or the native Android plugin): see wakelock.ts.
+export { setKeepAwake } from './wakelock';

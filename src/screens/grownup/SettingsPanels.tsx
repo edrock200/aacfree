@@ -8,6 +8,7 @@ import { GazeCalibration } from '../../components/GazeCalibration';
 import { Modal } from '../../components/Modal';
 import { LANGUAGES, PACKS, getUiLang, tIn, ts, type Lang } from '../../i18n';
 import { t } from '../../i18n';
+import { keepAwakeAvailable } from '../../lib/wakelock';
 
 /** A language code ("es", "pt") as a name the grown-up can read, in the app language. */
 function languageName(code: string): string {
@@ -133,7 +134,7 @@ export function DisplayPanel() {
         <Toggle label={t('Phrases button')} checked={s.showPhrasesNav} onChange={(showPhrasesNav) => updateSettings({ showPhrasesNav })} />
         <Toggle label={t('Tools button')} checked={s.showToolsNav} onChange={(showToolsNav) => updateSettings({ showToolsNav })} />
         <Toggle label={t('Reduce motion')} checked={s.reduceMotion} onChange={(reduceMotion) => updateSettings({ reduceMotion })} />
-        <Toggle label={t('Keep screen awake')} checked={s.keepAwake} onChange={(keepAwake) => updateSettings({ keepAwake })} />
+        <Toggle label={t('Keep screen awake')} hint={keepAwakeAvailable() ? undefined : t('This browser cannot keep the screen on. Change the sleep time in the device settings instead.')} checked={s.keepAwake} onChange={(keepAwake) => updateSettings({ keepAwake })} />
         <Toggle label={t('Babble mode (show hidden words)')} hint={t("Lets the person explore every word, including ones you've hidden for now.")} checked={s.babble} onChange={(babble) => updateSettings({ babble })} />
       </Section>
     </>
