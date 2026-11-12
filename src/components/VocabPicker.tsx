@@ -32,7 +32,7 @@ export function VocabPicker({ title = 'Choose', onPick, onClose }: { title?: str
       .filter((r) => !results.some((x) => x.label === r.label))];
   }
   return (
-    <Modal title={title} onClose={onClose} wide>
+    <Modal title={t(title)} onClose={onClose} wide>
       {/* While scanning a partner can still tap and type here; the switch scans the pictures below. */}
       <label className="search scan-exempt">
         <IconSearch size={20} />

@@ -182,7 +182,7 @@ function Main() {
       <LoadProblemBanner />
       {saveError && (
         <div className="save-error scan-exempt" role="alert">
-          ⚠ Changes aren't being saved (device storage may be full).
+          ⚠ {t("Changes aren't being saved (device storage may be full).")}
           <button className="btn small" onClick={async () => {
             const { createBackup, backupFilename } = await import('./lib/backup');
             const { saveFile } = await import('./lib/files');

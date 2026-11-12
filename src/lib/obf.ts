@@ -129,7 +129,7 @@ export async function exportOBZ(p: Profile): Promise<Blob> {
       order.push(row);
     }
     const obf: OBFBoard = {
-      format: 'open-board-0.1', id: board.id, locale: 'en', name: board.name,
+      format: 'open-board-0.1', id: board.id, locale: p.settings.language === 'pt' ? 'pt-BR' : p.settings.language ?? 'en', name: board.name,
       grid: { rows: board.rows, columns: board.cols, order }, buttons, images,
     };
     files[boardPaths[board.id]] = strToU8(JSON.stringify(obf, null, 1));

@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { blobToDataURL, downloadBlob } from './util';
+import { t } from '../i18n';
 
 /**
  * Save a file for the user. In browsers it downloads; inside the Android app
@@ -11,7 +12,7 @@ import { blobToDataURL, downloadBlob } from './util';
 export async function saveFile(name: string, blob: Blob): Promise<string> {
   if (!Capacitor.isNativePlatform()) {
     downloadBlob(blob, name);
-    return 'Downloaded ' + name;
+    return t('Downloaded {name}', { name });
   }
   // Write in chunks so a large backup (lots of photos) doesn't exhaust memory crossing the bridge.
   const CHUNK = 3 * 1024 * 1024; // bytes; multiple of 3 so each base64 piece stands alone
@@ -29,9 +30,9 @@ export async function saveFile(name: string, blob: Blob): Promise<string> {
   };
   const res = await write(Directory.Documents).catch(() => write(Directory.Cache));
   try {
-    await Share.share({ title: name, files: [res.uri], dialogTitle: 'Save or send backup' });
+    await Share.share({ title: name, files: [res.uri], dialogTitle: t('Save or send backup') });
   } catch { /* user cancelled share sheet */ }
-  return 'Saved ' + name;
+  return t('Saved {name}', { name });
 }
 
 /** Open a file picker and resolve with the chosen file. */

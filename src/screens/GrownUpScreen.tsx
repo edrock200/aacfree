@@ -35,7 +35,7 @@ function BackupNudge({ onGo, hidden }: { onGo: () => void; hidden: boolean }) {
   if (hidden || age < 2 * 86400000 || Date.now() - last < 30 * 86400000) return null;
   return (
     <div className="nudge">
-      <span>💾 {last ? 'Your last backup file is over a month old.' : 'You haven\'t saved a backup file yet.'} Keep a copy somewhere safe so customisations are never lost.</span>
+      <span>💾 {last ? t('Your last backup file is over a month old.') : t("You haven't saved a backup file yet.")} {t('Keep a copy somewhere safe so customisations are never lost.')}</span>
       <button className="btn small primary" onClick={onGo}>{t('Back up now')}</button>
     </div>
   );

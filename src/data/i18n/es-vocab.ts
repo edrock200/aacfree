@@ -655,7 +655,7 @@ export const ES_LABELS: Record<string, string | [string, string]> = {
   'penguin': 'pingüino',
   'owl': 'búho',
   'zebra': 'cebra',
-  'bug': 'bicho',
+  'bug': 'insecto',
 
   // ── Colours ──
   'red': 'rojo',
@@ -794,7 +794,7 @@ export const ES_LABELS: Record<string, string | [string, string]> = {
   'dim lights': 'luz baja',
   'alone time': 'tiempo a solas',
   'spin': 'girar',
-  'stim': 'estimular',
+  'stim': 'hacer stimming',
   'safe': 'seguro',
   'tent': 'carpa',
 

@@ -14,6 +14,7 @@ import { applyEnding } from './lib/morphology';
 import { tokenize } from './lib/predict';
 import { getLang, pack, setLangs, type Lang } from './i18n';
 import { translateProfile } from './lib/translate';
+import { applyStarterWords, isUntouchedDefault } from './lib/starter';
 import { alarm } from './lib/feedback';
 import { t, ts } from './i18n';
 import { DEFAULT_LOCK, keepDeviceLock, migrateLock } from './lib/lock';
@@ -83,7 +84,8 @@ interface Actions {
   updateLibrary: (fn: (lib: SymbolLibrary) => void, opts?: { undo?: string }) => void;
   undoEdit: () => void;
   replaceData: (data: AppData, reason?: string) => Promise<void>;
-  completeOnboarding: (name: string, layout: LayoutId, patch?: Partial<Settings>) => void;
+  /** `starter`: start with only the starter words showing (others hidden in place). */
+  completeOnboarding: (name: string, layout: LayoutId, patch?: Partial<Settings>, opts?: { starter?: boolean }) => void;
   /** Switch language: translates the boards in place (positions never change). */
   setLanguage: (lang: Lang) => void;
   addProfile: (name: string, layout: LayoutId) => void;
@@ -309,7 +311,7 @@ export async function runMaintenance(): Promise<void> {
     }
     if (saveBlocked) return;
     const { runAutoBackup } = await import('./lib/autobackup');
-    await runAutoBackup(useStore.getState().data); // checks the family's backup settings; never asks for anything
+    if (!isUntouchedDefault(useStore.getState().data)) await runAutoBackup(useStore.getState().data); // checks the family's backup settings; never asks for anything
   } catch (e) {
     console.warn('Maintenance failed', e);
   } finally {
@@ -524,14 +526,18 @@ export const useStore = create<Store>((set, get) => ({
     get().updateProfile((p) => {
       const tr = translateProfile(p, lang);
       Object.assign(p, tr);
-    }, { undoable: true });
+    });
+    // Undo restores boards only, so an older entry would bring back words in the old language
+    // under the new voice and settings. The "Before changing language" snapshot is the way back.
+    set({ undo: [] });
     const ui = get().settings().uiLanguage;
     setLangs(ui && ui !== 'auto' ? ui : lang, lang);
   },
 
-  completeOnboarding(name, layout, patch = {}) {
+  completeOnboarding(name, layout, patch = {}, opts = {}) {
     const p = buildProfile(name, layout, patch.language ?? 'en');
     p.settings = { ...p.settings, ...patch };
+    if (opts.starter && layout !== 'big') applyStarterWords(p.boards[p.rootId]);
     const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary(), grownUpLock: get().data.grownUpLock ?? { ...DEFAULT_LOCK } };
     set({ data, boardStack: [p.rootId], message: [] });
     persist.flush(data);

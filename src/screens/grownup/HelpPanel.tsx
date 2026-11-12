@@ -17,12 +17,12 @@ export function HelpPanel() {
       </Section>
       <Section title={t('How to…')}>
         <dl className="howto">
-          <dt>{t('Edit a button')}</dt><dd>Grown-ups → Boards → Edit (or the ✎ Edit button at the bottom while unlocked). Tap any button to change its word, picture, colour, voice or what it does.</dd>
-          <dt>{t('Add a word')}</dt><dd>In edit mode, tap an empty square (+). Type the word and a matching picture is suggested. Use “Photo” for real pictures of people, places and favourite things.</dd>
+          <dt>{t('Edit a button')}</dt><dd>{t('Grown-ups → Boards → Edit (or the ✎ Edit button at the bottom while unlocked). Tap any button to change its word, picture, colour, voice or what it does.')}</dd>
+          <dt>{t('Add a word')}</dt><dd>{t('In edit mode, tap an empty square (+). Type the word and a matching picture is suggested. Use “Photo” for real pictures of people, places and favourite things.')}</dd>
           <dt>{t('Move a button')}</dt><dd>{t('In edit mode, tap the button → Move → tap where it should go. The two buttons swap places.')}</dd>
           <dt>{t('Hide a word for now')}</dt><dd>{t('Edit the button → “Hide from the user for now”. It keeps its place. Turn on Babble mode to show everything temporarily.')}</dd>
           <dt>{t('Make a new folder')}</dt><dd>{t('Edit an empty square → “Opens folder” → “New empty folder”. Then tap the folder and add words.')}</dd>
-          <dt>{t('Word forms')}</dt><dd>Long-press a word (or tap a word in the message bar) to choose go → went / going / goes. Plurals and “-er/-est” work too.</dd>
+          <dt>{t('Word forms')}</dt><dd>{t('Long-press a word (or tap a word in the message bar) to choose go → went / going / goes. Plurals and “-er/-est” work too.')}</dd>
           <dt>{t('Edit phrases, schedules or About me')}</dt><dd>{t('Boards & words → “Edit phrases”, “Edit schedules” or “Edit About me” takes you there with editing on. Or, while Grown-ups is unlocked, tap the Edit button on that screen. A plain tap on a phrase always speaks it, even when unlocked.')}</dd>
           <dt>{t('Editing unlocked')}</dt><dd>{t('While Grown-ups is unlocked, a bar at the top says “Editing unlocked”. Tap Lock there when you are done. Caleb also locks itself after 5 minutes without grown-up activity; talking does not keep it unlocked.')}</dd>
           <dt>{t('Stop speaking, volume and speed')}</dt><dd>{t("While a message is being spoken, the Speak button becomes Stop. Tools → My voice lets the person pick Quiet, Normal or Loud, change the speed, or turn on “Show, don't speak” so messages appear in big letters. None of this is locked.")}</dd>
@@ -33,7 +33,7 @@ export function HelpPanel() {
           <dt>{t('Model without skewing data')}</dt><dd>{t('When usage insights or learning are on, a “Model” button appears in the bottom bar. Turn it on while you demonstrate.')}</dd>
           <dt>{t('Fix how a word sounds')}</dt><dd>{t('Voice → Pronunciations. For example, “Siobhan” → “shi-vawn”.')}</dd>
           <dt>{t('Forgot the PIN?')}</dt><dd>{t('On the PIN screen tap “Forgot PIN?”, hold for 10 seconds and type the sentence shown. Only the PIN is removed.')}</dd>
-          <dt>{t('Start small')}</dt><dd>Boards &amp; words → “Starter words only” hides all but key words on Home (they keep their places). Reveal more over time by editing a hidden button and unticking “Hide”.</dd>
+          <dt>{t('Start small')}</dt><dd>{t('Boards & words → “Starter words only” hides all but key words on Home (they keep their places). Reveal more over time by editing a hidden button and unticking “Hide”.')}</dd>
           <dt>{t('Print paper boards')}</dt><dd>{t('Boards & words → Print boards. Keep a laminated copy for the bath, the pool or a flat battery.')}</dd>
           <dt>{t('Share a message as text')}</dt><dd>{t('Tap the share icon in the message bar to send what was typed by text or email, or to copy it.')}</dd>
           <dt>{t("Change language")}</dt><dd>{t("Display → Language. Choose English, Español, Français or Português for the board words, word forms, the keyboard and the voice. Every button stays in its place. Grown-ups can use a different app language, and you can show a second language on each button.")}</dd>
@@ -41,17 +41,17 @@ export function HelpPanel() {
           <dt>{t("Keep two devices in step")}</dt><dd>{t("Backup → Sync between devices. Send makes a passcode-locked file; Receive it on the other device. The newest version of each profile wins.")}</dd>
           <dt>{t("Never lose the boards")}</dt><dd>{t("Backup → Automatic backup saves dated files daily, weekly or monthly (Android: Documents/Caleb) and keeps as many copies as you choose. On Android, “Add a cloud copy” also keeps one in Google Drive, OneDrive or Dropbox. Turn on “Lock backups with a passcode” to encrypt them.")}</dd>
           <dt>{t('Undo a mistake')}</dt><dd>{t('In edit mode press Undo. For bigger mistakes, use Backup → Automatic snapshots.')}</dd>
-          <dt>{t('Move to a new device')}</dt><dd>{t('Backup → Save backup file, then on the new device: Backup → Restore from file.')}</dd>
+          <dt>{t('Move to a new device')}</dt><dd>{t('Backup → Save backup file. On the new device, tap “I have a backup” on the first screen, or use Backup → Restore from file.')}</dd>
           <dt>{t('Use a switch')}</dt><dd>{t('Access → Switch scanning. Bluetooth switches that send Space/Enter work. Hold the 🔒 button to leave.')}</dd>
         </dl>
       </Section>
       <Section title={t('About Caleb')}>
         <p>{t('Caleb is a free, open-source AAC app made for autistic people and their families. No ads, no subscriptions, no accounts. Everything stays on this device.')}</p>
         <p className="muted small">
-          Pictograms: ARASAAC (arasaac.org). Author: Sergio Palao. Origin: ARASAAC, Government of Aragón (Spain). License: CC BY-NC-SA 4.0.
-          Font: Atkinson Hyperlegible, Braille Institute (SIL OFL). App code: GNU AGPL-3.0-or-later. Source code: github.com/edrock200/caleb
+          {t('Pictograms: ARASAAC (arasaac.org). Author: Sergio Palao. Origin: ARASAAC, Government of Aragón (Spain). License: CC BY-NC-SA 4.0.')}{' '}
+          {t('Font: Atkinson Hyperlegible, Braille Institute (SIL OFL). App code: GNU AGPL-3.0-or-later. Source code: github.com/edrock200/caleb')}
         </p>
-        <p className="muted small">Version {__APP_VERSION__}</p>
+        <p className="muted small">{t('Version {v}', { v: __APP_VERSION__ })}</p>
       </Section>
     </>
   );

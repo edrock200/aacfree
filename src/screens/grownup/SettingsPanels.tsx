@@ -8,16 +8,27 @@ import { GazeCalibration } from '../../components/GazeCalibration';
 import { Modal } from '../../components/Modal';
 import { keyName } from '../../lib/scanner';
 import { HIGHLIGHT_COLORS, ringWidth } from '../../lib/rings';
-import { LANGUAGES, PACKS, tIn, type Lang } from '../../i18n';
+import { LANGUAGES, PACKS, getUiLang, tIn, ts, type Lang } from '../../i18n';
 import { t } from '../../i18n';
 import { keepAwakeAvailable } from '../../lib/wakelock';
+
+/** A language code ("es", "pt") as a name the grown-up can read, in the app language. */
+function languageName(code: string): string {
+  const own = LANGUAGES.find((l) => l.id === code);
+  try {
+    const n = new Intl.DisplayNames([getUiLang()], { type: 'language' }).of(code);
+    if (n && n !== code) return n.charAt(0).toLocaleUpperCase(getUiLang()) + n.slice(1);
+  } catch { /* older WebView */ }
+  return own?.name ?? code;
+}
 
 export function SpeechPanel() {
   const p = useProfile();
   const s = p.settings;
   const { updateSettings } = useStore.getState();
   const [voices, setVoices] = useState<VoiceInfo[]>([]);
-  const [filter, setFilter] = useState('en');
+  // Start with voices for the language the person talks in (a Spanish profile sees Spanish voices).
+  const [filter, setFilter] = useState<string>(s.language ?? 'en');
   const native = Capacitor.isNativePlatform();
 
   useEffect(() => { listVoices().then(setVoices); }, []);
@@ -31,18 +42,25 @@ export function SpeechPanel() {
           <span className="setting-text"><b>{t('Language filter')}</b></span>
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
             <option value="">{t('All languages')}</option>
-            {[...new Set(voices.map((v) => v.lang.slice(0, 2).toLowerCase()))].sort().map((l) => <option key={l} value={l}>{l}</option>)}
+            {[...new Set([filter, ...voices.map((v) => v.lang.slice(0, 2).toLowerCase())].filter(Boolean))]
+              .map((l) => ({ l, name: languageName(l) })).sort((a, b) => a.name.localeCompare(b.name))
+              .map(({ l, name }) => <option key={l} value={l}>{name}</option>)}
           </select>
         </div>
         <div className="voice-list">
-          <button className={`voice ${!current ? 'on' : ''}`} onClick={() => updateSettings({ voiceURI: undefined, voiceIndex: undefined, voiceName: undefined })}>
-            <b>{t('Device default')}</b><small>{s.lang}</small>
+          <button className={`voice ${!current ? 'on' : ''}`} onClick={() => {
+            // The device default voice for the communication language.
+            const patch = { voiceURI: undefined, voiceIndex: undefined, voiceName: undefined, lang: PACKS[(s.language ?? 'en') as Lang].voice };
+            updateSettings(patch);
+            speak(ts("Hi, I'm {name}. This is my voice.", { name: p.name || 'Caleb' }), { ...s, ...patch });
+          }}>
+            <b>{t('Device default')}</b><small>{PACKS[(s.language ?? 'en') as Lang].voice}</small>
           </button>
           {shown.map((v) => (
             <button key={v.id} className={`voice ${current === v.id ? 'on' : ''}`} onClick={() => {
               const patch = native ? { voiceIndex: Number(v.id), voiceName: v.name, lang: v.lang } : { voiceURI: v.id, lang: v.lang };
               updateSettings(patch);
-              speak(`Hi, I'm ${p.name || 'Caleb'}. This is my voice.`, { ...s, ...patch });
+              speak(ts("Hi, I'm {name}. This is my voice.", { name: p.name || 'Caleb' }), { ...s, ...patch });
             }}>
               <b>{v.name}</b><small>{v.lang}{v.local ? '' : ' · online'}</small>
             </button>
@@ -52,7 +70,7 @@ export function SpeechPanel() {
         <Slider label={t('Speed')} value={s.rate} min={0.5} max={1.8} step={0.05} onChange={(rate) => updateSettings({ rate })} format={(v) => `${v.toFixed(2)}×`} />
         <Slider label={t('Pitch')} value={s.pitch} min={0.5} max={1.8} step={0.05} onChange={(pitch) => updateSettings({ pitch })} format={(v) => v.toFixed(2)} />
         <Slider label={t('Volume')} value={s.volume} min={0.1} max={1} step={0.05} onChange={(volume) => updateSettings({ volume })} format={(v) => `${Math.round(v * 100)}%`} />
-        <button className="btn primary" onClick={() => speak('I want to go to the park, please.', s)}>{t('Test voice')}</button>
+        <button className="btn primary" onClick={() => speak(ts('I want to go to the park, please.'), s)}>{t('Test voice')}</button>
       </Section>
       <Pronunciations />
       <Section title={t('Speaking')}>
