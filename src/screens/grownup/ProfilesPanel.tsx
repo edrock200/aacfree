@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useStore, useProfile } from '../../store';
-import { Section, Choice } from './controls';
+import { useStore, useProfile, useLock } from '../../store';
+import { Section, Choice, Toggle } from './controls';
 import { Modal } from '../../components/Modal';
 import { LAYOUTS } from './VocabPanel';
 import type { LayoutId, LockMethod } from '../../types';
@@ -55,15 +55,22 @@ export function ProfilesPanel() {
 }
 
 export function SecurityPanel() {
-  const s = useProfile().settings;
-  const { updateSettings, showToast } = useStore.getState();
+  const s = useLock(); // one lock for the whole app, whichever profile is active
+  const settings = useProfile().settings;
+  const { setLock, updateSettings, showToast } = useStore.getState();
   const [pin, setPin] = useState('');
   return (
     <>
-      <Section title={t('Grown-up lock')} intro={t('Stops accidental changes. Talking is never locked — every word stays available.')}>
+      {s.pinNotice !== undefined && (
+        <div className="nudge" role="status">
+          <span>{t('Profiles had different PINs. Caleb now uses one PIN for the whole app: the one from {v0}.', { v0: s.pinNotice })}</span>
+          <button className="btn small primary" onClick={() => setLock({ pinNotice: undefined })}>{t('OK')}</button>
+        </div>
+      )}
+      <Section title={t('Grown-up lock')} intro={<>{t('Stops accidental changes. Talking is never locked — every word stays available.')} {t('The lock covers every profile on this device.')}</>}>
         <Choice<LockMethod> label={t('How to open Grown-ups')} value={s.lock} onChange={(lock) => {
           if (lock === 'pin' && !s.pin) { showToast(t('Set a PIN below first')); return; }
-          updateSettings({ lock });
+          setLock({ lock });
         }}
           options={[
             { value: 'hold', label: t('Hold 2 seconds') },
@@ -72,12 +79,15 @@ export function SecurityPanel() {
             { value: 'none', label: t('No lock') },
           ]} />
         <div className="field">
-          <span>{s.pin ? 'Change PIN' : 'Set a PIN'} (4–6 digits)</span>
+          <span>{s.pin ? t('Change PIN') : t('Set a PIN')} ({t('4–6 digits')})</span>
           <div className="row">
-            <input inputMode="numeric" pattern="[0-9]*" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} placeholder="••••" />
-            <button className="btn" disabled={pin.length < 4} onClick={() => { updateSettings({ pin, lock: 'pin' }); setPin(''); showToast(t('PIN saved')); }}>{t('Save PIN')}</button>
+            <input inputMode="numeric" pattern="[0-9]*" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} placeholder="••••" aria-label={t('PIN')} />
+            <button className="btn" disabled={pin.length < 4} onClick={() => { setLock({ pin, lock: 'pin', pinNotice: undefined }); setPin(''); showToast(t('PIN saved')); }}>{t('Save PIN')}</button>
           </div>
         </div>
+      </Section>
+      <Section title={t('Privacy')} intro={t('Caleb has no accounts and never sends anything about the person. All pictures come with the app. If one is missing (for example on imported boards), Caleb can fetch it from arasaac.org, which then sees a request from this device. Searching for new symbols also uses arasaac.org.')}>
+        <Toggle label={t('Download missing pictures from ARASAAC')} checked={settings.downloadSymbols !== false} onChange={(downloadSymbols) => updateSettings({ downloadSymbols })} />
       </Section>
       <Section title={t('Stay in the app (Android)')} intro={t("To stop the person leaving Caleb by accident, turn on Android “App pinning”: Settings → Security → App pinning. Then open Recent apps, tap Caleb's icon and choose Pin. The Back button inside Caleb never closes the app.")}>
         <span />

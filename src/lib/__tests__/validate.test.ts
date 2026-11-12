@@ -56,9 +56,8 @@ describe('migrate (loading saved data / backups)', () => {
   });
   it('never leaves a PIN lock without a PIN', () => {
     const d = good();
-    d.profiles[0].settings.lock = 'pin';
-    d.profiles[0].settings.pin = undefined;
-    expect(migrate(d).profiles[0].settings.lock).toBe('hold');
+    Object.assign(d.profiles[0].settings, { lock: 'pin', pin: undefined }); // pre-v0.5 per-profile lock
+    expect(migrate(d).grownUpLock?.lock).toBe('hold');
   });
   it('keeps onboarding state for fresh installs but treats backups without the flag as onboarded', () => {
     expect(migrate({ ...good(), onboarded: false }).onboarded).toBe(false);
