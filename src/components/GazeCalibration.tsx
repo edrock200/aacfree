@@ -1,26 +1,40 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { PointerEngine, fitCalibration } from '../lib/pointer';
+import { PointerEngine, checkCalibration, fitCalibration } from '../lib/pointer';
 import { useStore } from '../store';
+import { useDialog } from './Modal';
 import { t } from '../i18n';
 
 const POINTS = [[0.1, 0.1], [0.5, 0.1], [0.9, 0.1], [0.1, 0.5], [0.5, 0.5], [0.9, 0.5], [0.1, 0.9], [0.5, 0.9], [0.9, 0.9]];
+const SETTLE_MS = 500;
+const SAMPLE_MS = 1200;
 
-/** 9-point eye-gaze calibration: look at each dot until it fills. */
+/**
+ * 9-point eye-gaze calibration: look at each dot until it fills.
+ * Only fresh camera frames with a face count; while the face is lost the dot
+ * waits (and starts again) instead of recording stale samples. A fit that is
+ * too inaccurate or squashed is rejected.
+ */
 export function GazeCalibration({ onClose }: { onClose: () => void }) {
   const [i, setI] = useState(-1);
-  const [msg, setMsg] = useState('Starting camera…');
+  const [msg, setMsg] = useState(() => t('Starting camera…'));
+  const [fill, setFill] = useState(0);
+  const [lost, setLost] = useState(false);
   const engine = useRef<PointerEngine | null>(null);
+  const status = useRef<string>('idle');
   const samples = useRef<{ f: number[]; x: number; y: number }[]>([]);
+  const root = useRef<HTMLDivElement>(null);
+  useDialog(root, onClose);
 
   useEffect(() => {
     const e = new PointerEngine({ mode: 'eyes', dwellMs: 1e9, sensitivity: 5, smoothing: 0, blinkSelect: false });
     engine.current = e;
     const unsub = e.subscribe((st) => {
-      if (st.status === 'error') setMsg(st.message ?? 'Camera not available');
-      if (st.status === 'tracking' && i < 0) setMsg(t('Keep your head still. Look at each dot until it fills up.'));
+      status.current = st.status;
+      if (st.status === 'error') setMsg(t(st.message ?? 'Camera not available'));
+      if (st.status === 'tracking') setMsg((m) => (m === t('Starting camera…') ? t('Keep your head still. Look at each dot until it fills up.') : m));
     });
-    e.start();
+    void e.start();
     return () => { unsub(); e.stop(); };
   }, []);
 
@@ -29,14 +43,31 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
     const [px, py] = POINTS[i];
     const x = px * innerWidth;
     const y = py * innerHeight;
-    // Let the eyes settle, then sample for ~1.2 s.
-    const start = performance.now();
+    // Let the eyes settle, then sample for ~1.2 s of frames with a face.
+    let start = performance.now();
+    let lastFrame = -1;
+    let mine: { f: number[]; x: number; y: number }[] = [];
     const timer = setInterval(() => {
-      const t = performance.now() - start;
-      const f = engine.current?.lastFeatures;
-      if (t > 500 && f) samples.current.push({ f: [...f], x, y });
-      if (t > 1700) {
+      const e = engine.current;
+      if (!e) return;
+      if (status.current !== 'tracking' || !e.lastFeatures) {
+        // Face lost: drop this dot's samples and wait for the face to come back.
+        setLost(true);
+        start = performance.now();
+        mine = [];
+        setFill(0);
+        return;
+      }
+      setLost(false);
+      const el = performance.now() - start;
+      if (el > SETTLE_MS && e.featureFrame !== lastFrame) {
+        lastFrame = e.featureFrame;
+        mine.push({ f: [...e.lastFeatures], x, y });
+      }
+      setFill(Math.min(1, el / (SETTLE_MS + SAMPLE_MS)));
+      if (el > SETTLE_MS + SAMPLE_MS) {
         clearInterval(timer);
+        samples.current.push(...mine);
         if (i + 1 < POINTS.length) setI(i + 1);
         else finish();
       }
@@ -46,7 +77,8 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
 
   const finish = () => {
     const cal = fitCalibration(samples.current);
-    if (!cal) {
+    const check = checkCalibration(samples.current, cal, innerWidth, innerHeight);
+    if (!cal || !check.ok) {
       setMsg(t('Calibration failed — make sure your face is well lit and visible, then try again.'));
       setI(-1);
       samples.current = [];
@@ -58,19 +90,26 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
   };
 
   return createPortal(
-    <div className="calib pointer-exempt scan-exempt">
+    <div ref={root} className="calib pointer-exempt scan-exempt" role="dialog" aria-modal="true" aria-labelledby="calib-title" tabIndex={-1}>
       {i < 0 ? (
         <div className="calib-intro">
-          <h2>{t('Eye gaze calibration')}</h2>
-          <p>{msg}</p>
-          <p className="muted">Sit about an arm's length from the screen with your face well lit. Webcam eye gaze is approximate. Large buttons (Big or Phone core layouts) work best. A dedicated eye tracker that moves the mouse works with “Dwell (mouse/eye tracker)” mode.</p>
+          <h2 id="calib-title">{t('Eye gaze calibration')}</h2>
+          <p role="status">{msg}</p>
+          <p className="muted">{t('Sit about an arm’s length from the screen with your face well lit. Webcam eye gaze is approximate. Large buttons (Big or Phone core layouts) work best. A dedicated eye tracker that moves the mouse works with “Dwell (mouse/eye tracker)” mode.')}</p>
           <div className="row">
-            <button className="btn primary big" onClick={() => { samples.current = []; setI(0); }}>{t('Start')}</button>
+            <button className="btn primary big" onClick={() => { samples.current = []; setFill(0); setI(0); }}>{t('Start')}</button>
             <button className="btn big" onClick={onClose}>{t('Cancel')}</button>
           </div>
         </div>
       ) : i < POINTS.length ? (
-        <div className="calib-dot" key={i} style={{ left: `${POINTS[i][0] * 100}%`, top: `${POINTS[i][1] * 100}%` }} />
+        <>
+          <h2 id="calib-title" className="visually-hidden">{t('Eye gaze calibration')}</h2>
+          {/* The fill is drawn from progress (not a CSS animation), so it still shows with Reduce motion. */}
+          <div className={`calib-dot ${lost ? 'lost' : ''}`} key={i} style={{ left: `${POINTS[i][0] * 100}%`, top: `${POINTS[i][1] * 100}%`,
+            background: `conic-gradient(var(--accent) ${fill * 360}deg, var(--accent-soft) 0)` }} />
+          {lost && <p className="calib-lost" role="status">{t('Looking for your face…')}</p>}
+          <button className="btn calib-cancel" onClick={onClose}>{t('Cancel')}</button>
+        </>
       ) : null}
     </div>,
     document.body,

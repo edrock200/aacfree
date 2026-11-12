@@ -622,6 +622,153 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   }
 }
 
+// --- v0.5 access ---
+{
+  const hl = () => page.$$eval('.scan-hl', (els) => els.map((e) => e.getAttribute('aria-label') || e.textContent.trim()));
+  const words = async () => (await page.$$('.msg-word:not(.draft)')).length;
+  const press = async (key, wait = 70) => { await page.keyboard.press(key); await page.waitForTimeout(wait); };
+  const tap = (sel) => page.evaluate((s) => document.querySelector(s).dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 })), sel);
+  const toGrid = async () => {
+    for (let i = 0; i < 12 && !(await page.$('.grid .scan-hl')); i++) await press('Space');
+    return !!(await page.$('.grid .scan-hl'));
+  };
+  const skipFolders = async () => { for (let i = 0; i < 10 && (await hl()).join().includes('folder'); i++) await press('Space'); };
+
+  if (!(await page.isVisible('.grownup'))) await unlock();
+  await page.click('.gu-tab:has-text("Lock")');
+  await page.click('.seg button:has-text("Hold 2 seconds")');
+  await page.click('.gu-tab:has-text("Access")');
+  await page.click('.seg button:has-text("2 switches (step)")');
+  await page.click('.setting:has-text("Turn on scanning") .switch');
+  await page.click('.gu-nav-foot button:has-text("Lock")');
+  await page.waitForSelector('.grid');
+  await page.waitForTimeout(400);
+  check(!!(await page.$('.msg[role="group"]')) && !(await page.$('.msg[role="button"]')), 'message bar is a group, not a button wrapping buttons');
+  check(await toGrid(), 'two-switch scanning: Space moves to a board row');
+
+  // A held switch sends key-repeat events: it must count as one press.
+  const before = await words();
+  await page.keyboard.down('Enter');
+  for (let i = 0; i < 15; i++) { await page.waitForTimeout(40); await page.keyboard.down('Enter'); }
+  await page.keyboard.up('Enter');
+  await page.waitForTimeout(200);
+  check((await words()) === before && (await page.$$('.grid .scan-hl')).length === 1, 'a held switch (key repeat) enters a row once and activates nothing');
+
+  // A bounce right after an activation is ignored (lockout), and scanning restarts at the top.
+  await skipFolders();
+  await press('Enter', 80);
+  await press('Enter', 150);
+  check((await words()) === before + 1, 'a second press right after an activation is ignored (lockout)');
+  await page.waitForTimeout(700);
+  check((await page.$$('.msgbar .scan-hl')).length > 0 && !(await page.$('.grid .scan-hl')), 'scanning starts again from the top after an activation');
+
+  // Holding the switch on a word activates it exactly once.
+  await toGrid();
+  await press('Enter');
+  await skipFolders();
+  const b2 = await words();
+  await page.keyboard.down('Enter');
+  for (let i = 0; i < 20; i++) { await page.waitForTimeout(40); await page.keyboard.down('Enter'); }
+  await page.keyboard.up('Enter');
+  await page.waitForTimeout(200);
+  check((await words()) === b2 + 1, 'holding the switch on a word activates it exactly once');
+  check((await page.$$('.msg-words [data-scan-item]')).length === b2 + 1, 'message words are scan items (word forms reachable by switch)');
+
+  // Toasts stay usable while scanning: a helper can tap Undo.
+  await page.waitForTimeout(700);
+  await tap('[aria-label="Clear message"]');
+  await page.waitForSelector('.toast-action');
+  check((await words()) === 0, 'Clear (a PressButton) clears the message');
+  await page.click('.toast-action');
+  await page.waitForTimeout(200);
+  check((await words()) === b2 + 1, 'toast Undo can be tapped while scanning');
+
+  // Big text is a modal for scanning.
+  await tap('[aria-label="Show in big text"]');
+  await page.waitForSelector('.bigtext');
+  await page.waitForTimeout(200);
+  const inside = () => page.$$eval('.scan-hl', (els) => els.length > 0 && els.every((e) => !!e.closest('.bigtext')));
+  let confined = await inside();
+  for (let i = 0; i < 4; i++) { await press('Space'); confined = confined && await inside(); }
+  check(confined && await page.evaluate(() => document.getElementById('root').inert === true), 'Big text is a modal: scanning stays inside it and the page behind is inert');
+  for (let i = 0; i < 5 && !(await hl()).join().includes('Close'); i++) await press('Space');
+  await press('Enter', 400);
+  check(!(await page.$('.bigtext')) && await page.evaluate(() => !document.getElementById('root').inert), 'the switch closes Big text and the page is usable again');
+
+  // Find word results can be scanned.
+  await page.waitForTimeout(600);
+  await tap('.navbtn[aria-label="Find a word"]');
+  await page.waitForSelector('.modal input');
+  check(!(await page.evaluate(() => document.activeElement?.tagName === 'INPUT')), 'Find word does not grab the keyboard while scanning');
+  await page.fill('.modal input', 'juice');
+  let reached = false;
+  for (let i = 0; i < 6 && !reached; i++) { await press('Space'); reached = !!(await page.$('.find-results .scan-hl')); }
+  check(reached, 'Find word results are reachable by switch');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+
+  // Leave scanning: hold the Grown-ups button (hold lock).
+  {
+    const box = await page.locator('.lockbtn').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up();
+    await page.waitForSelector('.grownup');
+    await page.click('.gu-tab:has-text("Access")');
+    await page.click('.setting:has-text("Turn on scanning") .switch');
+    await page.click('.seg button:has-text("1 switch (auto)")');
+    check(await page.isVisible('.setting:has-text("Switch acceptance time")') && await page.isVisible('.setting:has-text("Next switch")'), 'scanning timing and switch-key settings are offered');
+    await page.click('.gu-nav-foot button:has-text("Lock")');
+    await page.waitForSelector('.grid');
+  }
+
+  // Keyboard / screen-reader path into Grown-ups under the hold lock: a question gate.
+  await page.focus('.lockbtn');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.lockgate', { timeout: 3000 }).catch(() => {});
+  check(await page.isVisible('.lockgate'), 'keyboard activation of Grown-ups (hold lock) opens a question gate');
+  let trapped = true;
+  for (let i = 0; i < 16; i++) { await page.keyboard.press('Tab'); trapped = trapped && await page.evaluate(() => !!document.activeElement?.closest('.modal')); }
+  check(trapped, 'Tab stays inside the dialog');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  check(await page.evaluate(() => document.activeElement?.classList.contains('lockbtn')), 'closing a dialog gives focus back to what opened it');
+  await page.focus('.lockbtn');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.lockgate');
+  const qText = await page.textContent('.lockgate p.center');
+  const [, a, b] = /(\d+)\s*×\s*(\d+)/.exec(qText) ?? [];
+  for (const d of String(Number(a) * Number(b))) await page.click(`.pinpad .btn:text-is("${d}")`);
+  await page.waitForSelector('.grownup', { timeout: 3000 }).catch(() => {});
+  check(await page.isVisible('.grownup'), 'answering the question opens Grown-ups');
+
+  // PIN gate: the length is not shown, and wrong tries back off gently.
+  await page.click('.gu-tab:has-text("Lock")');
+  await page.fill('input[inputmode="numeric"]', '1234');
+  await page.click('button:has-text("Save PIN")');
+  await page.click('.gu-nav-foot button:has-text("Lock")');
+  await page.waitForSelector('.grid');
+  {
+    const box = await page.locator('.lockbtn').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up();
+  }
+  await page.waitForSelector('.lockgate');
+  const dots0 = (await page.$$('.pin-dots i')).length;
+  await page.click('.pinpad .btn:text-is("9")');
+  check(dots0 === 0 && (await page.$$('.pin-dots i')).length === 1, 'the PIN gate does not show how long the PIN is');
+  for (let n = 0; n < 3; n++) {
+    for (const d of '9876') await page.click(`.pinpad .btn:text-is("${d}")`).catch(() => {});
+    await page.click('.pinpad .btn:text-is("OK")').catch(() => {});
+    await page.waitForTimeout(600);
+  }
+  check(/wait/i.test(await page.textContent('.lockgate-msg')) && await page.isDisabled('.pinpad .btn:text-is("1")'), 'repeated wrong PINs make the gate wait a little');
+  await page.keyboard.press('Escape');
+
+  // Text size applies app-wide; nav labels are readable.
+  const navPx = await page.$eval('.navbtn span', (e) => parseFloat(getComputedStyle(e).fontSize));
+  check(navPx >= 12.5, `nav labels are at least 12.5 px (${navPx})`);
+}
+
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();
 process.exit(failures || errors.length ? 1 : 0);

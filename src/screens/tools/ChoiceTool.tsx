@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore, type PickedItem } from '../../store';
 import { Symbol } from '../../components/Symbol';
+import { PressButton } from '../../components/PressButton';
 import { VocabPicker } from '../../components/VocabPicker';
 import { IconPlus, IconClose } from '../../components/Icons';
 import { t, ts } from '../../i18n';
@@ -20,11 +21,11 @@ export function ChoiceTool() {
       <div className={`choice-grid n${Math.max(2, items.length)}`} data-scan-group>
         {items.map((it, i) => (
           <div key={i} className="choice-wrap">
-            <button className={`choice-btn ${chosen === i ? 'on' : ''}`} data-scan-item
-              onClick={() => { if (!setup) { setChosen(i); speakText(ts('I choose {v0}.', { v0: it.label })); } }}>
+            <PressButton className={`choice-btn ${chosen === i ? 'on' : ''}`} data-scan-item
+              onPress={() => { if (!setup) { setChosen(i); speakText(ts('I choose {v0}.', { v0: it.label })); } }}>
               <Symbol value={it.symbol} />
               <b>{it.label}</b>
-            </button>
+            </PressButton>
             {setup && <button className="iconbtn remove" aria-label={t('Remove')} onClick={() => setItems(items.filter((_, j) => j !== i))}><IconClose /></button>}
           </div>
         ))}

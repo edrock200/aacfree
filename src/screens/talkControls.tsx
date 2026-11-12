@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
-import { usePress } from '../lib/usePress';
+import { PressButton } from '../components/PressButton';
 import type { Settings } from '../types';
 
 /**
- * A button the AAC user activates: honours hold / debounce / press-on-down and is scannable.
- * (Same idea as the shared PressButton; kept small so the talk screens don't depend on it.)
+ * A scannable button the AAC user activates (hold / debounce / press-on-down apply).
+ * Thin wrapper over the shared PressButton, using the given settings.
  */
 export function PersonButton({ s, onPress, className = 'btn', children, label, pressed, disabled }: {
   s: Settings;
@@ -17,10 +17,10 @@ export function PersonButton({ s, onPress, className = 'btn', children, label, p
   pressed?: boolean;
   disabled?: boolean;
 }) {
-  const press = usePress({ onActivate: onPress, holdMs: s.holdMs, debounceMs: s.debounceMs, pressOnDown: s.pressOnDown, disabled });
   return (
-    <button className={className} data-scan-item aria-label={label} aria-pressed={pressed} disabled={disabled} {...press}>
+    <PressButton className={className} data-scan-item aria-label={label} aria-pressed={pressed} disabled={disabled}
+      touch={{ holdMs: s.holdMs, debounceMs: s.debounceMs, pressOnDown: s.pressOnDown }} onPress={onPress}>
       {children}
-    </button>
+    </PressButton>
   );
 }

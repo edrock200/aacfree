@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
+import { PressButton } from '../../components/PressButton';
 import { Symbol } from '../../components/Symbol';
 import { symbolFor } from '../../data/defaults';
 import { getLang, pack, t } from '../../i18n';
@@ -31,21 +32,21 @@ export function BodyTool() {
       {!part ? (
         <div className="sym-grid big" data-scan-group>
           {PARTS.map((pt) => (
-            <button key={pt} className="sym-opt" data-scan-item onClick={() => { setPart(pt); speakText(body() ? partName(pt) : `my ${pt}`); }}>
+            <PressButton key={pt} className="sym-opt" data-scan-item onPress={() => { setPart(pt); speakText(body() ? partName(pt) : `my ${pt}`); }}>
               <Symbol value={symbolFor(KW[pt] ?? pt)} />
               <span>{partName(pt)}</span>
-            </button>
+            </PressButton>
           ))}
         </div>
       ) : (
         <div className="sym-grid big" data-scan-group>
           {FEELS.map((f) => (
-            <button key={f.label} className="sym-opt" data-scan-item onClick={() => speakText(sentence(part, f))}>
+            <PressButton key={f.label} className="sym-opt" data-scan-item onPress={() => speakText(sentence(part, f))}>
               <Symbol value={symbolFor(f.icon)} />
               <span>{feelName(f, part)}</span>
-            </button>
+            </PressButton>
           ))}
-          <button className="sym-opt" data-scan-item onClick={() => setPart(null)}><span className="big">↩</span><span>{t('other place')}</span></button>
+          <PressButton className="sym-opt" data-scan-item onPress={() => setPart(null)}><span className="big">↩</span><span>{t('other place')}</span></PressButton>
         </div>
       )}
     </div>

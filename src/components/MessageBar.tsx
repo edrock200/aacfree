@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type SyntheticEvent } from 'react';
 import { useStore, useSettings } from '../store';
 import { applyCase, joinWords } from '../lib/sentence';
 import { Symbol } from './Symbol';
@@ -6,6 +6,7 @@ import { IconBack, IconBackspace, IconClose, IconExpand, IconHome, IconMore, Ico
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { usePress } from '../lib/usePress';
+import { PressButton } from './PressButton';
 import { uid } from '../lib/util';
 import { t } from '../i18n';
 
@@ -61,56 +62,62 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
   };
 
   const canBack = boardStack.length > 1 || screen !== 'talk';
+  // Tapping the bar itself speaks, but presses on the words and tools inside it are theirs alone.
+  const onBar = <E extends SyntheticEvent<HTMLElement>>(fn: (e: E) => void) => (e: E) => {
+    if (!(e.target as HTMLElement).closest('button, .msg-menu')) fn(e);
+  };
 
   return (
     <div className="msgbar" data-scan-group>
       <button className="iconbtn nav-home" aria-label={t('Home')} data-scan-item {...homePress}><IconHome /></button>
       <button className="iconbtn nav-back" aria-label={t('Back')} data-scan-item disabled={!canBack} {...backPress}><IconBack /></button>
-      <div className="msg" role="button" tabIndex={0} aria-label={text ? `Message: ${text}. Tap to speak.` : 'Message bar, empty'} {...barPress}>
-        <div className="msg-words" ref={scroller}>
+      {/* A group, not a button: the words and tools inside are buttons of their own. Speak is the separate speak target. */}
+      <div className="msg" role="group" aria-label={text ? t('Message: {text}', { text }) : t('Message bar, empty')}
+        onPointerDown={onBar(barPress.onPointerDown)} onPointerUp={onBar(barPress.onPointerUp)} onPointerMove={onBar(barPress.onPointerMove)}
+        onPointerCancel={barPress.onPointerCancel} onPointerLeave={barPress.onPointerLeave} onContextMenu={barPress.onContextMenu}>
+        <div className="msg-words" ref={scroller} data-scan-group>
           {message.length === 0 && !draft && <span className="msg-placeholder">{t('Tap words to talk')}</span>}
           {message.map((w, i) => (
-            <button
+            <PressButton
               key={w.id}
               className="msg-word"
-              onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); setFormsFor({ index: i }); }}
-              aria-label={`${w.text}, change word`}
+              onPress={() => setFormsFor({ index: i })}
+              aria-label={t('{word}, change word', { word: w.text })}
+              data-scan-item
             >
               {s.showSymbolsInBar && w.symbol && <Symbol value={w.symbol} />}
               <span>{applyCase(w.text, s.textCase)}</span>
-            </button>
+            </PressButton>
           ))}
           {draft && <span className="msg-word draft"><span>{draft}</span><i className="caret" /></span>}
         </div>
         {(message.length > 0 || draft) && (
-          <div className="msg-tools" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}>
+          <div className="msg-tools">
             <span className="msg-tools-full">
-              <button className="iconbtn small" aria-label={t('Save as phrase')} onClick={(e) => { e.stopPropagation(); savePhrase(); }} data-scan-item>
+              <PressButton className="iconbtn small" aria-label={t('Save as phrase')} onPress={savePhrase} data-scan-item>
                 <IconStar size={20} filled={saved} />
-              </button>
-              <button className="iconbtn small" aria-label={t('Share or copy text')} onClick={(e) => { e.stopPropagation(); share(); }} data-scan-item>
+              </PressButton>
+              <PressButton className="iconbtn small" aria-label={t('Share or copy text')} onPress={share} data-scan-item>
                 <IconShare size={20} />
-              </button>
-              <button className="iconbtn small" aria-label={t('Show in big text')} onClick={(e) => { e.stopPropagation(); onShow(text); }} data-scan-item>
+              </PressButton>
+              <PressButton className="iconbtn small" aria-label={t('Show in big text')} onPress={() => onShow(text)} data-scan-item>
                 <IconExpand size={20} />
-              </button>
-              <button className="iconbtn small" aria-label={t('Clear message')} onClick={(e) => { e.stopPropagation(); clearMessage(); }} data-scan-item>
+              </PressButton>
+              <PressButton className="iconbtn small" aria-label={t('Clear message')} onPress={clearMessage} data-scan-item>
                 <IconClose size={20} />
-              </button>
+              </PressButton>
             </span>
-            <button className="iconbtn small msg-tools-more" aria-label={t('More message options')} aria-expanded={menu} onClick={(e) => { e.stopPropagation(); setMenu(!menu); }} data-scan-item>
+            <PressButton className="iconbtn small msg-tools-more" aria-label={t('More message options')} aria-expanded={menu} onPress={() => setMenu(!menu)} data-scan-item>
               <IconMore size={22} />
-            </button>
+            </PressButton>
           </div>
         )}
         {menu && (message.length > 0 || !!draft) && (
-          <div className="msg-menu" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()} data-scan-group>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); savePhrase(); setMenu(false); }} data-scan-item><IconStar size={20} filled={saved} /> {t('Save phrase')}</button>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); share(); setMenu(false); }} data-scan-item><IconShare size={20} /> {t('Share / copy')}</button>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); onShow(text); setMenu(false); }} data-scan-item><IconExpand size={20} /> {t('Big text')}</button>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); clearMessage(); setMenu(false); }} data-scan-item><IconClose size={20} /> {t('Clear')}</button>
+          <div className="msg-menu" data-scan-group>
+            <PressButton className="btn" onPress={() => { savePhrase(); setMenu(false); }} data-scan-item><IconStar size={20} filled={saved} /> {t('Save phrase')}</PressButton>
+            <PressButton className="btn" onPress={() => { share(); setMenu(false); }} data-scan-item><IconShare size={20} /> {t('Share / copy')}</PressButton>
+            <PressButton className="btn" onPress={() => { onShow(text); setMenu(false); }} data-scan-item><IconExpand size={20} /> {t('Big text')}</PressButton>
+            <PressButton className="btn" onPress={() => { clearMessage(); setMenu(false); }} data-scan-item><IconClose size={20} /> {t('Clear')}</PressButton>
           </div>
         )}
       </div>
