@@ -33,6 +33,7 @@ function Main() {
   const s = p.settings;
   const screen = useStore((st) => st.screen);
   const toast = useStore((st) => st.toast);
+  const toastAction = useStore((st) => st.toastAction);
   const formsFor = useStore((st) => st.formsFor);
   const message = useStore((st) => st.message);
   const boardStack = useStore((st) => st.boardStack);
@@ -66,6 +67,11 @@ function Main() {
     if (!Capacitor.isNativePlatform()) return;
     const h = CapApp.addListener('backButton', () => {
       const st = useStore.getState();
+      // Close the top-most dialog first (dialogs close on Escape).
+      if (document.querySelector('.modal-root, .bigtext')) {
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        return;
+      }
       if (st.formsFor) return st.setFormsFor(null);
       if (st.screen !== 'talk') return setScreen('talk');
       if (st.boardStack.length > 1) return back();
@@ -120,7 +126,14 @@ function Main() {
           }}
         />
       )}
-      {toast && <div className="toast" role="status">{toast}</div>}
+      {toast && (
+        <div className="toast" role="status">
+          {toast}
+          {toastAction && (
+            <button className="toast-action" onClick={() => { toastAction.run(); useStore.setState({ toast: null, toastAction: null }); }}>{toastAction.label}</button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

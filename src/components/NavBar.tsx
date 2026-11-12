@@ -69,7 +69,7 @@ export function NavBar({ onFind }: { onFind: () => void }) {
         <button className={`navbtn ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label="Edit boards"><IconEdit /><span>{editMode ? 'Editing' : 'Edit'}</span></button>
       )}
       {unlocked && (
-        <button className="navbtn" onClick={() => { setUnlocked(false); setScreen('talk'); }} aria-label="Lock"><IconLock /><span>Lock</span></button>
+        <button className="navbtn nav-lock" onClick={() => { setUnlocked(false); setScreen('talk'); }} aria-label="Lock"><IconLock /><span>Lock</span></button>
       )}
       <button
         className={`navbtn lockbtn scan-exempt ${holding ? 'holding' : ''} ${screen === 'grownup' ? 'on' : ''}`}

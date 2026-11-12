@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '../store';
 import { IconClose, IconSpeak } from './Icons';
@@ -7,6 +7,11 @@ import { IconClose, IconSpeak } from './Icons';
 export function BigText({ text, onClose }: { text: string; onClose: () => void }) {
   const [flip, setFlip] = useState(false);
   const { speakText } = useStore.getState();
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
   return createPortal(
     <div className={`bigtext ${flip ? 'flip' : ''}`} onClick={onClose}>
       <p style={{ fontSize: `clamp(2rem, ${Math.max(4, 22 - text.length / 6)}vmin, 14vmin)` }}>{text}</p>

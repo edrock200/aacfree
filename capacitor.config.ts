@@ -8,6 +8,10 @@ const config: CapacitorConfig = {
     backgroundColor: '#f6f3ee',
   },
   plugins: {
+    SystemBars: {
+      insetsHandling: 'css',
+      initialViewportFitValueHint: 'cover',
+    },
     SplashScreen: {
       launchShowDuration: 600,
       backgroundColor: '#f6f3ee',

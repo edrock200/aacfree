@@ -22,6 +22,20 @@ const PANELS: { id: Panel; label: string; icon: React.ReactNode }[] = [
   { id: 'help', label: 'Help & tips', icon: <IconHelp /> },
 ];
 
+function BackupNudge({ onGo, hidden }: { onGo: () => void; hidden: boolean }) {
+  const last = Number(localStorage.getItem('caleb:lastExport') ?? 0);
+  const p = useProfile();
+  const age = Date.now() - p.createdAt;
+  // Nudge once the profile is over 2 days old and there's no backup file in the last 30 days.
+  if (hidden || age < 2 * 86400000 || Date.now() - last < 30 * 86400000) return null;
+  return (
+    <div className="nudge">
+      <span>💾 {last ? 'Your last backup file is over a month old.' : 'You haven\'t saved a backup file yet.'} Keep a copy somewhere safe so customisations are never lost.</span>
+      <button className="btn small primary" onClick={onGo}>Back up now</button>
+    </div>
+  );
+}
+
 export function GrownUpScreen() {
   const p = useProfile();
   const [panel, setPanel] = useState<Panel>('boards');
@@ -42,6 +56,7 @@ export function GrownUpScreen() {
         </div>
       </aside>
       <div className="gu-main" key={panel}>
+        <BackupNudge onGo={() => setPanel('backup')} hidden={panel === 'backup'} />
         {panel === 'boards' && <VocabPanel onDone={() => setScreen('talk')} />}
         {panel === 'speech' && <SpeechPanel />}
         {panel === 'display' && <DisplayPanel />}

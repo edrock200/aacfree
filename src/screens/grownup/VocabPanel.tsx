@@ -8,6 +8,7 @@ import { buildProfile } from '../../data/defaults';
 import { uid } from '../../lib/util';
 import type { LayoutId } from '../../types';
 import { IconEdit, IconPlus } from '../../components/Icons';
+import { printBoards } from '../../lib/print';
 
 export const LAYOUTS: { id: LayoutId; name: string; desc: string }[] = [
   { id: 'big', name: 'Big buttons · 12', desc: '4 × 3 grid. Beginners, phones, or harder motor access.' },
@@ -20,6 +21,8 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
   const s = p.settings;
   const { updateSettings, updateProfile, openBoard, setEditMode, home, showToast } = useStore.getState();
   const [confirmLayout, setConfirmLayout] = useState<LayoutId | null>(null);
+  const [printSel, setPrintSel] = useState<string[] | null>(null);
+  const [printing, setPrinting] = useState(false);
   const paths = boardPaths(p);
   const boards = Object.values(p.boards).sort((a, b) => (paths[a.id]?.length ?? 99) - (paths[b.id]?.length ?? 99) || a.name.localeCompare(b.name));
 
@@ -80,6 +83,9 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
           ))}
         </div>
       </Section>
+      <Section title="Paper boards" intro="Print a low-tech backup for bath time, the pool, a flat battery or a broken screen. It includes the quick bar on every page.">
+        <button className="btn" onClick={() => setPrintSel([p.rootId, ...(p.boards[p.rootId]?.cells.filter((c) => c?.link).map((c) => c!.link!) ?? [])])}>Print boards…</button>
+      </Section>
       <Section title="Home layout" intro="Changing the layout replaces all boards with the built-in vocabulary (your phrases, schedules and settings stay). A backup snapshot is kept.">
         <div className="layout-cards">
           {LAYOUTS.map((l) => (
@@ -99,6 +105,24 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
           <button className="btn small" onClick={() => updateProfile((pp) => { pp.lexicon = {}; })}>Forget learned words ({Object.keys(p.lexicon).length})</button>
         )}
       </Section>
+      {printSel && (
+        <Modal title="Print boards" onClose={() => setPrintSel(null)}
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setPrintSel(null)}>Cancel</button>
+            <button className="btn primary" disabled={!printSel.length || printing} onClick={async () => {
+              setPrinting(true);
+              try { showToast(await printBoards(p, boards.map((b) => b.id).filter((id) => printSel.includes(id)))); } finally { setPrinting(false); setPrintSel(null); }
+            }}>{printing ? 'Preparing…' : `Print ${printSel.length} board(s)`}</button></>}>
+          <div className="print-pick">
+            {boards.map((b) => (
+              <label key={b.id} className="check">
+                <input type="checkbox" checked={printSel.includes(b.id)} onChange={(e) => setPrintSel(e.target.checked ? [...printSel, b.id] : printSel.filter((x) => x !== b.id))} />
+                <span>{b.name}</span>
+              </label>
+            ))}
+          </div>
+          <p className="muted small">On Android the boards are saved as a web page. Open it in Chrome and choose Print, or send it to a computer.</p>
+        </Modal>
+      )}
       {confirmLayout && (
         <Modal title="Change layout?" onClose={() => setConfirmLayout(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirmLayout(null)}>Cancel</button><button className="btn primary" onClick={() => applyLayout(confirmLayout)}>Change layout</button></>}>

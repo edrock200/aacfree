@@ -186,7 +186,7 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: 'colors', name: 'Colors', icon: 'colours', type: 'descriptor',
     items: [
-      'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown',
+      'red', 'orange#2888', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown',
       'black', 'white', 'gray@grey', 'rainbow', 'gold', 'silver', 'light@light colour', 'dark@dark colour',
     ],
   },

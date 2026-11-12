@@ -20,6 +20,7 @@ npx tsc --noEmit -p . # typecheck only
 npm run symbols      # resolve/download ARASAAC symbols for vocab keywords
 node scripts/make-icons.mjs        # regenerate PWA + Android icons/splash from public/icon.svg
 node scripts/e2e/screens.mjs <url> <outdir>   # Playwright smoke test + screenshots
+npm run e2e          # functional e2e (editing, undo, backup/OBF round-trip, scanning); needs `npx vite preview --port 4173`
 npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Android SDK, see skill)
 ```
 

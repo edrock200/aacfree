@@ -15,3 +15,6 @@ node scripts/e2e/screens.mjs http://localhost:4173/ <outdir>
 - Playwright is preinstalled globally. The script loads it with `createRequire`, so there is no local dependency.
 - To test a single flow, copy the script and trim the steps. Selectors use `aria-label`, e.g. `.grid .cell[aria-label="want"]`, folders as `"Food folder"`.
 - Images can load lazily in pickers. Wait about 300 ms before screenshots that need symbols.
+
+## Functional checks
+`npm run e2e` (or `node scripts/e2e/flows.mjs [url]`) asserts the important behaviours and exits non-zero on failure: sentence building across folders, auto-return, quick bar, Recent, Find word, editing, auto symbol, hide/mask, move and undo, backup download and restore, OBZ export and import, and 1-switch scanning. Run it before every release.

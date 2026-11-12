@@ -24,6 +24,7 @@ interface UIState {
   /** Undo stack of previous profile states (edit mode). */
   undo: Profile[];
   toast: string | null;
+  toastAction: { label: string; run: () => void } | null;
   /** Word id whose forms popover is open. */
   formsFor: { index: number } | null;
   /** Button ids to highlight (Find word / modelling). */
@@ -62,7 +63,7 @@ interface Actions {
   speakText: (text: string, opts?: { audio?: string; log?: 'word' | 'phrase' | 'sentence' }) => void;
   setUnlocked: (v: boolean) => void;
   setEditMode: (v: boolean) => void;
-  showToast: (msg: string) => void;
+  showToast: (msg: string, action?: { label: string; run: () => void }) => void;
   setFormsFor: (v: { index: number } | null) => void;
   setHighlight: (ids: string[]) => void;
 }
@@ -91,6 +92,7 @@ export const useStore = create<Store>((set, get) => ({
   editMode: false,
   undo: [],
   toast: null,
+  toastAction: null,
   formsFor: null,
   highlight: [],
 
@@ -275,7 +277,11 @@ export const useStore = create<Store>((set, get) => ({
   },
   clearMessage() {
     stopSpeaking();
+    const { message, draft } = get();
     set({ message: [], draft: '', formsFor: null });
+    if (message.length > 1) {
+      get().showToast('Message cleared', { label: 'Undo', run: () => set({ message, draft }) });
+    }
   },
   replaceWord(index, text) {
     set((s) => ({
@@ -325,10 +331,10 @@ export const useStore = create<Store>((set, get) => ({
   setEditMode(v) {
     set({ editMode: v, screen: v ? 'talk' : get().screen });
   },
-  showToast(msg) {
+  showToast(msg, action) {
     if (toastTimer) clearTimeout(toastTimer);
-    set({ toast: msg });
-    toastTimer = setTimeout(() => set({ toast: null }), 2200);
+    set({ toast: msg, toastAction: action ?? null });
+    toastTimer = setTimeout(() => set({ toast: null, toastAction: null }), action ? 5000 : 2200);
   },
   setFormsFor(v) {
     set({ formsFor: v });

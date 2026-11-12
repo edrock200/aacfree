@@ -22,8 +22,10 @@
   --min-cell: 84px;
   --timer: #e2463b;
   --timer-bg: #f1ece4;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  --safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  --safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
   color-scheme: light;
 }
 
@@ -106,7 +108,7 @@ small { font-size: 0.85em; }
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding-top: var(--safe-top);
+  padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
   overflow: hidden;
 }
 .main { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
@@ -468,6 +470,7 @@ small { font-size: 0.85em; }
 .gu-tab.on { background: var(--accent-soft); color: var(--accent); }
 .gu-nav-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 12px; }
 .gu-main { flex: 1; min-width: 0; overflow-y: auto; padding: 16px 20px 40px; max-width: 900px; }
+.nudge { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: #fff4d6; color: #1d1d1f; border: 1px solid #f0d58a; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; }
 .gu-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; }
 .gu-section h3 { font-size: 1.2rem; }
 .setting { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); flex-wrap: wrap; }
@@ -539,6 +542,9 @@ small { font-size: 0.85em; }
 .pinpad { display: grid; grid-template-columns: repeat(3, 72px); gap: 10px; }
 .pinpad .btn { height: 64px; font-size: 1.5rem; border-radius: 16px; }
 
+.print-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0 12px; }
+.print-pick .check { margin: 6px 0; }
+
 /* ================= Find / big text / toast ================= */
 .find-results { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .find-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface); text-align: left; }
@@ -558,7 +564,9 @@ small { font-size: 0.85em; }
   position: fixed; left: 50%; bottom: calc(80px + var(--safe-bottom)); transform: translateX(-50%); z-index: 70;
   background: #1d1d1f; color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 700;
   box-shadow: 0 6px 20px rgba(0,0,0,.25); animation: toast 0.2s ease; max-width: 90vw; text-align: center;
+  display: flex; align-items: center;
 }
+.toast-action { margin-left: 14px; padding: 6px 14px; border-radius: 999px; border: none; background: #4fc3a8; color: #0d1f1b; font-weight: 700; }
 @keyframes toast { from { opacity: 0; transform: translate(-50%, 10px); } }
 
 /* ================= Onboarding ================= */
@@ -583,6 +591,11 @@ small { font-size: 0.85em; }
   .gu-main { padding: 12px; }
   .editor { grid-template-columns: 1fr; }
   .speakbtn { min-width: 64px; }
+  .modal-foot .spacer { flex: 1 0 100%; height: 0; }
+  .modal-foot .spacer + .btn { margin-left: auto; }
+  .modal-root { padding: 6px; }
+  .modal-body { padding: 8px 14px 12px; }
+  .navbtn.nav-lock { display: none; }
   .speakbtn span { display: none; }
   .msgbar .iconbtn { width: 42px; }
   .navbtn { min-width: 52px; padding: 2px 4px; font-size: 0.7rem; }

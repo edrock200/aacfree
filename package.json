@@ -15,7 +15,9 @@
     "android:sync": "npm run build && npx cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease && cp app/build/outputs/apk/release/app-release.apk ../release/caleb-latest.apk",
     "build:site": "npm run build && node scripts/build-site.mjs",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "e2e": "node scripts/e2e/flows.mjs",
+    "screens": "node scripts/e2e/screens.mjs"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^8.0.2",
