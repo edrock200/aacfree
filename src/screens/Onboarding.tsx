@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
-import { LAYOUTS, LayoutThumb } from './grownup/VocabPanel';
+import { LAYOUTS, LayoutThumb, STARTER_WORDS } from './grownup/VocabPanel';
 import { listVoices, speak, type VoiceInfo } from '../lib/tts';
 import { DEFAULT_SETTINGS } from '../data/defaults';
 import { Capacitor } from '@capacitor/core';
@@ -15,11 +15,19 @@ export function Onboarding() {
   const [voices, setVoices] = useState<VoiceInfo[]>([]);
   const [patch, setPatch] = useState<Partial<Settings>>({});
   const [style, setStyle] = useState<'playful' | 'clean'>('playful');
+  const [starter, setStarter] = useState(false);
   const native = Capacitor.isNativePlatform();
 
   useEffect(() => { listVoices().then((v) => setVoices(v.filter((x) => x.lang.toLowerCase().startsWith('en')).slice(0, 12))); }, []);
 
-  const finish = () => completeOnboarding(name.trim(), layout, { ...patch, style });
+  const finish = () => {
+    completeOnboarding(name.trim(), layout, { ...patch, style });
+    if (starter && layout !== 'big') {
+      useStore.getState().updateProfile((pp) => {
+        pp.boards[pp.rootId].cells.forEach((c) => { if (c && !c.link && !c.action && !STARTER_WORDS.includes(c.label.toLowerCase())) c.hidden = true; });
+      });
+    }
+  };
 
   return (
     <div className="onboarding">
@@ -52,6 +60,12 @@ export function Onboarding() {
                 </button>
               ))}
             </div>
+            {layout !== 'big' && (
+              <label className="check">
+                <input type="checkbox" checked={starter} onChange={(e) => setStarter(e.target.checked)} />
+                <span><b>Start with fewer words</b> <small>(recommended for beginners: shows key words first, and the rest keep their places for later)</small></span>
+              </label>
+            )}
             <div className="seg">
               <button className={style === 'playful' ? 'on' : ''} onClick={() => setStyle('playful')}>Playful look</button>
               <button className={style === 'clean' ? 'on' : ''} onClick={() => setStyle('clean')}>Clean / grown-up look</button>

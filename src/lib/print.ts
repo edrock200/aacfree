@@ -63,7 +63,7 @@ export async function buildPrintHTML(p: Profile, boardIds: string[], includeHidd
   .c { border: 1px solid #999; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .c img { flex: 1; min-height: 0; max-width: 100%; object-fit: contain; }
   .c .e { font-size: 28px; }
-  .c b { font-size: 12px; text-align: center; line-height: 1.1; }
+  .c b { font-size: 14px; text-align: center; line-height: 1.1; }
   .c.empty { border: none; background: transparent !important; }
   .c.folder { border-top: 4px solid #8a7a5c; }
   .note { color: #666; font-size: 11px; margin-top: 8px; }

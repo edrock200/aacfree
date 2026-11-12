@@ -10,6 +10,9 @@ import type { LayoutId } from '../../types';
 import { IconEdit, IconPlus } from '../../components/Icons';
 import { printBoards } from '../../lib/print';
 
+/** Highest-value first words for beginners (Project Core / common first core words). */
+export const STARTER_WORDS = ['i', 'you', 'want', 'more', 'help', 'stop', 'go', 'like', 'not', 'all done', 'eat', 'drink', 'play', 'what', 'look', 'open', 'turn', 'different', 'get', 'it'];
+
 export const LAYOUTS: { id: LayoutId; name: string; desc: string }[] = [
   { id: 'big', name: 'Big buttons · 12', desc: '4 × 3 grid. Beginners, phones, or harder motor access.' },
   { id: 'medium', name: 'Medium · 30', desc: '6 × 5 grid. Good starting point for most people.' },
@@ -82,6 +85,22 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
             </div>
           ))}
         </div>
+      </Section>
+      <Section title="Grow vocabulary over time" intro="AAC best practice: keep every word in its place and reveal more as the person is ready. Starter mode hides all but about 12 to 20 key words on Home, plus all folders. Nothing moves, and hidden words leave a gap. Reveal words one at a time in edit mode, or all at once here.">
+        <div className="row">
+          <button className="btn" onClick={() => {
+            updateProfile((pp) => {
+              const home = pp.boards[pp.rootId];
+              home.cells.forEach((c) => { if (c && !c.link && !c.action) c.hidden = !STARTER_WORDS.includes(c.label.toLowerCase()) || undefined; });
+            }, { undoable: true });
+            showToast('Starter words only. Other words are hidden but keep their places.');
+          }}>Starter words only</button>
+          <button className="btn" onClick={() => {
+            updateProfile((pp) => { for (const b of Object.values(pp.boards)) b.cells.forEach((c) => { if (c) delete c.hidden; }); }, { undoable: true });
+            showToast('All words are showing');
+          }}>Show all words</button>
+        </div>
+        <p className="muted small">{Object.values(p.boards).reduce((n, b) => n + b.cells.filter((c) => c?.hidden).length, 0)} word(s) hidden right now. Babble mode (Display) shows them temporarily.</p>
       </Section>
       <Section title="Paper boards" intro="Print a low-tech backup for bath time, the pool, a flat battery or a broken screen. It includes the quick bar on every page.">
         <button className="btn" onClick={() => setPrintSel([p.rootId, ...(p.boards[p.rootId]?.cells.filter((c) => c?.link).map((c) => c!.link!) ?? [])])}>Print boards…</button>
