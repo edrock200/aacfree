@@ -158,7 +158,10 @@ export function syncSubset(data: AppData, profileIds?: string[]): AppData {
     return { ...p, settings: settings as unknown as Profile['settings'] };
   };
   const profiles = (profileIds ? data.profiles.filter((p) => profileIds.includes(p.id)) : data.profiles).map(strip);
-  return { ...data, profiles, activeProfileId: profiles[0]?.id ?? data.activeProfileId };
+  // The grown-up lock belongs to this device and never travels in a sync file.
+  const { grownUpLock: _lock, ...rest } = data;
+  void _lock;
+  return { ...rest, profiles, activeProfileId: profiles[0]?.id ?? data.activeProfileId };
 }
 
 export interface BuildOptions {

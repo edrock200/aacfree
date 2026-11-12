@@ -134,10 +134,10 @@ describe('change stamps', () => {
     expect(a.data.profiles[0].sync!.lexT).toBeGreaterThan(0);
   });
 
-  it('device-only settings (voice, calibration, lock) are never stamped', () => {
+  it('device-only settings (voice, calibration) are never stamped', () => {
     const a = mk('devA', base);
     const before = a.data.profiles[0].sync!.stamps;
-    edit(a, (p) => { p.settings.voiceURI = 'x'; p.settings.volume = 0.3; p.settings.gazeCalibration = [[1, 2]]; p.settings.pin = '9999'; });
+    edit(a, (p) => { p.settings.voiceURI = 'x'; p.settings.volume = 0.3; p.settings.gazeCalibration = [[1, 2]]; });
     expect(a.data.profiles[0].sync!.stamps).toEqual(before);
     edit(a, (p) => { p.settings.rate = 1.3; });
     expect(a.data.profiles[0].sync!.stamps['set:rate'].d).toBe('devA');
@@ -193,7 +193,8 @@ describe('change-by-change merge', () => {
     const phone = mk('phone', base);
     const tablet = mk('tablet', base);
     edit(phone, (p) => { p.boards.home.cells[0] = btn('grandma'); });
-    edit(tablet, (p) => { p.settings.voiceURI = 'tablet-voice'; p.settings.pin = '1234'; p.settings.lock = 'pin'; });
+    edit(tablet, (p) => { p.settings.voiceURI = 'tablet-voice'; });
+    tablet.data = { ...tablet.data, grownUpLock: { lock: 'pin', pin: '1234' } };
     speak(tablet, 'I want juice');
     speak(tablet, 'more please');
     const s = pull(tablet, phone.data);
@@ -202,7 +203,7 @@ describe('change-by-change merge', () => {
     expect(tp.history.map((h) => h.text)).toEqual(['more please', 'I want juice']);
     expect(tp.lexicon.juice).toBe(1);
     expect(tp.settings.voiceURI).toBe('tablet-voice');
-    expect(tp.settings.pin).toBe('1234');
+    expect(tablet.data.grownUpLock).toEqual({ lock: 'pin', pin: '1234' });
     expect(s.received.phone).toBe(1);
     expect(s.conflicts).toEqual([]);
     // And the other way round: the phone gets the tablet's history but keeps its own voice.
@@ -484,12 +485,14 @@ describe('merge properties (random edits on three devices)', () => {
 describe('sync files v2', () => {
   it('round-trips, keeps names private and authenticates the header', async () => {
     const d = structuredClone(base);
+    d.grownUpLock = { lock: 'pin', pin: '4321' };
     d.profiles[0].boards.home.cells[0] = btn('SECRETWORD');
     d.profiles[0].settings.gazeCalibration = [[1, 2, 3]];
     const pass = suggestPasscode();
     const text = await (await createSyncFile(d, [d.profiles[0].id], pass)).text();
     expect(text).not.toContain('SECRETWORD');
-    expect(text).not.toContain('Sam');
+    const { data: _cipher, ...header } = JSON.parse(text);
+    expect(JSON.stringify(header)).not.toContain('Sam'); // no names in the plaintext header
     const f = peekSyncFile(text);
     expect(f.v).toBe(2);
     if (f.v !== 2) return;
@@ -499,6 +502,7 @@ describe('sync files v2', () => {
     const opened = await openSyncFile(f, pass.toLowerCase().replace(/-/g, ' '));
     expect(opened.data.profiles[0].boards.home.cells[0]!.label).toBe('SECRETWORD');
     expect(opened.data.profiles[0].settings.gazeCalibration).toBeUndefined();
+    expect(opened.data.grownUpLock?.pin).toBeUndefined(); // the lock never travels
     await expect(openSyncFile(f, 'WRONG-PASS-CODE')).rejects.toThrow(/Wrong passcode/);
     // Changing any header field breaks it.
     await expect(openSyncFile({ ...f, createdAt: '2001-01-01T00:00:00.000Z' }, pass)).rejects.toThrow(/Wrong passcode|changed/);

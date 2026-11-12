@@ -2,6 +2,20 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Content-Security-Policy (defence in depth; there is no server to send headers):
+      - scripts: only our own files. 'wasm-unsafe-eval' lets MediaPipe compile its WebAssembly
+        (head/eye pointer). No inline scripts, no eval.
+      - images/media: our files, data: and blob: (photos and recordings kept in IndexedDB), and
+        ARASAAC for symbol search and missing pictograms.
+      - connect: ARASAAC search and downloads, plus data:/blob: (backup photos are decoded with fetch).
+      - styles: inline style attributes are allowed (React sets them; colours are validated hex).
+      Android: Capacitor serves the app from https://localhost, which is 'self'. Its bridge script is
+      injected at document start, or as the first script in head, before this policy applies.
+      The dev server drops this tag (vite.config.ts) because it injects inline scripts.
+      scripts/e2e/flows.mjs fails on any violation, including while the camera pointer loads.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://static.arasaac.org https://api.arasaac.org; media-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob: https://api.arasaac.org https://static.arasaac.org; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#f6f3ee" />
     <meta name="description" content="Caleb is a free, open-source AAC (augmentative and alternative communication) app for autistic people and their families. Works offline, no ads, no accounts." />

@@ -18,7 +18,8 @@ describe('encrypted device sync', () => {
     const text = await blob.text();
     expect(text).not.toContain('"ME"'); // contents are encrypted
     const f = peekSyncFile(text);
-    expect(text).not.toContain('Sam'); // v0.5: profile names are inside the encrypted part
+    const { data: _cipher, ...header } = JSON.parse(text);
+    expect(JSON.stringify(header)).not.toContain('Sam'); // v0.5: profile names are inside the encrypted part
     await expect(openSyncFile(f, 'wrong-pass')).rejects.toThrow(/Wrong passcode/);
     const out = await openSyncFile(f, 'tiger-cloud-41');
     expect(out.data.profiles[0].boards.home.cells[0]!.label).toBe('ME');
