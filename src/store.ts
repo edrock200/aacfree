@@ -10,6 +10,7 @@ import { applyEnding } from './lib/morphology';
 import { getLang, pack, setLangs, type Lang } from './i18n';
 import { translateProfile } from './lib/translate';
 import { t, ts } from './i18n';
+import { captureSync, loadDeviceId, observeData, restoreSync, stampData } from './lib/stamps';
 
 export const DATA_VERSION = 1;
 
@@ -182,6 +183,35 @@ const persist = Object.assign((data: AppData) => { dirty = true; persistDebounce
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
+// ---------- sync: change stamps (the one place local edits are recorded for merging) ----------
+
+/**
+ * Records which items changed between two versions of the data (per-item
+ * change stamps, see src/lib/stamps.ts). Every local mutation of profiles or
+ * the library passes through here; data arriving from a sync does not
+ * (`applySyncedData`). `activity: false` = a restore (no history deletions).
+ */
+function stampChanges(prev: AppData, next: AppData, opts?: { activity?: boolean }): AppData {
+  return stampData(prev, next, opts);
+}
+
+/**
+ * Show data merged from another device (see src/lib/merge.ts). It already
+ * carries its stamps, so nothing is re-stamped. Keeps the person where they
+ * are (board, message); undo is cleared only if the active profile changed.
+ */
+export function applySyncedData(data: AppData) {
+  const st = useStore.getState();
+  if (!data.profiles.length) return;
+  observeData(data);
+  const before = st.data.profiles.find((x) => x.id === st.data.activeProfileId);
+  const p = data.profiles.find((x) => x.id === st.data.activeProfileId) ?? data.profiles[0];
+  const stack = st.boardStack.filter((id) => p.boards[id]);
+  const d: AppData = { ...data, activeProfileId: p.id, onboarded: st.data.onboarded || data.onboarded };
+  useStore.setState({ data: d, boardStack: stack.length ? stack : [p.rootId], undo: before === p ? st.undo : [] });
+  persist.flush(d);
+}
+
 export const useStore = create<Store>((set, get) => ({
   loaded: false,
   data: emptyData(),
@@ -200,6 +230,7 @@ export const useStore = create<Store>((set, get) => ({
 
   async init() {
     requestPersistence();
+    await loadDeviceId();
     let data: AppData | undefined;
     try {
       data = await loadData();
@@ -243,7 +274,9 @@ export const useStore = create<Store>((set, get) => ({
       }, 1500);
     }
     const p = data.profiles.find((x) => x.id === data!.activeProfileId) ?? data.profiles[0];
+    observeData(data);
     set({ data: { ...data, activeProfileId: p.id }, loaded: true, boardStack: [p.rootId] });
+    if (!saveBlocked) setTimeout(() => { import('./lib/autosync').then((m) => m.startAutoSync()).catch(() => {}); }, 2500);
   },
 
   profile() {
@@ -265,7 +298,7 @@ export const useStore = create<Store>((set, get) => ({
     fn(next);
     next.updatedAt = Date.now();
     const profiles = data.profiles.map((p) => (p.id === current.id ? next : p));
-    const newData = { ...data, profiles };
+    const newData = stampChanges(data, { ...data, profiles });
     const entry: UndoEntry = { profileId: current.id, boards: current.boards, quickBar: current.quickBar, rootId: current.rootId, layout: current.layout };
     const undo = opts.undoable ? [...get().undo.slice(-29), entry] : get().undo;
     set({ data: newData, undo });
@@ -283,7 +316,7 @@ export const useStore = create<Store>((set, get) => ({
     const prev = data.library ?? emptyLibrary();
     const library = structuredClone(prev);
     fn(library);
-    const newData = { ...data, library };
+    const newData = stampChanges(data, { ...data, library });
     set({ data: newData });
     persist(newData);
     if (opts.undo) {
@@ -291,7 +324,8 @@ export const useStore = create<Store>((set, get) => ({
       get().showToast(opts.undo, {
         label: 'Undo',
         run: () => {
-          const d = { ...get().data, library: prev };
+          const cur = get().data;
+          const d = stampChanges(cur, { ...cur, library: prev });
           set({ data: d });
           persist(d);
         },
@@ -306,7 +340,7 @@ export const useStore = create<Store>((set, get) => ({
     const profiles = data.profiles.map((p) => (p.id === prev.profileId
       ? { ...p, boards: prev.boards, quickBar: prev.quickBar, rootId: prev.rootId, layout: prev.layout }
       : p));
-    const newData = { ...data, profiles };
+    const newData = stampChanges(data, { ...data, profiles });
     const root = profiles.find((p) => p.id === prev.profileId)!.rootId;
     const boardStack = get().boardStack.filter((id) => newData.profiles.find((p) => p.id === prev.profileId)!.boards[id]);
     set({ data: newData, undo: undo.slice(0, -1), boardStack: boardStack.length ? boardStack : [root] });
@@ -315,9 +349,10 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   async replaceData(newData, reason = 'Before restore') {
-    const d = migrate(structuredClone(newData)); // validates first: throws on a bad file
+    let d = migrate(structuredClone(newData)); // validates first: throws on a bad file
     d.onboarded = true;
     await addSnapshot(get().data, reason);
+    d = stampChanges(get().data, d, { activity: false });
     const p = d.profiles.find((x) => x.id === d.activeProfileId) ?? d.profiles[0];
     d.activeProfileId = p.id;
     set({ data: d, boardStack: [p.rootId], message: [], undo: [] });
@@ -339,7 +374,7 @@ export const useStore = create<Store>((set, get) => ({
   completeOnboarding(name, layout, patch = {}) {
     const p = buildProfile(name, layout, patch.language ?? 'en');
     p.settings = { ...p.settings, ...patch };
-    const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary() };
+    const data: AppData = stampChanges(get().data, { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary() });
     set({ data, boardStack: [p.rootId], message: [] });
     persist.flush(data);
   },
@@ -347,7 +382,7 @@ export const useStore = create<Store>((set, get) => ({
   addProfile(name, layout) {
     const p = buildProfile(name, layout, get().settings().language ?? 'en');
     const { data } = get();
-    const newData = { ...data, profiles: [...data.profiles, p], activeProfileId: p.id };
+    const newData = stampChanges(data, { ...data, profiles: [...data.profiles, p], activeProfileId: p.id });
     set({ data: newData, boardStack: [p.rootId], message: [], undo: [] });
     persist(newData);
   },
@@ -367,7 +402,7 @@ export const useStore = create<Store>((set, get) => ({
     addSnapshot(data, 'Before deleting a profile');
     const profiles = data.profiles.filter((p) => p.id !== id);
     const activeProfileId = data.activeProfileId === id ? profiles[0].id : data.activeProfileId;
-    const newData = { ...data, profiles, activeProfileId };
+    const newData = stampChanges(data, { ...data, profiles, activeProfileId });
     set({ data: newData, boardStack: [profiles.find((p) => p.id === activeProfileId)!.rootId], undo: [] });
     clearLog(id).catch(() => {});
     persist(newData);
@@ -586,6 +621,7 @@ export function migrate(data: AppData): AppData {
     throw new Error('This file was made by a newer version of Caleb. Please update the app first.');
   }
   const fresh = buildProfile('', 'medium');
+  const syncInfo = captureSync(data); // v0.5 sync stamps, validated and seeded at the end
   data.profiles = data.profiles.map(repairProfile).filter((p): p is Profile => !!p);
   if (!data.profiles.length) throw new Error('This file has no usable boards.');
   for (const p of data.profiles) {
@@ -608,6 +644,7 @@ export function migrate(data: AppData): AppData {
   if (!data.profiles.some((p) => p.id === data.activeProfileId)) data.activeProfileId = data.profiles[0].id;
   data.onboarded = data.onboarded !== false;
   data.library = cleanLibrary(data.library);
+  restoreSync(data, syncInfo);
   data.version = DATA_VERSION;
   return data;
 }

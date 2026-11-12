@@ -201,8 +201,10 @@ export interface Profile {
   lexicon: Record<string, number>;
   history: { text: string; t: number }[];
   createdAt: number;
-  /** Last change (used to merge profiles when syncing between devices). */
+  /** Last change of any kind (v0.4 sync compared this; v0.5 merges item by item with `sync`). */
   updatedAt?: number;
+  /** Per-item change stamps for merging changes from several devices (see src/lib/stamps.ts). */
+  sync?: SyncInfo;
 }
 
 export type LayoutId = 'big' | 'compact' | 'medium' | 'full';
@@ -229,6 +231,8 @@ export interface SymbolLibrary {
   categories: LibraryCategory[];
   /** Extra symbols the family added to built-in categories (category id → symbols). */
   additions: Record<string, LibrarySymbol[]>;
+  /** Per-item change stamps (categories and symbols) for syncing between devices. */
+  sync?: SyncInfo;
 }
 
 export interface AppData {
@@ -237,6 +241,33 @@ export interface AppData {
   activeProfileId: string;
   onboarded: boolean;
   library: SymbolLibrary;
+  /** Sync bookkeeping that is not inside one profile. */
+  sync?: DataSyncInfo;
+}
+
+/** When an item last changed (`t`, ms, a hybrid clock) and on which device (`d`, a random id). */
+export interface SyncStamp { t: number; d: string }
+
+/**
+ * Change stamps for merging edits made on several devices. Item keys are
+ * fine-grained (one per board cell by row/column, board details, phrase,
+ * schedule, quick-bar button, setting…), so changes to different items never
+ * overwrite each other.
+ */
+export interface SyncInfo {
+  /** item key → last change */
+  stamps: Record<string, SyncStamp>;
+  /** item key → deletion (also history rows a grown-up removed, and "forget learned words") */
+  tombstones: Record<string, SyncStamp>;
+  /** device id → newest change from that device this copy has seen (tells real conflicts apart). */
+  seen: Record<string, number>;
+  /** When learned words last grew here (activity, not content). */
+  lexT?: number;
+}
+
+export interface DataSyncInfo {
+  /** Profiles deleted on some device: profile id → when. */
+  removed: Record<string, SyncStamp>;
 }
 
 export interface MessageWord {

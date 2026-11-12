@@ -109,3 +109,59 @@ export function cleanLibrary(raw: unknown): AppData['library'] {
   }
   return { categories, additions };
 }
+
+// ---------- sync stamps (v0.5) ----------
+import type { DataSyncInfo, SyncInfo, SyncStamp } from '../types';
+
+const STAMP_KEY_RE = /^(meta|about|qo|po|pco|so|lco|[a-z]{1,3}:.{1,400})$/s;
+const DEVICE_RE = /^[\w-]{1,40}$/;
+const MAX_STAMPS = 200_000;
+/** Stamps far in the future (a device with a wrong clock) are pulled back so they can't win forever. */
+const futureLimit = () => Date.now() + 2 * 24 * 3600 * 1000;
+
+function cleanStampMap(raw: unknown): Record<string, SyncStamp> {
+  const out: Record<string, SyncStamp> = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  const limit = futureLimit();
+  let n = 0;
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (n >= MAX_STAMPS) break;
+    if (!STAMP_KEY_RE.test(k) || !v || typeof v !== 'object') continue;
+    const o = v as Record<string, unknown>;
+    if (typeof o.t !== 'number' || !Number.isFinite(o.t) || o.t < 0 || typeof o.d !== 'string' || !DEVICE_RE.test(o.d) || o.d === '__proto__') continue;
+    out[k] = { t: Math.min(o.t, limit), d: o.d };
+    n++;
+  }
+  return out;
+}
+
+/** Validates a profile's or the library's sync stamps. Returns undefined if there are none (they are seeded later). */
+export function cleanSyncInfo(raw: unknown): SyncInfo | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const o = raw as Record<string, unknown>;
+  const seen: Record<string, number> = {};
+  const limit = futureLimit();
+  if (o.seen && typeof o.seen === 'object' && !Array.isArray(o.seen)) {
+    for (const [d, t] of Object.entries(o.seen as Record<string, unknown>)) {
+      if (DEVICE_RE.test(d) && d !== '__proto__' && typeof t === 'number' && Number.isFinite(t) && t >= 0) seen[d] = Math.min(t, limit);
+    }
+  }
+  const out: SyncInfo = { stamps: cleanStampMap(o.stamps), tombstones: cleanStampMap(o.tombstones), seen };
+  if (typeof o.lexT === 'number' && Number.isFinite(o.lexT) && o.lexT >= 0) out.lexT = Math.min(o.lexT, limit);
+  return out;
+}
+
+/** Validates the data-level sync info (deleted profiles). */
+export function cleanDataSync(raw: unknown): DataSyncInfo {
+  const removed: Record<string, SyncStamp> = {};
+  const r = raw && typeof raw === 'object' ? (raw as Record<string, unknown>).removed : undefined;
+  if (r && typeof r === 'object' && !Array.isArray(r)) {
+    const limit = futureLimit();
+    for (const [id, v] of Object.entries(r as Record<string, unknown>)) {
+      if (id === '__proto__' || id.length > 80 || !v || typeof v !== 'object') continue;
+      const o = v as Record<string, unknown>;
+      if (typeof o.t === 'number' && Number.isFinite(o.t) && o.t >= 0 && typeof o.d === 'string' && DEVICE_RE.test(o.d)) removed[id] = { t: Math.min(o.t, limit), d: o.d };
+    }
+  }
+  return { removed };
+}

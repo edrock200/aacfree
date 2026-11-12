@@ -18,10 +18,10 @@ describe('encrypted device sync', () => {
     const text = await blob.text();
     expect(text).not.toContain('"ME"'); // contents are encrypted
     const f = peekSyncFile(text);
-    expect(f.profiles).toEqual(['Sam']);
+    expect(text).not.toContain('Sam'); // v0.5: profile names are inside the encrypted part
     await expect(openSyncFile(f, 'wrong-pass')).rejects.toThrow(/Wrong passcode/);
     const out = await openSyncFile(f, 'tiger-cloud-41');
-    expect(out.profiles[0].boards.home.cells[0]!.label).toBe('ME');
+    expect(out.data.profiles[0].boards.home.cells[0]!.label).toBe('ME');
   }, 30000);
 
   it('rejects short passcodes', async () => {
@@ -29,7 +29,7 @@ describe('encrypted device sync', () => {
     await expect(createSyncFile(d, [d.profiles[0].id], '123')).rejects.toThrow();
   });
 
-  it('merges: newest profile wins, new profiles are added, libraries combine', () => {
+  it('merges old unstamped data like v0.4: newer copy wins, new profiles are added, libraries combine', () => {
     const local = data();
     const incoming = structuredClone(local);
     incoming.profiles[0].name = 'Sam (tablet)';
@@ -38,7 +38,8 @@ describe('encrypted device sync', () => {
     incoming.profiles.push(extra);
     incoming.library.categories.push({ id: 'c1', name: 'Soccer', symbols: [{ id: 's1', label: 'goal', symbol: 'e:🥅' }] });
     const { data: merged, summary } = mergeData(local, incoming);
-    expect(summary.updated).toEqual(['Sam (tablet)']);
+    expect(merged.profiles[0].name).toBe('Sam (tablet)');
+    expect(summary.received.legacy).toBeGreaterThan(0);
     expect(summary.added).toEqual(['Ava']);
     expect(merged.profiles.length).toBe(2);
     expect(merged.library.categories[0].name).toBe('Soccer');
@@ -46,7 +47,9 @@ describe('encrypted device sync', () => {
     const older = structuredClone(local);
     older.profiles[0].updatedAt = 10;
     older.profiles[0].name = 'Old';
-    expect(mergeData(local, older).summary.kept).toEqual(['Sam']);
+    const kept = mergeData(local, older);
+    expect(kept.data.profiles[0].name).toBe('Sam');
+    expect(kept.summary.localChanged).toBe(false);
   });
 });
 
