@@ -278,7 +278,7 @@ small { font-size: 0.85em; }
 
 /* ================= Scanning (v0.5 access) ================= */
 /* Two-tone: the coloured band contrasts with the page, the black/white pair with any button fill. */
-.scan-hl {
+.scan-hl, .scan-hl-preview {
   outline: var(--ring-w) solid var(--ring-c) !important; outline-offset: calc(-1 * var(--ring-w)) !important;
   box-shadow: inset 0 0 0 calc(var(--ring-w) + 2px) var(--ring-ink-a), inset 0 0 0 calc(var(--ring-w) + 4px) var(--ring-ink-b) !important;
   z-index: 2; position: relative;

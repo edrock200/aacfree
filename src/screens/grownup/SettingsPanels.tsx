@@ -243,7 +243,7 @@ function HighlightSection() {
       <Slider label={t('Thickness')} value={ringWidth(s.highlightWidth)} min={2} max={14} onChange={(highlightWidth) => updateSettings({ highlightWidth })} format={(v) => `${v}px`} />
       <div className="highlight-preview" aria-hidden>
         {(['pronoun', 'verb', 'descriptor', 'noun'] as const).map((k, i) => (
-          <span key={k} className={`cell ${i === 1 ? 'scan-hl' : ''}`} style={{ background: WORD_COLORS[k][s.theme === 'light' ? 'light' : 'dark'] }}>{i === 1 ? t('Scanning') : t('Word')}</span>
+          <span key={k} className={`cell ${i === 1 ? 'scan-hl-preview' : ''}`} style={{ background: WORD_COLORS[k][s.theme === 'light' ? 'light' : 'dark'] }}>{i === 1 ? t('Scanning') : t('Word')}</span>
         ))}
       </div>
     </Section>
