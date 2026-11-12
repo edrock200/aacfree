@@ -13,10 +13,21 @@ export async function saveFile(name: string, blob: Blob): Promise<string> {
     downloadBlob(blob, name);
     return 'Downloaded ' + name;
   }
-  const dataUrl = await blobToDataURL(blob);
-  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
-  const res = await Filesystem.writeFile({ path: name, data: base64, directory: Directory.Documents, recursive: true })
-    .catch(() => Filesystem.writeFile({ path: name, data: base64, directory: Directory.Cache, recursive: true }));
+  // Write in chunks so a large backup (lots of photos) doesn't exhaust memory crossing the bridge.
+  const CHUNK = 3 * 1024 * 1024; // bytes; multiple of 3 so each base64 piece stands alone
+  const write = async (directory: Directory) => {
+    let first = true;
+    let uri = '';
+    for (let off = 0; off < Math.max(1, blob.size); off += CHUNK) {
+      const part = await blobToDataURL(blob.slice(off, off + CHUNK));
+      const data = part.slice(part.indexOf(',') + 1);
+      if (first) uri = (await Filesystem.writeFile({ path: name, data, directory, recursive: true })).uri;
+      else await Filesystem.appendFile({ path: name, data, directory });
+      first = false;
+    }
+    return { uri };
+  };
+  const res = await write(Directory.Documents).catch(() => write(Directory.Cache));
   try {
     await Share.share({ title: name, files: [res.uri], dialogTitle: 'Save or send backup' });
   } catch { /* user cancelled share sheet */ }
@@ -28,7 +39,9 @@ export function pickFile(accept: string): Promise<File | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = accept;
+    // Android's picker greys out unknown extensions (.obz/.obf/.json often report
+    // application/octet-stream), so accept anything there and validate the content.
+    input.accept = Capacitor.isNativePlatform() ? '*/*' : accept;
     input.onchange = () => resolve(input.files?.[0] ?? null);
     input.oncancel = () => resolve(null);
     input.click();

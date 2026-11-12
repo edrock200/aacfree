@@ -13,18 +13,25 @@ interface Props {
   highlighted?: boolean;
   selected?: boolean;
   row?: number;
-  onActivate: () => void;
+  /** Either a plain callback… */
+  onActivate?: () => void;
   onLongPress?: () => void;
+  /** …or stable index-based callbacks (lets memo skip re-rendering untouched cells). */
+  index?: number;
+  onCell?: (index: number, button: AACButton | null) => void;
+  onLong?: (button: AACButton) => void;
   compact?: boolean;
 }
 
 export const CellButton = memo(function CellButton({
-  button, settings: s, editMode, highlighted, selected, row, onActivate, onLongPress, compact,
+  button, settings: s, editMode, highlighted, selected, row, onActivate, onLongPress, index, onCell, onLong, compact,
 }: Props) {
   const dark = s.theme !== 'light';
+  const activate = onActivate ?? (() => onCell?.(index ?? 0, button));
+  const long = onLongPress ?? (onLong && button && !button.link && !button.action ? () => onLong(button) : undefined);
   const press = usePress({
-    onActivate,
-    onLongPress: editMode ? undefined : onLongPress,
+    onActivate: activate,
+    onLongPress: editMode ? undefined : long,
     holdMs: editMode ? 0 : s.holdMs,
     debounceMs: editMode ? 0 : s.debounceMs,
     pressOnDown: editMode ? false : s.pressOnDown,

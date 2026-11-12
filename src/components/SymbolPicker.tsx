@@ -4,6 +4,9 @@ import { putAsset } from '../lib/db';
 import { LibraryBrowser } from './LibraryBrowser';
 import { useStore } from '../store';
 import { allCategories } from '../lib/library';
+import symbolMap from '../data/symbols.json';
+
+const BUNDLED = new Set(Object.values(symbolMap as Record<string, number | null>).filter((x): x is number => !!x));
 import { resizeImage, uid } from '../lib/util';
 import { IconCamera, IconSearch } from './Icons';
 
@@ -71,11 +74,13 @@ export function SymbolPicker({ initialQuery = '', onPick: onPickRaw, onClose, no
   }, [q, tab]);
 
   const pickOnline = async (id: number, label?: string) => {
+    // Already bundled (offline): no download needed.
+    if (BUNDLED.has(id)) return onPick(`a:${id}`, label);
     setLoading(true);
     try {
       const r = await fetch(`https://static.arasaac.org/pictograms/${id}/${id}_300.png`);
       const blob = await resizeImage(await r.blob(), 256);
-      const assetId = uid('arasaac-');
+      const assetId = `arasaac-${id}`; // one stored copy per pictogram
       await putAsset(assetId, blob);
       onPick(`img:${assetId}`, label);
     } catch {

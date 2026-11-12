@@ -1,6 +1,12 @@
 apply plugin: 'com.android.application'
 
 // Release signing: reads android/keystore.properties if present (see README → Android).
+// Version comes from package.json so web and Android never drift apart.
+// versionCode = major*10000 + minor*100 + patch (0.2.0 → 200).
+def pkgVersion = new groovy.json.JsonSlurper().parse(rootProject.file('../package.json')).version
+def (vMajor, vMinor, vPatch) = pkgVersion.tokenize('.').collect { it.replaceAll(/\D.*/, '') as int }
+def appVersionCode = vMajor * 10000 + vMinor * 100 + vPatch
+
 def keystorePropsFile = rootProject.file('keystore.properties')
 def keystoreProps = new Properties()
 if (keystorePropsFile.exists()) {
@@ -14,8 +20,8 @@ android {
         applicationId "org.calebaac.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "0.1.0"
+        versionCode appVersionCode
+        versionName pkgVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

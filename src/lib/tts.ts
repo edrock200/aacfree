@@ -22,10 +22,40 @@ let userSpeaking = false;
 let speechToken = 0;
 export const isUserSpeaking = () => userSpeaking;
 
+let nativeVoices: { name: string; lang: string }[] | null = null;
+let onFailure: (() => void) | null = null;
+/** Called when speech fails completely (e.g. no voice data for the language). */
+export function setTtsFailureHandler(fn: (() => void) | null) { onFailure = fn; }
+export const openTtsInstall = () => { if (native) TextToSpeech.openInstall().catch(() => {}); };
+
+async function nativeVoiceIndex(name?: string, fallback?: number): Promise<number | undefined> {
+  if (!name) return fallback;
+  try {
+    nativeVoices ??= (await TextToSpeech.getSupportedVoices()).voices;
+    const i = nativeVoices.findIndex((v) => v.name === name);
+    return i >= 0 ? i : undefined;
+  } catch {
+    return fallback;
+  }
+}
+
+/** On Android, make sure the chosen language is installed; otherwise fall back to the device language. */
+export async function checkNativeLanguage(lang: string): Promise<string | null> {
+  if (!native) return null;
+  try {
+    const { supported } = await TextToSpeech.isLanguageSupported({ lang });
+    if (supported) return null;
+    const device = navigator.language || 'en-US';
+    if (device !== lang && (await TextToSpeech.isLanguageSupported({ lang: device })).supported) return device;
+  } catch { /* ignore */ }
+  return null;
+}
+
 export async function listVoices(): Promise<VoiceInfo[]> {
   if (native) {
     try {
       const { voices } = await TextToSpeech.getSupportedVoices();
+      nativeVoices = voices;
       return voices.map((v, i) => ({ id: String(i), name: v.name, lang: v.lang, local: v.localService }));
     } catch {
       return [];
@@ -57,7 +87,7 @@ export function stopSpeaking() {
   }
 }
 
-type VoiceSettings = Pick<Settings, 'rate' | 'pitch' | 'volume' | 'lang' | 'voiceURI' | 'voiceIndex'>;
+type VoiceSettings = Pick<Settings, 'rate' | 'pitch' | 'volume' | 'lang' | 'voiceURI' | 'voiceIndex' | 'voiceName'>;
 
 export async function speak(text: string, s: VoiceSettings, opts: { audio?: string; interrupt?: boolean; prompt?: boolean } = {}) {
   const clean = text.trim();
@@ -83,19 +113,16 @@ export async function speak(text: string, s: VoiceSettings, opts: { audio?: stri
   }
   if (!clean) return done();
   if (native) {
+    const base = { text: clean, rate: s.rate, pitch: s.pitch, volume: s.volume, category: 'playback', queueStrategy: QueueStrategy.Flush };
     try {
-      await TextToSpeech.speak({
-        text: clean,
-        lang: s.lang,
-        rate: s.rate,
-        pitch: s.pitch,
-        volume: s.volume,
-        voice: s.voiceIndex,
-        category: 'playback',
-        queueStrategy: QueueStrategy.Flush,
-      });
+      await TextToSpeech.speak({ ...base, lang: s.lang, voice: await nativeVoiceIndex(s.voiceName, s.voiceIndex) });
     } catch (e) {
-      console.warn('TTS failed', e);
+      console.warn('TTS failed, retrying with the device language', e);
+      try {
+        await TextToSpeech.speak({ ...base, lang: navigator.language || 'en-US' });
+      } catch {
+        if (!opts.prompt) onFailure?.();
+      }
     }
     done();
     return;

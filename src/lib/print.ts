@@ -9,7 +9,8 @@ import { saveFile } from './files';
  * Printable paper boards: a low-tech backup for when the device is charging,
  * at the pool, or broken. Generates a self-contained HTML page.
  */
-const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+const esc = (s: string) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+const num = (n: unknown, max: number) => Math.min(max, Math.max(1, Math.round(Number(n)) || 1));
 
 async function symbolData(ref?: string): Promise<string> {
   if (!ref) return '';
@@ -44,10 +45,10 @@ export async function buildPrintHTML(p: Profile, boardIds: string[], includeHidd
       return `<div class="c${folder}" style="background:${buttonColor(b.type, false, b.color)}">${await sym(b.symbol)}<b>${esc(b.label)}</b></div>`;
     }));
     pages.push(`<section><h2>${esc(board.name)}</h2>
-      <div class="q" style="grid-template-columns:repeat(${p.quickBar.length},1fr)">${quick.join('')}</div>
-      <div class="g" style="grid-template-columns:repeat(${board.cols},1fr)">${cells.join('')}</div></section>`);
+      <div class="q" style="grid-template-columns:repeat(${num(p.quickBar.length, 16)},1fr)">${quick.join('')}</div>
+      <div class="g" style="grid-template-columns:repeat(${num(board.cols, 20)},1fr)">${cells.join('')}</div></section>`);
   }
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(p.name || 'Caleb')} — communication boards</title>
 <style>
   @page { size: landscape; margin: 10mm; }

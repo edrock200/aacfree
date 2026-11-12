@@ -81,11 +81,11 @@ export function Onboarding() {
             <h2>Pick a voice</h2>
             <p className="muted">Tap to hear each voice. If possible, let {name || 'the person'} choose. You can change this later.</p>
             <div className="voice-list">
-              <button className={`voice ${patch.voiceURI === undefined && patch.voiceIndex === undefined ? 'on' : ''}`} onClick={() => { setPatch({ ...patch, voiceURI: undefined, voiceIndex: undefined }); speak('Hello! This is my voice.', DEFAULT_SETTINGS); }}>
+              <button className={`voice ${patch.voiceURI === undefined && patch.voiceIndex === undefined ? 'on' : ''}`} onClick={() => { setPatch({ ...patch, voiceURI: undefined, voiceIndex: undefined, voiceName: undefined }); speak('Hello! This is my voice.', DEFAULT_SETTINGS); }}>
                 <b>Device default</b>
               </button>
               {voices.map((v) => {
-                const vp = native ? { voiceIndex: Number(v.id), lang: v.lang } : { voiceURI: v.id, lang: v.lang };
+                const vp = native ? { voiceIndex: Number(v.id), voiceName: v.name, lang: v.lang } : { voiceURI: v.id, lang: v.lang };
                 const on = native ? patch.voiceIndex === Number(v.id) : patch.voiceURI === v.id;
                 return (
                   <button key={v.id} className={`voice ${on ? 'on' : ''}`} onClick={() => { setPatch({ ...patch, ...vp }); speak('Hello! This is my voice.', { ...DEFAULT_SETTINGS, ...vp }); }}>

@@ -8,6 +8,7 @@ import { exportOBZ, importOBF } from '../../lib/obf';
 import { buildProfile } from '../../data/defaults';
 import { formatDate } from '../../lib/util';
 import { Modal } from '../../components/Modal';
+import type { AppData } from '../../types';
 
 export function BackupPanel() {
   const p = useProfile();
@@ -16,6 +17,11 @@ export function BackupPanel() {
   const [snaps, setSnaps] = useState<Omit<Snapshot, 'data'>[]>([]);
   const [busy, setBusy] = useState(false);
   const [restore, setRestore] = useState<Omit<Snapshot, 'data'> | null>(null);
+  const [pendingFile, setPendingFile] = useState<{ data: AppData; name: string } | null>(null);
+  const [usage, setUsage] = useState<{ used: number; quota: number } | null>(null);
+  useEffect(() => {
+    navigator.storage?.estimate?.().then((e) => e.usage != null && e.quota && setUsage({ used: e.usage, quota: e.quota })).catch(() => {});
+  }, []);
 
   const refresh = () => listSnapshots().then(setSnaps);
   useEffect(() => { refresh(); }, []);
@@ -35,9 +41,7 @@ export function BackupPanel() {
     const f = await pickFile('.json,application/json');
     if (!f) return;
     const d = await readBackup(await f.text());
-    await replaceData(d, 'Before importing a backup');
-    showToast('Backup restored');
-    refresh();
+    setPendingFile({ data: d, name: f.name });
   });
 
   const exportObz = () => run(async () => {
@@ -81,6 +85,7 @@ export function BackupPanel() {
         <p className={last && Date.now() - last < 30 * 86400000 ? 'muted' : 'warn'}>
           {last ? `Last backup file: ${formatDate(last)}` : 'You have not saved a backup file yet.'}
         </p>
+        {usage && <p className="muted small">Storage used on this device: {(usage.used / 1048576).toFixed(1)} MB of {(usage.quota / 1073741824).toFixed(1)} GB available.</p>}
         <div className="row">
           <button className="btn primary" disabled={busy} onClick={exportAll}>Save backup file</button>
           <button className="btn" disabled={busy} onClick={importAll}>Restore from file…</button>
@@ -104,6 +109,19 @@ export function BackupPanel() {
           <button className="btn" disabled={busy} onClick={importObz}>Import boards…</button>
         </div>
       </Section>
+      {pendingFile && (
+        <Modal title="Restore this backup?" onClose={() => setPendingFile(null)}
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setPendingFile(null)}>Cancel</button>
+            <button className="btn primary" onClick={() => run(async () => {
+              await replaceData(pendingFile.data, 'Before importing a backup');
+              setPendingFile(null);
+              showToast('Backup restored');
+              refresh();
+            })}>Replace with backup</button></>}>
+          <p><b>{pendingFile.name}</b> contains {pendingFile.data.profiles.length} profile(s): {pendingFile.data.profiles.map((x) => x.name || 'Unnamed').join(', ')}.</p>
+          <p>Everything on this device is replaced by the backup. Your current version is saved as a snapshot first, so you can go back.</p>
+        </Modal>
+      )}
       {restore && (
         <Modal title="Restore this snapshot?" onClose={() => setRestore(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setRestore(null)}>Cancel</button><button className="btn primary" onClick={() => doRestore(restore.id!)}>Restore</button></>}>

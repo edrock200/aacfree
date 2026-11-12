@@ -158,7 +158,7 @@ export function CategoryEditor({ cat, onClose, onSaved, onDeleted }: {
       {confirm && cat && (
         <Modal title={`Delete “${cat.name}”?`} onClose={() => setConfirm(false)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirm(false)}>Cancel</button>
-            <button className="btn danger" onClick={() => { updateLibrary((lib) => { lib.categories = lib.categories.filter((c) => c.id !== cat.id); }); onDeleted(); }}>Delete</button></>}>
+            <button className="btn danger" onClick={() => { updateLibrary((lib) => { lib.categories = lib.categories.filter((c) => c.id !== cat.id); }, { undo: `Deleted “${cat.name}”` }); onDeleted(); }}>Delete</button></>}>
           <p>This removes the category and its {cat.symbols.length} symbol(s) from the library. Buttons already on boards keep their pictures.</p>
         </Modal>
       )}
@@ -198,7 +198,7 @@ export function SymbolEditor({ cat, sym, categories, onClose, initial }: {
     <>
       <Modal title={sym ? 'Edit symbol' : 'New symbol'} onClose={onClose}
         footer={<>
-          {sym && <button className="btn danger-outline" onClick={() => { updateLibrary((lib) => removeFrom(lib, sym.id)); onClose(); }}><IconTrash /> Delete</button>}
+          {sym && <button className="btn danger-outline" onClick={() => { updateLibrary((lib) => removeFrom(lib, sym.id), { undo: `Deleted “${sym.label}”` }); onClose(); }}><IconTrash /> Delete</button>}
           <span className="spacer" />
           <button className="btn" onClick={onClose}>Cancel</button>
           <button className="btn primary" disabled={!symbol || !label.trim()} onClick={save}>Save</button>

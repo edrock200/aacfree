@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { AACButton, Board, Settings } from '../types';
 import { CellButton } from './CellButton';
 
@@ -11,7 +12,7 @@ interface Props {
   onLongPress?: (button: AACButton) => void;
 }
 
-export function BoardGrid({ board, settings: s, editMode, highlight, selectedIndex, onCell, onLongPress }: Props) {
+export const BoardGrid = memo(function BoardGrid({ board, settings: s, editMode, highlight, selectedIndex, onCell, onLongPress }: Props) {
   // Trim fully-empty trailing rows for display (keeps positions stable).
   return (
     <div
@@ -33,10 +34,11 @@ export function BoardGrid({ board, settings: s, editMode, highlight, selectedInd
           row={Math.floor(i / board.cols)}
           highlighted={!!b && highlight.includes(b.id)}
           selected={selectedIndex === i}
-          onActivate={() => onCell(i, b)}
-          onLongPress={b && onLongPress && !b.link && !b.action ? () => onLongPress(b) : undefined}
+          index={i}
+          onCell={onCell}
+          onLong={onLongPress}
         />
       ))}
     </div>
   );
-}
+});

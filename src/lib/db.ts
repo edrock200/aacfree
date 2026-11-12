@@ -50,6 +50,27 @@ export async function saveData(data: AppData) {
   await (await db()).put('kv', data, 'data');
 }
 
+export async function getRev(): Promise<number> {
+  return ((await (await db()).get('kv', 'rev')) as number | undefined) ?? 0;
+}
+
+/**
+ * Writes only if nobody else (another tab/window) saved since `expectedRev`.
+ * Returns the new revision, or null on conflict.
+ */
+export async function saveDataChecked(data: AppData, expectedRev: number): Promise<number | null> {
+  const tx = (await db()).transaction('kv', 'readwrite');
+  const cur = ((await tx.store.get('rev')) as number | undefined) ?? 0;
+  if (cur !== expectedRev) {
+    await tx.done;
+    return null;
+  }
+  await tx.store.put(data, 'data');
+  await tx.store.put(cur + 1, 'rev');
+  await tx.done;
+  return cur + 1;
+}
+
 export async function getMeta<T>(key: string): Promise<T | undefined> {
   return (await (await db()).get('kv', key)) as T | undefined;
 }
@@ -145,4 +166,29 @@ export async function requestPersistence() {
       await navigator.storage.persist();
     }
   } catch { /* ignore */ }
+}
+
+/**
+ * Garbage-collect photos/recordings that nothing refers to any more.
+ * An asset is only deleted after it has been unreferenced (by live data AND
+ * every snapshot) for at least a day, so undo / cancel / restore stay safe.
+ */
+export async function gcAssets(liveRefs: Set<string>, refsOf: (data: unknown) => Set<string>): Promise<number> {
+  const d = await db();
+  const refs = new Set(liveRefs);
+  for (const snap of (await d.getAll('snapshots')) as Snapshot[]) refsOf(snap.data).forEach((r) => refs.add(r));
+  const candidates = ((await d.get('kv', 'gcCandidates')) as Record<string, number> | undefined) ?? {};
+  const next: Record<string, number> = {};
+  const now = Date.now();
+  let deleted = 0;
+  for (const id of (await d.getAllKeys('assets')) as string[]) {
+    if (refs.has(id)) continue;
+    const since = candidates[id] ?? now;
+    if (now - since > 24 * 3600 * 1000) {
+      await d.delete('assets', id);
+      deleted++;
+    } else next[id] = since;
+  }
+  await d.put('kv', next, 'gcCandidates');
+  return deleted;
 }

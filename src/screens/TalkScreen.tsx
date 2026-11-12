@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { BoardGrid } from '../components/BoardGrid';
 import { NewCategoryDialog } from '../components/NewCategoryDialog';
@@ -10,7 +10,7 @@ import { resizeBoard, orphanBoards } from '../lib/boards';
 import type { AACButton, Board } from '../types';
 import { IconCheck, IconEye, IconEyeOff, IconPlus, IconSettings, IconUndo } from '../components/Icons';
 
-export function TalkScreen() {
+export const TalkScreen = memo(function TalkScreen() {
   const p = useProfile();
   const s = p.settings;
   const boardStack = useStore((st) => st.boardStack);
@@ -30,7 +30,7 @@ export function TalkScreen() {
   // A pending Move belongs to the board it started on.
   useEffect(() => { setMoveFrom(null); }, [board.id, editMode]);
 
-  const onCell = (index: number, b: AACButton | null) => {
+  const onCellImpl = (index: number, b: AACButton | null) => {
     if (editMode) {
       if (moveFrom !== null) {
         if (moveFrom !== index) {
@@ -47,6 +47,12 @@ export function TalkScreen() {
     }
     if (b) pressButton(b);
   };
+
+  // Stable callbacks so memoised cells don't re-render on every tap.
+  const cellRef = useRef(onCellImpl);
+  cellRef.current = onCellImpl;
+  const onCell = useCallback((i: number, b: AACButton | null) => cellRef.current(i, b), []);
+  const onLong = useCallback((b: AACButton) => setFormsButton(b), []);
 
   const saveButton = (nb: AACButton, newBoard?: Board) => {
     if (!editing) return;
@@ -93,7 +99,7 @@ export function TalkScreen() {
         highlight={highlight}
         selectedIndex={moveFrom}
         onCell={onCell}
-        onLongPress={(b) => setFormsButton(b)}
+        onLongPress={onLong}
       />
       {editing && (
         <ButtonEditor
@@ -129,7 +135,7 @@ export function TalkScreen() {
       )}
     </div>
   );
-}
+});
 
 function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boolean; onClose: () => void }) {
   const { updateProfile, back, showToast } = useStore.getState();

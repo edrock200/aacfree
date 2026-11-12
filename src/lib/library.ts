@@ -16,8 +16,18 @@ export function allCategories(lib: SymbolLibrary | undefined): ViewCategory[] {
     const extra = l.additions[c.id] ?? [];
     return { ...c, symbols: [...extra, ...c.symbols], builtIn: true, customIds: new Set(extra.map((s) => s.id)) };
   });
+  // Additions whose built-in category no longer exists (e.g. renamed in an update) stay visible.
+  const known = new Set(builtIn.map((c) => c.id));
+  const orphans = Object.entries(l.additions).filter(([k]) => !known.has(k) && k !== ORPHANS_ID).flatMap(([, v]) => v);
+  const own = l.additions[ORPHANS_ID] ?? [];
+  if (orphans.length || own.length) {
+    const symbols = [...own, ...orphans];
+    custom.push({ id: ORPHANS_ID, name: 'My extra symbols', symbols, builtIn: true, customIds: new Set(symbols.map((s) => s.id)) });
+  }
   return [...custom, ...builtIn];
 }
+
+const ORPHANS_ID = 'lib-extra';
 
 /** Search every category plus the whole bundled symbol index. */
 export function searchLibrary(lib: SymbolLibrary | undefined, query: string, limit = 80): LibrarySymbol[] {

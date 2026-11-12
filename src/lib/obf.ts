@@ -3,6 +3,11 @@ import type { AACButton, Board, ButtonAction, Cell, Profile, WordType } from '..
 import { buttonColor } from './colors';
 import { getAsset, putAsset } from './db';
 import { uid } from './util';
+import { cleanBoard, MAX_COLS, MAX_ROWS, safeColor } from './validate';
+import symbolMap from '../data/symbols.json';
+
+const BUNDLED = new Set(Object.values(symbolMap as Record<string, number | null>).filter((x): x is number => !!x));
+const MAX_FILE = 150 * 1024 * 1024;
 
 /**
  * Open Board Format (https://www.openboardformat.org) import / export, so
@@ -138,6 +143,7 @@ export async function exportOBZ(p: Profile): Promise<Blob> {
 
 /** Import an .obz package (or a single .obf board) into a new profile's boards. */
 export async function importOBF(file: File): Promise<{ boards: Record<string, Board>; rootId: string; name: string }> {
+  if (file.size > MAX_FILE) throw new Error('This file is too large to import.');
   const buf = new Uint8Array(await file.arrayBuffer());
   let entries: Record<string, Uint8Array>;
   let rootPath: string;
@@ -155,7 +161,11 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
   const obfs: Record<string, OBFBoard> = {};
   for (const [path, bytes] of Object.entries(entries)) {
     if (!path.endsWith('.obf')) continue;
-    const obf = JSON.parse(strFromU8(bytes)) as OBFBoard;
+    let obf: OBFBoard;
+    try { obf = JSON.parse(strFromU8(bytes)) as OBFBoard; } catch { continue; }
+    if (!obf || typeof obf !== 'object') continue;
+    if (!Array.isArray(obf.buttons)) obf.buttons = [];
+    if (!obf.grid || !Array.isArray(obf.grid.order)) obf.grid = { rows: 1, columns: 1, order: [] };
     obfs[path] = obf;
     pathToId[path] = uid('obf-');
   }
@@ -164,8 +174,8 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
   // One stored copy per image (keyed by file path when shared across boards).
   const imageCache = new Map<string, Promise<string | undefined>>();
   for (const [path, obf] of Object.entries(obfs)) {
-    const rows = Math.max(1, obf.grid?.rows ?? 1);
-    const cols = Math.max(1, obf.grid?.columns ?? 1);
+    const rows = Math.min(MAX_ROWS, Math.max(1, Math.round(Number(obf.grid?.rows)) || 1));
+    const cols = Math.min(MAX_COLS, Math.max(1, Math.round(Number(obf.grid?.columns)) || 1));
     const byId = new Map(obf.buttons.map((b) => [String(b.id), b]));
     const imgs = new Map((obf.images ?? []).map((i) => [String(i.id), i]));
     const cells: Cell[] = Array(rows * cols).fill(null);
@@ -182,8 +192,9 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
         };
         if (ob.vocalization && ob.vocalization !== ob.label) b.speak = ob.vocalization;
         if (ob.hidden) b.hidden = true;
-        if (ob.ext_caleb_color) b.color = ob.ext_caleb_color;
-        else if (!ob.ext_caleb_type) b.color = rgbToHex(ob.background_color);
+        if (ob.ext_caleb_color) b.color = safeColor(ob.ext_caleb_color);
+        else if (!ob.ext_caleb_type) b.color = safeColor(rgbToHex(ob.background_color));
+        if (!b.color) delete b.color;
         if (ob.ext_caleb_speak_only) b.speakOnly = true;
         const action = (ob.ext_caleb_action as ButtonAction | undefined) ?? (ob.action ? FROM_OBF_ACTION[ob.action] : undefined);
         if (action) b.action = action;
@@ -205,7 +216,7 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
       }
     }
     const id = pathToId[path];
-    boards[id] = { id, name: obf.name ?? 'Board', cols, rows, cells };
+    boards[id] = cleanBoard({ id, name: obf.name ?? 'Board', cols, rows, cells }, id)!;
   }
   // Fix links that pointed at obf paths.
   for (const b of Object.values(boards)) for (const c of b.cells) if (c?.link && pathToId[c.link]) c.link = pathToId[c.link];
@@ -215,17 +226,15 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
 
 async function importImage(img: OBFImage, entries: Record<string, Uint8Array>): Promise<string | undefined> {
   try {
-    // ARASAAC pictograms we already bundle (or can fetch) don't need a stored copy.
-    const arasaac = img.url && /arasaac\.org\/pictograms\/(\d+)\//.exec(img.url);
-    if (arasaac) return `a:${arasaac[1]}`;
+    // ARASAAC pictograms we already bundle need no stored copy.
+    const arasaac = img.url ? /^https:\/\/(static|api)\.arasaac\.org\/.*?(\d+)/.exec(img.url) : null;
+    if (arasaac && BUNDLED.has(Number(arasaac[2]))) return `a:${arasaac[2]}`;
     let blob: Blob | undefined;
-    if (img.path && entries[img.path]) blob = new Blob([entries[img.path].slice().buffer as ArrayBuffer], { type: img.content_type ?? 'image/png' });
-    else if (img.data) blob = await (await fetch(img.data)).blob();
-    else if (img.url) {
-      const m = /arasaac\.org\/pictograms\/(\d+)\//.exec(img.url);
-      if (m) return `a:${m[1]}`; // fall back to remote ARASAAC if not bundled
-      blob = await (await fetch(img.url)).blob();
-    }
+    const type = /^image\/[\w.+-]+$/.test(img.content_type ?? '') ? img.content_type! : 'image/png';
+    if (img.path && entries[img.path]) blob = new Blob([entries[img.path].slice().buffer as ArrayBuffer], { type });
+    else if (img.data && /^data:image\//.test(img.data)) blob = await (await fetch(img.data)).blob();
+    else if (arasaac) return `a:${arasaac[2]}`; // shown from arasaac.org when online
+    // Never fetch other remote URLs named in an imported file (privacy).
     if (!blob) return undefined;
     const id = uid('obf-img-');
     await putAsset(id, blob);

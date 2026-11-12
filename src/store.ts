@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import type { AACButton, AppData, LayoutId, MessageWord, Profile, Settings, SymbolLibrary } from './types';
 import { buildProfile } from './data/defaults';
-import { addSnapshot, getMeta, loadData, logUsage, requestPersistence, saveData, setMeta } from './lib/db';
+import { addSnapshot, clearLog, gcAssets, getMeta, getRev, loadData, logUsage, requestPersistence, saveDataChecked, setMeta } from './lib/db';
+import { cleanLibrary, repairProfile } from './lib/validate';
 import { debounce, uid } from './lib/util';
 import { joinWords } from './lib/sentence';
 import { speak, stopSpeaking } from './lib/tts';
@@ -24,6 +25,8 @@ interface UIState {
   /** Undo stack of previous profile states (edit mode). */
   undo: UndoEntry[];
   toast: string | null;
+  /** Saving keeps failing (e.g. storage full) — shown as a persistent banner. */
+  saveError: boolean;
   toastAction: { label: string; run: () => void } | null;
   /** Word id whose forms popover is open. */
   formsFor: { index: number } | null;
@@ -36,9 +39,11 @@ interface Actions {
   profile: () => Profile;
   settings: () => Settings;
   setScreen: (s: Screen) => void;
-  updateProfile: (fn: (p: Profile) => void, opts?: { undoable?: boolean }) => void;
+  /** `shallow`: fn only replaces top-level fields (fast path, no deep clone). */
+  updateProfile: (fn: (p: Profile) => void, opts?: { undoable?: boolean; shallow?: boolean }) => void;
   updateSettings: (patch: Partial<Settings>) => void;
-  updateLibrary: (fn: (lib: SymbolLibrary) => void) => void;
+  /** `undo`: show an Undo toast with this message (and snapshot first) — used for deletions. */
+  updateLibrary: (fn: (lib: SymbolLibrary) => void, opts?: { undo?: string }) => void;
   undoEdit: () => void;
   replaceData: (data: AppData, reason?: string) => Promise<void>;
   completeOnboarding: (name: string, layout: LayoutId, patch?: Partial<Settings>) => void;
@@ -88,10 +93,56 @@ function emptyData(): AppData {
 }
 
 let saveBlocked = false;
-const persist = debounce((data: AppData) => {
+/** Revision of the data we last loaded/saved (detects writes from other tabs). */
+let rev = 0;
+let dirty = false;
+const channel: BroadcastChannel | null = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('caleb-data') : null;
+
+async function doSave(data: AppData, attempt = 0): Promise<void> {
   if (saveBlocked) return;
-  saveData(data).catch((e) => console.error('save failed', e));
-}, 400);
+  try {
+    const next = await saveDataChecked(data, rev);
+    if (next === null) {
+      // Another window saved newer data: never overwrite it. Load theirs instead.
+      dirty = false;
+      await reloadFromDisk();
+      useStore.getState().showToast('Caleb was changed in another window. Showing the latest version.');
+      return;
+    }
+    rev = next;
+    if (useStore.getState().data === data) dirty = false;
+    channel?.postMessage({ rev });
+    if (useStore.getState().saveError) useStore.setState({ saveError: false });
+  } catch (e) {
+    console.error('save failed', e);
+    if (attempt < 2) {
+      setTimeout(() => doSave(useStore.getState().data, attempt + 1), 1000 * (attempt + 1));
+    } else {
+      useStore.setState({ saveError: true });
+    }
+  }
+}
+
+async function reloadFromDisk() {
+  const fresh = await loadData();
+  rev = await getRev();
+  if (!fresh?.profiles?.length) return;
+  const d = migrate(fresh);
+  const st = useStore.getState();
+  const p = d.profiles.find((x) => x.id === st.data.activeProfileId) ?? d.profiles[0];
+  const stack = st.boardStack.filter((id) => p.boards[id]);
+  useStore.setState({ data: { ...d, activeProfileId: p.id }, boardStack: stack.length ? stack : [p.rootId], undo: [] });
+}
+
+channel?.addEventListener('message', (e: MessageEvent<{ rev: number }>) => {
+  // Another window saved. If we have no unsaved edits, pick up its data.
+  if (!dirty && e.data?.rev !== rev) reloadFromDisk().catch(() => {});
+});
+
+const persistDebounced = debounce((data: AppData) => { doSave(data); }, 400);
+const persist = Object.assign((data: AppData) => { dirty = true; persistDebounced(data); }, {
+  flush: (data: AppData) => { dirty = true; persistDebounced.flush(data); },
+});
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -107,6 +158,7 @@ export const useStore = create<Store>((set, get) => ({
   undo: [],
   toast: null,
   toastAction: null,
+  saveError: false,
   formsFor: null,
   highlight: [],
 
@@ -125,21 +177,31 @@ export const useStore = create<Store>((set, get) => ({
         setTimeout(() => get().showToast('Could not open saved boards. Changes will not be saved. Please restart Caleb.'), 500);
       }
     }
-    if (!data || !data.profiles?.length) {
-      data = emptyData();
-      saveData(data).catch(() => {});
+    try { rev = await getRev(); } catch { /* fresh */ }
+    let repaired: AppData | null = null;
+    if (data?.profiles?.length) {
+      try { repaired = migrate(data); } catch (e) { console.error('Saved data could not be repaired', e); }
+    }
+    if (!repaired) {
+      data = { ...emptyData(), library: data?.library ? cleanLibrary(data.library) : emptyLibrary() };
+      doSave(data);
     } else {
-      data = migrate(data);
-      // Automatic daily snapshot (versioned backup). Never blocks talking.
-      try {
-        const last = (await getMeta<number>('lastSnapshot')) ?? 0;
-        if (Date.now() - last > 20 * 3600 * 1000) {
-          await addSnapshot(data, 'Automatic daily backup');
-          await setMeta('lastSnapshot', Date.now());
+      data = repaired;
+      // Automatic daily snapshot (versioned backup). Runs in the background: never blocks talking.
+      const snapData = data;
+      setTimeout(async () => {
+        try {
+          const last = (await getMeta<number>('lastSnapshot')) ?? 0;
+          if (Date.now() - last > 20 * 3600 * 1000) {
+            await addSnapshot(snapData, 'Automatic daily backup');
+            await setMeta('lastSnapshot', Date.now());
+            const { referencedAssets } = await import('./lib/backup');
+            await gcAssets(referencedAssets(useStore.getState().data), referencedAssets);
+          }
+        } catch (e) {
+          console.warn('Snapshot failed', e);
         }
-      } catch (e) {
-        console.warn('Snapshot failed', e);
-      }
+      }, 1500);
     }
     const p = data.profiles.find((x) => x.id === data!.activeProfileId) ?? data.profiles[0];
     set({ data: { ...data, activeProfileId: p.id }, loaded: true, boardStack: [p.rootId] });
@@ -160,7 +222,7 @@ export const useStore = create<Store>((set, get) => ({
   updateProfile(fn, opts = {}) {
     const { data } = get();
     const current = get().profile();
-    const next = structuredClone(current);
+    const next = opts.shallow ? { ...current } : structuredClone(current);
     fn(next);
     const profiles = data.profiles.map((p) => (p.id === current.id ? next : p));
     const newData = { ...data, profiles };
@@ -173,16 +235,28 @@ export const useStore = create<Store>((set, get) => ({
   updateSettings(patch) {
     get().updateProfile((p) => {
       p.settings = { ...p.settings, ...patch };
-    });
+    }, { shallow: true });
   },
 
-  updateLibrary(fn) {
+  updateLibrary(fn, opts = {}) {
     const { data } = get();
-    const library = structuredClone(data.library ?? emptyLibrary());
+    const prev = data.library ?? emptyLibrary();
+    const library = structuredClone(prev);
     fn(library);
     const newData = { ...data, library };
     set({ data: newData });
     persist(newData);
+    if (opts.undo) {
+      addSnapshot(data, 'Before deleting from the symbol library').catch(() => {});
+      get().showToast(opts.undo, {
+        label: 'Undo',
+        run: () => {
+          const d = { ...get().data, library: prev };
+          set({ data: d });
+          persist(d);
+        },
+      });
+    }
   },
 
   undoEdit() {
@@ -201,8 +275,9 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   async replaceData(newData, reason = 'Before restore') {
+    const d = migrate(structuredClone(newData)); // validates first: throws on a bad file
+    d.onboarded = true;
     await addSnapshot(get().data, reason);
-    const d = migrate(newData);
     const p = d.profiles.find((x) => x.id === d.activeProfileId) ?? d.profiles[0];
     d.activeProfileId = p.id;
     set({ data: d, boardStack: [p.rootId], message: [], undo: [] });
@@ -241,7 +316,8 @@ export const useStore = create<Store>((set, get) => ({
     const profiles = data.profiles.filter((p) => p.id !== id);
     const activeProfileId = data.activeProfileId === id ? profiles[0].id : data.activeProfileId;
     const newData = { ...data, profiles, activeProfileId };
-    set({ data: newData, boardStack: [profiles.find((p) => p.id === activeProfileId)!.rootId] });
+    set({ data: newData, boardStack: [profiles.find((p) => p.id === activeProfileId)!.rootId], undo: [] });
+    clearLog(id).catch(() => {});
     persist(newData);
   },
 
@@ -357,9 +433,11 @@ export const useStore = create<Store>((set, get) => ({
     get().updateProfile((p) => {
       if (p.history[0]?.text !== text) p.history = [{ text, t: Date.now() }, ...p.history].slice(0, 100);
       if (s.learnWords) {
-        for (const w of text.toLowerCase().match(/[a-z']+/g) ?? []) p.lexicon[w] = (p.lexicon[w] ?? 0) + 1;
+        const lexicon = { ...p.lexicon };
+        for (const w of text.toLowerCase().match(/[a-z']+/g) ?? []) lexicon[w] = (lexicon[w] ?? 0) + 1;
+        p.lexicon = lexicon;
       }
-    });
+    }, { shallow: true });
     if (s.clearAfterSpeak) set({ message: [], draft: '' });
   },
 
@@ -392,7 +470,7 @@ export const useStore = create<Store>((set, get) => ({
 if (typeof document !== 'undefined') {
   const flush = () => {
     const st = useStore.getState();
-    if (st.loaded) persist.flush(st.data);
+    if (st.loaded && dirty) persistDebounced.flush(st.data);
   };
   document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flush());
   window.addEventListener('pagehide', flush);
@@ -400,7 +478,13 @@ if (typeof document !== 'undefined') {
 
 /** Upgrades older saved data to the current shape. */
 export function migrate(data: AppData): AppData {
+  if (!data || typeof data !== 'object' || !Array.isArray(data.profiles)) throw new Error('This file has no Caleb profiles.');
+  if (typeof data.version === 'number' && data.version > DATA_VERSION) {
+    throw new Error('This file was made by a newer version of Caleb. Please update the app first.');
+  }
   const fresh = buildProfile('', 'medium');
+  data.profiles = data.profiles.map(repairProfile).filter((p): p is Profile => !!p);
+  if (!data.profiles.length) throw new Error('This file has no usable boards.');
   for (const p of data.profiles) {
     p.settings = { ...fresh.settings, ...p.settings };
     p.lexicon ??= {};
@@ -410,10 +494,17 @@ export function migrate(data: AppData): AppData {
     p.schedules ??= [];
     p.quickBar ??= fresh.quickBar;
     p.aboutMe ??= fresh.aboutMe;
+    if (!Array.isArray(p.history)) p.history = [];
+    if (!Array.isArray(p.phrases)) p.phrases = [];
+    if (!Array.isArray(p.schedules)) p.schedules = [];
+    if (typeof p.lexicon !== 'object') p.lexicon = {};
+    // A PIN lock without a PIN would lock grown-ups out for good.
+    if (p.settings.lock === 'pin' && !/^\d{4,6}$/.test(p.settings.pin ?? '')) p.settings.lock = 'hold';
+    p.createdAt = typeof p.createdAt === 'number' ? p.createdAt : Date.now();
   }
-  data.library ??= emptyLibrary();
-  data.library.categories ??= [];
-  data.library.additions ??= {};
+  if (!data.profiles.some((p) => p.id === data.activeProfileId)) data.activeProfileId = data.profiles[0].id;
+  data.onboarded = data.onboarded !== false;
+  data.library = cleanLibrary(data.library);
   data.version = DATA_VERSION;
   return data;
 }

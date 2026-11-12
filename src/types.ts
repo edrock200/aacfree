@@ -107,6 +107,8 @@ export interface Settings {
   // Voice
   voiceURI?: string;
   voiceIndex?: number;
+  /** Native voice name (indexes can shift between devices/engine updates). */
+  voiceName?: string;
   rate: number;
   pitch: number;
   volume: number;

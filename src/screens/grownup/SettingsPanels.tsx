@@ -28,12 +28,12 @@ export function SpeechPanel() {
           </select>
         </div>
         <div className="voice-list">
-          <button className={`voice ${!current ? 'on' : ''}`} onClick={() => updateSettings({ voiceURI: undefined, voiceIndex: undefined })}>
+          <button className={`voice ${!current ? 'on' : ''}`} onClick={() => updateSettings({ voiceURI: undefined, voiceIndex: undefined, voiceName: undefined })}>
             <b>Device default</b><small>{s.lang}</small>
           </button>
           {shown.map((v) => (
             <button key={v.id} className={`voice ${current === v.id ? 'on' : ''}`} onClick={() => {
-              const patch = native ? { voiceIndex: Number(v.id), lang: v.lang } : { voiceURI: v.id, lang: v.lang };
+              const patch = native ? { voiceIndex: Number(v.id), voiceName: v.name, lang: v.lang } : { voiceURI: v.id, lang: v.lang };
               updateSettings(patch);
               speak(`Hi, I'm ${p.name || 'Caleb'}. This is my voice.`, { ...s, ...patch });
             }}>

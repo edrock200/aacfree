@@ -21,8 +21,11 @@ export const COLOR_SWATCHES = [
   '#ffffff', '#efe3cf', '#b8f0ee', '#ffe0a3',
 ];
 
+const HEX = /^#[0-9a-f]{3,8}$/i;
+
 export function buttonColor(type: WordType, dark: boolean, override?: string) {
-  if (override) return override;
+  // Only plain hex colours are honoured (values end up in style attributes / printed HTML).
+  if (override && HEX.test(override)) return override;
   const c = WORD_COLORS[type] ?? WORD_COLORS.misc;
   return dark ? c.dark : c.light;
 }
