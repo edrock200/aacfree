@@ -23,6 +23,11 @@ export function HelpPanel() {
           <dt>{t('Hide a word for now')}</dt><dd>{t('Edit the button → “Hide from the user for now”. It keeps its place. Turn on Babble mode to show everything temporarily.')}</dd>
           <dt>{t('Make a new folder')}</dt><dd>{t('Edit an empty square → “Opens folder” → “New empty folder”. Then tap the folder and add words.')}</dd>
           <dt>{t('Word forms')}</dt><dd>Long-press a word (or tap a word in the message bar) to choose go → went / going / goes. Plurals and “-er/-est” work too.</dd>
+          <dt>{t('Edit phrases, schedules or About me')}</dt><dd>{t('Boards & words → “Edit phrases”, “Edit schedules” or “Edit About me” takes you there with editing on. Or, while Grown-ups is unlocked, tap the Edit button on that screen. A plain tap on a phrase always speaks it, even when unlocked.')}</dd>
+          <dt>{t('Editing unlocked')}</dt><dd>{t('While Grown-ups is unlocked, a bar at the top says “Editing unlocked”. Tap Lock there when you are done. Caleb also locks itself after 5 minutes without grown-up activity; talking does not keep it unlocked.')}</dd>
+          <dt>{t('Stop speaking, volume and speed')}</dt><dd>{t("While a message is being spoken, the Speak button becomes Stop. Tools → My voice lets the person pick Quiet, Normal or Loud, change the speed, or turn on “Show, don't speak” so messages appear in big letters. None of this is locked.")}</dd>
+          <dt>{t('Recent sentences and privacy')}</dt><dd>{t('Phrases → Recent: the person can delete a sentence, clear them all, or turn on “Private for now” so nothing new is kept or logged. Insights → Recent sentences sets how long they are kept.')}</dd>
+          <dt>{t('Hide a tool')}</dt><dd>{t('Display → Tools shown. Turn off the tools the person does not use, including About me and Get attention.')}</dd>
           <dt>{t('Record a family voice')}</dt><dd>{t('Edit a button or phrase → Record voice. That clip plays instead of the computer voice.')}</dd>
           <dt>{t('Hide or show words quickly')}</dt><dd>{t('In edit mode, tap “Show/Hide”, then tap words to mask or reveal them. “Reveal 5 more” grows the board step by step.')}</dd>
           <dt>{t('Model without skewing data')}</dt><dd>{t('When usage insights or learning are on, a “Model” button appears in the bottom bar. Turn it on while you demonstrate.')}</dd>

@@ -365,6 +365,101 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.click('.setting:has-text("Lock backups with a passcode") .switch');
 }
 
+// --- v0.5 talk ---
+{
+  const toolsMenu = async () => {
+    await page.click('.navbtn[aria-label="Tools"]');
+    if (await page.isVisible('.tool-head')) await page.click('.tool-head .btn:has-text("Tools")');
+  };
+  const speak = async () => { await page.waitForSelector('.speakbtn:not(.stopping)', { timeout: 10000 }); await page.click('.speakbtn'); };
+  if (await page.isVisible('.grownup')) await page.click('.gu-nav-foot .btn.primary');
+  await page.waitForSelector('.grid');
+
+  // Phrases always speak; editing needs the explicit pencil (defect 2, UX 5)
+  await unlock();
+  await page.click('.gu-tab:has-text("Boards & words")');
+  await page.click('.quick-edits button:has-text("Edit phrases")');
+  await page.waitForSelector('.phrases-screen');
+  check(await page.isVisible('.unlocked-banner'), 'an "Editing unlocked" bar shows outside Grown-ups');
+  check(await page.isVisible('.phrase-grid .phrase-edit'), 'the Grown-ups shortcut opens Phrases with editing on');
+  await page.click('.tab:has-text("Done editing")');
+  await page.locator('.phrase-grid .phrase').first().click();
+  await page.waitForTimeout(300);
+  check(!(await page.isVisible('.modal')), 'a phrase tap speaks (no editor) while Grown-ups is unlocked');
+  await page.click('.tab:has-text("Edit phrases")');
+  await page.locator('.phrase-grid .phrase').first().click();
+  check(await page.isVisible('.modal textarea'), 'with the pencil on, a tap opens the phrase editor');
+  await page.fill('.modal textarea', 'changed but not saved');
+  await page.mouse.click(4, 4); // tap outside the dialog
+  check(await page.isVisible('text=Discard changes?'), 'tapping outside asks before discarding unsaved work');
+  await page.click('.modal-foot button:has-text("Discard")');
+  check(!(await page.isVisible('.modal')), 'Discard closes the editor');
+  await page.click('.unlocked-banner button');
+  check(!(await page.isVisible('.unlocked-banner')) && (await page.isVisible('.phrases-screen')), 'Lock in the bar locks without leaving the screen');
+
+  // Recent: delete, clear, private, without the lock (feature 2, defect 54)
+  await page.click('.nav-home');
+  await page.click('.grid .cell[aria-label="I"]');
+  await speak();
+  await page.locator('.quickbar .cell').nth(1).click();
+  await speak();
+  await page.click('.navbtn[aria-label="Phrases"]');
+  await page.click('.tab:has-text("Recent")');
+  const rows = () => page.locator('.recent-row').count();
+  const n = await rows();
+  await page.locator('.recent-row button[aria-label="Delete this sentence"]').first().click();
+  check((await rows()) === n - 1, 'the person can delete one recent sentence');
+  await page.click('.toast-action');
+  check((await rows()) === n, 'Undo brings the deleted sentence back');
+  await page.click('.recent-tools button:has-text("Clear recent")');
+  check((await rows()) === 0, 'Clear recent empties the list');
+  await page.click('.recent-tools button:has-text("Private for now")');
+  await page.click('.nav-home');
+  await page.locator('.quickbar .cell').nth(2).click();
+  await speak();
+  await page.click('.navbtn[aria-label="Phrases"]');
+  await page.click('.tab:has-text("Recent")');
+  check((await rows()) === 0, '"Private for now" keeps nothing in Recent');
+  await page.click('.recent-tools button:has-text("Private for now")');
+
+  // Clearing can be undone until the next word (UX 2)
+  await page.click('.nav-home');
+  // (headless Chromium has no voices, so a "no voices" message may still be showing: let it go first)
+  await page.waitForTimeout(1700);
+  await page.waitForSelector('.toast', { state: 'detached', timeout: 10000 });
+  await page.click('.msg-tools button[aria-label="Clear message"]');
+  await page.waitForTimeout(5500);
+  check(await page.isVisible('.toast-action'), 'Undo after clearing stays until the next word');
+  await page.click('.toast-action');
+  check((await msgText()).length > 0, 'Undo restores the cleared message');
+  await page.click('.grid .cell[aria-label="I"]');
+  check(!(await page.isVisible('.toast-action')), 'the next word dismisses the Undo');
+
+  // My voice: never locked; "Show, don't speak" routes to Big text (feature 1)
+  await toolsMenu();
+  await page.click('.tool-tile[aria-label="My voice"]');
+  await page.click('.myvoice button:has-text("Loud")');
+  check(await page.getAttribute('.myvoice button:has-text("Loud")', 'aria-pressed') === 'true', 'My voice volume presets work without the lock');
+  await page.click('.myvoice button:has-text("Off: speaking out loud")');
+  await page.click('.nav-home');
+  await speak();
+  check(await page.isVisible('.bigtext'), '"Show, don\'t speak" shows the message in Big text');
+  await page.click('.bigtext-tools button:has-text("Close")');
+  await page.click('.navbtn[aria-label="Tools"]');
+  await page.click('.myvoice button:has-text("On: showing")');
+  await page.click('.nav-home');
+
+  // A grown-up can hide a tool (UX 9)
+  await unlock();
+  await page.click('.gu-tab:has-text("Display")');
+  await page.click('.gu-section:has(h3:text-is("Tools shown")) .setting:has-text("Draw") .switch');
+  await page.click('.gu-nav-foot .btn.primary');
+  await page.waitForSelector('.grid');
+  await toolsMenu();
+  check(!(await page.isVisible('.tool-tile[aria-label="Draw"]')) && (await page.isVisible('.tool-tile[aria-label="Timer"]')), 'a grown-up can hide one tool');
+  await page.click('.nav-home');
+}
+
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();
 process.exit(failures || errors.length ? 1 : 0);

@@ -26,13 +26,23 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
   const [q, setQ] = useState(initialQuery);
   const [openId, setOpenId] = useState<string | null>(null);
   const [editCat, setEditCat] = useState<ViewCategory | 'new' | null>(null);
-  const [editSym, setEditSym] = useState<{ cat: ViewCategory; sym: LibrarySymbol | null } | null>(null);
+  const [editSym, setEditSym] = useState<{ cat: ViewCategory; sym: LibrarySymbol | null; initial?: Partial<LibrarySymbol> } | null>(null);
+  const [detail, setDetail] = useState<{ sym: LibrarySymbol; cat: ViewCategory | null } | null>(null);
   const open = cats.find((c) => c.id === openId) ?? null;
   const results = useMemo(() => (q.trim() ? searchLibrary(library, q) : []), [library, q]);
 
   const tapSymbol = (cat: ViewCategory | null, s: LibrarySymbol) => {
     if (mode === 'pick') return onPick?.(s);
-    if (cat && cat.customIds.has(s.id)) setEditSym({ cat, sym: s });
+    // Search results don't know their category: find it, so the family's own symbols open for editing.
+    const home = cat ?? cats.find((c) => c.symbols.some((x) => x.id === s.id)) ?? null;
+    if (home && home.customIds.has(s.id)) return setEditSym({ cat: home, sym: s });
+    // Built-in pictures can't be edited: show them, with a way to save a copy to a category.
+    setDetail({ sym: s, cat: home });
+  };
+  const saveCopy = (d: { sym: LibrarySymbol; cat: ViewCategory | null }) => {
+    const target = cats.find((c) => !c.builtIn) ?? d.cat ?? cats[0];
+    setDetail(null);
+    if (target) setEditSym({ cat: target, sym: null, initial: { label: d.sym.label, symbol: d.sym.symbol, type: d.sym.type } });
   };
 
   return (
@@ -110,7 +120,21 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
           onDeleted={() => { setEditCat(null); setOpenId(null); }}
         />
       )}
-      {editSym && <SymbolEditor cat={editSym.cat} sym={editSym.sym} categories={cats} onClose={() => setEditSym(null)} />}
+      {editSym && <SymbolEditor cat={editSym.cat} sym={editSym.sym} initial={editSym.initial} categories={cats} onClose={() => setEditSym(null)} />}
+      {detail && (
+        <Modal title={detail.sym.label} onClose={() => setDetail(null)}
+          footer={<>
+            <span className="spacer" />
+            <button className="btn" onClick={() => setDetail(null)}>{t('Close')}</button>
+            <button className="btn primary" onClick={() => saveCopy(detail)}><IconPlus size={18} /> {t('Save a copy to a category')}</button>
+          </>}>
+          <div className="sym-detail">
+            <Symbol value={detail.sym.symbol} className="preview-sym" />
+            <p>{detail.cat ? t('Built-in picture in “{v0}”.', { v0: detail.cat.name }) : t('Built-in picture.')}</p>
+            <p className="muted small">{t("Built-in pictures can't be changed. Save a copy to one of your categories to rename it or give it another word type. It is offered whenever you choose a picture for a button.")}</p>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -19,9 +19,17 @@ import { setPressFeedback } from './lib/usePress';
 import { click, setKeepAwake, vibrate } from './lib/feedback';
 import { useScanner } from './lib/useScanner';
 import { PointerLayer } from './components/PointerLayer';
-import { checkNativeLanguage, openTtsInstall, setTtsFailureHandler } from './lib/tts';
+import { checkNativeLanguage, needsUserGesture, openTtsInstall, primeSpeech, setTtsFailureHandler, type TtsFailure } from './lib/tts';
+import { IconLock, IconSpeak, IconUnlock } from './components/Icons';
 import type { AACButton } from './types';
 import { setLangs, t } from './i18n';
+
+/** Web speech failures: what happened and how to fix it (translated at display time). */
+const TTS_FAILURE_MESSAGES: Record<Exclude<TtsFailure, 'native' | 'not-allowed'>, string> = {
+  'no-engine': "This browser can't speak. Try Chrome, Edge or Safari, or install the Caleb app on Android.",
+  'no-voices': "No voices are installed. Add a voice in your device's text-to-speech settings, then open Caleb again.",
+  error: "The voice didn't work. Check the volume and the speech settings, then try again.",
+};
 
 export function App() {
   const loaded = useStore((s) => s.loaded);
@@ -51,9 +59,9 @@ function Main() {
   const formsFor = useStore((st) => st.formsFor);
   const boardStack = useStore((st) => st.boardStack);
   const editMode = useStore((st) => st.editMode);
-  const { back, setScreen, updateProfile } = useStore.getState();
+  const bigText = useStore((st) => st.bigText);
+  const { back, setScreen, updateProfile, setBigText } = useStore.getState();
   const [finding, setFinding] = useState(false);
-  const [bigText, setBigText] = useState<string | null>(null);
   const [qbEdit, setQbEdit] = useState<{ index: number; button: AACButton | null } | null>(null);
 
   // Theme + sizing.
@@ -77,15 +85,27 @@ function Main() {
 
   // Grown-up mode re-locks itself after 5 idle minutes, or after the app has been in the background
   // for over a minute (short trips, like taking a photo for a button, don't lock).
+  // Only grown-up activity counts: talking on an unlocked device must not keep it unlocked forever.
   const unlocked = useStore((st) => st.unlocked);
   useEffect(() => {
     if (!unlocked) return;
-    let idle = setTimeout(() => useStore.getState().lock(), 5 * 60 * 1000);
+    const relock = () => {
+      const st = useStore.getState();
+      // Outside Grown-ups, just lock: never move the person off the board they are using.
+      if (st.screen === 'grownup') st.lock();
+      else st.setUnlocked(false);
+    };
+    let idle = setTimeout(relock, 5 * 60 * 1000);
     let hiddenAt = 0;
-    const bump = () => { clearTimeout(idle); idle = setTimeout(() => useStore.getState().lock(), 5 * 60 * 1000); };
+    const bump = () => {
+      const st = useStore.getState();
+      if (st.screen !== 'grownup' && !st.editMode && !st.contentEdit) return;
+      clearTimeout(idle);
+      idle = setTimeout(relock, 5 * 60 * 1000);
+    };
     const vis = () => {
       if (document.visibilityState === 'hidden') hiddenAt = Date.now();
-      else if (hiddenAt && Date.now() - hiddenAt > 60 * 1000) useStore.getState().lock();
+      else if (hiddenAt && Date.now() - hiddenAt > 60 * 1000) relock();
     };
     window.addEventListener('pointerdown', bump, true);
     window.addEventListener('keydown', bump, true);
@@ -98,10 +118,32 @@ function Main() {
     };
   }, [unlocked]);
 
-  // Speech must never fail silently.
+  // Browsers may refuse speech until a real touch or key press; dwell, head and eye clicks don't count.
+  const [needGesture, setNeedGesture] = useState(() => s.pointer !== 'off' && needsUserGesture());
+  // Speech must never fail silently: a calm message that says how to fix it.
   useEffect(() => {
-    setTtsFailureHandler(() => useStore.getState().showToast(t('Speech is not working on this device.'), { label: 'Install voices', run: openTtsInstall }));
+    setTtsFailureHandler((kind) => {
+      const st = useStore.getState();
+      // Clear-after-speak must not lose a message that was never heard.
+      if (st.settings().clearAfterSpeak) st.restoreLastSpoken();
+      if (kind === 'native') st.showToast(t('Speech is not working on this device.'), { label: 'Install voices', run: openTtsInstall });
+      else if (kind === 'not-allowed') { setNeedGesture(true); st.showToast(t('Tap the screen once to turn the voice on.')); }
+      else st.showToast(t(TTS_FAILURE_MESSAGES[kind]));
+    });
     return () => setTtsFailureHandler(null);
+  }, []);
+  useEffect(() => {
+    const onGesture = (e: Event) => {
+      if (!e.isTrusted) return;
+      primeSpeech();
+      setNeedGesture(false);
+    };
+    window.addEventListener('pointerdown', onGesture, true);
+    window.addEventListener('keydown', onGesture, true);
+    return () => {
+      window.removeEventListener('pointerdown', onGesture, true);
+      window.removeEventListener('keydown', onGesture, true);
+    };
   }, []);
   useEffect(() => {
     checkNativeLanguage(s.lang).then((fallback) => fallback && useStore.getState().updateSettings({ lang: fallback, voiceName: undefined, voiceIndex: undefined }));
@@ -118,6 +160,8 @@ function Main() {
         return;
       }
       if (st.formsFor) return st.setFormsFor(null);
+      // Inside a tool, Back returns to the Tools menu first.
+      if (st.screen === 'tools' && st.tool) return st.setTool(null);
       if (st.screen !== 'talk') return setScreen('talk');
       if (st.boardStack.length > 1) return back();
     });
@@ -138,6 +182,17 @@ function Main() {
             saveFile(backupFilename(p.name), await createBackup(useStore.getState().data));
           }}>{t('Save a backup file now')}</button>
         </div>
+      )}
+      {unlocked && screen !== 'grownup' && (
+        <div className="unlocked-banner scan-exempt pointer-exempt" role="status">
+          <IconUnlock size={18} /> <span>{t('Editing unlocked')}</span>
+          <button className="btn small" onClick={() => useStore.getState().setUnlocked(false)}><IconLock size={16} /> {t('Lock')}</button>
+        </div>
+      )}
+      {needGesture && screen !== 'grownup' && (
+        <button className="voice-gate scan-exempt pointer-exempt" onClick={() => setNeedGesture(false)}>
+          <IconSpeak size={22} /> {t('Tap once to turn the voice on')}
+        </button>
       )}
       {screen !== 'grownup' && <MessageBar onShow={setBigText} />}
       {screen !== 'grownup' && s.showQuickBar && <QuickBar onEdit={(index, button) => setQbEdit({ index, button })} />}
@@ -177,7 +232,7 @@ function Main() {
         <div className="toast" role="status">
           {toast}
           {toastAction && (
-            <button className="toast-action" onClick={() => { toastAction.run(); useStore.setState({ toast: null, toastAction: null }); }}>{toastAction.label}</button>
+            <button className="toast-action" onClick={() => { toastAction.run(); useStore.setState({ toast: null, toastAction: null }); }}>{t(toastAction.label)}</button>
           )}
         </div>
       )}

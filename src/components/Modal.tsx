@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { IconClose } from './Icons';
 import { t } from '../i18n';
@@ -36,23 +36,34 @@ interface Props {
   className?: string;
   /** Extra class on the backdrop (e.g. `scan-exempt` pauses switch scanning). */
   rootClassName?: string;
+  /** Unsaved work: tapping outside, Escape/Back or ✕ ask before discarding it. */
+  dirty?: boolean;
 }
 
-export function Modal({ title, onClose, children, wide, footer, className, rootClassName }: Props) {
-  useEscapeToClose(onClose);
+export function Modal({ title, onClose, children, wide, footer, className, rootClassName, dirty }: Props) {
+  const [asking, setAsking] = useState(false);
+  const requestClose = () => (dirty ? setAsking(true) : onClose());
+  useEscapeToClose(requestClose);
 
   return createPortal(
-    <div className={`modal-root ${rootClassName ?? ''}`} onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className={`modal-root ${rootClassName ?? ''}`} onPointerDown={(e) => e.target === e.currentTarget && requestClose()}>
       <div className={`modal ${wide ? 'wide' : ''} ${className ?? ''}`} role="dialog" aria-modal="true">
         {title !== undefined && (
           <div className="modal-head" data-scan-group>
             <h2>{title}</h2>
-            <button className="iconbtn" onClick={onClose} aria-label={t('Close')} data-scan-item><IconClose /></button>
+            <button className="iconbtn" onClick={requestClose} aria-label={t('Close')} data-scan-item><IconClose /></button>
           </div>
         )}
         <div className="modal-body">{children}</div>
         {footer && <div className="modal-foot" data-scan-group>{footer}</div>}
       </div>
+      {asking && (
+        <Modal title={t('Discard changes?')} onClose={() => setAsking(false)}
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setAsking(false)} data-scan-item>{t('Keep editing')}</button>
+            <button className="btn danger" onClick={onClose} data-scan-item>{t('Discard')}</button></>}>
+          <p>{t("Your changes haven't been saved yet.")}</p>
+        </Modal>
+      )}
     </div>,
     document.body,
   );

@@ -5,7 +5,7 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './styles/app.css';
 import { App } from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { useStore } from './store';
+import { updateCanReload, useStore } from './store';
 import { registerSW } from 'virtual:pwa-register';
 import { Capacitor } from '@capacitor/core';
 
@@ -18,8 +18,8 @@ if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
     onNeedRefresh() { pending = true; },
   });
   document.addEventListener('visibilitychange', () => {
-    const st = useStore.getState();
-    if (pending && document.visibilityState === 'hidden' && !st.message.length && !st.draft && !st.editMode) {
+    const dialogOpen = !!document.querySelector('.modal-root, .bigtext');
+    if (pending && document.visibilityState === 'hidden' && updateCanReload(useStore.getState(), dialogOpen)) {
       pending = false;
       updateSW(true);
     }

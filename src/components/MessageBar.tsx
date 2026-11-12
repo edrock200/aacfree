@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore, useSettings } from '../store';
 import { applyCase, joinWords } from '../lib/sentence';
 import { Symbol } from './Symbol';
-import { IconBack, IconBackspace, IconClose, IconExpand, IconHome, IconMore, IconShare, IconSpeak, IconStar } from './Icons';
+import { IconBack, IconBackspace, IconClose, IconExpand, IconHome, IconMore, IconShare, IconSpeak, IconStar, IconStop } from './Icons';
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { usePress } from '../lib/usePress';
@@ -14,6 +14,8 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
   const draft = useStore((st) => st.draft);
   const boardStack = useStore((st) => st.boardStack);
   const screen = useStore((st) => st.screen);
+  /** While the message is being spoken, Speak is Stop (speakMessage stops it). */
+  const speaking = useStore((st) => st.speaking);
   const s = useSettings();
   const { speakMessage, backspace, clearMessage, home, back, setFormsFor, updateProfile, showToast, setScreen } = useStore.getState();
   const scroller = useRef<HTMLDivElement>(null);
@@ -113,7 +115,9 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
         )}
       </div>
       <button className="iconbtn nav-bs" aria-label={t('Delete last word (hold to clear)')} data-scan-item {...bsPress}><IconBackspace /></button>
-      <button className="speakbtn" aria-label={t('Speak')} data-scan-item {...speakPress}><IconSpeak size={30} /><span>{t('Speak')}</span></button>
+      <button className={`speakbtn ${speaking ? 'stopping' : ''}`} aria-label={speaking ? t('Stop') : t('Speak')} data-scan-item {...speakPress}>
+        {speaking ? <IconStop size={30} /> : <IconSpeak size={30} />}<span>{speaking ? t('Stop') : t('Speak')}</span>
+      </button>
     </div>
   );
 }

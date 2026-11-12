@@ -96,6 +96,8 @@ export interface Schedule {
   id: string;
   name: string;
   steps: ScheduleStep[];
+  /** Local date (YYYY-MM-DD) a step was last ticked; ticks reset when the date changes. */
+  tickedOn?: string;
 }
 
 export interface AboutMe {
@@ -134,6 +136,10 @@ export interface Settings {
   speakFolders: boolean;
   clearAfterSpeak: boolean;
   returnHome: boolean;
+  /** "Show, don't speak": messages open in Big text instead of being spoken (the person's own choice). */
+  showNotSpeak: boolean;
+  /** Recent sentences: kept ('on'), kept until Caleb restarts ('session') or not kept ('off'). */
+  keepRecent: 'on' | 'session' | 'off';
   // Display
   theme: Theme;
   style: Style;
@@ -152,6 +158,8 @@ export interface Settings {
   showKeyboardNav: boolean;
   showPhrasesNav: boolean;
   showToolsNav: boolean;
+  /** Tools a grown-up has hidden from the Tools menu (tool ids). About me also follows `aboutMe.enabled`. */
+  hiddenTools: string[];
   // Touch accommodations
   holdMs: number;
   debounceMs: number;

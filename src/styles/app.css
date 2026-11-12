@@ -714,3 +714,17 @@ small { font-size: 0.85em; }
 @keyframes calibfill { from { transform: scale(1.6); opacity: .5; } to { transform: scale(0.6); opacity: 1; } }
 .cell-label2 { flex: none; max-width: 100%; font-size: calc(clamp(10px, min(11cqw, 12cqh), 22px) * var(--font-scale)); line-height: 1; opacity: .75; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cell:has(.cell-label2) .sym { height: 54cqh; max-height: 54cqh; }
+
+/* --- v0.5 talk --- */
+.unlocked-banner { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 4px 12px; background: var(--accent-soft); color: var(--text, inherit); font-weight: 700; font-size: 0.95rem; }
+.unlocked-banner .btn { min-height: 32px; }
+.voice-gate { display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; padding: 12px; border: none; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.1rem; }
+.speakbtn.stopping { background: var(--danger); color: #fff; }
+.recent-tools { margin-bottom: 8px; flex-wrap: wrap; }
+.myvoice { display: flex; flex-direction: column; gap: 18px; max-width: 760px; margin: 0 auto; }
+.myvoice-row h3 { margin: 0 0 6px; }
+.myvoice-choices { flex-wrap: wrap; gap: 10px; }
+.myvoice .stepper .btn { min-width: 120px; }
+.sym-detail { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.sym-detail .preview-sym { width: 140px; height: 140px; font-size: 110px; }
+.quick-edits { flex-wrap: wrap; gap: 8px; }

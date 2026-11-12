@@ -5,8 +5,9 @@ import { addSnapshot, clearLog, gcAssets, getMeta, getRev, loadData, logUsage, r
 import { cleanLibrary, repairProfile } from './lib/validate';
 import { debounce, uid } from './lib/util';
 import { joinWords } from './lib/sentence';
-import { speak, stopSpeaking } from './lib/tts';
+import { setSpeakingListener, speak, stopSpeaking } from './lib/tts';
 import { applyEnding } from './lib/morphology';
+import { tokenize } from './lib/predict';
 import { getLang, pack, setLangs, type Lang } from './i18n';
 import { translateProfile } from './lib/translate';
 import { t, ts } from './i18n';
@@ -40,7 +41,19 @@ interface UIState {
   formsFor: { index: number } | null;
   /** Button ids to highlight (Find word / modelling). */
   highlight: string[];
+  /** The person's message or phrase is being spoken: Speak shows Stop. */
+  speaking: boolean;
+  /** Message emptied by clear-after-speak: Speak on an empty bar brings it back and says it again. */
+  lastSpoken: MessageWord[] | null;
+  /** "Private for now": Recent and the usage log are paused until it is turned off or Caleb restarts. */
+  isPrivate: boolean;
+  /** A grown-up is editing phrases, schedules or About me (an explicit pencil, never a plain tap). */
+  contentEdit: boolean;
+  /** Text shown full screen (Big text), e.g. by "Show, don't speak". */
+  bigText: string | null;
 }
+
+export type ContentTarget = 'phrases' | 'schedule' | 'aboutme';
 
 interface Actions {
   init: () => Promise<void>;
@@ -65,7 +78,8 @@ interface Actions {
   back: () => void;
   home: () => void;
   // message
-  pressButton: (b: AACButton) => void;
+  /** `form`: a word form picked by long-press (go → going); the button's word is kept as its base. */
+  pressButton: (b: AACButton, opts?: { form?: string }) => void;
   addWord: (w: Omit<MessageWord, 'id'>) => void;
   addText: (text: string) => void;
   setDraft: (d: string) => void;
@@ -75,8 +89,24 @@ interface Actions {
   replaceWord: (index: number, text: string) => void;
   removeWord: (index: number) => void;
   applyEnding: (e: 's' | 'ing' | 'ed') => void;
+  /** Speaks the message; while it is being spoken it stops instead. On an empty bar it brings back the last cleared message. */
   speakMessage: () => void;
-  speakText: (text: string, opts?: { audio?: string; log?: 'word' | 'phrase' | 'sentence' }) => void;
+  /**
+   * `stoppable`: the person's message or phrase (Speak becomes Stop).
+   * `echo`: the word-tap echo, which stays silent (and is not shown) in "Show, don't speak".
+   */
+  speakText: (text: string, opts?: { audio?: string; log?: 'word' | 'phrase' | 'sentence'; stoppable?: boolean; echo?: boolean }) => void;
+  stopSpeech: () => void;
+  /** Puts the message emptied by clear-after-speak back in the bar. */
+  restoreLastSpoken: () => boolean;
+  /** Recent sentences: the person can delete them without the grown-up lock. */
+  clearRecent: () => void;
+  deleteRecent: (id: string) => void;
+  setPrivate: (on: boolean) => void;
+  setContentEdit: (on: boolean) => void;
+  /** Grown-ups shortcut: go to phrases, a schedule or About me with editing on (staying unlocked). */
+  openContentEditor: (target: ContentTarget) => void;
+  setBigText: (text: string | null) => void;
   setUnlocked: (v: boolean) => void;
   /** Lock grown-up mode and return the person to their Home board. */
   lock: () => void;
@@ -93,7 +123,8 @@ interface Actions {
   choices: { items: PickedItem[]; offering: boolean; chosen: number | null };
   setChoices: (p: Partial<UIState['choices']>) => void;
   setEditMode: (v: boolean) => void;
-  showToast: (msg: string, action?: { label: string; run: () => void }) => void;
+  /** `sticky`: stays until the next word is added (or another message replaces it). */
+  showToast: (msg: string, action?: { label: string; run: () => void }, opts?: { sticky?: boolean }) => void;
   setFormsFor: (v: { index: number } | null) => void;
   setHighlight: (ids: string[]) => void;
 }
@@ -119,6 +150,41 @@ export function applyPronunciations(text: string, map?: Record<string, string>):
     out = out.replace(new RegExp(`(^|[^\\p{L}\\p{N}'])${esc}(?=$|[^\\p{L}\\p{N}'])`, 'giu'), (_m, pre) => pre + say);
   }
   return out;
+}
+
+type HistoryItem = Profile['history'][number];
+/** Stable id of a Recent sentence (its time stamp). */
+export const recentId = (h: HistoryItem) => String(h.t);
+
+/** Adds a spoken sentence to the top of Recent (no duplicate in a row, at most 100 kept). */
+export function addToHistory(history: HistoryItem[], text: string, now = Date.now()): HistoryItem[] {
+  if (history[0]?.text === text) return history;
+  return [{ text, t: now }, ...history].slice(0, 100);
+}
+
+/** Learned words for prediction, Unicode-aware ("niño", "está", "aujourd'hui"). */
+export function learnWords(lexicon: Record<string, number>, text: string): Record<string, number> {
+  const out = { ...lexicon };
+  for (const w of tokenize(text)) {
+    const n = Object.hasOwn(out, w) && typeof out[w] === 'number' ? out[w] : 0;
+    out[w] = n + 1;
+  }
+  return out;
+}
+
+/** Message word after picking another form: always remembers the dictionary form, so forms never stack. */
+export function withForm(w: MessageWord, text: string): MessageWord {
+  const { audio: _audio, base: oldBase, ...rest } = w;
+  const base = oldBase ?? w.text;
+  return text === base ? { ...rest, text } : { ...rest, text, base };
+}
+
+/**
+ * May a waiting app update reload the page now? Never mid-sentence, while a timer runs,
+ * while Grown-ups is unlocked, or while something is being edited (edit mode or an open dialog).
+ */
+export function updateCanReload(st: Pick<Store, 'message' | 'draft' | 'editMode' | 'unlocked' | 'contentEdit' | 'timer'>, dialogOpen = false): boolean {
+  return !st.message.length && !st.draft && !st.editMode && !st.unlocked && !st.contentEdit && !st.timer.endAt && !dialogOpen;
 }
 
 export const emptyLibrary = (): SymbolLibrary => ({ categories: [], additions: {} });
@@ -181,6 +247,20 @@ const persist = Object.assign((data: AppData) => { dirty = true; persistDebounce
 });
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
+/** The toast on screen is the sticky "Message cleared · Undo" (it goes away with the next word). */
+let clearUndoShown = false;
+function dismissClearUndo() {
+  if (!clearUndoShown) return;
+  clearUndoShown = false;
+  useStore.setState({ toast: null, toastAction: null });
+}
+
+/** Usage log entry, unless logging is off or the person chose "Private for now". */
+function logUse(kind: 'word' | 'phrase' | 'sentence', text: string) {
+  const st = useStore.getState();
+  if (!st.settings().logging || st.isPrivate) return;
+  logUsage({ profileId: st.profile().id, kind, text, modeled: st.modeling || undefined });
+}
 
 export const useStore = create<Store>((set, get) => ({
   loaded: false,
@@ -197,6 +277,11 @@ export const useStore = create<Store>((set, get) => ({
   saveError: false,
   formsFor: null,
   highlight: [],
+  speaking: false,
+  lastSpoken: null,
+  isPrivate: false,
+  contentEdit: false,
+  bigText: null,
 
   async init() {
     requestPersistence();
@@ -223,6 +308,12 @@ export const useStore = create<Store>((set, get) => ({
       doSave(data);
     } else {
       data = repaired;
+      // "Keep recent sentences: until Caleb restarts" — start each session with an empty Recent.
+      let forgot = false;
+      for (const p of data.profiles) {
+        if (p.settings.keepRecent !== 'on' && p.history.length) { p.history = []; forgot = true; }
+      }
+      if (forgot) doSave(data);
       // Automatic daily snapshot (versioned backup). Runs in the background: never blocks talking.
       const snapData = data;
       setTimeout(async () => {
@@ -255,7 +346,8 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   setScreen(screen) {
-    set({ screen, formsFor: null });
+    // Phrase/schedule/About-me editing is switched on per visit, so a plain tap speaks again after leaving.
+    set({ screen, formsFor: null, contentEdit: false });
   },
 
   updateProfile(fn, opts = {}) {
@@ -384,7 +476,7 @@ export const useStore = create<Store>((set, get) => ({
     set({ boardStack: [get().profile().rootId], screen: 'talk' });
   },
 
-  pressButton(b) {
+  pressButton(b, opts = {}) {
     const s = get().settings();
     if (b.link) {
       if (s.speakFolders) get().speakText(b.label);
@@ -415,7 +507,10 @@ export const useStore = create<Store>((set, get) => ({
     let base: string | undefined;
     // Spanish: conjugate a verb after a subject pronoun (yo + querer → quiero; yo + gustar → me gusta).
     const conj = pack().autoConjugate;
-    if (conj && getLang() !== 'en' && s.autoConjugate && b.type === 'verb' && !b.speakOnly) {
+    if (opts.form) {
+      // A form picked by long-press: keep the button's word as the base (forms never stack).
+      if (opts.form !== text) { base = text; text = opts.form; }
+    } else if (conj && getLang() !== 'en' && s.autoConjugate && b.type === 'verb' && !b.speakOnly) {
       const prev = get().message.map((w) => w.text);
       const c = conj(prev, text);
       if (c) {
@@ -424,13 +519,15 @@ export const useStore = create<Store>((set, get) => ({
         text = c.text;
       }
     }
+    // A recorded clip says the button's own word, never another form of it.
+    const audio = base ? undefined : b.audio;
     if (b.speakOnly) {
-      get().speakText(text, { audio: b.audio, log: 'word' });
+      get().speakText(text, { audio, log: 'word' });
       return;
     }
-    get().addWord({ text, base, symbol: b.symbol, type: b.type, audio: base ? undefined : b.audio });
-    if (s.speakOnTap) get().speakText(text, { audio: b.audio });
-    if (s.logging) logUsage({ profileId: get().profile().id, kind: 'word', text, modeled: get().modeling || undefined });
+    get().addWord({ text, base, symbol: b.symbol, type: b.type, audio });
+    if (s.speakOnTap) get().speakText(text, { audio, echo: true });
+    logUse('word', text);
     // Auto-return to the home board after choosing a word inside a folder.
     const stack = get().boardStack;
     if (s.returnHome && stack.length > 1 && !get().editMode) {
@@ -439,17 +536,21 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   addWord(w) {
-    set((s) => ({ message: [...s.message, { ...w, id: uid('w') }], formsFor: null }));
+    dismissClearUndo();
+    set((s) => ({ message: [...s.message, { ...w, id: uid('w') }], formsFor: null, lastSpoken: null }));
   },
 
   addText(text) {
     // Always capitalise the pronoun "I" (and I'm, I'll, I've, I'd).
     const words = text.split(/\s+/).filter(Boolean).map((w) => (/^i('(m|ll|ve|d))?$/i.test(w) ? 'I' + w.slice(1) : w));
-    set((s) => ({ message: [...s.message, ...words.map((t) => ({ id: uid('w'), text: t }))] }));
+    if (!words.length) return;
+    dismissClearUndo();
+    set((s) => ({ message: [...s.message, ...words.map((t) => ({ id: uid('w'), text: t }))], lastSpoken: null }));
   },
 
   setDraft(draft) {
-    set({ draft });
+    if (draft) dismissClearUndo();
+    set(draft ? { draft, lastSpoken: null } : { draft });
   },
   commitDraft() {
     const d = get().draft.trim();
@@ -463,18 +564,20 @@ export const useStore = create<Store>((set, get) => ({
   clearMessage() {
     stopSpeaking();
     const { message, draft } = get();
-    set({ message: [], draft: '', formsFor: null });
-    if (message.length > 1) {
-      get().showToast(t('Message cleared'), { label: 'Undo', run: () => set({ message, draft }) });
+    set({ message: [], draft: '', formsFor: null, lastSpoken: null });
+    // Any clear (hold-backspace, one word, a draft) can be undone until the next word.
+    if (message.length || draft) {
+      get().showToast(t('Message cleared'), { label: 'Undo', run: () => set({ message, draft }) }, { sticky: true });
+      clearUndoShown = true;
     }
   },
   replaceWord(index, text) {
     set((s) => ({
-      message: s.message.map((w, i) => (i === index ? { ...w, text, audio: undefined } : w)),
+      message: s.message.map((w, i) => (i === index ? withForm(w, text) : w)),
       formsFor: null,
     }));
     const s = get().settings();
-    if (s.speakOnTap) get().speakText(text);
+    if (s.speakOnTap) get().speakText(text, { echo: true });
   },
   removeWord(index) {
     set((s) => ({ message: s.message.filter((_, i) => i !== index), formsFor: null }));
@@ -483,44 +586,97 @@ export const useStore = create<Store>((set, get) => ({
     const msg = get().message;
     if (!msg.length) return;
     const last = msg[msg.length - 1];
-    get().replaceWord(msg.length - 1, applyEnding(last.text, e, last.type));
+    // Always inflect the dictionary form: go → going, then +ed → went (never "goinged").
+    get().replaceWord(msg.length - 1, applyEnding(last.base ?? last.text, e, last.type));
   },
 
   speakMessage() {
+    // While the message is being spoken, Speak is Stop.
+    if (get().speaking) return get().stopSpeech();
     get().commitDraft();
-    const { message } = get();
-    if (!message.length) return;
+    let { message } = get();
+    let again = false;
+    if (!message.length) {
+      // Clear-after-speak emptied the bar: Speak brings the message back and says it again.
+      if (!get().restoreLastSpoken()) return;
+      message = get().message;
+      again = true;
+    }
     const s = get().settings();
     const text = joinWords(message);
     // Single word with a recorded clip → play that clip.
     const audio = message.length === 1 ? message[0].audio : undefined;
-    get().speakText(text, { audio, log: 'sentence' });
-    get().updateProfile((p) => {
-      if (p.history[0]?.text !== text) p.history = [{ text, t: Date.now() }, ...p.history].slice(0, 100);
-      if (s.learnWords && !get().modeling) {
-        const lexicon = { ...p.lexicon };
-        for (const w of text.toLowerCase().match(/[a-z']+/g) ?? []) lexicon[w] = (lexicon[w] ?? 0) + 1;
-        p.lexicon = lexicon;
-      }
-    }, { shallow: true });
-    if (s.clearAfterSpeak) set({ message: [], draft: '' });
+    get().speakText(text, { audio, log: 'sentence', stoppable: true });
+    if (again) return; // already in Recent and learned; leave it in the bar this time
+    const recent = s.keepRecent !== 'off';
+    const learn = s.learnWords && !get().modeling;
+    if (!get().isPrivate && (recent || learn)) {
+      get().updateProfile((p) => {
+        if (recent) p.history = addToHistory(p.history, text);
+        if (learn) p.lexicon = learnWords(p.lexicon, text);
+      }, { shallow: true });
+    }
+    if (s.clearAfterSpeak) set({ message: [], draft: '', lastSpoken: message });
   },
 
   speakText(text, opts = {}) {
     const s = get().settings();
-    speak(applyPronunciations(text, s.pronunciations), s, { audio: opts.audio });
-    if (opts.log && s.logging) logUsage({ profileId: get().profile().id, kind: opts.log, text, modeled: get().modeling || undefined });
+    if (s.showNotSpeak) {
+      // "Show, don't speak": show it big for the partner instead. Word-tap echoes stay quiet.
+      const last = get().message[get().message.length - 1]?.text;
+      const echo = opts.echo || (!opts.log && !opts.stoppable && last?.toLowerCase() === text.toLowerCase());
+      if (!echo && text.trim()) get().setBigText(text);
+    } else {
+      speak(applyPronunciations(text, s.pronunciations), s, { audio: opts.audio, stoppable: opts.stoppable });
+    }
+    if (opts.log) logUse(opts.log, text);
+  },
+  stopSpeech() {
+    stopSpeaking();
+    set({ speaking: false });
+  },
+  restoreLastSpoken() {
+    const { lastSpoken, message, draft } = get();
+    if (!lastSpoken?.length || message.length || draft) return false;
+    set({ message: lastSpoken.map((w) => ({ ...w, id: uid('w') })), lastSpoken: null });
+    return true;
+  },
+  clearRecent() {
+    const removed = get().profile().history;
+    if (!removed.length) return;
+    get().updateProfile((p) => { p.history = []; }, { shallow: true });
+    get().showToast(t('Recent sentences cleared'), { label: 'Undo', run: () => restoreHistory(removed) });
+  },
+  deleteRecent(id) {
+    const removed = get().profile().history.filter((h) => recentId(h) === id);
+    if (!removed.length) return;
+    get().updateProfile((p) => { p.history = p.history.filter((h) => recentId(h) !== id); }, { shallow: true });
+    get().showToast(t('Sentence removed'), { label: 'Undo', run: () => restoreHistory(removed) });
+  },
+  setPrivate(on) {
+    set({ isPrivate: on });
+  },
+  setContentEdit(on) {
+    set({ contentEdit: on && get().unlocked });
+  },
+  openContentEditor(target) {
+    if (!get().unlocked) return;
+    if (target === 'phrases') set({ screen: 'phrases', editMode: false, formsFor: null, contentEdit: true });
+    else set({ screen: 'tools', tool: target, editMode: false, formsFor: null, contentEdit: true });
+  },
+  setBigText(bigText) {
+    set({ bigText });
   },
 
   setUnlocked(v) {
-    set({ unlocked: v, editMode: v ? get().editMode : false });
+    set({ unlocked: v, editMode: v ? get().editMode : false, contentEdit: v ? get().contentEdit : false });
   },
   lock() {
-    set({ unlocked: false, editMode: false, screen: 'talk', boardStack: [get().profile().rootId], formsFor: null });
+    set({ unlocked: false, editMode: false, contentEdit: false, screen: 'talk', boardStack: [get().profile().rootId], formsFor: null });
   },
   tool: null,
   setTool(tool) {
-    set({ tool });
+    set({ tool, contentEdit: false });
   },
   modeling: false,
   setModeling(modeling) {
@@ -541,10 +697,12 @@ export const useStore = create<Store>((set, get) => ({
   setEditMode(v) {
     set({ editMode: v, screen: v ? 'talk' : get().screen });
   },
-  showToast(msg, action) {
+  showToast(msg, action, opts = {}) {
     if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = undefined;
+    clearUndoShown = false;
     set({ toast: msg, toastAction: action ?? null });
-    toastTimer = setTimeout(() => set({ toast: null, toastAction: null }), action ? 5000 : 2200);
+    if (!opts.sticky) toastTimer = setTimeout(() => set({ toast: null, toastAction: null }), action ? 5000 : 2200);
   },
   setFormsFor(v) {
     set({ formsFor: v });
@@ -553,6 +711,17 @@ export const useStore = create<Store>((set, get) => ({
     set({ highlight: ids });
   },
 }));
+
+/** Undo for clearing or deleting Recent sentences: puts them back in time order, keeping anything said since. */
+function restoreHistory(removed: HistoryItem[]) {
+  useStore.getState().updateProfile((p) => {
+    const have = new Set(p.history.map(recentId));
+    p.history = [...p.history, ...removed.filter((h) => !have.has(recentId(h)))].sort((a, b) => b.t - a.t).slice(0, 100);
+  }, { shallow: true });
+}
+
+// Speak shows Stop while the person's message or phrase is being spoken.
+setSpeakingListener((on) => { if (useStore.getState().speaking !== on) useStore.setState({ speaking: on }); });
 
 // Timer tick lives outside any component so it keeps running (and alarms) on every screen.
 if (typeof window !== 'undefined') {
