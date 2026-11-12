@@ -1,6 +1,6 @@
 import type { AACButton, Board, Cell, LayoutId, LibraryCategory, Profile, Settings, WordType } from '../types';
 import { uid } from '../lib/util';
-import { translateProfile } from '../lib/translate';
+import { aboutMeText, translateProfile } from '../lib/translate';
 import { PACKS, type Lang } from '../i18n/packs';
 import symbolMap from './symbols.json';
 import {
@@ -28,6 +28,8 @@ export const DEFAULT_SETTINGS: Settings = {
   speakFolders: false,
   clearAfterSpeak: false,
   returnHome: true,
+  showNotSpeak: false,
+  keepRecent: 'on',
   theme: 'light',
   style: 'playful',
   colorMode: 'fill',
@@ -44,6 +46,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showKeyboardNav: true,
   showPhrasesNav: true,
   showToolsNav: true,
+  hiddenTools: [],
   holdMs: 0,
   debounceMs: 0,
   pressOnDown: false,
@@ -54,16 +57,26 @@ export const DEFAULT_SETTINGS: Settings = {
   scanPattern: 'row-col',
   scanMs: 1500,
   scanSpeak: true,
+  scanAcceptMs: 0,
+  scanLockoutMs: 500,
+  scanFirstMs: 0,
+  scanLoops: 0,
+  scanLeaveRow: false,
+  scanCueVoice: false,
+  scanKeySelect: '',
+  scanKeyNext: '',
+  highlightColor: '',
+  highlightWidth: 5,
   pointer: 'off',
   dwellMs: 1000,
   pointerSensitivity: 5,
   pointerSmoothing: 0.6,
   blinkSelect: false,
+  dwellRest: true,
   keyboardLayout: 'qwerty',
   learnWords: false,
-  lock: 'hold',
+  downloadSymbols: true,
   logging: false,
-  autoBackup: true,
 };
 
 const ACTIONS: Record<string, Partial<AACButton>> = {
@@ -165,7 +178,7 @@ function buildProfileEn(name: string, layout: LayoutId): Profile {
     })),
     aboutMe: {
       enabled: true,
-      text: `Hi! My name is ${name || '…'}. I am autistic and I use this app to communicate. Please be patient and give me extra time to answer. I understand more than I can say.`,
+      text: aboutMeText('en', name),
       contacts: '',
     },
     settings: { ...DEFAULT_SETTINGS },

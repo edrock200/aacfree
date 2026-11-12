@@ -1,8 +1,9 @@
 import { useStore, useProfile } from '../store';
 import { Symbol } from '../components/Symbol';
 import { symbolFor } from '../data/defaults';
-import { IconBack, IconBell } from '../components/Icons';
+import { IconBack, IconBell, IconCheck, IconEdit } from '../components/Icons';
 import { chime } from '../lib/feedback';
+import { toolShown } from '../lib/talk';
 import { ScheduleTool } from './tools/ScheduleTool';
 import { FirstThenTool } from './tools/FirstThenTool';
 import { TimerTool } from './tools/TimerTool';
@@ -11,11 +12,13 @@ import { BodyTool } from './tools/BodyTool';
 import { ChoiceTool } from './tools/ChoiceTool';
 import { AboutMeTool } from './tools/AboutMeTool';
 import { DrawTool } from './tools/DrawTool';
+import { MyVoiceTool } from './tools/MyVoiceTool';
+import { PersonButton } from './talkControls';
 import { t, ts } from '../i18n';
 
-type ToolId = 'schedule' | 'firstthen' | 'timer' | 'feelings' | 'pain' | 'body' | 'choice' | 'aboutme' | 'draw';
+type ToolId = 'schedule' | 'firstthen' | 'timer' | 'feelings' | 'pain' | 'body' | 'choice' | 'aboutme' | 'draw' | 'myvoice';
 
-const TOOLS: { id: ToolId; name: string; icon: string; desc: string }[] = [
+export const TOOLS: { id: ToolId; name: string; icon: string; desc: string }[] = [
   { id: 'schedule', name: 'Schedule', icon: 'schedule', desc: 'What happens today' },
   { id: 'firstthen', name: 'First / Then', icon: 'first', desc: 'First this, then that' },
   { id: 'timer', name: 'Timer', icon: 'timer', desc: 'See time passing' },
@@ -25,21 +28,37 @@ const TOOLS: { id: ToolId; name: string; icon: string; desc: string }[] = [
   { id: 'body', name: 'Body', icon: 'body', desc: 'Where it hurts' },
   { id: 'aboutme', name: 'About me', icon: 'communication', desc: 'Show to new people' },
   { id: 'draw', name: 'Draw', icon: 'draw', desc: 'Draw or write' },
+  { id: 'myvoice', name: 'My voice', icon: 'say', desc: 'Loudness, speed, or show it instead' },
 ];
+/** The "Get attention" tile can be hidden too. */
+export const ATTENTION_TOOL = { id: 'attention', name: 'Get attention' };
+
+/** Tools that have an editing view for grown-ups (switched on with a pencil, never by a plain tap). */
+const EDITABLE: ToolId[] = ['schedule', 'aboutme'];
 
 export function ToolsScreen() {
   const tool = useStore((st) => st.tool) as ToolId | null;
-  const setTool = useStore.getState().setTool;
+  const unlocked = useStore((st) => st.unlocked);
+  const contentEdit = useStore((st) => st.contentEdit);
+  const { setTool, setContentEdit } = useStore.getState();
   const p = useProfile();
+  const s = p.settings;
   const { speakText } = useStore.getState();
 
   if (tool) {
-    const tl = TOOLS.find((x) => x.id === tool)!;
+    const tl = TOOLS.find((x) => x.id === tool);
+    if (!tl) return null;
+    const edit = unlocked && contentEdit;
     return (
       <div className="tool-screen">
         <div className="tool-head" data-scan-group>
-          <button className="btn" onClick={() => setTool(null)} data-scan-item><IconBack /> {t('Tools')}</button>
+          <PersonButton s={s} onPress={() => setTool(null)}><IconBack /> {t('Tools')}</PersonButton>
           <h2>{t(tl.name)}</h2>
+          {unlocked && EDITABLE.includes(tool) && (
+            <button className={`btn small ${edit ? 'primary' : ''}`} aria-pressed={edit} onClick={() => setContentEdit(!edit)}>
+              {edit ? <><IconCheck size={18} /> {t('Done editing')}</> : <><IconEdit size={18} /> {t('Edit')}</>}
+            </button>
+          )}
         </div>
         <div className="tool-body">
           {tool === 'schedule' && <ScheduleTool />}
@@ -51,6 +70,7 @@ export function ToolsScreen() {
           {tool === 'body' && <BodyTool />}
           {tool === 'aboutme' && <AboutMeTool />}
           {tool === 'draw' && <DrawTool />}
+          {tool === 'myvoice' && <MyVoiceTool />}
         </div>
       </div>
     );
@@ -58,18 +78,21 @@ export function ToolsScreen() {
 
   return (
     <div className="tools-menu" data-scan-group>
-      {TOOLS.filter((x) => x.id !== 'aboutme' || p.aboutMe.enabled).map((x) => (
-        <button key={x.id} className="tool-tile" onClick={() => setTool(x.id)} data-scan-item aria-label={t(x.name)}>
+      {TOOLS.filter((x) => toolShown(p, x.id)).map((x) => (
+        <PersonButton key={x.id} s={s} className="tool-tile" onPress={() => setTool(x.id)} label={t(x.name)}>
           <Symbol value={symbolFor(x.icon)} />
           <b>{t(x.name)}</b>
           <small>{t(x.desc)}</small>
-        </button>
+        </PersonButton>
       ))}
-      <button className="tool-tile attention" onClick={() => { chime(); setTimeout(() => speakText(ts('Excuse me! I want to say something.')), 700); }} data-scan-item aria-label={t('Get attention')}>
-        <IconBell size={48} />
-        <b>{t('Get attention')}</b>
-        <small>{t('Chime + “Excuse me!”')}</small>
-      </button>
+      {toolShown(p, ATTENTION_TOOL.id) && (
+        <PersonButton s={s} className="tool-tile attention" label={t('Get attention')}
+          onPress={() => { chime(); setTimeout(() => speakText(ts('Excuse me! I want to say something.')), 700); }}>
+          <IconBell size={48} />
+          <b>{t('Get attention')}</b>
+          <small>{t('Chime + “Excuse me!”')}</small>
+        </PersonButton>
+      )}
     </div>
   );
 }

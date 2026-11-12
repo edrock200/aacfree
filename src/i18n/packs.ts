@@ -11,6 +11,7 @@
 import { ES_UI } from './es';
 import { FR_UI } from './fr';
 import { PT_UI } from './pt';
+import { v05 } from './v05';
 import { ES_CATEGORY_NAMES, ES_LABELS, ES_PHRASE_CATEGORIES, ES_PHRASES, ES_SCHEDULE } from '../data/i18n/es-vocab';
 import { FR_CATEGORY_NAMES, FR_LABELS, FR_PHRASE_CATEGORIES, FR_PHRASES, FR_SCHEDULE } from '../data/i18n/fr-vocab';
 import { PT_CATEGORY_NAMES, PT_LABELS, PT_PHRASE_CATEGORIES, PT_PHRASES, PT_SCHEDULE } from '../data/i18n/pt-vocab';
@@ -104,7 +105,7 @@ export const PACKS: Record<Lang, LangPack> = {
     keyboard: { ...EN_KB, azerty: ['azertyuiop', "qsdfghjklm", "wxcvbn'"] },
   },
   es: {
-    id: 'es', name: 'Español', voice: 'es-US', ui: ES_UI,
+    id: 'es', name: 'Español', voice: 'es-US', ui: { ...ES_UI, ...v05('es') },
     vocab: {
       labels: ES_LABELS, categories: ES_CATEGORY_NAMES, phrases: ES_PHRASES, phraseCategories: ES_PHRASE_CATEGORIES, schedule: ES_SCHEDULE,
       home: 'Inicio', core: 'Palabras básicas', extra: 'Mis símbolos extra',
@@ -127,7 +128,7 @@ export const PACKS: Record<Lang, LangPack> = {
     },
   },
   fr: {
-    id: 'fr', name: 'Français', voice: 'fr-FR', ui: FR_UI,
+    id: 'fr', name: 'Français', voice: 'fr-FR', ui: { ...FR_UI, ...v05('fr') },
     vocab: {
       labels: FR_LABELS, categories: FR_CATEGORY_NAMES, phrases: FR_PHRASES, phraseCategories: FR_PHRASE_CATEGORIES, schedule: FR_SCHEDULE,
       home: 'Accueil', core: 'Mots de base', extra: 'Mes pictogrammes en plus',
@@ -136,9 +137,9 @@ export const PACKS: Record<Lang, LangPack> = {
     words: FR_COMMON_WORDS, bigrams: FR_BIGRAMS,
     starters: ['je', 'veux', 'encore', 'non', 'oui', 'quoi', 'tu', 'mon', 'il', 'est'],
     keyboard: {
-      qwerty: ['éèêàçùôî', 'qwertyuiop', "asdfghjkl'", 'zxcvbnm'],
-      azerty: ['éèêàçùôî', 'azertyuiop', 'qsdfghjklm', "wxcvbn'"],
-      abc: ['éèêàçùôî', 'abcdefghi', 'jklmnopqr', "stuvwxyz'"],
+      qwerty: ['éèêëàâçîïôûùœ', 'qwertyuiop', "asdfghjkl'", 'zxcvbnm'],
+      azerty: ['éèêëàâçîïôûùœ', 'azertyuiop', 'qsdfghjklm', "wxcvbn'"],
+      abc: ['éèêëàâçîïôûùœ', 'abcdefghi', 'jklmnopqr', "stuvwxyz'"],
       nums: ['1234567890', '-/:;()€&@"', ".,?!'«»%+"],
     },
     forms: formsForFr,
@@ -154,7 +155,7 @@ export const PACKS: Record<Lang, LangPack> = {
     },
   },
   pt: {
-    id: 'pt', name: 'Português (Brasil)', voice: 'pt-BR', ui: PT_UI,
+    id: 'pt', name: 'Português (Brasil)', voice: 'pt-BR', ui: { ...PT_UI, ...v05('pt') },
     vocab: {
       labels: PT_LABELS, categories: PT_CATEGORY_NAMES, phrases: PT_PHRASES, phraseCategories: PT_PHRASE_CATEGORIES, schedule: PT_SCHEDULE,
       home: 'Início', core: 'Palavras essenciais', extra: 'Meus símbolos extras',

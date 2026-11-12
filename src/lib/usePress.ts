@@ -24,6 +24,9 @@ export function setPressFeedback(fn: (() => void) | null) {
 }
 const LONG_PRESS_MS = 550;
 const MOVE_TOLERANCE = 18;
+/** Stored settings are never trusted: a huge hold or debounce time would make every button dead. */
+const MAX_MS = 5000;
+export const clampMs = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(MAX_MS, Math.max(0, v)) : 0);
 
 export function usePress(o: PressOptions) {
   const opts = useRef(o);
@@ -33,8 +36,9 @@ export function usePress(o: PressOptions) {
   });
 
   const fire = (el?: HTMLElement | null) => {
-    const { debounceMs = 0, onActivate, disabled } = opts.current;
+    const { onActivate, disabled } = opts.current;
     if (disabled) return;
+    const debounceMs = clampMs(opts.current.debounceMs);
     const now = Date.now();
     if (debounceMs && now - lastActivation < debounceMs) return;
     lastActivation = now;
@@ -55,7 +59,8 @@ export function usePress(o: PressOptions) {
     onPointerDown(e: RPointerEvent<HTMLElement>) {
       if (e.button !== 0 && e.pointerType === 'mouse') return;
       const el = e.currentTarget;
-      const { holdMs = 0, pressOnDown, onLongPress } = opts.current;
+      const { pressOnDown, onLongPress } = opts.current;
+      const holdMs = clampMs(opts.current.holdMs);
       st.current = { x: e.clientX, y: e.clientY, fired: false, active: true };
       el.classList.add('pressing');
       if (holdMs > 0) {
@@ -88,7 +93,7 @@ export function usePress(o: PressOptions) {
       const el = e.currentTarget;
       const wasActive = st.current.active;
       clear(el);
-      if (wasActive && !st.current.fired && !(opts.current.holdMs ?? 0)) fire(el);
+      if (wasActive && !st.current.fired && !clampMs(opts.current.holdMs)) fire(el);
       st.current.fired = true;
     },
     onPointerCancel(e: RPointerEvent<HTMLElement>) {

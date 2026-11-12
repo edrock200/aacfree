@@ -25,35 +25,35 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **25 topic folders, about 770 different words**, with 740 bundled [ARASAAC](https://arasaac.org) pictograms. Includes food, drinks, feelings, people, places, play, actions, describing words, little words, social, questions, body, clothes, animals, colours, numbers, time, school, routines, calm & sensory, weather, at home, tech & media, shopping, and health.
 - **Modified Fitzgerald Key colour coding.** It can be filled, border-only, or turned off.
 - **Always-on quick bar:** yes · no · stop · help · wait · break · I don't know · Hey! Protest words are always reachable.
-- **Message bar:** speak, delete a word (hold to clear), save as a phrase ★, show in big text (with a flip for the person across from you), share or copy.
+- **Message bar:** speak (Speak turns into **Stop** while talking; on an empty bar it brings back the last message), delete a word (hold to clear, always with Undo), save as a phrase ★, show in big text (with a flip for the person across from you), share or copy.
 - **Word forms on demand:** long-press a word, or tap it in the message bar, for go → went/going/goes, plurals, and bigger/biggest. A Word forms button is also on the Full layout.
 - **Keyboard with private word prediction.** Uses the built-in dictionary plus the person's own vocabulary, and can optionally learn from their sentences. Next-word suggestions come from their history.
-- **Phrases:** ready-made Needs, Feelings, **Boundaries** ("Please stop", "I need space"), Chat, Questions and Emergency groups. Save favourites and scripts (gestalt language support), keep recent sentences, and record a custom voice for any phrase.
-- **Tools:** visual schedule (Now/Next, check-off), first/then board, visual countdown timer, choice board, "How big is my feeling" scale, pain scale 0–10, body "where does it hurt", About-me card for new people and emergencies, drawing pad, and a get-attention chime.
+- **Phrases:** ready-made Needs, Feelings, **Boundaries** ("Please stop", "I need space"), Chat, Questions and Emergency groups. Save favourites and scripts (gestalt language support), and record a custom voice for any phrase. **Recent sentences belong to the person:** they can delete one, clear them all, or turn on "Private for now", without the grown-up lock.
+- **Tools:** visual schedule (Now/Next, check-off), first/then board, visual countdown timer, choice board, "How big is my feeling" scale, pain scale 0–10, body "where does it hurt", About-me card for new people and emergencies, drawing pad, a get-attention chime, and **My voice** (Quiet/Normal/Loud, speed, and "Show, don't speak"). Schedules reset each day. Grown-ups can hide tools the person doesn't use.
 - **Find word** shows the path to any word, even a hidden one, and walks through it button by button. If a word isn't on any board you can say it, put it in the message, or add it.
 - **Modelling mode:** partners can demonstrate without their taps counting as the user's.
 - **Pronunciations:** fix how the voice says names and unusual words.
 - **Voices:** any device voice, with speed, pitch and volume. Record family voices on individual buttons.
-- **Access:** hold-to-select, ignore repeated taps, select on touch, 1-switch auto scanning and 2-switch step scanning (rows → buttons or one by one, with optional auditory cues), Bluetooth switch keys (Space/Enter), large text, light, dark and high-contrast themes, a calmer "Clean" style for teens and adults, reduced motion, and keep screen awake.
+- **Access:** hold-to-select, ignore repeated taps, select on touch, 1-switch auto scanning and 2-switch step scanning (rows → buttons or one by one, with optional auditory cues), any switch key (assign your own), switch acceptance time, a lockout after each selection, first-item delay, scan loops and a Leave-row step, two-tone highlights with your choice of colour and thickness, app-wide large text, light, dark and high-contrast themes, a calmer "Clean" style for teens and adults, reduced motion, and keep screen awake.
 - **Babble mode** shows every hidden word so the person can explore.
 
 - **English, Español, Français, Português:** full interface and vocabulary in each, with automatic verb conjugation. Use a different app language for grown-ups, or show a second language on every button. Switching language keeps every button in place.
-- **Eye gaze & head pointer:** dwell selection with a mouse, head-mouse or eye tracker, or the front camera (on-device).
+- **Eye gaze & head pointer:** dwell selection with a mouse, head-mouse or eye tracker, or the front camera (on-device). Dwell only starts after a real movement, pauses when the face is lost, and has Rest, Centre and Restart-camera controls.
 
 ### For parents, teachers and therapists
-- **Grown-up area** behind a 2-second hold (default), a PIN or a math question. Talking itself is never locked.
+- **Grown-up area** behind a 2-second hold (default), a PIN or a math question. One lock for the whole device, whichever profile is open. Talking itself is never locked; phrases always speak, and editing them needs the Edit pencil.
 - **Symbol library:** every picture is organised into category folders, each with its own icon. Create your own categories (family, school, favourite shows…) and your own symbols from photos, online ARASAAC symbols or emoji. They appear whenever you choose a picture.
 - **New categories on boards:** add a folder button with an icon in one tap. It can start empty or be filled from any library category.
 - **Edit in place:** tap a button to change its label, spoken text, picture (built-in symbols, online ARASAAC search, emoji, camera or gallery photo), word type and colour, recorded voice, word forms, or folder link. Tap Move, then a target, to swap two buttons. **Hide instead of delete.** Undo is always available.
 - Create folders and boards, resize boards (positions are preserved), and edit the quick bar.
 - **Quick editing:** Show/Hide mode reveals words one tap at a time, and "+ Word" adds a word with a suggested picture. A full board gets a new row, and nothing moves.
 - **Paper boards:** print any boards, with the quick bar on every page, as a low-tech backup.
-- **Encrypted sync** between a parent's phone and the user's tablet, with no account or server.
+- **Sync across devices, change by change.** Edits made on a parent's phone, a school tablet and the user's tablet are merged item by item, so nothing is lost when more than one device changed. Deletions carry over, and when the same button was changed in two places the newer change wins and the conflict is listed (a snapshot is kept first). **Automatic sync** goes through one file the family picks in Google Drive, OneDrive or Dropbox (Android, and desktop Chrome/Edge); iPad, iPhone and Firefox use Send/Receive files. Everything is encrypted with the family's passcode. There is no account and no Caleb server. Each device keeps its own voice, PIN and history settings.
 - **Automatic backups** (daily, weekly or monthly, keeping as many copies as you like) that survive uninstalling. On Android they can also go straight to Google Drive, OneDrive, Dropbox or an SD card. Backups can be encrypted with a passcode and can leave out photos or message history.
-- **Data safety:** every change is saved instantly, plus automatic daily snapshots (the last 15) and snapshots before any restore, import or layout change. A one-file backup (including photos and recordings) works for moving devices, and the app asks the browser to keep storage persistently.
+- **Data safety:** every change is saved instantly, plus automatic daily snapshots and snapshots before any restore, import, layout change or delete (kept separately, so one never pushes out the other). Unreadable or newer-version data is never overwritten. Every loaded or imported file is checked and repaired first. A one-file backup (including photos and recordings) works for moving devices, and the app asks the browser to keep storage persistently.
 - **Open Board Format** `.obz` export and import, to share boards with CoughDrop, Cboard and others.
 - **Private usage insights** (opt-in): words per day, most-used words, new words, average message length and recent messages, with CSV export for your SLP. Nothing leaves the device.
-- **Multiple profiles** on one device.
+- **Multiple profiles** on one device, synced like everything else.
 - Built-in **Help & tips** on AAC best practice: modelling, presuming competence, not testing, and keeping the device available 24/7.
 - Android: the Back button never exits the app. Use App pinning to stay in Caleb.
 
@@ -96,11 +96,27 @@ For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 releas
   - Show a still frame on each button and play the clip on press or in the message bar. Looping every cell at once is too heavy on cheap tablets and overwhelming for many users.
   - Avoid AI or avatar signing.
 - Publish on Google Play (everything is prepared; it needs the owner's developer account; see docs/play-store.md)
+- From the v0.4 review (see [docs/reviews/v0.4-review.md](docs/reviews/v0.4-review.md)):
+  - switching language mid-conversation, with each language remembering its own voice;
+  - a larger layout that adds words without moving any existing ones;
+  - an iPad app;
+  - temporary word sets for an activity, and saved First/Then and Choices setups;
+  - highlighting each word as it's spoken;
+  - better prediction (spelling mistakes, abbreviations);
+  - importing audio files for scripts;
+  - a grammatical gender setting for Spanish, French and Portuguese;
+  - importers for Grid, TD Snap and TouchChat boards;
+  - skin-tone options for people symbols;
+  - social stories and visual scene boards.
 
 Suggestions are welcome. Open an issue.
 
 ## Privacy
-Caleb has no servers, analytics, ads or accounts. On Android, the system's own Auto Backup may include the app's data in the family's Google account backup. That is a safety net Android provides, and you can turn it off in Android settings. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, or when the device's text-to-speech engine uses an online voice.
+Caleb has no servers, analytics, ads or accounts. On Android, the system's own Auto Backup may include the app's data in the family's Google account backup. That is a safety net Android provides, and you can turn it off in Android settings. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, when a picture that isn't bundled is downloaded from ARASAAC (you can turn this off in Grown-ups → Lock → Privacy), or when the device's text-to-speech engine uses an online voice.
+
+- **Sync** writes only to a file the family chooses (for example in Google Drive), encrypted with the family's passcode. The passcode and this device's settings never leave the device.
+- **Recent sentences** can be deleted by the person, kept only until Caleb restarts, or turned off. "Private for now" pauses recent sentences, learned words and the usage log.
+- **Backups:** plain (unencrypted) backups never contain the grown-up PIN. New installs leave recent sentences out of backups unless you include them.
 
 ## Credits and licence
 - App code: [GNU AGPL-3.0-or-later](LICENSE). If you run a modified version for others, including as a website, you must share its source. See [NOTICE](NOTICE).

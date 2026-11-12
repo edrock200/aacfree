@@ -6,6 +6,8 @@ import { AddWordDialog } from '../components/AddWordDialog';
 import { ButtonEditor } from '../components/ButtonEditor';
 import { FormsPopover } from '../components/FormsPopover';
 import { Modal } from '../components/Modal';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { addSnapshot } from '../lib/db';
 import { Symbol } from '../components/Symbol';
 import { resizeBoard, orphanBoards } from '../lib/boards';
 import type { AACButton, Board } from '../types';
@@ -142,8 +144,15 @@ export const TalkScreen = memo(function TalkScreen() {
           explicit={formsButton.forms}
           onClose={() => setFormsButton(null)}
           onPick={(f) => {
-            addWord({ text: f, symbol: formsButton.symbol, type: formsButton.type });
-            if (s.speakOnTap) speakText(f);
+            if (formsButton.link || formsButton.action) {
+              // A folder's name as a word: just add it (pressing would open the folder).
+              const w = formsButton.speak ?? formsButton.label;
+              addWord({ text: f, base: f !== w ? w : undefined, symbol: formsButton.symbol, type: formsButton.type });
+              if (s.speakOnTap) speakText(f, { echo: true });
+            } else {
+              // Same path as a tap: usage log, return-home and the base word for later form changes.
+              pressButton(formsButton, { form: f });
+            }
             setFormsButton(null);
           }}
         />
@@ -159,11 +168,14 @@ export const TalkScreen = memo(function TalkScreen() {
 });
 
 function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boolean; onClose: () => void }) {
-  const { updateProfile, back, showToast } = useStore.getState();
+  const { updateProfile, back, showToast, undoEdit } = useStore.getState();
   const [name, setName] = useState(board.name);
   const [cols, setCols] = useState(board.cols);
   const [rows, setRows] = useState(board.rows);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { lost } = resizeBoard(board, cols, rows);
+  const dirty = name !== board.name || cols !== board.cols || rows !== board.rows;
+  const words = board.cells.filter((c) => c && !c.link && !c.action).length;
 
   const save = () => {
     updateProfile((pp) => {
@@ -174,6 +186,7 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
   };
 
   const remove = () => {
+    addSnapshot(useStore.getState().data, 'Before deleting a folder').catch(() => {});
     updateProfile((pp) => {
       delete pp.boards[board.id];
       for (const b of Object.values(pp.boards)) {
@@ -181,7 +194,7 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
       }
     }, { undoable: true });
     back();
-    showToast(t('Folder deleted (Undo is available)'));
+    showToast(t('Folder deleted'), { label: 'Undo', run: undoEdit });
     onClose();
   };
 
@@ -197,10 +210,11 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
   );
 
   return (
-    <Modal title={t('Board settings')} onClose={onClose}
+    <>
+    <Modal title={t('Board settings')} onClose={onClose} dirty={dirty}
       footer={
         <>
-          {!isRoot && <button className="btn danger-outline" onClick={remove}>{t('Delete folder')}</button>}
+          {!isRoot && <button className="btn danger-outline" onClick={() => setConfirmDelete(true)}>{t('Delete folder')}</button>}
           <span className="spacer" />
           <button className="btn" onClick={onClose}>{t('Cancel')}</button>
           <button className="btn primary" onClick={save}>{t('Save')}</button>
@@ -214,5 +228,12 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
       {lost > 0 && <p className="error">{lost} button(s) would be removed by shrinking. Consider hiding them instead.</p>}
       <p className="muted small">{t('Buttons keep their row and column when you resize, so the motor plan stays the same.')}</p>
     </Modal>
+    {confirmDelete && (
+      <ConfirmDialog title={t('Delete the folder “{v0}”?', { v0: board.name })} confirmLabel={t('Delete folder')}
+        onClose={() => setConfirmDelete(false)} onConfirm={remove}>
+        <p>{t('This removes the folder and its {v0} word(s) from every board. You can press Undo straight after, and a backup copy is kept.', { v0: words })}</p>
+      </ConfirmDialog>
+    )}
+    </>
   );
 }

@@ -793,7 +793,7 @@ export const PT_LABELS: Record<string, string | [string, string]> = {
   'clean up': 'arrumar',
   'feed the pet': 'dar comida ao bichinho',
   'pack bag': 'arrumar a mochila',
-  'put on shoes': 'calçar o sapato',
+  'put on shoes': 'calçar os sapatos',
 
   // ── Calm & sensory ──
   'too busy': 'muita gente',

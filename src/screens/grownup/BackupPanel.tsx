@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useStore, useProfile } from '../../store';
+import { isSaveBlocked, useStore, useProfile } from '../../store';
 import { Section } from './controls';
 import { backupFilename, createBackup, decryptBackup, isEncryptedBackup, readBackup } from '../../lib/backup';
-import { addSnapshot, getSnapshot, listSnapshots, type Snapshot } from '../../lib/db';
+import { addSnapshot, getSnapshot, listSnapshots, MANUAL_SNAPSHOT_REASON, SNAPSHOT_KEEP, type Snapshot } from '../../lib/db';
 import { pickFile, saveFile } from '../../lib/files';
-import { exportOBZ, importOBF } from '../../lib/obf';
 import { buildProfile } from '../../data/defaults';
 import { formatDate } from '../../lib/util';
 import { Modal } from '../../components/Modal';
@@ -37,7 +36,15 @@ export function BackupPanel() {
     try { await fn(); } catch (e) { showToast(t((e as Error).message || 'Something went wrong')); } finally { setBusy(false); }
   };
 
+  /** While saved data couldn't be opened, the boards on screen are a placeholder: never save them as a backup. */
+  const notWhileBlocked = () => {
+    if (!isSaveBlocked()) return false;
+    showToast(t('Your saved boards could not be opened, so nothing was backed up.'));
+    return true;
+  };
+
   const exportAll = () => run(async () => {
+    if (notWhileBlocked()) return;
     const prefs = await getPrefs();
     const passcode = prefs.encrypt ? await getBackupPasscode() : undefined;
     const blob = await createBackup(data, { includeMedia: prefs.includeMedia, includeHistory: prefs.includeHistory, passcode });
@@ -58,6 +65,7 @@ export function BackupPanel() {
   });
 
   const exportObz = () => run(async () => {
+    const { exportOBZ } = await import('../../lib/obf'); // loads OBF/zip code only when needed
     const blob = await exportOBZ(p);
     showToast(await saveFile(`${(p.name || 'caleb').toLowerCase().replace(/\W+/g, '-')}-boards.obz`, blob));
   });
@@ -65,8 +73,10 @@ export function BackupPanel() {
   const importObz = () => run(async () => {
     const f = await pickFile('.obz,.obf,application/zip,application/json');
     if (!f) return;
+    const { importOBF } = await import('../../lib/obf');
     const { boards, rootId, name } = await importOBF(f);
-    const np = buildProfile(name, 'medium');
+    const np = buildProfile(name, 'medium', p.settings.language);
+    np.settings = { ...p.settings }; // keep this device's access and voice settings (scanning, pointer, voice…)
     np.boards = boards;
     np.rootId = rootId;
     np.name = name;
@@ -76,7 +86,8 @@ export function BackupPanel() {
   });
 
   const snapshotNow = () => run(async () => {
-    await addSnapshot(data, 'Manual snapshot');
+    if (notWhileBlocked()) return;
+    await addSnapshot(data, MANUAL_SNAPSHOT_REASON);
     showToast(t('Snapshot saved'));
     refresh();
   });
@@ -106,12 +117,12 @@ export function BackupPanel() {
       </Section>
       <AutoBackupSection onRestore={(text, name) => run(() => beginRestore(text, name))} />
       <SyncSection />
-      <Section title={t('Automatic snapshots')} intro={t('Caleb keeps the last 15 versions on this device: one per day, plus one before every restore, layout change or import.')}>
+      <Section title={t('Automatic snapshots')} intro={t('Caleb keeps earlier versions on this device: one a day for the last {daily} days, the last {action} taken before a restore, import, deletion or other big change, and your last {manual} manual snapshots.', { daily: SNAPSHOT_KEEP.daily, action: SNAPSHOT_KEEP.action, manual: SNAPSHOT_KEEP.manual })}>
         <button className="btn small" disabled={busy} onClick={snapshotNow}>{t('Take snapshot now')}</button>
         <ul className="snap-list">
           {snaps.map((s) => (
             <li key={s.id}>
-              <span><b>{formatDate(s.t)}</b><small>{s.reason}</small></span>
+              <span><b>{formatDate(s.t)}</b><small>{t(s.reason)}</small></span>
               <button className="btn small" onClick={() => setRestore(s)}>{t('Restore')}</button>
             </li>
           ))}
@@ -148,7 +159,7 @@ export function BackupPanel() {
               showToast(t('Backup restored'));
               refresh();
             })}>{t('Replace with backup')}</button></>}>
-          <p><b>{pendingFile.name}</b> contains {pendingFile.data.profiles.length} profile(s): {pendingFile.data.profiles.map((x) => x.name || 'Unnamed').join(', ')}.</p>
+          <p><b>{pendingFile.name}</b>: {t('{n} profile(s): {names}.', { n: pendingFile.data.profiles.length, names: pendingFile.data.profiles.map((x) => x.name || t('Unnamed')).join(', ') })}</p>
           <p>{t('Everything on this device is replaced by the backup. Your current version is saved as a snapshot first, so you can go back.')}</p>
         </Modal>
       )}

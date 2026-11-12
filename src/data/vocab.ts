@@ -230,7 +230,7 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'sensory', name: 'Calm & sensory', icon: 'relax', type: 'noun',
     items: [
       'v:need|need', 'v:break', 'd:too loud@noise', 'd:too bright@sun', 'd:too busy@crowd', 'v:stop', 'v:help', 'd:calm',
-      'quiet place@silence', 'headphones', 'blanket', 'weighted blanket@blanket', 'fidget@fidget spinner', 'v:swing', 'v:rock@rocking chair', 'music',
+      'quiet place@silence', 'headphones', 'blanket', 'weighted blanket@blanket', 'fidget@fidget spinner', 'n:swing', 'v:rock@rocking chair', 'music',
       'hug', 'squeeze@hug', 'v:deep breath@breathe', 'v:walk', 'water', 'chewy@chewing gum', 'dim lights@lamp', 'alone time@alone',
       'v:jump', 'v:spin', 'v:stim@stereotypy', 'v:count', 'v:hide', 'd:safe', 'v:leave', 'tent',
     ],

@@ -23,10 +23,9 @@ export function PointerLayer({ s, active }: { s: Settings; active: boolean }) {
     engineRef.current = e;
     shared = e;
     const unsub = e.subscribe(setSt);
-    e.start();
+    void e.start();
     return () => { unsub(); e.stop(); if (shared === e) shared = null; engineRef.current = null; setSt(null); };
   // Only restart when the mode changes; other options update live below.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   useEffect(() => {
@@ -34,19 +33,37 @@ export function PointerLayer({ s, active }: { s: Settings; active: boolean }) {
   }, [mode, s.dwellMs, s.pointerSensitivity, s.pointerSmoothing, s.blinkSelect, s.gazeCalibration]);
 
   if (mode === 'off' || !st) return null;
+  const camera = mode === 'head' || mode === 'eyes';
+  const showChip = camera || s.dwellRest !== false;
+  const message = st.countdown ? t('Look at the middle of the screen… {n}', { n: st.countdown })
+    : st.resting ? t('Resting: dwell on Resume to carry on')
+      : st.message ? t(st.message)
+        : camera ? t(mode === 'head' ? 'Head pointer on' : 'Eye gaze on') : '';
   return createPortal(
     <>
       {st.visible && (
-        <div className="pointer-cursor" style={{ transform: `translate(${st.x}px, ${st.y}px)` }} aria-hidden>
-          <div className="pointer-ring" style={{ background: `conic-gradient(var(--accent) ${st.progress * 360}deg, transparent 0)` }} />
+        <div className={`pointer-cursor ${st.lost ? 'lost' : ''} ${st.resting ? 'resting' : ''}`} style={{ transform: `translate(${st.x}px, ${st.y}px)` }} aria-hidden>
+          {!st.lost && <div className="pointer-ring" style={{ background: `conic-gradient(var(--ring-c) ${st.progress * 360}deg, transparent 0)` }} />}
           <div className="pointer-dot" />
         </div>
       )}
-      {(mode === 'head' || mode === 'eyes') && (
-        <div className={`pointer-status pointer-exempt ${st.status}`} role="status">
-          {t(st.message ?? (mode === 'head' ? 'Head pointer on' : 'Eye gaze on'))}
-          {mode === 'head' && st.status === 'tracking' && (
-            <button className="btn small" onClick={() => engineRef.current?.recenter()}>{t('Centre')}</button>
+      {showChip && (
+        // data-modal-keep: stays usable while a dialog is open (Restart camera, Rest).
+        <div className={`pointer-status pointer-exempt scan-exempt ${st.status} ${st.resting ? 'resting' : ''}`} role="status" data-modal-keep>
+          {message && <span>{message}</span>}
+          {s.dwellRest !== false && (
+            // Dwellable even while resting, so the person can pause and resume hands-free.
+            <button className={`btn small pointer-rest ${st.resting ? 'primary' : ''}`} data-dwell-ok data-dwell-rest
+              onClick={() => engineRef.current?.toggleRest()} aria-pressed={!!st.resting}>
+              {st.resting ? t('Resume') : t('Rest')}
+            </button>
+          )}
+          {mode === 'head' && st.status === 'tracking' && !st.resting && (
+            // Dwell on Centre (or tap it), then look at the middle while it counts down.
+            <button className="btn small" data-dwell-ok onClick={() => engineRef.current?.recenterSoon()} disabled={!!st.countdown}>{t('Centre')}</button>
+          )}
+          {camera && (st.canRestart || st.status === 'error') && (
+            <button className="btn small primary" data-dwell-ok onClick={() => engineRef.current?.restartCamera()}>{t('Restart camera')}</button>
           )}
         </div>
       )}

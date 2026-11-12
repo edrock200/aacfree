@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Modal } from './Modal';
 import { Symbol } from './Symbol';
 import { useProfile } from '../store';
+import { PressButton } from './PressButton';
 import { searchBundled } from '../data/defaults';
 import { IconSearch } from './Icons';
 import { t } from '../i18n';
@@ -31,20 +32,22 @@ export function VocabPicker({ title = 'Choose', onPick, onClose }: { title?: str
       .filter((r) => !results.some((x) => x.label === r.label))];
   }
   return (
-    <Modal title={title} onClose={onClose} wide>
-      <label className="search">
+    <Modal title={t(title)} onClose={onClose} wide>
+      {/* While scanning a partner can still tap and type here; the switch scans the pictures below. */}
+      <label className="search scan-exempt">
         <IconSearch size={20} />
-        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Search words…')} />
+        <input autoFocus={!p.settings.scanning} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Search words…')} />
       </label>
-      <div className="sym-grid">
+      {/* Rows are worked out from the layout, so row/column scanning works in the picture grid. */}
+      <div className="sym-grid" data-scan-group data-scan-grid>
         {ql && !results.some((r) => r.label.toLowerCase() === ql) && (
-          <button className="sym-opt text-only" onClick={() => onPick({ label: q.trim() })}><span className="big">“{q.trim()}”</span><span>{t('use text')}</span></button>
+          <PressButton className="sym-opt text-only" onPress={() => onPick({ label: q.trim() })} data-scan-item><span className="big">“{q.trim()}”</span><span>{t('use text')}</span></PressButton>
         )}
         {results.map((r, i) => (
-          <button key={r.label + i} className="sym-opt" onClick={() => onPick(r)}>
+          <PressButton key={r.label + i} className="sym-opt" onPress={() => onPick(r)} data-scan-item aria-label={r.label}>
             <Symbol value={r.symbol} />
             <span>{r.label}</span>
-          </button>
+          </PressButton>
         ))}
       </div>
     </Modal>

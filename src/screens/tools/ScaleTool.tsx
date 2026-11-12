@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
+import { PressButton } from '../../components/PressButton';
 import { t, ts } from '../../i18n';
 
 const FEELINGS = [
@@ -30,10 +31,10 @@ export function ScaleTool({ kind }: { kind: 'feelings' | 'pain' }) {
         <p className="center muted">{t('How big is the feeling?')}</p>
         <div className="scale-col" data-scan-group>
           {[...FEELINGS].reverse().map((f) => (
-            <button key={f.n} className={`scale-btn ${sel === f.n ? 'on' : ''}`} style={{ background: f.color }} data-scan-item
-              onClick={() => { setSel(f.n); speakText(ts(f.say)); }}>
+            <PressButton key={f.n} className={`scale-btn ${sel === f.n ? 'on' : ''}`} style={{ background: f.color }} data-scan-item
+              onPress={() => { setSel(f.n); speakText(ts(f.say)); }}>
               <span className="scale-n">{f.n}</span><span className="scale-face">{f.face}</span><b>{t(f.label)}</b>
-            </button>
+            </PressButton>
           ))}
         </div>
       </div>
@@ -44,10 +45,10 @@ export function ScaleTool({ kind }: { kind: 'feelings' | 'pain' }) {
       <p className="center muted">{t('How much does it hurt?')}</p>
       <div className="scale-row" data-scan-group>
         {PAIN.map((f, i) => (
-          <button key={f.n} className={`scale-btn vertical ${sel === f.n ? 'on' : ''}`} style={{ background: PAIN_COLORS[i] }} data-scan-item
-            onClick={() => { setSel(f.n); speakText(ts(f.say)); }}>
+          <PressButton key={f.n} className={`scale-btn vertical ${sel === f.n ? 'on' : ''}`} style={{ background: PAIN_COLORS[i] }} data-scan-item
+            onPress={() => { setSel(f.n); speakText(ts(f.say)); }}>
             <span className="scale-face">{f.face}</span><span className="scale-n">{f.n}</span><b>{t(f.label)}</b>
-          </button>
+          </PressButton>
         ))}
       </div>
     </div>

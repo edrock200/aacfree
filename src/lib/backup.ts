@@ -3,6 +3,8 @@ import { migrate } from '../store';
 import { allAssetIds, getAsset, putAsset } from './db';
 import { blobToDataURL, dataURLToBlob } from './util';
 import { seal, unseal } from './crypto';
+import { withoutTransient } from './validate';
+import { withoutPin } from './lock';
 
 export interface BackupFile {
   app: 'caleb';
@@ -27,14 +29,15 @@ export interface BackupOptions {
   includeMedia?: boolean;
   /** Include spoken-message history and learned words (default true). */
   includeHistory?: boolean;
-  /** Encrypt the whole file with this passcode. */
+  /** Encrypt the whole file with this passcode (plain files never carry the grown-up PIN). */
   passcode?: string;
 }
 
 export async function createBackup(input: AppData, opts: BackupOptions = {}): Promise<Blob> {
-  let data = input;
+  let data = withoutTransient(input);
+  if (!opts.passcode) data = withoutPin(data);
   if (opts.includeHistory === false) {
-    data = { ...input, profiles: input.profiles.map((p) => ({ ...p, history: [], lexicon: {} })) };
+    data = { ...data, profiles: data.profiles.map((p) => ({ ...p, history: [], lexicon: {} })) };
   }
   const refs = opts.includeMedia === false ? new Set<string>() : referencedAssets(data);
   const existing = new Set(await allAssetIds());
@@ -65,17 +68,21 @@ export function isEncryptedBackup(text: string): boolean {
 
 /** Decrypt an encrypted backup to the plain backup JSON text. */
 export async function decryptBackup(text: string, passcode: string): Promise<string> {
-  const f = JSON.parse(text) as EncryptedBackupFile;
+  let f: EncryptedBackupFile;
+  try { f = JSON.parse(text) as EncryptedBackupFile; } catch { throw new Error('This file is damaged or is not a Caleb backup.'); }
   return new TextDecoder().decode(await unseal(f, passcode));
 }
 
 export async function readBackup(text: string): Promise<AppData> {
   let file: Partial<BackupFile>;
   try { file = JSON.parse(text) as Partial<BackupFile>; } catch { throw new Error('This file is damaged or is not a Caleb backup.'); }
-  if (file.app !== 'caleb' || !file.data?.profiles?.length) throw new Error('This is not a Caleb backup file.');
+  if (!file || typeof file !== 'object' || file.app !== 'caleb' || !Array.isArray(file.data?.profiles) || !file.data.profiles.length) {
+    throw new Error('This is not a Caleb backup file.');
+  }
   // Validate everything BEFORE writing any assets (throws on a bad or newer file).
   const data = migrate(structuredClone(file.data));
-  for (const [id, url] of Object.entries(file.assets ?? {})) {
+  const assets = file.assets && typeof file.assets === 'object' ? file.assets : {};
+  for (const [id, url] of Object.entries(assets)) {
     if (!/^[\w-]{1,80}$/.test(id) || typeof url !== 'string' || !/^data:(image|audio)\/[\w.+-]+;base64,/.test(url)) continue;
     await putAsset(id, await dataURLToBlob(url));
   }

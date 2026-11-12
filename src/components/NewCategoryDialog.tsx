@@ -74,7 +74,7 @@ export function NewCategoryDialog({ parentBoardId, onClose, onCreated }: {
         <div className="cat-editor">
           <button className="cell cell-folder preview" onClick={() => setPicking(true)} aria-label={t('Choose category icon')}>
             {icon ? <Symbol value={icon} /> : <span className="muted">{t('Tap for icon')}</span>}
-            <span className="cell-label">{name || 'Category'}</span>
+            <span className="cell-label">{name || t('Category')}</span>
           </button>
           <div className="grow">
             <label className="field"><span>{t('Name')}</span>
@@ -82,11 +82,11 @@ export function NewCategoryDialog({ parentBoardId, onClose, onCreated }: {
             </label>
             <label className="field"><span>{t('Start with symbols from')}</span>
               <select value={from} onChange={(e) => chooseFrom(e.target.value)}>
-                <option value="">Nothing (empty folder)</option>
-                {cats.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.symbols.length}){c.builtIn ? '' : ' (yours)'}</option>)}
+                <option value="">{t('Nothing (empty folder)')}</option>
+                {cats.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.symbols.length}){c.builtIn ? '' : ` ${t('(yours)')}`}</option>)}
               </select>
             </label>
-            <p className="muted small">The folder goes in the first empty square on “{parent.name}”. If that board is full, it goes on “More”.</p>
+            <p className="muted small">{t('The folder goes in the first empty square on “{board}”. If that board is full, it goes on “More”.', { board: parent.name })}</p>
           </div>
         </div>
       </Modal>

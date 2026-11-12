@@ -4,6 +4,7 @@ import { buttonColor } from './colors';
 import { getAsset } from './db';
 import { blobToDataURL } from './util';
 import { saveFile } from './files';
+import { t } from '../i18n';
 
 /**
  * Printable paper boards: a low-tech backup for when the device is charging,
@@ -70,7 +71,7 @@ export async function buildPrintHTML(p: Profile, boardIds: string[], includeHidd
   .note { color: #666; font-size: 11px; margin-top: 8px; }
   @media print { .bar { display: none; } }
 </style></head><body>
-<div class="bar"><button onclick="window.print()">Print</button><span>Tip: print in colour, landscape. Laminate for durability.</span></div>
+<div class="bar"><button onclick="window.print()">${esc(t('Print'))}</button><span>${esc(t('Tip: print in colour, landscape. Laminate for durability.'))}</span></div>
 ${pages.join('\n')}
 <p class="note">Made with Caleb AAC. Pictograms: Sergio Palao, ARASAAC (Government of Aragón), CC BY-NC-SA 4.0.</p>
 </body></html>`;
@@ -85,7 +86,9 @@ export async function printBoards(p: Profile, boardIds: string[]): Promise<strin
       w.document.open();
       w.document.write(html);
       w.document.close();
-      return 'Print view opened';
+      // The view inherits the app's Content-Security-Policy, which blocks the inline onclick.
+      w.document.querySelector('.bar button')?.addEventListener('click', () => w.print());
+      return t('Print view opened');
     }
   }
   return saveFile(`${(p.name || 'caleb').toLowerCase().replace(/\W+/g, '-')}-boards.html`, new Blob([html], { type: 'text/html' }));

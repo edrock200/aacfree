@@ -792,8 +792,8 @@ export const FR_LABELS: Record<string, string | [string, string]> = {
   'nap': 'sieste',
   'clean up': 'ranger',
   'feed the pet': "nourrir l'animal",
-  'pack bag': 'préparer son sac',
-  'put on shoes': 'mettre ses chaussures',
+  'pack bag': 'préparer le sac',
+  'put on shoes': 'mettre les chaussures',
 
   // ── Calm & sensory ──
   'too busy': 'trop de monde',

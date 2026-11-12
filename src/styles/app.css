@@ -13,8 +13,14 @@
   --accent-soft: #d5efe9;
   --danger: #c0392b;
   --warn: #b26a00;
-  --focus: #ff9f1c;
-  --scan: #ff5a1f;
+  /* Rings (v0.5 access): coloured outer band + black/white inner pair; see src/lib/rings.ts */
+  --focus: #0b57d0;
+  --focus-ink: #ffffff;
+  --scan: #d63a00;
+  --ring-w: 5px;
+  --ring-c: var(--ring-c-user, var(--scan));
+  --ring-ink-a: #000000;
+  --ring-ink-b: #ffffff;
   --radius: 14px;
   --cell-radius: 14px;
   --shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 2px 6px rgba(60, 40, 10, 0.08);
@@ -42,6 +48,9 @@
   --cell-border: rgba(255, 255, 255, 0.08);
   --timer-bg: #2a2e37;
   --shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --scan: #ff8a3d;
+  --focus: #ffb84d;
+  --focus-ink: #000000;
   color-scheme: dark;
 }
 
@@ -58,6 +67,9 @@
   --cell-border: #ffffff;
   --timer-bg: #222;
   --shadow: none;
+  --scan: #ff9900;
+  --focus: #00e5ff;
+  --focus-ink: #000000;
   color-scheme: dark;
 }
 
@@ -68,11 +80,13 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body, #root { height: 100%; margin: 0; }
+/* Text size applies app-wide: everything in rem follows it (menus a little less than board words). */
+html { font-size: calc(16px * clamp(0.85, var(--font-scale), 1.5)); }
 body {
   font-family: var(--font);
   background: var(--bg);
   color: var(--text);
-  font-size: 16px;
+  font-size: 1rem;
   overscroll-behavior: none;
   -webkit-user-select: none;
   user-select: none;
@@ -81,7 +95,8 @@ body {
 input, textarea, select { -webkit-user-select: text; user-select: text; }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:disabled { cursor: default; opacity: 0.45; }
-:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; box-shadow: 0 0 0 2px var(--focus-ink); }
+[role='dialog']:focus { outline: none; box-shadow: none; }
 h1, h2, h3, h4 { margin: 0 0 0.5em; line-height: 1.2; }
 p { line-height: 1.45; }
 small { font-size: 0.85em; }
@@ -159,7 +174,7 @@ small { font-size: 0.85em; }
 .msg-word {
   flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
   min-width: 48px; padding: 2px 6px; border: none; border-radius: 10px; background: transparent;
-  font-size: calc(1.15rem * var(--font-scale)); font-weight: 700;
+  font-size: 1.15rem; font-weight: 700;
 }
 .msg-word:active { background: var(--surface-2); }
 .msg-word .sym { width: 36px; height: 36px; object-fit: contain; }
@@ -249,14 +264,40 @@ small { font-size: 0.85em; }
 .cell-badge { position: absolute; top: 4px; right: 4px; background: var(--surface); border-radius: 6px; padding: 1px 3px; line-height: 0; }
 .cell-badge.left { left: 4px; right: auto; line-height: 1; font-size: 12px; }
 .cell.selected { outline: 4px solid var(--focus); outline-offset: -2px; }
-.cell-highlight { animation: glow 1s ease-in-out infinite; z-index: 1; }
-@keyframes glow { 50% { box-shadow: 0 0 0 6px var(--focus); transform: scale(1.04); } }
+/* Find word: a static two-tone ring (visible with Reduce motion); only the pulse is animated. */
+.cell-highlight {
+  z-index: 1;
+  outline: var(--ring-w) solid var(--focus); outline-offset: calc(-1 * var(--ring-w));
+  box-shadow: inset 0 0 0 calc(var(--ring-w) + 2px) var(--ring-ink-a), inset 0 0 0 calc(var(--ring-w) + 4px) var(--ring-ink-b);
+  animation: glow 1s ease-in-out infinite;
+}
+@keyframes glow { 50% { transform: scale(1.04); } }
 .cell.compact .sym { height: 56cqh; max-height: 56cqh; }
 .cell.compact .cell-label { font-size: calc(clamp(12px, min(13cqw, 22cqh), 20px) * var(--font-scale)); }
 .editing .grid .cell:not(.cell-add) { outline: 2px dashed rgba(0, 0, 0, 0.18); outline-offset: -5px; }
 
-/* ================= Scanning ================= */
-.scan-hl { outline: 5px solid var(--scan) !important; outline-offset: -2px; box-shadow: 0 0 0 4px rgba(255, 90, 31, 0.35) !important; z-index: 2; position: relative; }
+/* ================= Scanning (v0.5 access) ================= */
+/* Two-tone: the coloured band contrasts with the page, the black/white pair with any button fill. */
+.scan-hl, .scan-hl-preview {
+  outline: var(--ring-w) solid var(--ring-c) !important; outline-offset: calc(-1 * var(--ring-w)) !important;
+  box-shadow: inset 0 0 0 calc(var(--ring-w) + 2px) var(--ring-ink-a), inset 0 0 0 calc(var(--ring-w) + 4px) var(--ring-ink-b) !important;
+  z-index: 2; position: relative;
+}
+.scan-hl-leave { outline: 3px dashed var(--ring-c) !important; outline-offset: -3px !important; }
+.scan-leave-chip {
+  position: fixed; z-index: 96; pointer-events: none; padding: 8px 14px; border-radius: 999px;
+  background: var(--ring-c); color: #000; font-weight: 700; font-size: 1.05rem;
+  box-shadow: 0 0 0 2px #000, 0 0 0 4px #fff, 0 6px 18px rgba(0,0,0,.25);
+}
+.pressbtn { position: relative; }
+.pressbtn.holding::after {
+  content: ''; position: absolute; left: 0; bottom: 0; height: 5px; width: 0; border-radius: 3px;
+  background: var(--accent); animation: holdfill var(--hold-ms, 1s) linear forwards;
+}
+.highlight-preview { display: flex; gap: 8px; padding: 8px 0; flex-wrap: wrap; }
+.highlight-preview .cell { width: 96px; height: 64px; flex: none; color: #1d1d1f; font-weight: 700; }
+.key-capture { font-size: 1.3rem; font-weight: 700; padding: 16px 0; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ================= Nav bar ================= */
 .navbar {
@@ -268,7 +309,7 @@ small { font-size: 0.85em; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   min-width: 64px; min-height: 52px; padding: 2px 8px;
   border: none; border-radius: 12px; background: transparent;
-  font-size: 0.78rem; font-weight: 700; color: var(--muted);
+  font-size: 0.9rem; font-weight: 700; color: var(--muted);
   position: relative; overflow: hidden;
 }
 .navbtn.on { background: var(--accent-soft); color: var(--accent); }
@@ -292,7 +333,7 @@ small { font-size: 0.85em; }
 .key.wide { flex: 1.5; }
 .key.space { flex: 4; }
 .key.on { background: var(--accent-soft); }
-.key.pred { min-height: 52px; font-size: calc(1.1rem * var(--font-scale)); background: var(--accent-soft); color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.key.pred { min-height: 52px; font-size: 1.1rem; background: var(--accent-soft); color: var(--text); overflow: hidden; text-overflow: ellipsis; }
 .key.flash { background: var(--accent); color: var(--accent-ink); }
 
 /* ================= Phrases ================= */
@@ -312,7 +353,7 @@ small { font-size: 0.85em; }
   min-height: 72px; padding: 10px 14px; width: 100%;
   border: 1.5px solid var(--cell-border); border-radius: var(--radius);
   background: var(--surface); box-shadow: var(--shadow);
-  font-size: calc(1.15rem * var(--font-scale)); font-weight: 700; position: relative;
+  font-size: 1.15rem; font-weight: 700; position: relative;
 }
 .phrase .sym { width: 52px; height: 52px; object-fit: contain; flex: none; }
 .phrase .sym-emoji { font-size: 40px; }
@@ -617,6 +658,8 @@ small { font-size: 0.85em; }
 .ob-dots i { width: 28px; height: 6px; border-radius: 4px; background: var(--border); }
 .ob-dots i.on { background: var(--accent); }
 .ob-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+.ob-restore { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); text-align: center; }
+.ob-restore .row { align-items: flex-end; flex-wrap: wrap; text-align: start; }
 .ob-tips { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; line-height: 1.4; }
 
 /* ================= Responsive ================= */
@@ -642,7 +685,7 @@ small { font-size: 0.85em; }
   .msg { padding-left: 6px; }
   .speakbtn span { display: none; }
   .msgbar .iconbtn { width: 42px; }
-  .navbtn { min-width: 52px; padding: 2px 4px; font-size: 0.7rem; }
+  .navbtn { min-width: 52px; padding: 2px 4px; font-size: 0.8rem; }
   :root { --min-cell: 68px; }
   .quickbar { grid-auto-columns: minmax(58px, 1fr); }
   .quickbar .cell { height: 56px; }
@@ -701,16 +744,42 @@ small { font-size: 0.85em; }
 .pointer-ring { position: absolute; left: -28px; top: -28px; width: 56px; height: 56px; border-radius: 50%;
   -webkit-mask: radial-gradient(circle, transparent 21px, #000 22px); mask: radial-gradient(circle, transparent 21px, #000 22px);
   outline: 2px solid rgba(0,0,0,.25); outline-offset: -2px; }
+/* Face lost: frozen and dimmed. Resting: dwell paused. */
+.pointer-cursor.lost .pointer-dot { opacity: .35; background: var(--muted); }
+.pointer-cursor.resting .pointer-dot { background: var(--muted); }
 .pointer-dot { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.35); }
-.pointer-target { outline: 4px solid var(--focus) !important; outline-offset: -2px; }
+.pointer-target {
+  outline: var(--ring-w) solid var(--focus) !important; outline-offset: calc(-1 * var(--ring-w)) !important;
+  box-shadow: inset 0 0 0 calc(var(--ring-w) + 2px) var(--ring-ink-a), inset 0 0 0 calc(var(--ring-w) + 4px) var(--ring-ink-b) !important;
+}
 .pointer-status { position: fixed; left: 12px; bottom: calc(76px + var(--safe-bottom)); z-index: 41; display: flex; gap: 8px; align-items: center;
   padding: 6px 8px 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); font-weight: 700; font-size: 0.85rem; box-shadow: var(--shadow); }
 .pointer-status.error, .pointer-status.no-face { background: #fff4d6; color: #8a5a00; }
+.pointer-status.resting { background: var(--accent-soft); }
 .calib { position: fixed; inset: 0; z-index: 95; background: var(--bg); }
 .calib-intro { max-width: 560px; margin: 12vh auto; padding: 20px; text-align: center; }
 .calib-intro .row { justify-content: center; }
 .calib-dot { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: var(--accent);
-  box-shadow: 0 0 0 10px var(--accent-soft); animation: calibfill 1.7s linear forwards; }
-@keyframes calibfill { from { transform: scale(1.6); opacity: .5; } to { transform: scale(0.6); opacity: 1; } }
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--text); animation: calibshrink 1.7s linear forwards; }
+/* The fill itself is drawn from progress (inline conic-gradient), so Reduce motion only removes the shrink. */
+@keyframes calibshrink { from { transform: scale(1.6); } to { transform: scale(0.8); } }
+.calib-dot.lost { opacity: .4; animation: none; }
+.calib-lost { position: absolute; left: 0; right: 0; top: 40%; text-align: center; font-size: 1.3rem; font-weight: 700; }
+.calib-cancel { position: absolute; right: 16px; bottom: calc(16px + var(--safe-bottom)); }
+.lockgate-msg { min-height: 1.4em; font-size: 1rem !important; color: var(--danger); text-align: center; }
 .cell-label2 { flex: none; max-width: 100%; font-size: calc(clamp(10px, min(11cqw, 12cqh), 22px) * var(--font-scale)); line-height: 1; opacity: .75; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cell:has(.cell-label2) .sym { height: 54cqh; max-height: 54cqh; }
+
+/* --- v0.5 talk --- */
+.unlocked-banner { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 4px 12px; background: var(--accent-soft); color: var(--text, inherit); font-weight: 700; font-size: 0.95rem; }
+.unlocked-banner .btn { min-height: 32px; }
+.voice-gate { display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; padding: 12px; border: none; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 1.1rem; }
+.speakbtn.stopping { background: var(--danger); color: #fff; }
+.recent-tools { margin-bottom: 8px; flex-wrap: wrap; }
+.myvoice { display: flex; flex-direction: column; gap: 18px; max-width: 760px; margin: 0 auto; }
+.myvoice-row h3 { margin: 0 0 6px; }
+.myvoice-choices { flex-wrap: wrap; gap: 10px; }
+.myvoice .stepper .btn { min-width: 120px; }
+.sym-detail { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.sym-detail .preview-sym { width: 140px; height: 140px; font-size: 110px; }
+.quick-edits { flex-wrap: wrap; gap: 8px; }
