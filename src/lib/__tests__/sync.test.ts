@@ -49,3 +49,27 @@ describe('encrypted device sync', () => {
     expect(mergeData(local, older).summary.kept).toEqual(['Sam']);
   });
 });
+
+import { createBackup, decryptBackup, isEncryptedBackup, readBackup } from '../backup';
+
+describe('backup options', () => {
+  it('encrypts backups with a passcode and restores them', async () => {
+    const d = data();
+    d.profiles[0].history = [{ text: 'secret sentence', t: 1 }];
+    const text = await (await createBackup(d, { passcode: 'family-pass-1' })).text();
+    expect(isEncryptedBackup(text)).toBe(true);
+    expect(text).not.toContain('secret sentence');
+    await expect(decryptBackup(text, 'nope-nope')).rejects.toThrow(/Wrong passcode/);
+    const restored = await readBackup(await decryptBackup(text, 'family-pass-1'));
+    expect(restored.profiles[0].history[0].text).toBe('secret sentence');
+  }, 30000);
+  it('can leave out history and learned words', async () => {
+    const d = data();
+    d.profiles[0].history = [{ text: 'private', t: 1 }];
+    d.profiles[0].lexicon = { zzlearnedword: 3 };
+    const text = await (await createBackup(d, { includeHistory: false })).text();
+    expect(isEncryptedBackup(text)).toBe(false);
+    expect(text).not.toContain('private');
+    expect(text).not.toContain('zzlearnedword');
+  });
+});

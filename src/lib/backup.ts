@@ -2,6 +2,7 @@ import type { AppData } from '../types';
 import { migrate } from '../store';
 import { allAssetIds, getAsset, putAsset } from './db';
 import { blobToDataURL, dataURLToBlob } from './util';
+import { seal, unseal } from './crypto';
 
 export interface BackupFile {
   app: 'caleb';
@@ -21,8 +22,21 @@ export function referencedAssets(data: unknown): Set<string> {
   return ids;
 }
 
-export async function createBackup(data: AppData): Promise<Blob> {
-  const refs = referencedAssets(data);
+export interface BackupOptions {
+  /** Include photos and recorded voices (default true). */
+  includeMedia?: boolean;
+  /** Include spoken-message history and learned words (default true). */
+  includeHistory?: boolean;
+  /** Encrypt the whole file with this passcode. */
+  passcode?: string;
+}
+
+export async function createBackup(input: AppData, opts: BackupOptions = {}): Promise<Blob> {
+  let data = input;
+  if (opts.includeHistory === false) {
+    data = { ...input, profiles: input.profiles.map((p) => ({ ...p, history: [], lexicon: {} })) };
+  }
+  const refs = opts.includeMedia === false ? new Set<string>() : referencedAssets(data);
   const existing = new Set(await allAssetIds());
   const assets: Record<string, string> = {};
   for (const id of refs) {
@@ -33,7 +47,26 @@ export async function createBackup(data: AppData): Promise<Blob> {
   const file: BackupFile = {
     app: 'caleb', kind: 'backup', version: data.version, exportedAt: new Date().toISOString(), data, assets,
   };
-  return new Blob([JSON.stringify(file)], { type: 'application/json' });
+  const json = JSON.stringify(file);
+  if (opts.passcode) {
+    const sealed = await seal(new TextEncoder().encode(json), opts.passcode);
+    const wrapped: EncryptedBackupFile = { app: 'caleb', kind: 'encrypted-backup', v: 1, exportedAt: file.exportedAt, ...sealed };
+    return new Blob([JSON.stringify(wrapped)], { type: 'application/json' });
+  }
+  return new Blob([json], { type: 'application/json' });
+}
+
+export interface EncryptedBackupFile { app: 'caleb'; kind: 'encrypted-backup'; v: 1; exportedAt: string; salt: string; iv: string; data: string }
+
+/** True if this backup file needs a passcode. */
+export function isEncryptedBackup(text: string): boolean {
+  return text.length < 2_000_000_000 && /"kind"\s*:\s*"encrypted-backup"/.test(text.slice(0, 200));
+}
+
+/** Decrypt an encrypted backup to the plain backup JSON text. */
+export async function decryptBackup(text: string, passcode: string): Promise<string> {
+  const f = JSON.parse(text) as EncryptedBackupFile;
+  return new TextDecoder().decode(await unseal(f, passcode));
 }
 
 export async function readBackup(text: string): Promise<AppData> {

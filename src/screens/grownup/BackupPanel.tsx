@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore, useProfile } from '../../store';
 import { Section } from './controls';
-import { backupFilename, createBackup, readBackup } from '../../lib/backup';
+import { backupFilename, createBackup, decryptBackup, isEncryptedBackup, readBackup } from '../../lib/backup';
 import { addSnapshot, getSnapshot, listSnapshots, type Snapshot } from '../../lib/db';
 import { pickFile, saveFile } from '../../lib/files';
 import { exportOBZ, importOBF } from '../../lib/obf';
@@ -10,6 +10,7 @@ import { formatDate } from '../../lib/util';
 import { Modal } from '../../components/Modal';
 import type { AppData } from '../../types';
 import { AutoBackupSection, SyncSection } from './SyncSection';
+import { getBackupPasscode, getPrefs } from '../../lib/autobackup';
 import { t } from '../../i18n';
 
 export function BackupPanel() {
@@ -20,6 +21,9 @@ export function BackupPanel() {
   const [busy, setBusy] = useState(false);
   const [restore, setRestore] = useState<Omit<Snapshot, 'data'> | null>(null);
   const [pendingFile, setPendingFile] = useState<{ data: AppData; name: string } | null>(null);
+  const [locked, setLocked] = useState<{ text: string; name: string } | null>(null);
+  const [lockCode, setLockCode] = useState('');
+  const [lockError, setLockError] = useState('');
   const [usage, setUsage] = useState<{ used: number; quota: number } | null>(null);
   useEffect(() => {
     navigator.storage?.estimate?.().then((e) => e.usage != null && e.quota && setUsage({ used: e.usage, quota: e.quota })).catch(() => {});
@@ -34,16 +38,23 @@ export function BackupPanel() {
   };
 
   const exportAll = () => run(async () => {
-    const blob = await createBackup(data);
+    const prefs = await getPrefs();
+    const passcode = prefs.encrypt ? await getBackupPasscode() : undefined;
+    const blob = await createBackup(data, { includeMedia: prefs.includeMedia, includeHistory: prefs.includeHistory, passcode });
     showToast(await saveFile(backupFilename(p.name), blob));
     localStorage.setItem('caleb:lastExport', String(Date.now()));
   });
 
+  /** One restore pipeline for files, automatic copies and cloud files (asks for a passcode if locked). */
+  const beginRestore = async (text: string, name: string) => {
+    if (isEncryptedBackup(text)) { setLocked({ text, name }); setLockCode(''); setLockError(''); return; }
+    setPendingFile({ data: await readBackup(text), name });
+  };
+
   const importAll = () => run(async () => {
     const f = await pickFile('.json,application/json');
     if (!f) return;
-    const d = await readBackup(await f.text());
-    setPendingFile({ data: d, name: f.name });
+    await beginRestore(await f.text(), f.name);
   });
 
   const exportObz = () => run(async () => {
@@ -93,7 +104,7 @@ export function BackupPanel() {
           <button className="btn" disabled={busy} onClick={importAll}>{t('Restore from file…')}</button>
         </div>
       </Section>
-      <AutoBackupSection />
+      <AutoBackupSection onRestore={(text, name) => run(() => beginRestore(text, name))} />
       <SyncSection />
       <Section title={t('Automatic snapshots')} intro={t('Caleb keeps the last 15 versions on this device: one per day, plus one before every restore, layout change or import.')}>
         <button className="btn small" disabled={busy} onClick={snapshotNow}>{t('Take snapshot now')}</button>
@@ -113,6 +124,21 @@ export function BackupPanel() {
           <button className="btn" disabled={busy} onClick={importObz}>{t('Import boards…')}</button>
         </div>
       </Section>
+      {locked && (
+        <Modal title={t('This backup is locked')} onClose={() => setLocked(null)}
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setLocked(null)}>{t('Cancel')}</button>
+            <button className="btn primary" disabled={!lockCode} onClick={async () => {
+              try {
+                const plain = await decryptBackup(locked.text, lockCode);
+                setPendingFile({ data: await readBackup(plain), name: locked.name });
+                setLocked(null);
+              } catch (e) { setLockError(t((e as Error).message)); }
+            }}>{t('Unlock')}</button></>}>
+          <p>{t('Enter the backup passcode for')} <b>{locked.name}</b>.</p>
+          <label className="field"><span>{t('Passcode')}</span><input autoFocus value={lockCode} onChange={(e) => setLockCode(e.target.value)} autoComplete="off" spellCheck={false} /></label>
+          {lockError && <p className="error">{lockError}</p>}
+        </Modal>
+      )}
       {pendingFile && (
         <Modal title={t('Restore this backup?')} onClose={() => setPendingFile(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setPendingFile(null)}>{t('Cancel')}</button>

@@ -236,11 +236,8 @@ export const useStore = create<Store>((set, get) => ({
             await gcAssets(referencedAssets(useStore.getState().data), referencedAssets);
           }
           // Weekly automatic backup file (if enabled and a destination exists).
-          const st = useStore.getState();
-          if (st.profile().settings.autoBackup) {
-            const { runAutoBackup } = await import('./lib/autobackup');
-            await runAutoBackup(st.data);
-          }
+          const { runAutoBackup } = await import('./lib/autobackup');
+          await runAutoBackup(useStore.getState().data); // checks the family's backup settings
         } catch (e) {
           console.warn('Snapshot failed', e);
         }

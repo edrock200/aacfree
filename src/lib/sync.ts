@@ -8,20 +8,7 @@ import { createBackup, readBackup } from './backup';
  * the passcode can open it.
  */
 
-const ITER = 250_000;
-const enc = new TextEncoder();
-/** Chunked base64 (works for large files and in Node tests). */
-const b64 = (u: Uint8Array) => {
-  let s = '';
-  for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000));
-  return btoa(s);
-};
-const unb64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-
-async function keyFrom(passcode: string, salt: Uint8Array) {
-  const base = await crypto.subtle.importKey('raw', enc.encode(passcode.normalize('NFKC')), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt as BufferSource, iterations: ITER, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-}
+import { seal, unseal } from './crypto';
 
 export interface SyncFile {
   app: 'caleb';
@@ -38,15 +25,10 @@ export async function createSyncFile(data: AppData, profileIds: string[], passco
   if (passcode.length < 6) throw new Error('Use a passcode of at least 6 characters.');
   const subset: AppData = { ...data, profiles: data.profiles.filter((p) => profileIds.includes(p.id)) };
   const backup = await createBackup(subset);
-  const plain = new Uint8Array(await backup.arrayBuffer());
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await keyFrom(passcode, salt);
-  const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plain));
-  const data64 = b64(cipher);
+  const sealed = await seal(new Uint8Array(await backup.arrayBuffer()), passcode);
   const file: SyncFile = {
     app: 'caleb', kind: 'sync', v: 1, createdAt: new Date().toISOString(),
-    profiles: subset.profiles.map((p) => p.name || 'Unnamed'), salt: b64(salt), iv: b64(iv), data: data64,
+    profiles: subset.profiles.map((p) => p.name || 'Unnamed'), ...sealed,
   };
   return new Blob([JSON.stringify(file)], { type: 'application/json' });
 }
@@ -59,13 +41,7 @@ export function peekSyncFile(text: string): SyncFile {
 }
 
 export async function openSyncFile(f: SyncFile, passcode: string): Promise<AppData> {
-  const key = await keyFrom(passcode, unb64(f.salt));
-  let plain: ArrayBuffer;
-  try {
-    plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(f.iv) as BufferSource }, key, unb64(f.data) as BufferSource);
-  } catch {
-    throw new Error('Wrong passcode (or the file was changed).');
-  }
+  const plain = await unseal(f, passcode);
   return readBackup(new TextDecoder().decode(plain)); // validates + stores photos/recordings
 }
 
