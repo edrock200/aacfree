@@ -19,7 +19,7 @@ description: Cut a new Caleb release — bump versions, run checks, build the we
 4. **APK:** follow the `build-android` skill. Copy the result to `release/caleb-latest.apk` (committed so families can download it straight from GitHub).
 5. **Website:** `npm run build:site` builds the landing page (`site/`) plus the web app under `app/` into `dist-site/`. The GitHub Pages workflow (`.github/workflows/pages.yml`) deploys it automatically on pushes to `main`.
 6. Update `CHANGELOG.md` with a `## <version> — <date>` section (it becomes the release notes), commit, and push.
-7. **GitHub Release:** tag and push: `git tag v<version> && git push origin v<version>`. `.github/workflows/android.yml` then
+7. **GitHub Release:** after the change is on `main`, either push a tag (`git tag v<version> && git push origin v<version>`) or, where tag pushes are blocked (cloud sessions), run the **Android APK** workflow on `main` with `publish: true` (workflow_dispatch). It creates the `v<version>` tag itself. Either way, `.github/workflows/android.yml`
    publishes a Release named `Caleb v<version>` with the CHANGELOG section as notes and two assets: `caleb-v<version>.apk` and `caleb.apk`.
    The fixed name keeps one permanent link to the newest APK: `https://github.com/edrock200/caleb/releases/latest/download/caleb.apk`.
    Never rename `caleb.apk`, since the README and families' bookmarks use that link.
