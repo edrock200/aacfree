@@ -90,3 +90,13 @@ describe('language packs', () => {
     expect(buildProfile('Ana', 'big', 'pt').aboutMe.text).toMatch(/^Oi!/);
   });
 });
+
+describe('French reflexive verbs', () => {
+  it('conjugates se/s\' verbs', () => {
+    expect(autoConjugateFr(['je'], 'se sentir')).toEqual({ text: 'me sens', dropPrevious: 0 });
+    expect(autoConjugateFr(['je'], "s'asseoir")).toEqual({ text: "m'assieds", dropPrevious: 0 });
+    expect(autoConjugateFr(['on'], "s'asseoir")).toEqual({ text: "s'assied", dropPrevious: 0 });
+    expect(autoConjugateFr(['je'], "s'ennuyer")).toEqual({ text: "m'ennuie", dropPrevious: 0 });
+    expect(autoConjugateFr(['tu'], 'se lever')).toEqual({ text: 'te lèves', dropPrevious: 0 });
+  });
+});

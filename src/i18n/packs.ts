@@ -131,7 +131,7 @@ export const PACKS: Record<Lang, LangPack> = {
     vocab: {
       labels: FR_LABELS, categories: FR_CATEGORY_NAMES, phrases: FR_PHRASES, phraseCategories: FR_PHRASE_CATEGORIES, schedule: FR_SCHEDULE,
       home: 'Accueil', core: 'Mots de base', extra: 'Mes pictogrammes en plus',
-      aboutMe: (n) => `Bonjour ! Je m'appelle ${n || '…'}. Je suis autiste et j'utilise cette application pour communiquer. Merci d'être patient et de me laisser plus de temps pour répondre. Je comprends plus de choses que je ne peux en dire.`,
+      aboutMe: (n) => `Bonjour ! Je m'appelle ${n || '…'}. Je suis autiste et j'utilise cette application pour communiquer. Merci de votre patience : laissez-moi plus de temps pour répondre. Je comprends plus de choses que je ne peux en dire.`,
     },
     words: FR_COMMON_WORDS, bigrams: FR_BIGRAMS,
     starters: ['je', 'veux', 'encore', 'non', 'oui', 'quoi', 'tu', 'mon', 'il', 'est'],

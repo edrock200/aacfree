@@ -48,6 +48,13 @@ const IRR: Record<string, { pres: string[]; part?: string }> = {
   'connaître': { pres: ['connais', 'connais', 'connaît', 'connaissons', 'connaissez', 'connaissent'], part: 'connu' },
   conduire: { pres: ['conduis', 'conduis', 'conduit', 'conduisons', 'conduisez', 'conduisent'], part: 'conduit' },
   construire: { pres: ['construis', 'construis', 'construit', 'construisons', 'construisez', 'construisent'], part: 'construit' },
+  asseoir: { pres: ['assieds', 'assieds', 'assied', 'asseyons', 'asseyez', 'asseyent'], part: 'assis' },
+  ennuyer: { pres: ['ennuie', 'ennuies', 'ennuie', 'ennuyons', 'ennuyez', 'ennuient'], part: 'ennuyé' },
+  lever: { pres: ['lève', 'lèves', 'lève', 'levons', 'levez', 'lèvent'], part: 'levé' },
+  promener: { pres: ['promène', 'promènes', 'promène', 'promenons', 'promenez', 'promènent'], part: 'promené' },
+  payer: { pres: ['paie', 'paies', 'paie', 'payons', 'payez', 'paient'], part: 'payé' },
+  envoyer: { pres: ['envoie', 'envoies', 'envoie', 'envoyons', 'envoyez', 'envoient'], part: 'envoyé' },
+  nettoyer: { pres: ['nettoie', 'nettoies', 'nettoie', 'nettoyons', 'nettoyez', 'nettoient'], part: 'nettoyé' },
   pleuvoir: { pres: ['pleut', 'pleut', 'pleut', 'pleut', 'pleut', 'pleut'], part: 'plu' },
   falloir: { pres: ['faut', 'faut', 'faut', 'faut', 'faut', 'faut'], part: 'fallu' },
 };
@@ -55,7 +62,7 @@ const IRR: Record<string, { pres: string[]; part?: string }> = {
 const vowelStart = (w: string) => /^[aeiouyhàâéèêëîïôûü]/i.test(w);
 
 export function isInfinitiveFr(w: string) {
-  const head = w.trim().split(' ')[0].replace(/^se\s+|^s'/, '');
+  const head = w.trim().replace(/^se\s+|^s'/, '').split(' ')[0];
   return /(er|ir|re|oir)$/.test(head) && head.length > 2;
 }
 

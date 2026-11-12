@@ -89,8 +89,8 @@ export function verbFormsPt(verb: string): string[] {
 
 export function pluralPt(noun: string): string {
   const w = noun.trim();
-  if (/[aeiouáéíóúâêô]$/i.test(w)) return w + 's';
   if (/ão$/i.test(w)) return w.slice(0, -2) + 'ões';
+  if (/[aeiouáéíóúâêô]$/i.test(w)) return w + 's';
   if (/m$/i.test(w)) return w.slice(0, -1) + 'ns';
   if (/il$/i.test(w)) return w.slice(0, -2) + 'is';
   if (/[aeo]l$/i.test(w)) return w.slice(0, -1) + 'is';
