@@ -175,7 +175,7 @@ function ScanSection() {
         <Toggle label={t('Use a different voice for scan cues')} hint={t('Cues sound softer and higher, so they are easy to tell apart from what the person says.')} checked={!!s.scanCueVoice} onChange={(scanCueVoice) => updateSettings({ scanCueVoice })} />
       )}
       <div className="setting">
-        <span className="setting-text"><b>{t(step ? 'Select switch' : 'Switch')}</b><small>{t('Key: {key}', { key: keyLabel(s.scanKeySelect ?? '', step ? 'Enter' : t('Space, Enter or arrows')) })}</small></span>
+        <span className="setting-text"><b>{t(step ? 'Select switch' : 'Your switch')}</b><small>{t('Key: {key}', { key: keyLabel(s.scanKeySelect ?? '', step ? 'Enter' : t('Space, Enter or arrows')) })}</small></span>
         <div className="row">
           <button className="btn small" onClick={() => setCapture('select')}>{t('Set key…')}</button>
           {s.scanKeySelect && <button className="btn small" onClick={() => updateSettings({ scanKeySelect: '' })}>{t('Use default')}</button>}
