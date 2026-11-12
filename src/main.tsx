@@ -5,7 +5,7 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './styles/app.css';
 import { App } from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { updateCanReload, useStore } from './store';
+import { blockSaves, updateCanReload, useStore } from './store';
 import { registerSW } from 'virtual:pwa-register';
 import { Capacitor } from '@capacitor/core';
 
@@ -29,7 +29,8 @@ if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
 useStore.getState().init().catch((e) => {
   // Talking must never be blocked: fall through to a usable app.
   console.error('init failed', e);
-  useStore.setState({ loaded: true });
+  blockSaves(); // the data in memory is a placeholder: never let it overwrite what is stored
+  useStore.setState({ loaded: true, loadProblem: 'storage' });
 });
 
 createRoot(document.getElementById('root')!).render(

@@ -8,6 +8,7 @@ import { NavBar } from './components/NavBar';
 import { FormsPopover } from './components/FormsPopover';
 import { FindWord } from './components/FindWord';
 import { BigText } from './components/BigText';
+import { LoadProblemBanner } from './components/LoadProblemBanner';
 import { ButtonEditor } from './components/ButtonEditor';
 import { TalkScreen } from './screens/TalkScreen';
 import { KeyboardScreen } from './screens/KeyboardScreen';
@@ -175,6 +176,7 @@ function Main() {
 
   return (
     <div className={`app screen-${screen} ${editMode ? 'editing' : ''}`}>
+      <LoadProblemBanner />
       {saveError && (
         <div className="save-error" role="alert">
           ⚠ Changes aren't being saved (device storage may be full).

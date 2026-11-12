@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import type { AACButton, AppData, GrownUpLock, LayoutId, MessageWord, Profile, Settings, SymbolLibrary } from './types';
 import { buildProfile } from './data/defaults';
-import { addSnapshot, clearLog, gcAssets, getMeta, getRev, loadData, logUsage, requestPersistence, saveDataChecked, setMeta } from './lib/db';
-import { cleanLibrary, repairProfile } from './lib/validate';
+import {
+  addSnapshot, blockStoredWrites, clearLog, DAILY_SNAPSHOT_REASON, gcAssets, getMeta, loadDataWithRev, logUsage, requestPersistence,
+  saveDataChecked, setMeta, setUsageLogPaused,
+} from './lib/db';
+import { cleanData, cleanLibrary, withoutTransient } from './lib/validate';
+import { SaveQueue } from './lib/savequeue';
 import { debounce, uid } from './lib/util';
 import { joinWords } from './lib/sentence';
 import { setSpeakingListener, speak, stopSpeaking } from './lib/tts';
@@ -47,12 +51,17 @@ interface UIState {
   speaking: boolean;
   /** Message emptied by clear-after-speak: Speak on an empty bar brings it back and says it again. */
   lastSpoken: MessageWord[] | null;
-  /** "Private for now": Recent and the usage log are paused until it is turned off or Caleb restarts. */
-  isPrivate: boolean;
   /** A grown-up is editing phrases, schedules or About me (an explicit pencil, never a plain tap). */
   contentEdit: boolean;
   /** Text shown full screen (Big text), e.g. by "Show, don't speak". */
   bigText: string | null;
+  /** "Private for now": recent sentences, the usage log and learned words are paused (never saved; resets on restart). */
+  privateMode: boolean;
+  /**
+   * Saved data could not be used, so Caleb runs from memory and saves nothing:
+   * 'newer' (made by a newer Caleb), 'unreadable' (damaged; a copy was kept), 'storage' (storage could not be read).
+   */
+  loadProblem: LoadProblem | null;
   /** Open tool on the Tools screen. */
   tool: string | null;
   /** A partner is modelling: taps are tagged in the log and don't train prediction. */
@@ -60,6 +69,7 @@ interface UIState {
 }
 
 export type ContentTarget = 'phrases' | 'schedule' | 'aboutme';
+export type LoadProblem = 'newer' | 'unreadable' | 'storage';
 
 interface Actions {
   init: () => Promise<void>;
@@ -78,7 +88,15 @@ interface Actions {
   setLanguage: (lang: Lang) => void;
   addProfile: (name: string, layout: LayoutId) => void;
   switchProfile: (id: string) => void;
-  deleteProfile: (id: string) => void;
+  /** Snapshots first; if the safety copy can't be saved, nothing is deleted. */
+  deleteProfile: (id: string) => Promise<void>;
+  // recent sentences (no lock needed: the person controls their own history)
+  /** Clear the current profile's recent sentences (with an Undo toast). */
+  clearRecent: () => void;
+  /** Delete one recent sentence by its id (with an Undo toast). */
+  deleteRecent: (id: string) => void;
+  /** "Private for now": pause recent sentences, the usage log and learned words until switched off or Caleb restarts. */
+  setPrivate: (on: boolean) => void;
   // navigation
   openBoard: (id: string) => void;
   back: () => void;
@@ -105,10 +123,6 @@ interface Actions {
   stopSpeech: () => void;
   /** Puts the message emptied by clear-after-speak back in the bar. */
   restoreLastSpoken: () => boolean;
-  /** Recent sentences: the person can delete them without the grown-up lock. */
-  clearRecent: () => void;
-  deleteRecent: (id: string) => void;
-  setPrivate: (on: boolean) => void;
   setContentEdit: (on: boolean) => void;
   /** Grown-ups shortcut: go to phrases, a schedule or About me with editing on (staying unlocked). */
   openContentEditor: (target: ContentTarget) => void;
@@ -155,13 +169,13 @@ export function applyPronunciations(text: string, map?: Record<string, string>):
 }
 
 type HistoryItem = Profile['history'][number];
-/** Stable id of a Recent sentence (its time stamp). */
-export const recentId = (h: HistoryItem) => String(h.t);
+/** Stable id of a Recent sentence (older entries without an id use their time stamp). */
+export const recentId = (h: HistoryItem) => h.id ?? String(h.t);
 
 /** Adds a spoken sentence to the top of Recent (no duplicate in a row, at most 100 kept). */
 export function addToHistory(history: HistoryItem[], text: string, now = Date.now()): HistoryItem[] {
   if (history[0]?.text === text) return history;
-  return [{ text, t: now }, ...history].slice(0, 100);
+  return [{ id: uid('h'), text, t: now }, ...history].slice(0, 100);
 }
 
 /** Learned words for prediction, Unicode-aware ("niño", "está", "aujourd'hui"). */
@@ -197,56 +211,127 @@ function emptyData(): AppData {
 }
 
 let saveBlocked = false;
-/** Revision of the data we last loaded/saved (detects writes from other tabs). */
-let rev = 0;
 let dirty = false;
 const channel: BroadcastChannel | null = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('caleb-data') : null;
 
-async function doSave(data: AppData, attempt = 0): Promise<void> {
-  if (saveBlocked) return;
-  try {
-    const next = await saveDataChecked(data, rev);
-    if (next === null) {
-      // Another window saved newer data: never overwrite it. Load theirs instead.
-      dirty = false;
-      await reloadFromDisk();
-      useStore.getState().showToast(t('Caleb was changed in another window. Showing the latest version.'));
-      return;
-    }
-    rev = next;
-    if (useStore.getState().data === data) dirty = false;
-    channel?.postMessage({ rev });
-    if (useStore.getState().saveError) useStore.setState({ saveError: false });
-  } catch (e) {
-    console.error('save failed', e);
-    if (attempt < 2) {
-      setTimeout(() => doSave(useStore.getState().data, attempt + 1), 1000 * (attempt + 1));
-    } else {
-      useStore.setState({ saveError: true });
-    }
-  }
+/** Stop every write of app data, snapshots and backups (data in memory is a placeholder or must not overwrite storage). */
+export function blockSaves() {
+  saveBlocked = true;
+  blockStoredWrites(true);
+  queue.clear();
+}
+export const isSaveBlocked = () => saveBlocked;
+
+function unblockSaves() {
+  saveBlocked = false;
+  blockStoredWrites(false);
 }
 
+/** Every save goes through this one queue (one write at a time, coalesced to the latest state). */
+export const queue = new SaveQueue<AppData>({
+  write: (data, expected) => saveDataChecked(withoutTransient(data), expected),
+  blocked: () => saveBlocked,
+  async onConflict() {
+    // Another window saved newer data: never overwrite it. Load theirs instead.
+    dirty = false;
+    await reloadFromDisk();
+    useStore.getState().showToast(t('Caleb was changed in another window. Showing the latest version.'));
+  },
+  onSaved(data, next) {
+    if (useStore.getState().data === data) dirty = false;
+    channel?.postMessage({ rev: next });
+    if (useStore.getState().saveError) useStore.setState({ saveError: false });
+  },
+  onFailed() {
+    useStore.setState({ saveError: true });
+  },
+});
+
 async function reloadFromDisk() {
-  const fresh = await loadData();
-  rev = await getRev();
-  if (!fresh?.profiles?.length) return;
-  const d = migrate(fresh);
+  const { data: fresh, rev: freshRev } = await loadDataWithRev();
+  if (fresh == null) return;
+  let d: AppData;
+  try {
+    d = migrate(fresh);
+  } catch (e) {
+    // Another window wrote data this copy of Caleb can't use: stop saving rather than overwrite it.
+    console.error('Data from another window could not be read', e);
+    blockSaves();
+    useStore.setState({ loadProblem: /newer version/.test((e as Error).message) ? 'newer' : 'unreadable' });
+    return;
+  }
+  queue.rev = freshRev;
   const st = useStore.getState();
+  // Recent sentences kept "for this session" live only in memory: carry them over.
+  for (const p of d.profiles) {
+    if (p.settings.keepRecent !== 'session') continue;
+    const mine = st.data.profiles.find((x) => x.id === p.id);
+    if (mine?.history.length) p.history = mine.history;
+  }
   const p = d.profiles.find((x) => x.id === st.data.activeProfileId) ?? d.profiles[0];
-  const stack = st.boardStack.filter((id) => p.boards[id]);
+  const stack = st.boardStack.filter((id) => Object.hasOwn(p.boards, id));
   useStore.setState({ data: { ...d, activeProfileId: p.id }, boardStack: stack.length ? stack : [p.rootId], undo: [] });
 }
 
 channel?.addEventListener('message', (e: MessageEvent<{ rev: number }>) => {
   // Another window saved. If we have no unsaved edits, pick up its data.
-  if (!dirty && e.data?.rev !== rev) reloadFromDisk().catch(() => {});
+  if (!dirty && !queue.busy && !saveBlocked && e.data?.rev !== queue.rev) reloadFromDisk().catch(() => {});
 });
 
-const persistDebounced = debounce((data: AppData) => { doSave(data); }, 400);
+const persistDebounced = debounce((data: AppData) => { queue.save(data); }, 400);
 const persist = Object.assign((data: AppData) => { dirty = true; persistDebounced(data); }, {
   flush: (data: AppData) => { dirty = true; persistDebounced.flush(data); },
 });
+
+// ---------- maintenance (daily snapshot, asset clean-up, scheduled backup) ----------
+let maintaining = false;
+let lastMaintenance = 0;
+const HOUR = 3600 * 1000;
+
+/**
+ * Background housekeeping. Runs after start-up, when Caleb comes back to the
+ * foreground and every hour, so a tablet that keeps Caleb open still gets its
+ * snapshots and backups. Never interactive, never while saving is blocked.
+ */
+export async function runMaintenance(): Promise<void> {
+  const st = useStore.getState();
+  if (maintaining || saveBlocked || !st.loaded || !st.data.onboarded) return;
+  maintaining = true;
+  lastMaintenance = Date.now();
+  try {
+    const last = (await getMeta<number>('lastSnapshot')) ?? 0;
+    const now = Date.now();
+    if (now - last > 20 * HOUR || last > now + HOUR) {
+      await addSnapshot(useStore.getState().data, DAILY_SNAPSHOT_REASON);
+      await setMeta('lastSnapshot', now);
+      const { referencedAssets } = await import('./lib/backup');
+      await gcAssets(referencedAssets(useStore.getState().data), referencedAssets);
+    }
+    if (saveBlocked) return;
+    const { runAutoBackup } = await import('./lib/autobackup');
+    await runAutoBackup(useStore.getState().data); // checks the family's backup settings; never asks for anything
+  } catch (e) {
+    console.warn('Maintenance failed', e);
+  } finally {
+    maintaining = false;
+  }
+}
+
+let maintenanceScheduled = false;
+function scheduleMaintenance() {
+  if (maintenanceScheduled || typeof window === 'undefined' || typeof document === 'undefined') return;
+  maintenanceScheduled = true;
+  setTimeout(() => { runMaintenance(); }, 1500);
+  setInterval(() => { runMaintenance(); }, HOUR);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && Date.now() - lastMaintenance > 10 * 60 * 1000) runMaintenance();
+  });
+}
+
+/** Keeps recent sentences only when the profile's settings (and private mode) allow it. */
+function recordsHistory(s: Settings, privateMode: boolean) {
+  return (s.keepRecent ?? 'on') !== 'off' && !privateMode;
+}
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 /** The toast on screen is the sticky "Message cleared · Undo" (it goes away with the next word). */
@@ -260,7 +345,7 @@ function dismissClearUndo() {
 /** Usage log entry, unless logging is off or the person chose "Private for now". */
 function logUse(kind: 'word' | 'phrase' | 'sentence', text: string) {
   const st = useStore.getState();
-  if (!st.settings().logging || st.isPrivate) return;
+  if (!st.settings().logging || st.privateMode) return;
   logUsage({ profileId: st.profile().id, kind, text, modeled: st.modeling || undefined });
 }
 
@@ -281,62 +366,60 @@ export const useStore = create<Store>((set, get) => ({
   highlight: [],
   speaking: false,
   lastSpoken: null,
-  isPrivate: false,
   contentEdit: false,
   bigText: null,
+  privateMode: false,
+  loadProblem: null,
 
   async init() {
     requestPersistence();
-    let data: AppData | undefined;
+    let raw: unknown;
+    let storedRev = 0;
+    let readFailed = false;
     try {
-      data = await loadData();
+      ({ data: raw, rev: storedRev } = await loadDataWithRev());
     } catch {
       // Retry once; if storage still can't be read, run from memory WITHOUT overwriting saved data.
-      try { data = await loadData(); } catch (e) {
+      try { ({ data: raw, rev: storedRev } = await loadDataWithRev()); } catch (e) {
         console.error('Could not read saved data', e);
-        saveBlocked = true;
-        data = emptyData();
-        data.onboarded = true;
-        setTimeout(() => get().showToast(t('Could not open saved boards. Changes will not be saved. Please restart Caleb.')), 500);
+        readFailed = true;
       }
     }
-    try { rev = await getRev(); } catch { /* fresh */ }
-    let repaired: AppData | null = null;
-    if (data?.profiles?.length) {
-      try { repaired = migrate(data); } catch (e) { console.error('Saved data could not be repaired', e); }
-    }
-    if (!repaired) {
-      data = { ...emptyData(), library: data?.library ? cleanLibrary(data.library) : emptyLibrary() };
-      doSave(data);
+    let data: AppData;
+    let problem: LoadProblem | null = null;
+    if (readFailed) {
+      problem = 'storage';
+      data = { ...emptyData(), onboarded: true };
+    } else if (raw == null) {
+      data = emptyData(); // first start
     } else {
-      data = repaired;
-      // "Keep recent sentences: until Caleb restarts" — start each session with an empty Recent.
-      let forgot = false;
-      for (const p of data.profiles) {
-        if (p.settings.keepRecent !== 'on' && p.history.length) { p.history = []; forgot = true; }
+      try {
+        data = migrate(raw as AppData);
+      } catch (e) {
+        // Never overwrite what is stored: keep a copy aside, save nothing, and tell the family.
+        console.error('Saved data could not be used', e);
+        try { await setMeta(`data-unreadable-${Date.now()}`, raw); } catch { /* the original record is still untouched */ }
+        problem = /newer version/.test((e as Error)?.message ?? '') ? 'newer' : 'unreadable';
+        let library = emptyLibrary();
+        try { library = cleanLibrary((raw as AppData)?.library); } catch { /* ignore */ }
+        data = { ...emptyData(), onboarded: true, library };
       }
-      if (forgot) doSave(data);
-      // Automatic daily snapshot (versioned backup). Runs in the background: never blocks talking.
-      const snapData = data;
-      setTimeout(async () => {
-        try {
-          const last = (await getMeta<number>('lastSnapshot')) ?? 0;
-          if (Date.now() - last > 20 * 3600 * 1000) {
-            await addSnapshot(snapData, 'Automatic daily backup');
-            await setMeta('lastSnapshot', Date.now());
-            const { referencedAssets } = await import('./lib/backup');
-            await gcAssets(referencedAssets(useStore.getState().data), referencedAssets);
-          }
-          // Weekly automatic backup file (if enabled and a destination exists).
-          const { runAutoBackup } = await import('./lib/autobackup');
-          await runAutoBackup(useStore.getState().data); // checks the family's backup settings
-        } catch (e) {
-          console.warn('Snapshot failed', e);
-        }
-      }, 1500);
     }
-    const p = data.profiles.find((x) => x.id === data!.activeProfileId) ?? data.profiles[0];
-    set({ data: { ...data, activeProfileId: p.id }, loaded: true, boardStack: [p.rootId] });
+    if (problem) {
+      blockSaves();
+      const msg = problem === 'newer'
+        ? t('Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.')
+        : problem === 'unreadable'
+          ? t('Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.')
+          : t('Could not open saved boards. Changes will not be saved. Please restart Caleb.');
+      setTimeout(() => get().showToast(msg), 500);
+    }
+    queue.rev = storedRev;
+    const p = data.profiles.find((x) => x.id === data.activeProfileId) ?? data.profiles[0];
+    set({ data: { ...data, activeProfileId: p.id }, loaded: true, boardStack: [p.rootId], loadProblem: problem });
+    if (!problem) scheduleMaintenance();
+    // A crash-screen restore steps back one snapshot per attempt; once Caleb runs fine, start again from the newest.
+    setTimeout(() => { try { sessionStorage.removeItem('caleb:crashRestoreBefore'); } catch { /* ignore */ } }, 60000);
   },
 
   profile() {
@@ -369,6 +452,8 @@ export const useStore = create<Store>((set, get) => ({
   updateSettings(patch) {
     get().updateProfile((p) => {
       p.settings = { ...p.settings, ...patch };
+      // Turning recent sentences off forgets the ones already kept.
+      if (patch.keepRecent === 'off') p.history = [];
     }, { shallow: true });
   },
 
@@ -383,7 +468,7 @@ export const useStore = create<Store>((set, get) => ({
     if (opts.undo) {
       addSnapshot(data, 'Before deleting from the symbol library').catch(() => {});
       get().showToast(opts.undo, {
-        label: 'Undo',
+        label: t('Undo'),
         run: () => {
           const d = { ...get().data, library: prev };
           set({ data: d });
@@ -410,13 +495,26 @@ export const useStore = create<Store>((set, get) => ({
 
   async replaceData(newData, reason = 'Before restore') {
     const d = migrate(structuredClone(newData)); // validates first: throws on a bad file
-    keepDeviceLock(d, get().data); // the grown-up lock belongs to this device, not to the file
     d.onboarded = true;
-    await addSnapshot(get().data, reason);
+    const problem = get().loadProblem;
+    // The grown-up lock belongs to this device, not to the file (a placeholder's lock means nothing).
+    if (!problem) keepDeviceLock(d, get().data);
+    if (saveBlocked) {
+      // Data in memory is only a placeholder: never snapshot it. A deliberate restore may replace
+      // stored data that couldn't be used (a copy was kept aside), but not storage that can't be read.
+      if (problem !== 'newer' && problem !== 'unreadable') throw new Error('Caleb cannot save right now. Please restart Caleb and try again.');
+      unblockSaves();
+      set({ loadProblem: null });
+      scheduleMaintenance();
+    } else {
+      await addSnapshot(get().data, reason); // throws → nothing is replaced
+    }
     const p = d.profiles.find((x) => x.id === d.activeProfileId) ?? d.profiles[0];
     d.activeProfileId = p.id;
+    queue.clear();
     set({ data: d, boardStack: [p.rootId], message: [], undo: [] });
     persist.flush(d);
+    await queue.idle();
   },
 
   setLanguage(lang) {
@@ -456,20 +554,63 @@ export const useStore = create<Store>((set, get) => ({
     persist(newData);
   },
 
-  deleteProfile(id) {
+  async deleteProfile(id) {
     const { data } = get();
-    if (data.profiles.length <= 1) return;
-    addSnapshot(data, 'Before deleting a profile');
+    const removed = data.profiles.find((p) => p.id === id);
+    if (data.profiles.length <= 1 || !removed) return;
+    const index = data.profiles.indexOf(removed);
+    // The safety snapshot holds the data from before the deletion. The screen updates at once,
+    // but the deletion is only saved (and the usage log cleared) once the snapshot is stored.
+    const snapshot = addSnapshot(data, 'Before deleting a profile');
     const profiles = data.profiles.filter((p) => p.id !== id);
     const activeProfileId = data.activeProfileId === id ? profiles[0].id : data.activeProfileId;
-    const newData = { ...data, profiles, activeProfileId };
-    set({ data: newData, boardStack: [profiles.find((p) => p.id === activeProfileId)!.rootId], undo: [] });
+    set({ data: { ...data, profiles, activeProfileId }, boardStack: [profiles.find((p) => p.id === activeProfileId)!.rootId], undo: [] });
+    try {
+      await snapshot;
+    } catch (e) {
+      console.error('Snapshot before deleting a profile failed', e);
+      const cur = get().data;
+      if (!cur.profiles.some((p) => p.id === id)) {
+        const back = [...cur.profiles];
+        back.splice(Math.min(index, back.length), 0, removed);
+        const restored = { ...cur, profiles: back };
+        set({ data: restored });
+        persist(restored);
+      }
+      get().showToast(t('Could not save a safety copy, so nothing was deleted. Try again, or save a backup file first.'));
+      return;
+    }
     clearLog(id).catch(() => {});
-    persist(newData);
+    persist(get().data);
+  },
+
+  clearRecent() {
+    const p = get().profile();
+    const prev = p.history;
+    if (!prev.length) return;
+    patchProfile(p.id, (pp) => ({ ...pp, history: [] }));
+    get().showToast(t('Recent sentences cleared'), {
+      label: t('Undo'),
+      run: () => patchProfile(p.id, (pp) => ({ ...pp, history: mergeHistory(pp.history, prev) })),
+    });
+  },
+  deleteRecent(id) {
+    const p = get().profile();
+    const gone = p.history.find((h) => h.id === id || String(h.t) === id);
+    if (!gone) return;
+    patchProfile(p.id, (pp) => ({ ...pp, history: pp.history.filter((h) => h !== gone) }));
+    get().showToast(t('Sentence removed'), {
+      label: t('Undo'),
+      run: () => patchProfile(p.id, (pp) => ({ ...pp, history: mergeHistory(pp.history, [gone]) })),
+    });
+  },
+  setPrivate(on) {
+    set({ privateMode: on });
+    setUsageLogPaused(on);
   },
 
   openBoard(id) {
-    if (!get().profile().boards[id]) return;
+    if (!Object.hasOwn(get().profile().boards, id)) return;
     set((s) => ({ boardStack: [...s.boardStack, id], screen: 'talk' }));
   },
   back() {
@@ -611,11 +752,11 @@ export const useStore = create<Store>((set, get) => ({
     const audio = message.length === 1 ? message[0].audio : undefined;
     get().speakText(text, { audio, log: 'sentence', stoppable: true });
     if (again) return; // already in Recent and learned; leave it in the bar this time
-    const recent = s.keepRecent !== 'off';
-    const learn = s.learnWords && !get().modeling;
-    if (!get().isPrivate && (recent || learn)) {
+    const keep = recordsHistory(s, get().privateMode);
+    const learn = s.learnWords && !get().modeling && !get().privateMode;
+    if (keep || learn) {
       get().updateProfile((p) => {
-        if (recent) p.history = addToHistory(p.history, text);
+        if (keep) p.history = addToHistory(p.history, text);
         if (learn) p.lexicon = learnWords(p.lexicon, text);
       }, { shallow: true });
     }
@@ -643,21 +784,6 @@ export const useStore = create<Store>((set, get) => ({
     if (!lastSpoken?.length || message.length || draft) return false;
     set({ message: lastSpoken.map((w) => ({ ...w, id: uid('w') })), lastSpoken: null });
     return true;
-  },
-  clearRecent() {
-    const removed = get().profile().history;
-    if (!removed.length) return;
-    get().updateProfile((p) => { p.history = []; }, { shallow: true });
-    get().showToast(t('Recent sentences cleared'), { label: 'Undo', run: () => restoreHistory(removed) });
-  },
-  deleteRecent(id) {
-    const removed = get().profile().history.filter((h) => recentId(h) === id);
-    if (!removed.length) return;
-    get().updateProfile((p) => { p.history = p.history.filter((h) => recentId(h) !== id); }, { shallow: true });
-    get().showToast(t('Sentence removed'), { label: 'Undo', run: () => restoreHistory(removed) });
-  },
-  setPrivate(on) {
-    set({ isPrivate: on });
   },
   setContentEdit(on) {
     set({ contentEdit: on && get().unlocked });
@@ -733,14 +859,6 @@ export const useStore = create<Store>((set, get) => ({
   },
 }));
 
-/** Undo for clearing or deleting Recent sentences: puts them back in time order, keeping anything said since. */
-function restoreHistory(removed: HistoryItem[]) {
-  useStore.getState().updateProfile((p) => {
-    const have = new Set(p.history.map(recentId));
-    p.history = [...p.history, ...removed.filter((h) => !have.has(recentId(h)))].sort((a, b) => b.t - a.t).slice(0, 100);
-  }, { shallow: true });
-}
-
 // Speak shows Stop while the person's message or phrase is being spoken.
 setSpeakingListener((on) => { if (useStore.getState().speaking !== on) useStore.setState({ speaking: on }); });
 
@@ -769,36 +887,34 @@ if (typeof document !== 'undefined') {
   window.addEventListener('pagehide', flush);
 }
 
-/** Upgrades older saved data to the current shape. */
+/**
+ * Upgrades older saved data to the current shape and validates every field
+ * (the single gate for stored, restored, synced and imported data).
+ * Throws only a friendly Error when nothing usable is left.
+ */
 export function migrate(data: AppData): AppData {
-  if (!data || typeof data !== 'object' || !Array.isArray(data.profiles)) throw new Error('This file has no Caleb profiles.');
-  if (typeof data.version === 'number' && data.version > DATA_VERSION) {
-    throw new Error('This file was made by a newer version of Caleb. Please update the app first.');
+  // Per-profile lock → app-wide, before profiles are repaired (newer files are refused by cleanData unchanged).
+  if (data && typeof data === 'object' && Array.isArray(data.profiles) && !(typeof data.version === 'number' && data.version > DATA_VERSION)) {
+    migrateLock(data);
   }
-  migrateLock(data); // per-profile lock → app-wide (before profiles are repaired)
-  const fresh = buildProfile('', 'medium');
-  data.profiles = data.profiles.map(repairProfile).filter((p): p is Profile => !!p);
-  if (!data.profiles.length) throw new Error('This file has no usable boards.');
-  for (const p of data.profiles) {
-    p.settings = { ...fresh.settings, ...p.settings };
-    p.lexicon ??= {};
-    p.history ??= [];
-    p.phrases ??= [];
-    p.phraseCategories ??= fresh.phraseCategories;
-    p.schedules ??= [];
-    p.quickBar ??= fresh.quickBar;
-    p.aboutMe ??= fresh.aboutMe;
-    if (!Array.isArray(p.history)) p.history = [];
-    if (!Array.isArray(p.phrases)) p.phrases = [];
-    if (!Array.isArray(p.schedules)) p.schedules = [];
-    if (typeof p.lexicon !== 'object') p.lexicon = {};
-    p.createdAt = typeof p.createdAt === 'number' ? p.createdAt : Date.now();
-  }
-  if (!data.profiles.some((p) => p.id === data.activeProfileId)) data.activeProfileId = data.profiles[0].id;
-  data.onboarded = data.onboarded !== false;
-  data.library = cleanLibrary(data.library);
-  data.version = DATA_VERSION;
-  return data;
+  return cleanData(data, DATA_VERSION);
+}
+
+/** Replace one profile (by id) without touching undo, active profile or navigation. */
+function patchProfile(id: string, fn: (p: Profile) => Profile) {
+  const { data } = useStore.getState();
+  if (!data.profiles.some((p) => p.id === id)) return;
+  const profiles = data.profiles.map((p) => (p.id === id ? { ...fn(p), updatedAt: Date.now() } : p));
+  const newData = { ...data, profiles };
+  useStore.setState({ data: newData });
+  persist(newData);
+}
+
+/** Put removed recent sentences back (newest first, no duplicates, capped). */
+function mergeHistory(cur: Profile['history'], back: Profile['history']): Profile['history'] {
+  const key = (h: Profile['history'][number]) => h.id ?? `${h.t}:${h.text}`;
+  const ids = new Set(cur.map(key));
+  return [...cur, ...back.filter((h) => !ids.has(key(h)))].sort((a, b) => b.t - a.t).slice(0, 100);
 }
 
 export const useProfile = () => useStore((s) => s.data.profiles.find((p) => p.id === s.data.activeProfileId) ?? s.data.profiles[0]);

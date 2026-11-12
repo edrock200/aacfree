@@ -14,6 +14,8 @@ vi.mock('../db', () => ({
   saveDataChecked: vi.fn(async (_d: unknown, rev: number) => rev + 1),
   setMeta: vi.fn(async () => {}),
   assetURL: vi.fn(async () => null),
+  setUsageLogPaused: vi.fn(),
+  loadDataWithRev: vi.fn(async () => ({ data: undefined, rev: 0 })),
 }));
 
 import { useStore, withForm, learnWords, addToHistory, recentId, updateCanReload } from '../../store';
@@ -31,7 +33,7 @@ const btn = (label: string, type: AACButton['type'] = 'noun', extra: Partial<AAC
 beforeEach(() => {
   setLang('en');
   logUsage.mockClear();
-  useStore.setState({ message: [], draft: '', speaking: false, lastSpoken: null, isPrivate: false, bigText: null, toast: null, toastAction: null, unlocked: false, contentEdit: false, editMode: false, screen: 'talk', tool: null });
+  useStore.setState({ message: [], draft: '', speaking: false, lastSpoken: null, privateMode: false, bigText: null, toast: null, toastAction: null, unlocked: false, contentEdit: false, editMode: false, screen: 'talk', tool: null });
   st().updateSettings({ speakOnTap: true, clearAfterSpeak: false, showNotSpeak: false, keepRecent: 'on', logging: false, learnWords: false, returnHome: true });
   st().updateProfile((p) => { p.history = []; p.lexicon = {}; }, { shallow: true });
 });

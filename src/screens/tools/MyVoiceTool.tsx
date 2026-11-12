@@ -13,7 +13,7 @@ import { t, ts } from '../../i18n';
 export function MyVoiceTool() {
   const p = useProfile();
   const s = p.settings;
-  const isPrivate = useStore((st) => st.isPrivate);
+  const isPrivate = useStore((st) => st.privateMode);
   const { updateSettings, setPrivate } = useStore.getState();
   const vol = nearestVolumePreset(s.volume);
 

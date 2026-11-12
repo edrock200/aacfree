@@ -29,7 +29,7 @@ export function PhrasesScreen() {
   const s = p.settings;
   const unlocked = useStore((st) => st.unlocked);
   const contentEdit = useStore((st) => st.contentEdit);
-  const isPrivate = useStore((st) => st.isPrivate);
+  const isPrivate = useStore((st) => st.privateMode);
   const { speakText, updateProfile, addText, setContentEdit, clearRecent, deleteRecent, setPrivate, showToast } = useStore.getState();
   const cats = ['Recent', ...p.phraseCategories];
   const [cat, setCat] = useState(() => (p.phraseCategories.includes('Favorites') ? 'Favorites' : p.phraseCategories[0] ?? 'Recent'));
