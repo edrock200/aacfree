@@ -14,3 +14,4 @@ android/signing/
 .idea
 dist-site
 public/vision/wasm
+.claude/worktrees/
