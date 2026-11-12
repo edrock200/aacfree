@@ -13,6 +13,8 @@ function Key({ label, onPress, s, className = '', aria }: { label: React.ReactNo
   return <button className={`key ${className}`} data-scan-item aria-label={aria ?? (typeof label === 'string' ? label : undefined)} {...press}>{label}</button>;
 }
 
+const focusVisible = (el: Element) => { try { return el.matches(':focus-visible'); } catch { return true; } };
+
 export function KeyboardScreen() {
   const p = useProfile();
   const s = p.settings;
@@ -73,8 +75,10 @@ export function KeyboardScreen() {
       const t = e.target as HTMLElement;
       if (s.scanning || e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented || t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA' || t?.tagName === 'SELECT'
         || t?.isContentEditable || document.querySelector('.modal-root, [role="dialog"]')) return;
-      // Enter and Space belong to a focused control (a nav button, the Speak button…), not to typing.
-      if ((e.key === 'Enter' || e.key === ' ') && t && t !== document.body && t.closest('button, a[href], [role="button"], [tabindex]') && !t.closest('.keyboard')) return;
+      // Enter and Space belong to a control focused with the keyboard (a nav button, Speak…), not to typing.
+      // A button merely left focused by a tap (not :focus-visible) doesn't count.
+      if ((e.key === 'Enter' || e.key === ' ') && t && t !== document.body && !t.closest('.keyboard')
+        && t.closest('button, a[href], [role="button"], [tabindex]') && focusVisible(t)) return;
       if (e.key === 'Enter') { e.preventDefault(); useStore.getState().speakMessage(); return; }
       if (e.key === 'Backspace') { e.preventDefault(); handlers.current.del(); return; }
       if (e.key === ' ') { e.preventDefault(); handlers.current.space(); return; }
