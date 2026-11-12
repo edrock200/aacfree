@@ -480,6 +480,44 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await camBrowser.close();
 }
 
+// --- v0.5 lang ---
+{
+  // A backup made on this device restores straight from the first onboarding step.
+  await page.goto(url);
+  await page.waitForSelector('.grid');
+  await unlock();
+  await page.click('.gu-tab:has-text("Backup")');
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.click('text=Save backup file')]);
+  const backupPath = await dl.path();
+  const fresh = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+  const ob = await fresh.newPage();
+  ob.on('pageerror', (e) => errors.push(e.message));
+  await ob.goto(url);
+  await ob.waitForSelector('.onboarding');
+  check(await ob.isVisible('[data-testid="ob-restore"]'), 'onboarding offers "I have a backup"');
+  const [fc] = await Promise.all([ob.waitForEvent('filechooser'), ob.click('[data-testid="ob-restore"]')]);
+  await fc.setFiles(backupPath);
+  await ob.waitForSelector('.grid', { timeout: 8000 }).catch(() => null);
+  check(await ob.isVisible('.grid') && !(await ob.isVisible('.onboarding')), 'restoring from onboarding opens the restored boards');
+
+  // Spanish onboarding with "Start with fewer words" keeps the starter words (matched on the English originals).
+  const es = await (await browser.newContext({ viewport: { width: 1180, height: 820 } })).newPage();
+  es.on('pageerror', (e) => errors.push(e.message));
+  await es.goto(url);
+  await es.click('.lang-pick button:has-text("Español")');
+  await es.click('.ob-actions .btn.primary');
+  await es.click('.layout-card >> nth=2');
+  await es.check('.check input[type=checkbox]');
+  await es.click('.ob-actions .btn.primary');
+  await es.click('.ob-actions .btn.primary');
+  await es.click('.ob-actions .btn.primary.big');
+  await es.waitForSelector('.grid');
+  const esCells = await es.$$eval('.grid .cell', (els) => els.map((e) => e.getAttribute('aria-label')));
+  check(esCells.includes('querer') && esCells.includes('yo'), `Spanish "fewer words" start keeps the starter words (${esCells.filter(Boolean).join(", ")})`);
+  await es.context().close();
+  await fresh.close();
+}
+
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();
 process.exit(failures || errors.length ? 1 : 0);
