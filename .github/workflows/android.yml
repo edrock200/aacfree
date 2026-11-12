@@ -122,7 +122,7 @@ jobs:
             echo "---"
             echo "**Install on Android (7.0+):** download \`caleb.apk\` below, open it, and allow \"install unknown apps\". Updating keeps all boards and settings."
             echo
-            echo "**Fire TV / Android TV / Fire tablet:** in the Downloader app, enter code **5791841** (or go to http://aftv.news/5791841)."
+            echo "**Android phones & tablets, or Fire tablets:** in the Downloader app, enter code **5791841** (or go to http://aftv.news/5791841)."
             echo
             echo "The newest version is always at https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/caleb.apk"
             echo
