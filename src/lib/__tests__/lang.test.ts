@@ -810,7 +810,6 @@ describe('visible text is wrapped in t() (defect 27)', () => {
   it('has no raw JSX text or literal placeholder/title/aria-label/alt', () => {
     const found: string[] = [];
     for (const [file, src0] of Object.entries(TSX)) {
-      if (/SyncSection/.test(file)) continue; // the sync stream is still rewriting this file
       // Drop comments so they are not mistaken for text.
       const src = src0.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
       const at = (i: number) => `${file.replace(/^(\.\.\/)+/, 'src/')}:${src.slice(0, i).split('\n').length}`;
