@@ -1,5 +1,5 @@
 import { useRef, useState, type MouseEvent } from 'react';
-import { useStore, useSettings, type Screen } from '../store';
+import { useStore, useSettings, useLock, type Screen } from '../store';
 import { IconChat, IconEdit, IconKeyboard, IconLock, IconPerson, IconSearch, IconSettings, IconTools, IconUnlock } from './Icons';
 import { LockGate } from './LockGate';
 import { usePress } from '../lib/usePress';
@@ -8,7 +8,7 @@ import { t } from '../i18n';
 const HOLD_MS = 2000;
 
 export function NavBar({ onFind }: { onFind: () => void }) {
-  const s = useSettings();
+  const s = { ...useSettings(), ...useLock() }; // the lock is app-wide
   const screen = useStore((st) => st.screen);
   const unlocked = useStore((st) => st.unlocked);
   const editMode = useStore((st) => st.editMode);

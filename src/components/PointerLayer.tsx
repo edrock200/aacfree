@@ -26,7 +26,6 @@ export function PointerLayer({ s, active }: { s: Settings; active: boolean }) {
     void e.start();
     return () => { unsub(); e.stop(); if (shared === e) shared = null; engineRef.current = null; setSt(null); };
   // Only restart when the mode changes; other options update live below.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   useEffect(() => {

@@ -10,6 +10,7 @@ import { keyName } from '../../lib/scanner';
 import { HIGHLIGHT_COLORS, ringWidth } from '../../lib/rings';
 import { LANGUAGES, PACKS, tIn, type Lang } from '../../i18n';
 import { t } from '../../i18n';
+import { keepAwakeAvailable } from '../../lib/wakelock';
 
 export function SpeechPanel() {
   const p = useProfile();
@@ -117,7 +118,7 @@ export function DisplayPanel() {
         <Toggle label={t('Phrases button')} checked={s.showPhrasesNav} onChange={(showPhrasesNav) => updateSettings({ showPhrasesNav })} />
         <Toggle label={t('Tools button')} checked={s.showToolsNav} onChange={(showToolsNav) => updateSettings({ showToolsNav })} />
         <Toggle label={t('Reduce motion')} checked={s.reduceMotion} onChange={(reduceMotion) => updateSettings({ reduceMotion })} />
-        <Toggle label={t('Keep screen awake')} checked={s.keepAwake} onChange={(keepAwake) => updateSettings({ keepAwake })} />
+        <Toggle label={t('Keep screen awake')} hint={keepAwakeAvailable() ? undefined : t('This browser cannot keep the screen on. Change the sleep time in the device settings instead.')} checked={s.keepAwake} onChange={(keepAwake) => updateSettings({ keepAwake })} />
         <Toggle label={t('Babble mode (show hidden words)')} hint={t("Lets the person explore every word, including ones you've hidden for now.")} checked={s.babble} onChange={(babble) => updateSettings({ babble })} />
       </Section>
     </>

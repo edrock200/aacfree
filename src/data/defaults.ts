@@ -72,7 +72,7 @@ export const DEFAULT_SETTINGS: Settings = {
   dwellRest: true,
   keyboardLayout: 'qwerty',
   learnWords: false,
-  lock: 'hold',
+  downloadSymbols: true,
   logging: false,
   autoBackup: true,
 };

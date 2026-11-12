@@ -103,7 +103,6 @@ export class PointerEngine {
   private raf = 0;
   private video: HTMLVideoElement | null = null;
   private stream: MediaStream | null = null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private landmarker: any = null;
   private center: { x: number; y: number } | null = null;
   private smooth = { x: innerWidth / 2, y: innerHeight / 2 };

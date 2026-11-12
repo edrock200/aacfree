@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Modal } from './Modal';
-import { useSettings, useStore } from '../store';
+import { useLock, useStore } from '../store';
 import { t } from '../i18n';
 
 /**
@@ -15,7 +15,7 @@ export const resetLockBackoff = () => { tries.wrong = 0; tries.until = 0; };
 
 /** PIN or math-question gate for the grown-up area. */
 export function LockGate({ onUnlock, onClose, method }: { onUnlock: () => void; onClose: () => void; method?: 'pin' | 'math' }) {
-  const s = useSettings();
+  const s = useLock(); // app-wide lock and PIN
   const usePin = (method ?? (s.lock === 'pin' ? 'pin' : 'math')) === 'pin' && !!s.pin;
   const [entry, setEntry] = useState('');
   const [error, setError] = useState(false);
@@ -56,7 +56,7 @@ export function LockGate({ onUnlock, onClose, method }: { onUnlock: () => void; 
             <input value={phrase} onChange={(e) => setPhrase(e.target.value)} autoComplete="off" />
           </label>
           <button className="btn primary" disabled={!ok} onClick={() => {
-            useStore.getState().updateSettings({ lock: 'hold', pin: undefined });
+            useStore.getState().setLock({ lock: 'hold', pin: undefined });
             useStore.getState().showToast(t('PIN removed. Set a new one in Grown-ups → Lock.'));
             resetLockBackoff();
             onUnlock();
