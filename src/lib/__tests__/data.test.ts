@@ -646,6 +646,27 @@ describe('store: recent sentences, private mode, profiles', () => {
   });
 });
 
+describe('deleteProfile when the safety snapshot fails', () => {
+  beforeEach(() => { vi.resetModules(); });
+  afterEach(() => { vi.doUnmock('../db'); vi.restoreAllMocks(); });
+
+  it('puts the profile back and saves nothing deleted', async () => {
+    vi.doMock('../db', async (orig) => ({
+      ...(await orig<typeof import('../db')>()),
+      addSnapshot: async () => { throw new Error('quota'); },
+    }));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const store = await import('../../store');
+    const d = good();
+    const extra = buildProfile('Extra', 'medium');
+    d.profiles.push(extra);
+    store.useStore.setState({ data: d, loaded: true });
+    await store.useStore.getState().deleteProfile(extra.id);
+    expect(store.useStore.getState().data.profiles.map((p) => p.name)).toEqual(['Sam', 'Extra']);
+    expect(store.useStore.getState().toast).toMatch(/nothing was deleted/);
+  });
+});
+
 describe('start-up with data that cannot be used', () => {
   beforeEach(() => { vi.resetModules(); });
 

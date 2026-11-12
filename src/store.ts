@@ -477,22 +477,33 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   async deleteProfile(id) {
-    if (get().data.profiles.length <= 1) return;
+    const { data } = get();
+    const removed = data.profiles.find((p) => p.id === id);
+    if (data.profiles.length <= 1 || !removed) return;
+    const index = data.profiles.indexOf(removed);
+    // The safety snapshot holds the data from before the deletion. The screen updates at once,
+    // but the deletion is only saved (and the usage log cleared) once the snapshot is stored.
+    const snapshot = addSnapshot(data, 'Before deleting a profile');
+    const profiles = data.profiles.filter((p) => p.id !== id);
+    const activeProfileId = data.activeProfileId === id ? profiles[0].id : data.activeProfileId;
+    set({ data: { ...data, profiles, activeProfileId }, boardStack: [profiles.find((p) => p.id === activeProfileId)!.rootId], undo: [] });
     try {
-      await addSnapshot(get().data, 'Before deleting a profile');
+      await snapshot;
     } catch (e) {
       console.error('Snapshot before deleting a profile failed', e);
+      const cur = get().data;
+      if (!cur.profiles.some((p) => p.id === id)) {
+        const back = [...cur.profiles];
+        back.splice(Math.min(index, back.length), 0, removed);
+        const restored = { ...cur, profiles: back };
+        set({ data: restored });
+        persist(restored);
+      }
       get().showToast(t('Could not save a safety copy, so nothing was deleted. Try again, or save a backup file first.'));
       return;
     }
-    const { data } = get();
-    if (data.profiles.length <= 1 || !data.profiles.some((p) => p.id === id)) return;
-    const profiles = data.profiles.filter((p) => p.id !== id);
-    const activeProfileId = data.activeProfileId === id ? profiles[0].id : data.activeProfileId;
-    const newData = { ...data, profiles, activeProfileId };
-    set({ data: newData, boardStack: [profiles.find((p) => p.id === activeProfileId)!.rootId], undo: [] });
     clearLog(id).catch(() => {});
-    persist(newData);
+    persist(get().data);
   },
 
   clearRecent() {
