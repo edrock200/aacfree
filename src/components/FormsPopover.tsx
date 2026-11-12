@@ -2,6 +2,7 @@ import { formsFor } from '../lib/morphology';
 import { Modal } from './Modal';
 import type { WordType } from '../types';
 import { Symbol } from './Symbol';
+import { PressButton } from './PressButton';
 import { t } from '../i18n';
 
 interface Props {
@@ -20,15 +21,15 @@ export function FormsPopover({ word, type, symbol, explicit, onPick, onRemove, o
   return (
     <Modal title={<span className="forms-title">{symbol && <Symbol value={symbol} />} {word}</span>} onClose={onClose}>
       <div className="forms-grid" data-scan-group>
-        <button className="form-btn base" onClick={() => onPick(word)} data-scan-item>{word}</button>
+        <PressButton className="form-btn base" onPress={() => onPick(word)} data-scan-item>{word}</PressButton>
         {forms.map((f) => (
-          <button key={f} className="form-btn" onClick={() => onPick(f)} data-scan-item>{f}</button>
+          <PressButton key={f} className="form-btn" onPress={() => onPick(f)} data-scan-item>{f}</PressButton>
         ))}
       </div>
       {forms.length === 0 && <p className="muted">{t('No other forms for this word.')}</p>}
       {onRemove && (
         <div className="row-end" data-scan-group>
-          <button className="btn danger" onClick={onRemove} data-scan-item>{t('Remove word')}</button>
+          <PressButton className="btn danger" onPress={onRemove} data-scan-item>{t('Remove word')}</PressButton>
         </div>
       )}
     </Modal>

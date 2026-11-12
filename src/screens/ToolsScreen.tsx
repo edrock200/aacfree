@@ -1,5 +1,6 @@
 import { useStore, useProfile } from '../store';
 import { Symbol } from '../components/Symbol';
+import { PressButton } from '../components/PressButton';
 import { symbolFor } from '../data/defaults';
 import { IconBack, IconBell } from '../components/Icons';
 import { chime } from '../lib/feedback';
@@ -38,7 +39,7 @@ export function ToolsScreen() {
     return (
       <div className="tool-screen">
         <div className="tool-head" data-scan-group>
-          <button className="btn" onClick={() => setTool(null)} data-scan-item><IconBack /> {t('Tools')}</button>
+          <PressButton className="btn" onPress={() => setTool(null)} data-scan-item><IconBack /> {t('Tools')}</PressButton>
           <h2>{t(tl.name)}</h2>
         </div>
         <div className="tool-body">
@@ -59,17 +60,17 @@ export function ToolsScreen() {
   return (
     <div className="tools-menu" data-scan-group>
       {TOOLS.filter((x) => x.id !== 'aboutme' || p.aboutMe.enabled).map((x) => (
-        <button key={x.id} className="tool-tile" onClick={() => setTool(x.id)} data-scan-item aria-label={t(x.name)}>
+        <PressButton key={x.id} className="tool-tile" onPress={() => setTool(x.id)} data-scan-item aria-label={t(x.name)}>
           <Symbol value={symbolFor(x.icon)} />
           <b>{t(x.name)}</b>
           <small>{t(x.desc)}</small>
-        </button>
+        </PressButton>
       ))}
-      <button className="tool-tile attention" onClick={() => { chime(); setTimeout(() => speakText(ts('Excuse me! I want to say something.')), 700); }} data-scan-item aria-label={t('Get attention')}>
+      <PressButton className="tool-tile attention" onPress={() => { chime(); setTimeout(() => speakText(ts('Excuse me! I want to say something.')), 700); }} data-scan-item aria-label={t('Get attention')}>
         <IconBell size={48} />
         <b>{t('Get attention')}</b>
         <small>{t('Chime + “Excuse me!”')}</small>
-      </button>
+      </PressButton>
     </div>
   );
 }

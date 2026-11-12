@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { Symbol } from '../components/Symbol';
+import { PressButton } from '../components/PressButton';
 import { usePress } from '../lib/usePress';
 import { IconPlus, IconStar, IconTrash, IconEdit } from '../components/Icons';
 import { Modal } from '../components/Modal';
@@ -47,7 +48,7 @@ export function PhrasesScreen() {
     <div className="phrases-screen">
       <div className="tabs scroll" data-scan-group>
         {cats.map((c) => (
-          <button key={c} className={`tab ${cat === c ? 'active' : ''}`} onClick={() => setCat(c)} data-scan-item>{c}</button>
+          <PressButton key={c} className={`tab ${cat === c ? 'active' : ''}`} onPress={() => setCat(c)} data-scan-item>{c}</PressButton>
         ))}
         {edit && <button className="tab add" onClick={() => setNewCat(true)}><IconPlus size={18} /> {t('Group')}</button>}
       </div>
@@ -57,19 +58,19 @@ export function PhrasesScreen() {
           {p.history.slice(0, 50).map((h, i) => (
             <div className="recent-row" key={h.t + '-' + i}>
               <PhraseButton phrase={{ id: String(i), text: h.text, category: '' }} s={s} edit={false} onPress={() => speakText(h.text, { log: 'phrase' })} />
-              <button className="iconbtn" aria-label={t('Put in message bar')} onClick={() => addText(h.text)} data-scan-item><IconPlus /></button>
-              <button
+              <PressButton className="iconbtn" aria-label={t('Put in message bar')} onPress={() => addText(h.text)} data-scan-item><IconPlus /></PressButton>
+              <PressButton
                 className="iconbtn"
                 aria-label={t('Save to favourites')}
                 data-scan-item
-                onClick={() => updateProfile((pp) => {
+                onPress={() => updateProfile((pp) => {
                   if (pp.phrases.some((x) => x.text === h.text)) return;
                   if (!pp.phraseCategories.includes('Favorites')) pp.phraseCategories.unshift('Favorites');
                   pp.phrases.unshift({ id: uid('ph'), text: h.text, category: 'Favorites' });
                 })}
               >
                 <IconStar filled={p.phrases.some((x) => x.text === h.text)} />
-              </button>
+              </PressButton>
             </div>
           ))}
         </div>

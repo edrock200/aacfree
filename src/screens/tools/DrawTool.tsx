@@ -52,7 +52,8 @@ export function DrawTool() {
   };
 
   return (
-    <div className="draw">
+    // Drawing is touch-only: exempt from switch scanning so touches draw instead of acting as a switch.
+    <div className="draw scan-exempt">
       <div className="row draw-tools">
         {COLORS.map((c) => (
           <button key={c} className={`swatch ${color === c ? 'on' : ''}`} style={{ background: c }} onClick={() => setColor(c)} aria-label={c === '#ffffff' ? 'Eraser' : c}>{c === '#ffffff' ? '⌫' : ''}</button>

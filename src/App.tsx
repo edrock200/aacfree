@@ -19,6 +19,8 @@ import { setPressFeedback } from './lib/usePress';
 import { click, setKeepAwake, vibrate } from './lib/feedback';
 import { useScanner } from './lib/useScanner';
 import { PointerLayer } from './components/PointerLayer';
+import { PressButton } from './components/PressButton';
+import { useAccessStyles } from './lib/rings';
 import { checkNativeLanguage, openTtsInstall, setTtsFailureHandler } from './lib/tts';
 import type { AACButton } from './types';
 import { setLangs, t } from './i18n';
@@ -74,6 +76,7 @@ function Main() {
   }, [s.clickSound, s.haptics]);
 
   useEffect(() => { setKeepAwake(s.keepAwake); }, [s.keepAwake]);
+  useAccessStyles(s);
 
   // Grown-up mode re-locks itself after 5 idle minutes, or after the app has been in the background
   // for over a minute (short trips, like taking a photo for a button, don't lock).
@@ -113,7 +116,7 @@ function Main() {
     const h = CapApp.addListener('backButton', () => {
       const st = useStore.getState();
       // Close the top-most dialog first (dialogs close on Escape).
-      if (document.querySelector('.modal-root, .bigtext')) {
+      if (document.querySelector('.modal-root, .bigtext, [role="dialog"]')) {
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         return;
       }
@@ -130,7 +133,7 @@ function Main() {
   return (
     <div className={`app screen-${screen} ${editMode ? 'editing' : ''}`}>
       {saveError && (
-        <div className="save-error" role="alert">
+        <div className="save-error scan-exempt" role="alert">
           ⚠ Changes aren't being saved (device storage may be full).
           <button className="btn small" onClick={async () => {
             const { createBackup, backupFilename } = await import('./lib/backup');
@@ -174,10 +177,11 @@ function Main() {
       <TimerChip />
       <PointerLayer s={s} active={screen !== 'grownup' && !editMode} />
       {toast && (
-        <div className="toast" role="status">
+        // scan-exempt: a helper can tap Undo while scanning; the action is also a scan item for the switch user.
+        <div className="toast scan-exempt" role="status" data-scan-group>
           {toast}
           {toastAction && (
-            <button className="toast-action" onClick={() => { toastAction.run(); useStore.setState({ toast: null, toastAction: null }); }}>{toastAction.label}</button>
+            <PressButton className="toast-action" data-scan-item onPress={() => { toastAction.run(); useStore.setState({ toast: null, toastAction: null }); }}>{t(toastAction.label)}</PressButton>
           )}
         </div>
       )}
@@ -212,10 +216,10 @@ function TimerChip() {
   const ss = String(timer.left % 60).padStart(2, '0');
   const frac = timer.total ? timer.left / timer.total : 0;
   return (
-    <button className="timer-chip" aria-label={`Timer: ${mm} minutes ${ss} seconds left`}
-      onClick={() => { useStore.getState().setScreen('tools'); useStore.getState().setTool('timer'); }}>
+    <PressButton className="timer-chip" aria-label={t('Timer: {m} minutes {s} seconds left', { m: mm, s: ss })} data-scan-group data-scan-item
+      onPress={() => { useStore.getState().setScreen('tools'); useStore.getState().setTool('timer'); }}>
       <span className="timer-chip-dial" style={{ background: `conic-gradient(var(--timer) ${frac * 360}deg, var(--timer-bg) 0)` }} />
       {mm}:{ss}
-    </button>
+    </PressButton>
   );
 }

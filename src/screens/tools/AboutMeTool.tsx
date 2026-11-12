@@ -1,4 +1,5 @@
 import { useStore, useProfile } from '../../store';
+import { PressButton } from '../../components/PressButton';
 import { IconSpeak } from '../../components/Icons';
 import { t } from '../../i18n';
 
@@ -25,7 +26,7 @@ export function AboutMeTool() {
         </div>
       )}
       <div className="row-center" data-scan-group>
-        <button className="btn primary big" onClick={() => speakText(p.aboutMe.text)} data-scan-item><IconSpeak /> {t('Read it aloud')}</button>
+        <PressButton className="btn primary big" onPress={() => speakText(p.aboutMe.text)} data-scan-item><IconSpeak /> {t('Read it aloud')}</PressButton>
       </div>
     </div>
   );

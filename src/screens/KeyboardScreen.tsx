@@ -71,7 +71,10 @@ export function KeyboardScreen() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (s.scanning || e.ctrlKey || e.metaKey || e.altKey || t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA' || document.querySelector('.modal-root')) return;
+      if (s.scanning || e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented || t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA' || t?.tagName === 'SELECT'
+        || t?.isContentEditable || document.querySelector('.modal-root, [role="dialog"]')) return;
+      // Enter and Space belong to a focused control (a nav button, the Speak button…), not to typing.
+      if ((e.key === 'Enter' || e.key === ' ') && t && t !== document.body && t.closest('button, a[href], [role="button"], [tabindex]') && !t.closest('.keyboard')) return;
       if (e.key === 'Enter') { e.preventDefault(); useStore.getState().speakMessage(); return; }
       if (e.key === 'Backspace') { e.preventDefault(); handlers.current.del(); return; }
       if (e.key === ' ') { e.preventDefault(); handlers.current.space(); return; }
@@ -94,15 +97,15 @@ export function KeyboardScreen() {
       <div className="keys" style={{ gap: `${Math.max(4, s.gap)}px` }}>
         {rows.map((r, i) => (
           <div className="key-row" key={i} data-scan-group style={{ gap: `${Math.max(4, s.gap)}px` }}>
-            {i === rows.length - 1 && mode === 'letters' && <Key label="⇧" aria="Shift" s={s} onPress={() => setShift(!shift)} className={`wide ${shift ? 'on' : ''}`} />}
+            {i === rows.length - 1 && mode === 'letters' && <Key label="⇧" aria={t('Shift')} s={s} onPress={() => setShift(!shift)} className={`wide ${shift ? 'on' : ''}`} />}
             {[...r].map((ch) => (
               <Key key={ch} label={shift ? ch.toUpperCase() : ch} s={s} onPress={() => type(ch)} />
             ))}
-            {i === rows.length - 1 && <Key label={<IconBackspace />} aria="Delete letter" s={s} onPress={del} className="wide" />}
+            {i === rows.length - 1 && <Key label={<IconBackspace />} aria={t('Delete letter')} s={s} onPress={del} className="wide" />}
           </div>
         ))}
         <div className="key-row" data-scan-group style={{ gap: `${Math.max(4, s.gap)}px` }}>
-          <Key label={mode === 'letters' ? '123' : 'abc'} aria="Switch numbers and letters" s={s} onPress={() => setMode(mode === 'letters' ? 'numbers' : 'letters')} className="wide" />
+          <Key label={mode === 'letters' ? '123' : 'abc'} aria={t('Switch numbers and letters')} s={s} onPress={() => setMode(mode === 'letters' ? 'numbers' : 'letters')} className="wide" />
           <Key label="." s={s} onPress={() => { commitDraft(); addText('.'); }} />
           <Key label="?" s={s} onPress={() => { commitDraft(); addText('?'); }} />
           <Key label={t('space')} s={s} onPress={space} className="space" />

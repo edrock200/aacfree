@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore, useProfile } from '../../store';
 import { Symbol } from '../../components/Symbol';
+import { PressButton } from '../../components/PressButton';
 import { VocabPicker } from '../../components/VocabPicker';
 import { IconCheck, IconPlus, IconTrash, IconBack, IconEdit, IconTimer } from '../../components/Icons';
 import { Modal } from '../../components/Modal';
@@ -41,7 +42,7 @@ export function ScheduleTool() {
     <div className="schedule">
       <div className="tabs scroll" data-scan-group>
         {p.schedules.map((x) => (
-          <button key={x.id} className={`tab ${x.id === sched.id ? 'active' : ''}`} onClick={() => setSid(x.id)} data-scan-item>{x.name}</button>
+          <PressButton key={x.id} className={`tab ${x.id === sched.id ? 'active' : ''}`} onPress={() => setSid(x.id)} data-scan-item>{x.name}</PressButton>
         ))}
         {unlocked && <button className="tab add" onClick={newSchedule}><IconPlus size={18} /> {t('New')}</button>}
       </div>
@@ -59,34 +60,34 @@ export function ScheduleTool() {
       )}
       {nowIndex >= 0 && (
         <div className="now-next">
-          <div className="nn now"><small>{t('Now')}</small><Symbol value={sched.steps[nowIndex].symbol} /><b>{sched.steps[nowIndex].label}</b>
+          <div className="nn now" data-scan-group><small>{t('Now')}</small><Symbol value={sched.steps[nowIndex].symbol} /><b>{sched.steps[nowIndex].label}</b>
             {sched.steps[nowIndex].minutes ? (
-              <button className="btn small" data-scan-item onClick={() => {
+              <PressButton className="btn small" data-scan-item onPress={() => {
                 const m = sched.steps[nowIndex].minutes!;
                 useStore.getState().setTimer({ total: m * 60, left: m * 60, endAt: Date.now() + m * 60000 });
                 useStore.getState().setTool('timer');
-              }}><IconTimer size={18} /> {sched.steps[nowIndex].minutes} min timer</button>
+              }}><IconTimer size={18} /> {sched.steps[nowIndex].minutes} min timer</PressButton>
             ) : null}
           </div>
           {sched.steps[nowIndex + 1] && <div className="nn next"><small>{t('Next')}</small><Symbol value={sched.steps[nowIndex + 1].symbol} /><b>{sched.steps[nowIndex + 1].label}</b></div>}
         </div>
       )}
       {nowIndex < 0 && sched.steps.length > 0 && (
-        <div className="all-done">{t('🎉 All done!')} <button className="btn" onClick={() => mutate((st) => st.forEach((x) => (x.done = false)))}>{t('Start again')}</button></div>
+        <div className="all-done" data-scan-group>{t('🎉 All done!')} <PressButton className="btn" data-scan-item onPress={() => mutate((st) => st.forEach((x) => (x.done = false)))}>{t('Start again')}</PressButton></div>
       )}
       <ol className="steps" data-scan-group>
         {sched.steps.map((st, i) => (
           <li key={st.id} className={`step ${st.done ? 'done' : ''} ${i === nowIndex ? 'current' : ''}`}>
-            <button className="step-main" data-scan-item onClick={() => { speakText(st.label); }} aria-label={st.label}>
+            <PressButton className="step-main" data-scan-item onPress={() => { speakText(st.label); }} aria-label={st.label}>
               <Symbol value={st.symbol} />
               <span>{st.label}{st.minutes ? <small className="muted"> · {st.minutes} min</small> : null}</span>
-            </button>
-            <button className="iconbtn check" data-scan-item aria-label={st.done ? 'Mark not done' : 'Mark done'} onClick={() => {
+            </PressButton>
+            <PressButton className="iconbtn check" data-scan-item aria-label={st.done ? 'Mark not done' : 'Mark done'} onPress={() => {
               mutate((steps) => { steps[i].done = !steps[i].done; });
               if (!st.done) speakText(ts('{v0}, finished!', { v0: st.label }));
             }}>
               <IconCheck />
-            </button>
+            </PressButton>
             {unlocked && (
               <span className="step-edit">
                 <button className="iconbtn small" aria-label={t('Move up')} disabled={i === 0} onClick={() => mutate((s) => { [s[i - 1], s[i]] = [s[i], s[i - 1]]; })}><IconBack style={{ transform: 'rotate(90deg)' }} /></button>

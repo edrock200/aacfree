@@ -166,12 +166,32 @@ export interface Settings {
   scanPattern: 'row-col' | 'linear';
   scanMs: number;
   scanSpeak: boolean;
+  /** Switch acceptance time: the switch must stay down this long to count (ms, 0 = at once). */
+  scanAcceptMs: number;
+  /** After a selection, ignore the switch for this long (ms). */
+  scanLockoutMs: number;
+  /** Extra time on the first item when scanning starts or enters a row (ms). */
+  scanFirstMs: number;
+  /** Auto scanning pauses after this many passes with no press (0 = never). */
+  scanLoops: number;
+  /** Add a "leave row" step at the end of each row. */
+  scanLeaveRow: boolean;
+  /** Speak scan cues in a different (softer, higher) voice from the person's own. */
+  scanCueVoice: boolean;
+  /** Keys a grown-up assigned to the switches ('' = the defaults). Stored as KeyboardEvent.key or .code. */
+  scanKeySelect: string;
+  scanKeyNext: string;
+  /** Scan / dwell highlight colour ('' = theme default; hex only) and thickness in px. */
+  highlightColor: string;
+  highlightWidth: number;
   // Head / eye pointer & dwell
   pointer: 'off' | 'dwell' | 'head' | 'eyes';
   dwellMs: number;
   pointerSensitivity: number;
   pointerSmoothing: number;
   blinkSelect: boolean;
+  /** Show a "Rest" button that pauses dwell selection (and can itself be dwelled on). */
+  dwellRest: boolean;
   gazeCalibration?: number[][];
   // Keyboard
   keyboardLayout: 'qwerty' | 'abc' | 'azerty';
