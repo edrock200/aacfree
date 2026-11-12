@@ -123,7 +123,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
       </Section>
       <Section title={t('Keyboard')}>
         <Choice label={t('Letter layout')} value={s.keyboardLayout} onChange={(keyboardLayout) => updateSettings({ keyboardLayout })}
-          options={[{ value: 'qwerty', label: 'QWERTY' }, { value: 'abc', label: 'ABC' }]} />
+          options={[{ value: 'qwerty', label: 'QWERTY' }, { value: 'azerty', label: 'AZERTY' }, { value: 'abc', label: 'ABC' }]} />
         <Toggle label={t('Learn from what is typed and said')} hint={t("Improves word prediction using this person's own words. Stays on this device. Off by default.")} checked={s.learnWords} onChange={(learnWords) => updateSettings({ learnWords })} />
         {Object.keys(p.lexicon).length > 0 && (
           <button className="btn small" onClick={() => updateProfile((pp) => { pp.lexicon = {}; })}>Forget learned words ({Object.keys(p.lexicon).length})</button>

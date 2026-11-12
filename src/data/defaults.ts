@@ -1,6 +1,7 @@
 import type { AACButton, Board, Cell, LayoutId, LibraryCategory, Profile, Settings, WordType } from '../types';
 import { uid } from '../lib/util';
 import { translateProfile } from '../lib/translate';
+import { PACKS, type Lang } from '../i18n/packs';
 import symbolMap from './symbols.json';
 import {
   CATEGORIES, DEFAULT_PHRASES, DEFAULT_SCHEDULES, HOME_LAYOUTS, MORE_BOARD, PHRASE_CATEGORIES,
@@ -16,6 +17,8 @@ export function symbolFor(keyword: string): string | undefined {
 
 export const DEFAULT_SETTINGS: Settings = {
   language: 'en',
+  uiLanguage: 'auto',
+  secondLabel: '',
   autoConjugate: true,
   rate: 1,
   pitch: 1,
@@ -112,12 +115,12 @@ function makeBoard(id: string, name: string, cols: number, specs: string[], defa
   return { id, name, cols, rows, cells, symbol };
 }
 
-export function buildProfile(name: string, layout: LayoutId, lang: 'en' | 'es' = 'en'): Profile {
+export function buildProfile(name: string, layout: LayoutId, lang: Lang = 'en'): Profile {
   const p = buildProfileEn(name, layout);
-  if (lang === 'en') return p;
-  const es = translateProfile(p, lang);
-  es.aboutMe.text = `¡Hola! Me llamo ${name || '…'}. Soy autista y uso esta aplicación para comunicarme. Por favor, ten paciencia y dame más tiempo para responder. Entiendo más de lo que puedo decir.`;
-  return es;
+  if (lang === 'en' || !PACKS[lang]) return p;
+  const out = translateProfile(p, lang);
+  out.aboutMe.text = PACKS[lang].vocab?.aboutMe(name) ?? out.aboutMe.text;
+  return out;
 }
 
 function buildProfileEn(name: string, layout: LayoutId): Profile {

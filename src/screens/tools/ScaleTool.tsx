@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
-import { t } from '../../i18n';
+import { t, ts } from '../../i18n';
 
 const FEELINGS = [
   { n: 1, face: '😌', label: 'Calm', say: 'I feel calm.', color: '#8fd19e' },
@@ -31,7 +31,7 @@ export function ScaleTool({ kind }: { kind: 'feelings' | 'pain' }) {
         <div className="scale-col" data-scan-group>
           {[...FEELINGS].reverse().map((f) => (
             <button key={f.n} className={`scale-btn ${sel === f.n ? 'on' : ''}`} style={{ background: f.color }} data-scan-item
-              onClick={() => { setSel(f.n); speakText(t(f.say)); }}>
+              onClick={() => { setSel(f.n); speakText(ts(f.say)); }}>
               <span className="scale-n">{f.n}</span><span className="scale-face">{f.face}</span><b>{t(f.label)}</b>
             </button>
           ))}
@@ -45,7 +45,7 @@ export function ScaleTool({ kind }: { kind: 'feelings' | 'pain' }) {
       <div className="scale-row" data-scan-group>
         {PAIN.map((f, i) => (
           <button key={f.n} className={`scale-btn vertical ${sel === f.n ? 'on' : ''}`} style={{ background: PAIN_COLORS[i] }} data-scan-item
-            onClick={() => { setSel(f.n); speakText(t(f.say)); }}>
+            onClick={() => { setSel(f.n); speakText(ts(f.say)); }}>
             <span className="scale-face">{f.face}</span><span className="scale-n">{f.n}</span><b>{t(f.label)}</b>
           </button>
         ))}

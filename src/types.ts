@@ -110,8 +110,12 @@ export type ColorMode = 'fill' | 'border' | 'none';
 export type LockMethod = 'hold' | 'pin' | 'math' | 'none';
 
 export interface Settings {
-  /** Language of the interface, vocabulary, grammar and keyboard. */
-  language: 'en' | 'es';
+  /** Communication language: board words, grammar, keyboard, voice. */
+  language: 'en' | 'es' | 'fr' | 'pt';
+  /** Language of menus and settings ('auto' = same as the communication language). */
+  uiLanguage: 'auto' | 'en' | 'es' | 'fr' | 'pt';
+  /** Optional second language shown small on each button (bilingual homes). */
+  secondLabel: '' | 'en' | 'es' | 'fr' | 'pt';
   /** Spanish: conjugate a verb automatically after a subject pronoun (yo + querer → quiero). */
   autoConjugate: boolean;
   // Voice
@@ -170,7 +174,7 @@ export interface Settings {
   blinkSelect: boolean;
   gazeCalibration?: number[][];
   // Keyboard
-  keyboardLayout: 'qwerty' | 'abc';
+  keyboardLayout: 'qwerty' | 'abc' | 'azerty';
   learnWords: boolean;
   // Grown-up lock
   lock: LockMethod;

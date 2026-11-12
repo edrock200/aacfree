@@ -26,7 +26,7 @@ export function allCategories(lib: SymbolLibrary | undefined): ViewCategory[] {
   const own = l.additions[ORPHANS_ID] ?? [];
   if (orphans.length || own.length) {
     const symbols = [...own, ...orphans];
-    custom.push({ id: ORPHANS_ID, name: getLang() === 'es' ? 'Mis símbolos extra' : 'My extra symbols', symbols, builtIn: true, customIds: new Set(symbols.map((s) => s.id)) });
+    custom.push({ id: ORPHANS_ID, name: localCategory(ORPHANS_ID, 'My extra symbols', getLang()), symbols, builtIn: true, customIds: new Set(symbols.map((s) => s.id)) });
   }
   return [...custom, ...builtIn];
 }

@@ -74,6 +74,12 @@ export function repairProfile(raw: unknown): Profile | null {
   p.name = str(p.name, 100) ?? '';
   p.quickBar = Array.isArray(p.quickBar) ? p.quickBar.map(cleanButton).filter((x): x is AACButton => !!x).slice(0, 16) : (undefined as never);
   if (!['big', 'compact', 'medium', 'full'].includes(p.layout)) p.layout = 'medium';
+  if (p.settings) {
+    const langs = ['en', 'es', 'fr', 'pt'];
+    if (!langs.includes(p.settings.language)) p.settings.language = 'en';
+    if (p.settings.uiLanguage && p.settings.uiLanguage !== 'auto' && !langs.includes(p.settings.uiLanguage)) p.settings.uiLanguage = 'auto';
+    if (p.settings.secondLabel && !langs.includes(p.settings.secondLabel)) p.settings.secondLabel = '';
+  }
   return p;
 }
 

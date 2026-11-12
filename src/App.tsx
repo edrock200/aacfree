@@ -21,7 +21,7 @@ import { useScanner } from './lib/useScanner';
 import { PointerLayer } from './components/PointerLayer';
 import { checkNativeLanguage, openTtsInstall, setTtsFailureHandler } from './lib/tts';
 import type { AACButton } from './types';
-import { setLang, t } from './i18n';
+import { setLangs, t } from './i18n';
 
 export function App() {
   const loaded = useStore((s) => s.loaded);
@@ -33,10 +33,12 @@ export function App() {
 
 /** The whole UI remounts when the language changes so every string re-translates. */
 function LangMain() {
-  const lang = useProfile().settings.language ?? 'en';
-  setLang(lang);
-  document.documentElement.lang = lang;
-  return <Main key={lang} />;
+  const s = useProfile().settings;
+  const comm = s.language ?? 'en';
+  const ui = s.uiLanguage && s.uiLanguage !== 'auto' ? s.uiLanguage : comm;
+  setLangs(ui, comm);
+  document.documentElement.lang = ui;
+  return <Main key={`${ui}-${comm}-${s.secondLabel ?? ''}`} />;
 }
 
 function Main() {

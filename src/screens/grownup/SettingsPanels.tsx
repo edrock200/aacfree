@@ -6,7 +6,7 @@ import { Choice, Section, Slider, Toggle } from './controls';
 import { WORD_COLORS } from '../../lib/colors';
 import { GazeCalibration } from '../../components/GazeCalibration';
 import { Modal } from '../../components/Modal';
-import { LANGUAGES } from '../../i18n';
+import { LANGUAGES, PACKS, tIn, type Lang } from '../../i18n';
 import { t } from '../../i18n';
 
 export function SpeechPanel() {
@@ -65,23 +65,26 @@ export function SpeechPanel() {
 export function DisplayPanel() {
   const s = useProfile().settings;
   const { updateSettings } = useStore.getState();
-  const [confirmLang, setConfirmLang] = useState<'en' | 'es' | null>(null);
+  const [confirmLang, setConfirmLang] = useState<Lang | null>(null);
+  const comm = (s.language ?? 'en') as Lang;
   return (
     <>
-      <Section title={t('Language')} intro={t('Changes the app, the words on the boards, word forms, the keyboard and the voice. Buttons keep their exact places.')}>
-        <Choice label={t('Language')} value={s.language ?? 'en'} onChange={(l) => l !== (s.language ?? 'en') && setConfirmLang(l)}
+      <Section title={t('Language')} intro={t('The communication language changes the words on the boards, word forms, the keyboard and the voice. Buttons keep their exact places.')}>
+        <Choice label={t('Communication language')} value={comm} onChange={(l) => l !== comm && setConfirmLang(l)}
           options={LANGUAGES.map((l) => ({ value: l.id, label: l.name }))} />
-        {(s.language ?? 'en') === 'es' && (
-          <Toggle label={t('Conjugate verbs automatically')} hint={t('After yo, tú, él… a verb changes to match (yo + querer → quiero). Long-press a word for other forms.')} checked={s.autoConjugate} onChange={(autoConjugate) => updateSettings({ autoConjugate })} />
+        <Choice label={t('App language')} hint={t('Menus and settings. Grown-ups can read the app in a different language from the one the person talks in.')} value={s.uiLanguage ?? 'auto'} onChange={(uiLanguage) => updateSettings({ uiLanguage })}
+          options={[{ value: 'auto' as const, label: t('Same') }, ...LANGUAGES.map((l) => ({ value: l.id, label: l.name }))]} />
+        <Choice label={t('Second language on buttons')} hint={t('Shows each built-in word in a second language under the main word. Helpful for bilingual families and classrooms.')} value={s.secondLabel ?? ''} onChange={(secondLabel) => updateSettings({ secondLabel })}
+          options={[{ value: '' as const, label: t('None') }, ...LANGUAGES.filter((l) => l.id !== comm).map((l) => ({ value: l.id, label: l.name }))]} />
+        {comm !== 'en' && (
+          <Toggle label={t('Conjugate verbs automatically')} hint={t('After a word like “I” or “you”, a verb changes to match it. Long-press a word for other forms.')} checked={s.autoConjugate} onChange={(autoConjugate) => updateSettings({ autoConjugate })} />
         )}
       </Section>
       {confirmLang && (
-        <Modal title={confirmLang === 'es' ? 'Cambiar a español' : 'Switch to English'} onClose={() => setConfirmLang(null)}
-          footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirmLang(null)}>{t('Cancel')}</button>
-            <button className="btn primary" onClick={() => { useStore.getState().setLanguage(confirmLang); setConfirmLang(null); }}>{confirmLang === 'es' ? 'Cambiar' : 'Switch'}</button></>}>
-          <p>{confirmLang === 'es'
-            ? 'Las palabras de los tableros, las frases y la agenda se traducirán. Cada botón se queda en su lugar. Las palabras que agregaste tú se quedan igual. Se guarda una copia automática antes del cambio.'
-            : 'Board words, phrases and schedules will be translated. Every button stays in its place. Words you added yourself stay as they are. A snapshot is saved first.'}</p>
+        <Modal title={tIn(confirmLang, 'Switch to {lang}', { lang: PACKS[confirmLang].name })} onClose={() => setConfirmLang(null)}
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirmLang(null)}>{tIn(confirmLang, 'Cancel')}</button>
+            <button className="btn primary" onClick={() => { useStore.getState().setLanguage(confirmLang); setConfirmLang(null); }}>{tIn(confirmLang, 'Switch')}</button></>}>
+          <p>{tIn(confirmLang, 'Board words, phrases and schedules will be translated. Every button stays in its place. Words you added yourself stay as they are. A snapshot is saved first.')}</p>
         </Modal>
       )}
       <Section title={t('Look')}>

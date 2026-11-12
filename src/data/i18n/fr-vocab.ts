@@ -1,0 +1,1043 @@
+/**
+ * French (neutral international French) translations of the default
+ * vocabulary in `../vocab.ts`. Canadian (Québec) alternatives are noted in
+ * comments where they differ a lot; families can edit any word.
+ *
+ * Kept dependency-free, like vocab.ts, so Node scripts can import it with
+ * type stripping.
+ *
+ * Conventions:
+ * - Keys are the exact English label as produced by `parseSpec()` (the text
+ *   before any `|`, `@`, `#` or `~`, without the `x:` type prefix).
+ * - A value is the French label, or `[label, spoken]` when the spoken text
+ *   should differ from the button label.
+ * - Verbs are infinitives (vouloir, aller, manger); the app conjugates them
+ *   after a subject pronoun. "like" is "aimer". Pronominal verbs keep their
+ *   se/s' (s'asseoir, se réveiller, s'habiller…). Multi-word verbs conjugate
+ *   their first word (avoir besoin de, faire un câlin, avoir mal).
+ *   French elision (je + aimer → j'aime) is left to the conjugator.
+ * - Nouns are singular without an article; adjectives are masculine singular.
+ * - French typography: a narrow no-break space before ? ! ; and a no-break
+ *   space before : and inside « ».
+ *
+ * Deliberate exceptions and ambiguities (one English label shared by several
+ * categories gets one French word):
+ * - Quick-bar protest words use the form people say on its own: help → "aide",
+ *   stop → "stop", wait → "attends", break → "pause" (also used for the
+ *   actions' "break" = casser), I don't know → "je ne sais pas",
+ *   all done → "fini"; finished → "terminé"; finish → "finir".
+ * - Pronouns: it → "ça", we → "on" (as spoken), so that → "cela" and
+ *   this → "ceci" to keep the core buttons distinct; these / those →
+ *   "ceux-ci" / "ceux-là". him → "le", them → "les", us → "nous".
+ * - his / her / their: French son/sa agree with the noun, not the owner, so
+ *   his → "à lui", her → "à elle"; their → "leur"; mine / yours → "à moi" /
+ *   "à toi".
+ * - hungry / thirsty / sleepy / scared → "faim" / "soif" / "sommeil" / "peur"
+ *   (French says "j'ai faim", not an adjective).
+ * - Copulas/auxiliaries have no clean infinitive mapping: am → "être"
+ *   (feelings: "je suis content"), is → "est", are → "sont", was → "était",
+ *   were → "étaient", will → "va" (futur proche), did → "a fait",
+ *   does → "fait". not → "pas", don't → "ne pas" (the infinitive negation,
+ *   "ne pas toucher"), can't → "ne peux pas", won't → "ne vais pas",
+ *   isn't → "n'est pas", don't like → "je n'aime pas", no more →
+ *   "je n'en veux plus".
+ * - like → "aimer", so love → "adorer" ("je t'aime" is in Social).
+ * - feel → "se sentir"; hurts → "avoir mal" ("j'ai mal"); dizzy →
+ *   "avoir la tête qui tourne"; bored → "s'ennuyer" ("ennuyé" means annoyed);
+ *   itchy → "ça gratte".
+ * - more → "encore" (how French children ask for more); again →
+ *   "encore une fois".
+ * - good → "bien", bad → "mal" (work for feelings and descriptions);
+ *   okay → "ça va"; right / wrong → "juste" / "faux".
+ * - look → "regarder", so watch → "voir"; get → "chercher" (aller chercher);
+ *   do → "faire", make → "fabriquer"; put → "mettre", so put on → "enfiler".
+ * - wear and carry are both "porter" (inherent in French).
+ * - turn (verb in core layouts, "turn" in play) → "tour" (taking turns).
+ * - orange (fruit / colour), fish (food / animal) and chicken (food / hen) are
+ *   one word each: "orange", "poisson", "poulet".
+ * - cold (temperature / illness) → "froid"; hot → "chaud".
+ * - light (weight / colour) → "léger"; dark → "foncé".
+ * - clean (verb / adjective) → "nettoyer"; open (verb / adjective) → "ouvrir".
+ * - hug (verb / noun in sensory) → "faire un câlin"; swing → "balançoire".
+ * - bath / shower are verbs ("prendre un bain"), like the Spanish.
+ * - work (place / verb) → "travailler"; call → "appeler"; when → "quand".
+ * - quiet → "silence" (calm is "calme"); lonely → "seul", alone → "tout seul".
+ * - from → "depuis" (of is already "de"); off → "éteint"; up → "en haut",
+ *   so upstairs → "à l'étage".
+ * - excited → "enthousiaste" ("excité" can have a sexual connotation);
+ *   confused → "perdu" ("confus" means embarrassed in French).
+ * - nice to meet you → "enchanté" (masculine; there is no neutral form).
+ * - lunch / dinner use France's meal names (déjeuner / dîner); "eat lunch" and
+ *   "eat dinner" are the same words as verbs.
+ * - teacher → "prof" (used everywhere and gender-neutral).
+ * - People nouns use the masculine generic (ami, infirmier, caissier).
+ * - A few nouns stay plural because the singular is unnatural: céréales,
+ *   pâtes, nouilles, légumes, haricots, frites, chips, petits pois, bulles,
+ *   cheveux, fesses, lunettes, vêtements, ciseaux, devoirs, maths, sciences,
+ *   béquilles, enfants, toilettes, vacances.
+ */
+
+/** English label → French label (and optional different spoken text). */
+export const FR_LABELS: Record<string, string | [string, string]> = {
+  // ── Pronouns ──
+  'I': 'je',
+  'me': 'moi',
+  'you': 'tu',
+  'he': 'il',
+  'she': 'elle',
+  'it': 'ça',
+  'we': 'on',
+  'they': 'ils',
+  'him': 'le',
+  'them': 'les',
+  'us': 'nous',
+  'myself': 'moi-même',
+  'my': 'mon',
+  'your': 'ton',
+  'his': 'à lui',
+  'her': 'à elle',
+  'our': 'notre',
+  'their': 'leur',
+  'mine': 'à moi',
+  'yours': 'à toi',
+  'everyone': 'tout le monde',
+  'someone': "quelqu'un",
+  'nobody': 'personne',
+
+  // ── Core verbs ──
+  'want': 'vouloir',
+  'go': 'aller',
+  'go to': 'aller à',
+  'like': 'aimer',
+  "don't like": "je n'aime pas",
+  'help': 'aide',
+  'play': 'jouer',
+  'eat': 'manger',
+  'drink': 'boire',
+  'stop': 'stop',
+  'get': 'chercher',
+  'look': 'regarder',
+  'do': 'faire',
+  'make': 'fabriquer',
+  'open': 'ouvrir',
+  'put': 'mettre',
+  'turn': 'tour',
+  'can': 'pouvoir',
+  'feel': 'se sentir',
+  'need': 'avoir besoin de',
+  'all done': 'fini',
+  'wait': 'attends',
+  'break': 'pause',
+  'need a break': "avoir besoin d'une pause",
+  'need space': "avoir besoin d'espace",
+  'love': 'adorer',
+
+  // ── Little words ──
+  'a': 'un',
+  'the': 'le',
+  'this': 'ceci',
+  'that': 'cela',
+  'these': 'ceux-ci',
+  'those': 'ceux-là',
+  'some': 'des',
+  'all': 'tout',
+  'am': 'être',
+  'is': 'est',
+  'are': 'sont',
+  'was': 'était',
+  'were': 'étaient',
+  'will': 'va',
+  'did': 'a fait',
+  'does': 'fait',
+  'not': 'pas',
+  "don't": 'ne pas',
+  "can't": 'ne peux pas',
+  "won't": 'ne vais pas',
+  "isn't": "n'est pas",
+  'no': 'non',
+  'no more': "je n'en veux plus",
+  'never': 'jamais',
+  'nothing': 'rien',
+  'to': 'à',
+  'of': 'de',
+  'for': 'pour',
+  'with': 'avec',
+  'from': 'depuis',
+  'by': 'par',
+  'about': 'à propos de',
+  'off': 'éteint',
+  'up': 'en haut',
+  'on': 'sur',
+  'in': 'dans',
+  'at': 'à',
+  'here': 'ici',
+  'and': 'et',
+  'but': 'mais',
+  'or': 'ou',
+  'because': 'parce que',
+  'if': 'si',
+  'so': 'alors',
+  'then': 'ensuite',
+  'when': 'quand',
+
+  // ── Food ──
+  'hungry': 'faim',
+  'yummy': 'délicieux',
+  'yucky': 'beurk',
+  'more': 'encore',
+  'apple': 'pomme',
+  'banana': 'banane',
+  'grapes': 'raisin',
+  'strawberry': 'fraise',
+  'orange': 'orange',
+  'watermelon': 'pastèque', // Québec: melon d'eau
+  'blueberries': 'myrtille', // Québec: bleuet
+  'pear': 'poire',
+  'bread': 'pain',
+  'toast': 'pain grillé', // Québec: rôtie
+  'cereal': 'céréales',
+  'pancakes': 'crêpe',
+  'waffle': 'gaufre',
+  'eggs': 'œuf',
+  'bacon': 'bacon',
+  'oatmeal': 'porridge', // Québec: gruau
+  'sandwich': 'sandwich',
+  'pizza': 'pizza',
+  'pasta': 'pâtes',
+  'macaroni and cheese': 'macaronis au fromage',
+  'rice': 'riz',
+  'noodles': 'nouilles',
+  'soup': 'soupe',
+  'tacos': 'taco',
+  'chicken': 'poulet',
+  'chicken nuggets': 'nuggets',
+  'fish': 'poisson',
+  'hot dog': 'hot-dog',
+  'hamburger': 'hamburger',
+  'french fries': 'frites',
+  'meat': 'viande',
+  'beans': 'haricots',
+  'cheese': 'fromage',
+  'yogurt': 'yaourt', // Québec: yogourt
+  'crackers': 'biscuit salé',
+  'chips': 'chips', // Québec: croustilles
+  'popcorn': 'pop-corn', // Québec: maïs soufflé
+  'pretzel': 'bretzel',
+  'peanut butter': 'beurre de cacahuète', // Québec: beurre d'arachide
+  'jelly': 'confiture',
+  'cookie': 'biscuit',
+  'cake': 'gâteau',
+  'ice cream': 'glace', // Québec: crème glacée
+  'candy': 'bonbon',
+  'chocolate': 'chocolat',
+  'donut': 'beignet',
+  'muffin': 'muffin',
+  'popsicle': "glace à l'eau", // Québec: popsicle
+  'vegetables': 'légumes',
+  'carrot': 'carotte',
+  'broccoli': 'brocoli',
+  'corn': 'maïs',
+  'peas': 'petits pois',
+  'potato': 'pomme de terre', // Québec: patate
+  'salad': 'salade',
+  'cucumber': 'concombre',
+  'snack': 'goûter', // Québec: collation
+  'breakfast': 'petit-déjeuner', // Québec: déjeuner
+  'lunch': 'déjeuner', // Québec: dîner
+  'dinner': 'dîner', // Québec: souper
+  'plate': 'assiette',
+  'bowl': 'bol',
+  'spoon': 'cuillère',
+  'fork': 'fourchette',
+  'food': 'nourriture',
+
+  // ── Drinks ──
+  'thirsty': 'soif',
+  'hot': 'chaud',
+  'cold': 'froid',
+  'ice': 'glaçon',
+  'pour': 'verser',
+  'water': 'eau',
+  'milk': 'lait',
+  'juice': 'jus',
+  'apple juice': 'jus de pomme',
+  'orange juice': "jus d'orange",
+  'chocolate milk': 'lait au chocolat',
+  'smoothie': 'smoothie',
+  'hot chocolate': 'chocolat chaud',
+  'tea': 'thé',
+  'coffee': 'café',
+  'soda': 'soda', // Québec: boisson gazeuse
+  'lemonade': 'limonade',
+  'cup': 'verre',
+  'bottle': 'bouteille',
+  'straw': 'paille',
+  'water bottle': 'gourde',
+
+  // ── Feelings ──
+  'happy': 'content',
+  'sad': 'triste',
+  'angry': 'en colère',
+  'scared': 'peur',
+  'tired': 'fatigué',
+  'sick': 'malade',
+  'excited': 'enthousiaste',
+  'calm': 'calme',
+  'frustrated': 'frustré',
+  'worried': 'inquiet',
+  'silly': 'rigolo',
+  'bored': "s'ennuyer",
+  'hurt': 'blessé',
+  'overwhelmed': 'submergé',
+  'confused': 'perdu',
+  'proud': 'fier',
+  'lonely': 'seul',
+  'nervous': 'nerveux',
+  'embarrassed': 'gêné',
+  'surprised': 'surpris',
+  'shy': 'timide',
+  'jealous': 'jaloux',
+  'good': 'bien',
+  'okay': 'ça va',
+  'bad': 'mal',
+  'great': 'super',
+  'too loud': 'trop de bruit',
+  'too bright': 'trop de lumière',
+  'sleepy': 'sommeil',
+
+  // ── People ──
+  'mom': 'maman',
+  'dad': 'papa',
+  'brother': 'frère',
+  'sister': 'sœur',
+  'grandma': 'mamie',
+  'grandpa': 'papi',
+  'baby': 'bébé',
+  'family': 'famille',
+  'friend': 'ami',
+  'teacher': 'prof',
+  'doctor': 'docteur',
+  'nurse': 'infirmier',
+  'therapist': 'thérapeute',
+  'aunt': 'tante',
+  'uncle': 'oncle',
+  'cousin': 'cousin',
+  'boy': 'garçon',
+  'girl': 'fille',
+  'man': 'homme',
+  'woman': 'femme',
+  'kids': 'enfants',
+
+  // ── Places ──
+  'leave': 'partir',
+  'stay': 'rester',
+  'outside': 'dehors',
+  'home': 'maison',
+  'school': 'école',
+  'park': 'parc',
+  'playground': 'aire de jeux', // Québec: parc
+  'store': 'magasin',
+  'restaurant': 'restaurant',
+  'bathroom': 'salle de bain',
+  'bedroom': 'chambre',
+  'kitchen': 'cuisine',
+  'living room': 'salon',
+  'car': 'voiture', // Québec (familier): char
+  'bus': 'bus', // Québec: autobus
+  "doctor's office": 'chez le docteur',
+  'hospital': 'hôpital',
+  'library': 'bibliothèque',
+  'pool': 'piscine',
+  'beach': 'plage',
+  "grandma's house": 'chez mamie',
+  'zoo': 'zoo',
+  'farm': 'ferme',
+  'church': 'église',
+  'movies': 'cinéma',
+  'party': 'fête',
+  "friend's house": 'chez un ami',
+  'mall': 'centre commercial',
+  'gym': 'sport',
+  'dentist': 'dentiste',
+  'airport': 'aéroport',
+  'train': 'train',
+  'work': 'travailler',
+  'garden': 'jardin',
+  'upstairs': "à l'étage",
+
+  // ── Play ──
+  'my turn': 'mon tour',
+  'your turn': 'ton tour',
+  'fun': 'amusant',
+  'ball': 'ballon',
+  'blocks': 'cube',
+  'puzzle': 'puzzle', // Québec: casse-tête
+  'doll': 'poupée',
+  'toy car': 'petite voiture',
+  'bubbles': 'bulles',
+  'tablet': 'tablette',
+  'tv': 'télé',
+  'TV': 'télé',
+  'video game': 'jeu vidéo',
+  'music': 'musique',
+  'book': 'livre',
+  'crayons': 'crayon de couleur',
+  'paint': 'peinture',
+  'play dough': 'pâte à modeler',
+  'lego': 'lego',
+  'swing': 'balançoire',
+  'slide': 'toboggan', // Québec: glissade
+  'trampoline': 'trampoline',
+  'bike': 'vélo',
+  'scooter': 'trottinette',
+  'sand': 'sable',
+  'stuffed animal': 'peluche', // Québec: toutou
+  'tickle': 'chatouiller',
+  'chase': 'courir après',
+  'hide and seek': 'cache-cache',
+  'sing': 'chanter',
+  'dance': 'danser',
+  'read': 'lire',
+  'draw': 'dessiner',
+  'build': 'construire',
+  'game': 'jeu',
+  'cards': 'cartes',
+  'phone': 'téléphone', // Québec: cellulaire
+  'computer': 'ordinateur',
+  'movie': 'film',
+  'youtube': 'YouTube',
+  'song': 'chanson',
+
+  // ── Actions ──
+  'sleep': 'dormir',
+  'sit': "s'asseoir",
+  'stand': 'se lever',
+  'walk': 'marcher',
+  'run': 'courir',
+  'jump': 'sauter',
+  'wash': 'laver',
+  'watch': 'voir',
+  'listen': 'écouter',
+  'swim': 'nager',
+  'write': 'écrire',
+  'cut': 'couper',
+  'throw': 'lancer',
+  'catch': 'attraper',
+  'kick': 'donner un coup de pied', // Québec: botter
+  'push': 'pousser',
+  'pull': 'tirer',
+  'climb': 'grimper',
+  'give': 'donner',
+  'take': 'prendre',
+  'find': 'trouver',
+  'show': 'montrer',
+  'tell': 'raconter',
+  'hug': 'faire un câlin',
+  'kiss': 'faire un bisou',
+  'know': 'savoir',
+  'think': 'penser',
+  'fix': 'réparer',
+  'clean': 'nettoyer',
+  'cook': 'cuisiner',
+  'buy': 'acheter',
+  'ride': 'monter',
+  'hide': 'se cacher',
+  'wake up': 'se réveiller',
+  'try': 'essayer',
+  'hold': 'tenir',
+  'carry': 'porter',
+  'brush': 'brosser',
+  'close': 'fermer',
+  'come': 'venir',
+  'say': 'dire',
+  'ask': 'demander',
+  'call': 'appeler',
+  'use': 'utiliser',
+  'learn': 'apprendre',
+  'finish': 'finir',
+  'start': 'commencer',
+  'share': 'partager',
+  'pick': 'choisir',
+  'keep': 'garder',
+  'bring': 'apporter',
+  'move': 'bouger',
+  'touch': 'toucher',
+  'smell': 'sentir',
+
+  // ── Describe ──
+  'big': 'grand',
+  'little': 'petit',
+  'fast': 'rapide',
+  'slow': 'lent',
+  'loud': 'fort',
+  'quiet': 'silence',
+  'wet': 'mouillé',
+  'dry': 'sec',
+  'soft': 'doux',
+  'hard': 'dur',
+  'dirty': 'sale',
+  'new': 'nouveau',
+  'old': 'vieux',
+  'broken': 'cassé',
+  'easy': 'facile',
+  'difficult': 'difficile',
+  'funny': 'drôle',
+  'scary': 'effrayant',
+  'full': 'plein',
+  'empty': 'vide',
+  'closed': 'fermé',
+  'high': 'haut',
+  'low': 'bas',
+  'long': 'long',
+  'short': 'court',
+  'heavy': 'lourd',
+  'light': 'léger',
+  'pretty': 'joli',
+  'nice': 'gentil',
+  'mean': 'méchant',
+  'right': 'juste',
+  'wrong': 'faux',
+  'very': 'très',
+  'too': 'trop',
+  'really': 'vraiment',
+  'again': 'encore une fois',
+  'gently': 'doucement',
+  'together': 'ensemble',
+  'alone': 'tout seul',
+  'different': 'différent',
+  'same': 'pareil',
+
+  // ── Social ──
+  'hi': 'salut',
+  'bye': 'au revoir',
+  'please': "s'il te plaît",
+  'thank you': 'merci',
+  'sorry': 'pardon',
+  'excuse me': 'excuse-moi',
+  "you're welcome": 'de rien', // Québec: bienvenue
+  'yes': 'oui',
+  'good morning': 'bonjour',
+  'good night': 'bonne nuit',
+  'how are you?': 'comment ça va ?',
+  "I'm fine": 'je vais bien',
+  'my name is': "je m'appelle",
+  "what's your name?": "comment tu t'appelles ?",
+  'nice to meet you': 'enchanté',
+  'I love you': "je t'aime",
+  'see you later': 'à plus tard',
+  'good job': 'bravo',
+  'cool': 'cool',
+  'uh oh': 'oh oh',
+  'wow': 'waouh',
+  'yay': 'youpi',
+  'oops': 'oups',
+  "I don't know": 'je ne sais pas',
+  'maybe': 'peut-être',
+  'awesome': 'génial',
+  'me too': 'moi aussi',
+  'of course': 'bien sûr',
+  'leave me alone': 'laisse-moi tranquille',
+  "that's funny": "c'est drôle",
+  'Hey!': 'Hé !',
+
+  // ── Questions ──
+  'what': 'quoi',
+  'where': 'où',
+  'who': 'qui',
+  'why': 'pourquoi',
+  'how': 'comment',
+  'which': 'quel',
+  'how many': 'combien de',
+  "what's that?": "c'est quoi ?",
+  'where is': 'où est',
+  'can I': 'je peux',
+  'can you': 'tu peux',
+  'is it': "c'est ?",
+  'do you': 'est-ce que tu',
+  'what time': 'quelle heure',
+  "what's next?": 'et après ?',
+  'how much': 'combien',
+  'how much?': ['combien ?', 'ça coûte combien ?'],
+  'whose': 'à qui',
+  'are we there yet?': 'on arrive bientôt ?',
+  'what happened?': "qu'est-ce qui s'est passé ?",
+  'why not?': 'pourquoi pas ?',
+  'how come?': 'comment ça se fait ?',
+  'what are you doing?': "qu'est-ce que tu fais ?",
+  'where are we going?': "où est-ce qu'on va ?",
+
+  // ── Body ──
+  'hurts': 'avoir mal',
+  'itchy': 'ça gratte',
+  'sore': 'douloureux',
+  'dizzy': 'avoir la tête qui tourne', // Québec: étourdi
+  'bleeding': 'saigner',
+  'throw up': 'vomir',
+  'head': 'tête',
+  'eyes': 'œil',
+  'ears': 'oreille',
+  'nose': 'nez',
+  'mouth': 'bouche',
+  'teeth': 'dent',
+  'tongue': 'langue',
+  'hair': 'cheveux',
+  'face': 'visage',
+  'neck': 'cou',
+  'throat': 'gorge',
+  'shoulder': 'épaule',
+  'arm': 'bras',
+  'elbow': 'coude',
+  'hand': 'main',
+  'finger': 'doigt',
+  'tummy': 'ventre',
+  'back': 'dos',
+  'chest': 'poitrine',
+  'leg': 'jambe',
+  'knee': 'genou',
+  'foot': 'pied',
+  'toes': 'orteil',
+  'bottom': 'fesses',
+  'skin': 'peau',
+  'heart': 'cœur',
+  'medicine': 'médicament',
+  'band-aid': 'pansement', // Québec: diachylon
+  'headache': 'mal de tête',
+  'tummy ache': 'mal de ventre',
+  'toothache': 'mal de dents',
+
+  // ── Clothes ──
+  'put on': 'enfiler',
+  'take off': 'enlever',
+  'wear': 'porter',
+  'too hot': 'trop chaud',
+  'too cold': 'trop froid',
+  'tight': 'serré',
+  'comfy': 'confortable',
+  'shirt': 't-shirt', // Québec: chandail
+  'pants': 'pantalon',
+  'shorts': 'short',
+  'dress': 'robe',
+  'skirt': 'jupe',
+  'socks': 'chaussette', // Québec: bas
+  'shoes': 'chaussure', // Québec: soulier
+  'jacket': 'veste',
+  'coat': 'manteau',
+  'hat': 'chapeau',
+  'gloves': 'gant',
+  'pajamas': 'pyjama',
+  'underwear': 'sous-vêtement',
+  'diaper': 'couche',
+  'boots': 'botte',
+  'swimsuit': 'maillot de bain',
+  'sweater': 'pull', // Québec: chandail
+  'hoodie': 'sweat à capuche', // Québec: kangourou, hoodie
+  'glasses': 'lunettes',
+  'backpack': 'sac à dos',
+  'headphones': 'casque', // Québec: écouteurs
+  'scarf': 'écharpe', // Québec: foulard
+  'sandals': 'sandale',
+  'belt': 'ceinture',
+  'clothes': 'vêtements',
+
+  // ── Animals ──
+  'dog': 'chien',
+  'cat': 'chat',
+  'bird': 'oiseau',
+  'horse': 'cheval',
+  'cow': 'vache',
+  'pig': 'cochon',
+  'sheep': 'mouton',
+  'duck': 'canard',
+  'rabbit': 'lapin',
+  'mouse': 'souris',
+  'lion': 'lion',
+  'tiger': 'tigre',
+  'elephant': 'éléphant',
+  'monkey': 'singe',
+  'giraffe': 'girafe',
+  'bear': 'ours',
+  'frog': 'grenouille',
+  'snake': 'serpent',
+  'turtle': 'tortue',
+  'butterfly': 'papillon',
+  'bee': 'abeille',
+  'spider': 'araignée',
+  'dinosaur': 'dinosaure',
+  'shark': 'requin',
+  'whale': 'baleine',
+  'dolphin': 'dauphin',
+  'penguin': 'pingouin',
+  'owl': 'hibou',
+  'zebra': 'zèbre',
+  'bug': 'insecte', // Québec (familier): bibitte
+
+  // ── Colours ──
+  'red': 'rouge',
+  'yellow': 'jaune',
+  'green': 'vert',
+  'blue': 'bleu',
+  'purple': 'violet', // Québec: mauve
+  'pink': 'rose',
+  'brown': 'marron', // Québec: brun
+  'black': 'noir',
+  'white': 'blanc',
+  'gray': 'gris',
+  'rainbow': 'arc-en-ciel',
+  'gold': 'doré',
+  'silver': 'argenté',
+  'dark': 'foncé',
+
+  // ── Numbers ──
+  'zero': 'zéro',
+  'one': 'un',
+  'two': 'deux',
+  'three': 'trois',
+  'four': 'quatre',
+  'five': 'cinq',
+  'six': 'six',
+  'seven': 'sept',
+  'eight': 'huit',
+  'nine': 'neuf',
+  'ten': 'dix',
+  'twenty': 'vingt',
+  'hundred': 'cent',
+  'first': 'premier',
+  'last': 'dernier',
+  'next': 'suivant',
+  'less': 'moins',
+  'many': 'beaucoup',
+  'few': 'peu',
+  'none': 'aucun',
+  'half': 'moitié',
+  'count': 'compter',
+
+  // ── Time ──
+  'now': 'maintenant',
+  'later': 'plus tard',
+  'soon': 'bientôt',
+  'today': "aujourd'hui",
+  'tomorrow': 'demain',
+  'yesterday': 'hier',
+  'morning': 'matin',
+  'afternoon': 'après-midi',
+  'evening': 'soir',
+  'night': 'nuit',
+  'before': 'avant',
+  'after': 'après',
+  'minute': 'minute',
+  'hour': 'heure',
+  'day': 'jour',
+  'week': 'semaine',
+  'weekend': 'week-end', // Québec: fin de semaine
+  'birthday': 'anniversaire', // Québec: fête
+  'holiday': 'vacances',
+  'always': 'toujours',
+  'sometimes': 'parfois',
+  'early': 'tôt',
+  'late': 'tard',
+  'finished': 'terminé',
+  'time': 'temps',
+  'clock': 'horloge',
+  'Monday': 'lundi',
+  'Tuesday': 'mardi',
+  'Wednesday': 'mercredi',
+  'Thursday': 'jeudi',
+  'Friday': 'vendredi',
+  'Saturday': 'samedi',
+  'Sunday': 'dimanche',
+  'calendar': 'calendrier',
+
+  // ── School ──
+  'class': 'classe',
+  'desk': 'bureau', // Québec: pupitre
+  'pencil': 'crayon',
+  'paper': 'papier',
+  'scissors': 'ciseaux',
+  'glue': 'colle',
+  'recess': 'récré',
+  'homework': 'devoirs',
+  'art': 'arts plastiques',
+  'math': 'maths',
+  'reading': 'lecture',
+  'writing': 'écriture',
+  'science': 'sciences',
+  'line up': 'se mettre en rang',
+  'raise hand': 'lever la main',
+  'lunchbox': 'boîte à goûter', // Québec: boîte à lunch
+  'whiteboard': 'tableau blanc',
+  'test': 'contrôle', // Québec: examen
+
+  // ── Routines ──
+  'get dressed': "s'habiller",
+  'brush teeth': 'se brosser les dents',
+  'wash hands': 'se laver les mains',
+  'bath': 'prendre un bain',
+  'shower': 'prendre une douche',
+  'brush hair': 'se coiffer',
+  'go to bed': 'aller au lit',
+  'toilet': 'toilettes',
+  'potty': 'pot',
+  'pee': 'faire pipi',
+  'poop': 'faire caca',
+  'flush': 'tirer la chasse',
+  'towel': 'serviette',
+  'eat breakfast': 'prendre le petit-déjeuner', // Québec: déjeuner
+  'eat lunch': 'déjeuner', // Québec: dîner
+  'eat dinner': 'dîner', // Québec: souper
+  'take medicine': 'prendre un médicament',
+  'car ride': 'trajet en voiture',
+  'screen time': "temps d'écran",
+  'story': 'histoire',
+  'bedtime': 'heure du coucher',
+  'nap': 'sieste',
+  'clean up': 'ranger',
+  'feed the pet': "nourrir l'animal",
+  'pack bag': 'préparer son sac',
+  'put on shoes': 'mettre ses chaussures',
+
+  // ── Calm & sensory ──
+  'too busy': 'trop de monde',
+  'quiet place': 'endroit calme',
+  'blanket': 'couverture', // Québec: couverte
+  'weighted blanket': 'couverture lestée',
+  'fidget': 'objet anti-stress',
+  'rock': 'se balancer',
+  'squeeze': 'serrer fort',
+  'deep breath': 'respirer profondément',
+  'chewy': 'mâchouille',
+  'dim lights': 'lumière tamisée',
+  'alone time': 'moment seul',
+  'spin': 'tourner',
+  'stim': 'stimmer',
+  'safe': 'en sécurité',
+  'tent': 'tente',
+
+  // ── Weather ──
+  'sunny': 'ensoleillé',
+  'rainy': 'pluvieux',
+  'cloudy': 'nuageux',
+  'windy': 'venteux',
+  'snowy': 'neige',
+  'stormy': 'orage',
+  'foggy': 'brouillard',
+  'warm': 'tiède',
+  'umbrella': 'parapluie',
+  'sun': 'soleil',
+  'moon': 'lune',
+  'stars': 'étoile',
+  'thunder': 'tonnerre',
+
+  // ── At home ──
+  'turn on': 'allumer',
+  'turn off': 'éteindre',
+  'bed': 'lit',
+  'chair': 'chaise',
+  'table': 'table',
+  'couch': 'canapé', // Québec: divan
+  'door': 'porte',
+  'window': 'fenêtre',
+  'lights': 'lumière',
+  'stairs': 'escalier',
+  'fridge': 'frigo',
+  'oven': 'four',
+  'microwave': 'micro-ondes',
+  'sink': 'évier',
+  'pillow': 'oreiller',
+  'keys': 'clé',
+  'trash': 'poubelle',
+  'washing machine': 'machine à laver', // Québec: laveuse
+  'my room': 'ma chambre',
+  'closet': 'placard', // Québec: garde-robe
+  'mirror': 'miroir',
+  'toothbrush': 'brosse à dents',
+  'soap': 'savon',
+  'shampoo': 'shampoing',
+
+  // ── Tech & media ──
+  'charge': 'charger',
+  'louder': 'plus fort',
+  'quieter': 'moins fort',
+  'laptop': 'ordinateur portable',
+  'controller': 'manette',
+  'charger': 'chargeur',
+  'battery': 'batterie',
+  'wifi': 'wifi',
+  'video': 'vidéo',
+  'photo': 'photo',
+  'camera': 'appareil photo',
+  'text message': 'message',
+  'email': 'e-mail', // Québec: courriel
+  'app': 'appli',
+  'password': 'mot de passe',
+  'volume': 'volume',
+  'screen': 'écran',
+
+  // ── Shopping ──
+  'pay': 'payer',
+  'expensive': 'cher',
+  'cheap': 'pas cher',
+  'money': 'argent',
+  'card': 'carte',
+  'supermarket': 'supermarché', // Québec: épicerie
+  'cart': 'chariot', // Québec: panier
+  'bag': 'sac',
+  'receipt': 'ticket de caisse', // Québec: reçu
+  'cashier': 'caissier',
+  'price': 'prix',
+  'coins': 'pièce',
+  'wallet': 'porte-monnaie', // Québec: portefeuille
+  'list': 'liste',
+  'toys': 'jouet',
+  'present': 'cadeau',
+  'sale': 'promo', // Québec: solde, aubaine
+  'try on': 'essayer',
+  'size': 'taille',
+  'wait in line': 'faire la queue', // Québec: faire la file
+  'change': 'monnaie',
+
+  // ── Health ──
+  'better': 'mieux',
+  'worse': 'pire',
+  'pill': 'comprimé',
+  'shot': 'piqûre',
+  'thermometer': 'thermomètre',
+  'fever': 'fièvre',
+  'cough': 'toux',
+  'allergy': 'allergie',
+  'appointment': 'rendez-vous',
+  'check up': 'visite médicale',
+  'hearing aid': 'appareil auditif',
+  'wheelchair': 'fauteuil roulant',
+  'crutches': 'béquilles',
+  'blood': 'sang',
+  'x-ray': 'radio',
+  'rest': 'se reposer',
+  'breathe': 'respirer',
+
+  // ── Action buttons ──
+  'Keyboard': 'Clavier',
+  'Phrases': 'Phrases',
+  'Tools': 'Outils',
+  'Word forms': 'Formes',
+  'More': 'Plus',
+};
+
+/** Category / folder names by category id (see CATEGORIES ids, plus 'more' → 'Plus'). */
+export const FR_CATEGORY_NAMES: Record<string, string> = {
+  food: 'Nourriture',
+  drinks: 'Boissons',
+  feelings: 'Émotions',
+  people: 'Personnes',
+  places: 'Lieux',
+  play: 'Jouer',
+  actions: 'Actions',
+  describe: 'Décrire',
+  little: 'Petits mots',
+  social: 'Social',
+  questions: 'Questions',
+  body: 'Corps',
+  clothes: 'Vêtements',
+  animals: 'Animaux',
+  colors: 'Couleurs',
+  numbers: 'Nombres',
+  time: 'Temps',
+  school: 'École',
+  routines: 'Routines',
+  sensory: 'Calme et sensoriel',
+  weather: 'Météo',
+  house: 'À la maison',
+  tech: 'Technologie',
+  shopping: 'Courses', // Québec: Magasinage
+  health: 'Santé',
+  more: 'Plus',
+};
+
+/**
+ * DEFAULT_PHRASES text → French (keep the same meaning and tone). Gender-neutral
+ * where French allows it ("Ça me frustre.", "C'est trop pour moi."). Phrases
+ * meant for strangers (Emergency) use "vous"; the others use "tu".
+ */
+export const FR_PHRASES: Record<string, string> = {
+  'I need to use the bathroom.': "J'ai besoin d'aller aux toilettes.",
+  'I am hungry.': "J'ai faim.",
+  'I am thirsty.': "J'ai soif.",
+  'I need a break.': "J'ai besoin d'une pause.",
+  'I need help, please.': "J'ai besoin d'aide, s'il te plaît.",
+  'I am tired.': 'Je suis fatigué.',
+  'I want to go home.': 'Je veux rentrer à la maison.',
+  'Can I have some more, please?': "Je peux en avoir encore, s'il te plaît ?",
+  "I don't like that.": "Je n'aime pas ça.",
+  'I feel frustrated.': 'Ça me frustre.',
+  'That hurts.': 'Ça fait mal.',
+  'I feel sick.': 'Je ne me sens pas bien.',
+  'I am happy!': 'Je suis content !',
+  'It is too loud.': 'Il y a trop de bruit.',
+  'I feel overwhelmed.': "C'est trop pour moi.",
+  'I love you.': "Je t'aime.",
+  'Please stop.': "Arrête, s'il te plaît.",
+  'Leave me alone, please.': "Laisse-moi tranquille, s'il te plaît.",
+  'I need space.': "J'ai besoin d'espace.",
+  "Please don't touch me.": "Ne me touche pas, s'il te plaît.",
+  'Not now.': 'Pas maintenant.',
+  'I need quiet.': "J'ai besoin de calme.",
+  'I need more time to answer.': "J'ai besoin de plus de temps pour répondre.",
+  'I am done talking for now.': "Je n'ai plus envie de parler pour l'instant.",
+  'Please give me a minute.': "Donne-moi une minute, s'il te plaît.",
+  'Please talk slower.': "Parle plus lentement, s'il te plaît.",
+  'Can you show me or write it down?': "Tu peux me le montrer ou l'écrire ?",
+  'Hi! How are you?': 'Salut ! Comment ça va ?',
+  'I am doing well, thanks.': 'Ça va bien, merci.',
+  'What did you do today?': "Qu'est-ce que tu as fait aujourd'hui ?",
+  'Do you want to play with me?': 'Tu veux jouer avec moi ?',
+  'That is so funny!': "C'est trop drôle !",
+  'Tell me more.': "Dis-m'en plus.",
+  'Wait, I am still talking.': "Attends, je n'ai pas fini de parler.",
+  'See you later!': 'À plus tard !',
+  'I am typing. Please wait for me to finish.': "J'écris. Attends que j'aie fini, s'il te plaît.",
+  'Yes, that is what I mean.': "Oui, c'est ce que je veux dire.",
+  'No, that is not what I mean.': "Non, ce n'est pas ce que je veux dire.",
+  'What are we doing next?': "Qu'est-ce qu'on fait après ?",
+  'When are we going home?': "Quand est-ce qu'on rentre à la maison ?",
+  'Can you help me?': "Tu peux m'aider ?",
+  'Where are we going?': "Où est-ce qu'on va ?",
+  'Can I have a turn?': 'Je peux avoir un tour ?',
+  'What is that?': "Qu'est-ce que c'est ?",
+  'I am autistic and I use this app to communicate. Please be patient.':
+    "Je suis autiste et j'utilise cette appli pour communiquer. Merci de votre patience.",
+  'I am lost. Please help me.': "Je ne sais pas où je suis. Aidez-moi, s'il vous plaît.",
+  'Please call my family.': "Appelez ma famille, s'il vous plaît.",
+  'I am hurt.': 'Je me suis fait mal.',
+  'I need a quiet place.': "J'ai besoin d'un endroit calme.",
+  "I can understand you, I just can't talk right now.": "Je vous comprends, mais je ne peux pas parler pour l'instant.",
+};
+
+/** PHRASE_CATEGORIES → French */
+export const FR_PHRASE_CATEGORIES: Record<string, string> = {
+  Needs: 'Besoins',
+  Feelings: 'Émotions',
+  Boundaries: 'Limites',
+  Chat: 'Discuter',
+  Questions: 'Questions',
+  Emergency: 'Urgence',
+};
+
+/** DEFAULT_SCHEDULES names and step labels → French */
+export const FR_SCHEDULE: Record<string, string> = {
+  // schedule names
+  Morning: 'Matin',
+  Bedtime: 'Coucher',
+  // step labels (as parsed by parseSpec)
+  'wake up': 'se réveiller',
+  toilet: 'aller aux toilettes',
+  'get dressed': "s'habiller",
+  breakfast: 'petit-déjeuner',
+  'brush teeth': 'se brosser les dents',
+  shoes: 'chaussures',
+  backpack: 'sac à dos',
+  school: 'école',
+  dinner: 'dîner',
+  bath: 'bain',
+  pajamas: 'pyjama',
+  story: 'histoire',
+  sleep: 'dormir',
+};

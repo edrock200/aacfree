@@ -7,7 +7,7 @@ import { Modal } from '../../components/Modal';
 import { SymbolPicker } from '../../components/SymbolPicker';
 import type { ScheduleStep } from '../../types';
 import { uid } from '../../lib/util';
-import { t } from '../../i18n';
+import { t, ts } from '../../i18n';
 
 /** Visual schedule: steps with pictures, Now / Next, tap to mark done. */
 export function ScheduleTool() {
@@ -83,7 +83,7 @@ export function ScheduleTool() {
             </button>
             <button className="iconbtn check" data-scan-item aria-label={st.done ? 'Mark not done' : 'Mark done'} onClick={() => {
               mutate((steps) => { steps[i].done = !steps[i].done; });
-              if (!st.done) speakText(t('{v0}, finished!', { v0: st.label }));
+              if (!st.done) speakText(ts('{v0}, finished!', { v0: st.label }));
             }}>
               <IconCheck />
             </button>

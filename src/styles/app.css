@@ -712,3 +712,5 @@ small { font-size: 0.85em; }
 .calib-dot { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: var(--accent);
   box-shadow: 0 0 0 10px var(--accent-soft); animation: calibfill 1.7s linear forwards; }
 @keyframes calibfill { from { transform: scale(1.6); opacity: .5; } to { transform: scale(0.6); opacity: 1; } }
+.cell-label2 { flex: none; max-width: 100%; font-size: calc(clamp(10px, min(11cqw, 12cqh), 22px) * var(--font-scale)); line-height: 1; opacity: .75; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell:has(.cell-label2) .sym { height: 54cqh; max-height: 54cqh; }

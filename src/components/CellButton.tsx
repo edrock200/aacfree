@@ -4,6 +4,7 @@ import { buttonColor, textOn } from '../lib/colors';
 import { applyCase } from '../lib/sentence';
 import { usePress } from '../lib/usePress';
 import { Symbol } from './Symbol';
+import { secondWord } from '../lib/translate';
 import { IconEyeOff, IconPlus } from './Icons';
 import { t } from '../i18n';
 
@@ -60,6 +61,7 @@ export const CellButton = memo(function CellButton({
     style.borderColor = buttonColor(button.type, false, button.color);
   }
   const label = applyCase(button.label, s.textCase);
+  const label2 = s.secondLabel ? secondWord(button, s.language, s.secondLabel) : undefined;
   const isFolder = !!button.link;
 
   return (
@@ -82,6 +84,7 @@ export const CellButton = memo(function CellButton({
     >
       {button.symbol && <Symbol value={button.symbol} />}
       {(s.showLabels || !button.symbol) && <span className="cell-label">{label}</span>}
+      {label2 && s.showLabels && <span className="cell-label2" lang={s.secondLabel}>{applyCase(label2, s.textCase)}</span>}
       {masked && <span className="cell-badge" title={t('Hidden from the user')}><IconEyeOff size={16} /></span>}
       {button.audio && editMode && <span className="cell-badge left" title={t('Recorded voice')}>🎙</span>}
     </button>

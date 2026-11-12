@@ -311,6 +311,58 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.waitForTimeout(500);
 }
 
+// --- v0.4: language options and encrypted backups
+{
+  const before = await cells();
+  await unlock();
+  await page.click('.gu-tab:has-text("Display")');
+  const choice = (n) => page.locator('.gu-main .setting.choice').nth(n);
+  await choice(0).locator('button:has-text("Français")').click();
+  await page.click('.modal-foot .btn.primary');
+  await page.waitForTimeout(500);
+  await choice(1).locator('button:has-text("English")').click(); // app language stays English
+  await page.waitForTimeout(300);
+  check(await page.isVisible('.gu-tab:has-text("Display")'), 'app language can differ from the communication language');
+  await choice(2).locator('button:has-text("English")').click(); // second language on buttons
+  await page.click('.gu-nav-foot .btn.primary');
+  await page.waitForSelector('.grid');
+  const fr = await cells();
+  check(fr.length === before.length && fr.includes('je') && fr.includes('aller'), 'boards switch to French in place');
+  check((await page.$$eval('.cell-label2', (e) => e.map((x) => x.textContent))).includes('go'), 'second language shows under each word');
+  await page.click('.grid .cell[aria-label="je"]');
+  await page.click('.grid .cell[aria-label="aller"]');
+  check((await msgText()).endsWith('je vais'), 'French auto-conjugation (je + aller → vais)');
+  await page.click('.nav-bs'); await page.click('.nav-bs');
+  await unlock();
+  await page.click('.gu-tab:has-text("Display")');
+  await choice(2).locator('button').first().click(); // none
+  await choice(0).locator('button:has-text("English")').click();
+  await page.click('.modal-foot .btn.primary');
+  await page.waitForTimeout(500);
+  await choice(1).locator('button').first().click(); // app language: same
+  await page.click('.gu-nav-foot .btn.primary');
+  await page.waitForSelector('.grid');
+  check(JSON.stringify(await cells()) === JSON.stringify(before), 'French → English restores every word in place');
+
+  // encrypted backup round trip
+  await unlock();
+  await page.click('.gu-tab:has-text("Backup")');
+  await page.click('.setting:has-text("Lock backups with a passcode") .switch');
+  await page.fill('input[aria-label="Backup passcode"]', 'backup-pass-9');
+  await page.click('button:has-text("Save passcode")');
+  const [bf] = await Promise.all([page.waitForEvent('download'), page.click('text=Save backup file')]);
+  const encPath = await bf.path();
+  check((await import('node:fs')).readFileSync(encPath, 'utf8').includes('"kind":"encrypted-backup"'), 'backup file is encrypted when locking is on');
+  const [c3] = await Promise.all([page.waitForEvent('filechooser'), page.click('text=Restore from file…')]);
+  await c3.setFiles(encPath);
+  await page.fill('.modal input', 'backup-pass-9');
+  await page.click('.modal-foot button:has-text("Unlock")');
+  await page.click('.modal-foot button:has-text("Replace with backup")');
+  await page.waitForTimeout(600);
+  check(await page.isVisible('.gu-tab:has-text("Backup")'), 'encrypted backup restores with its passcode');
+  await page.click('.setting:has-text("Lock backups with a passcode") .switch');
+}
+
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();
 process.exit(failures || errors.length ? 1 : 0);

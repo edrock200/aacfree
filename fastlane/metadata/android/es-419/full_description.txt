@@ -1,6 +1,6 @@
 Caleb es una app de CAA (comunicación aumentativa y alternativa) gratuita y de código abierto para personas autistas y para las familias, docentes y terapeutas que las acompañan. Toca botones con pictogramas y palabras para armar una oración, y Caleb la dice en voz alta.
 
-En español y en inglés, con teclado con ñ y acentos y conjugación automática (yo + querer → quiero).
+En español, inglés, francés y portugués, con teclado con ñ y acentos y conjugación automática (yo + querer → quiero).
 
 Caleb se diseñó con lo que piden las personas autistas que usan CAA, sus familias y sus terapeutas: palabras que no cambian de lugar, "no" y "basta" siempre a mano, y privacidad.
 

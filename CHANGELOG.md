@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0 — 2026-11-12
+**Language options**
+- New languages: **Français** and **Português (Brasil)**, alongside English and Español. Each has full interface and board vocabulary, grammar (plurals, agreement, verb conjugation; French elision such as “j'aime”; Portuguese “gosto de”), a keyboard with accents (plus an AZERTY option), prediction, and voice.
+- Separate **app language** and **communication language**: a parent can use English menus while the person talks in another language. Anything spoken (tools, timer, body map) follows the communication language.
+- **Second language on buttons** for bilingual families and classrooms.
+- Language switches go through English, so any language ↔ any language round-trips exactly, and buttons never move.
+
+**Backup options**
+- Automatic backups **daily, weekly or monthly**, as dated files, with **how many copies to keep**.
+- **Android: keep a copy in Google Drive, OneDrive, Dropbox or on an SD card**, chosen once with the system file picker; Caleb updates it on every backup.
+- **Passcode-locked (encrypted) backups**: the passcode stays on the device; restoring asks for it.
+- Choose whether backups include **photos/recordings** and **message history**.
+- **Restore any automatic copy**, or open a backup from Drive or another app.
+
 ## 0.3.0 — 2026-11-12
 Roadmap release.
 - **Español:** full Spanish interface, about 785 translated board words, phrases and schedules, Spanish word forms

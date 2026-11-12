@@ -11,7 +11,7 @@ import { BodyTool } from './tools/BodyTool';
 import { ChoiceTool } from './tools/ChoiceTool';
 import { AboutMeTool } from './tools/AboutMeTool';
 import { DrawTool } from './tools/DrawTool';
-import { t } from '../i18n';
+import { t, ts } from '../i18n';
 
 type ToolId = 'schedule' | 'firstthen' | 'timer' | 'feelings' | 'pain' | 'body' | 'choice' | 'aboutme' | 'draw';
 
@@ -65,7 +65,7 @@ export function ToolsScreen() {
           <small>{t(x.desc)}</small>
         </button>
       ))}
-      <button className="tool-tile attention" onClick={() => { chime(); setTimeout(() => speakText(t('Excuse me! I want to say something.')), 700); }} data-scan-item aria-label={t('Get attention')}>
+      <button className="tool-tile attention" onClick={() => { chime(); setTimeout(() => speakText(ts('Excuse me! I want to say something.')), 700); }} data-scan-item aria-label={t('Get attention')}>
         <IconBell size={48} />
         <b>{t('Get attention')}</b>
         <small>{t('Chime + “Excuse me!”')}</small>

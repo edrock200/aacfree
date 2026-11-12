@@ -7,10 +7,9 @@ import { debounce, uid } from './lib/util';
 import { joinWords } from './lib/sentence';
 import { speak, stopSpeaking } from './lib/tts';
 import { applyEnding } from './lib/morphology';
-import { autoConjugate } from './lib/morphology-es';
-import { getLang, setLang } from './i18n';
+import { getLang, pack, setLangs, type Lang } from './i18n';
 import { translateProfile } from './lib/translate';
-import { t } from './i18n';
+import { t, ts } from './i18n';
 
 export const DATA_VERSION = 1;
 
@@ -57,7 +56,7 @@ interface Actions {
   replaceData: (data: AppData, reason?: string) => Promise<void>;
   completeOnboarding: (name: string, layout: LayoutId, patch?: Partial<Settings>) => void;
   /** Switch language: translates the boards in place (positions never change). */
-  setLanguage: (lang: 'en' | 'es') => void;
+  setLanguage: (lang: Lang) => void;
   addProfile: (name: string, layout: LayoutId) => void;
   switchProfile: (id: string) => void;
   deleteProfile: (id: string) => void;
@@ -333,11 +332,12 @@ export const useStore = create<Store>((set, get) => ({
       const tr = translateProfile(p, lang);
       Object.assign(p, tr);
     }, { undoable: true });
-    setLang(lang);
+    const ui = get().settings().uiLanguage;
+    setLangs(ui && ui !== 'auto' ? ui : lang, lang);
   },
 
   completeOnboarding(name, layout, patch = {}) {
-    const p = buildProfile(name, layout, (patch.language as 'en' | 'es') ?? 'en');
+    const p = buildProfile(name, layout, patch.language ?? 'en');
     p.settings = { ...p.settings, ...patch };
     const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary() };
     set({ data, boardStack: [p.rootId], message: [] });
@@ -414,9 +414,10 @@ export const useStore = create<Store>((set, get) => ({
     let text = b.speak ?? b.label;
     let base: string | undefined;
     // Spanish: conjugate a verb after a subject pronoun (yo + querer → quiero; yo + gustar → me gusta).
-    if (getLang() === 'es' && s.autoConjugate && b.type === 'verb' && !b.speakOnly) {
+    const conj = pack().autoConjugate;
+    if (conj && getLang() !== 'en' && s.autoConjugate && b.type === 'verb' && !b.speakOnly) {
       const prev = get().message.map((w) => w.text);
-      const c = autoConjugate(prev, text);
+      const c = conj(prev, text);
       if (c) {
         if (c.dropPrevious) set((st) => ({ message: st.message.slice(0, -c.dropPrevious) }));
         base = text;
@@ -563,7 +564,7 @@ if (typeof window !== 'undefined') {
     if (left === 0) {
       useStore.setState({ timer: { ...timer, left: 0, endAt: null } });
       import('./lib/feedback').then(({ alarm }) => alarm());
-      setTimeout(() => useStore.getState().speakText(t('Time is up! All done.')), 1800);
+      setTimeout(() => useStore.getState().speakText(ts('Time is up! All done.')), 1800);
     }
   }, 250);
 }

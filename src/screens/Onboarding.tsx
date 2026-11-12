@@ -5,7 +5,7 @@ import { listVoices, speak, type VoiceInfo } from '../lib/tts';
 import { DEFAULT_SETTINGS } from '../data/defaults';
 import { Capacitor } from '@capacitor/core';
 import type { LayoutId, Settings } from '../types';
-import { LANGUAGES, setLang, t } from '../i18n';
+import { LANGUAGES, PACKS, isLang, setLang, t, type Lang } from '../i18n';
 
 /** First-run setup: name, layout, voice, lock. Every step can be skipped. */
 export function Onboarding() {
@@ -17,14 +17,14 @@ export function Onboarding() {
   const [patch, setPatch] = useState<Partial<Settings>>({});
   const [style, setStyle] = useState<'playful' | 'clean'>('playful');
   const [starter, setStarter] = useState(false);
-  const [lang, setLangState] = useState<'en' | 'es'>(() => (navigator.language?.toLowerCase().startsWith('es') ? 'es' : 'en'));
+  const [lang, setLangState] = useState<Lang>(() => { const n = (navigator.language || 'en').slice(0, 2).toLowerCase(); return isLang(n) ? n : 'en'; });
   setLang(lang);
   const native = Capacitor.isNativePlatform();
 
   useEffect(() => { listVoices().then((v) => setVoices(v.filter((x) => x.lang.toLowerCase().startsWith(lang)).slice(0, 12))); }, [lang]);
 
   const finish = () => {
-    completeOnboarding(name.trim(), layout, { ...patch, style, language: lang, lang: patch.lang ?? (lang === 'es' ? 'es-US' : 'en-US') });
+    completeOnboarding(name.trim(), layout, { ...patch, style, language: lang, lang: patch.lang ?? PACKS[lang].voice });
     if (starter && layout !== 'big') {
       useStore.getState().updateProfile((pp) => {
         pp.boards[pp.rootId].cells.forEach((c) => { if (c && !c.link && !c.action && !STARTER_WORDS.includes(c.label.toLowerCase())) c.hidden = true; });

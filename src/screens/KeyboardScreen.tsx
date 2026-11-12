@@ -5,15 +5,8 @@ import { vocabularyWords } from '../lib/boards';
 import { usePress } from '../lib/usePress';
 import { IconBackspace } from '../components/Icons';
 import type { Settings } from '../types';
-import { t } from '../i18n';
+import { pack, t } from '../i18n';
 
-const QWERTY = ['qwertyuiop', 'asdfghjkl\'', 'zxcvbnm'];
-const ABC = ['abcdefghi', 'jklmnopqr', 'stuvwxyz\''];
-const NUMS = ['1234567890', '-/:;()$&@"', '.,?!\'#%+='];
-// Spanish: ñ on the home row, plus an accent row (á é í ó ú ü) and ¿ ¡ on the numbers page.
-const QWERTY_ES = ['áéíóúü', 'qwertyuiop', 'asdfghjklñ', 'zxcvbnm'];
-const ABC_ES = ['áéíóúü', 'abcdefghi', 'jklmnñopq', 'rstuvwxyz'];
-const NUMS_ES = ['1234567890', '-/:;()$&@"', '.,¿?¡!\'%+='];
 
 function Key({ label, onPress, s, className = '', aria }: { label: React.ReactNode; onPress: () => void; s: Settings; className?: string; aria?: string }) {
   const press = usePress({ onActivate: onPress, holdMs: s.holdMs, debounceMs: s.debounceMs, pressOnDown: s.pressOnDown });
@@ -33,8 +26,8 @@ export function KeyboardScreen() {
   const prev = message[message.length - 1]?.text;
   const suggestions = predict(draft, prev, { vocabulary: vocab, lexicon: s.learnWords ? p.lexicon : {}, history: s.learnWords ? p.history : [] });
 
-  const es = s.language === 'es';
-  const rows = mode === 'numbers' ? (es ? NUMS_ES : NUMS) : s.keyboardLayout === 'abc' ? (es ? ABC_ES : ABC) : es ? QWERTY_ES : QWERTY;
+  const kb = pack().keyboard;
+  const rows = mode === 'numbers' ? kb.nums : s.keyboardLayout === 'abc' ? kb.abc : s.keyboardLayout === 'azerty' && kb.azerty ? kb.azerty : kb.qwerty;
 
   const type = (ch: string) => {
     const c = shift ? ch.toUpperCase() : ch;
