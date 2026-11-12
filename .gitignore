@@ -13,3 +13,4 @@ android/keystore.properties
 android/signing/
 .idea
 dist-site
+public/vision/wasm

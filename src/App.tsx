@@ -18,6 +18,7 @@ import { Onboarding } from './screens/Onboarding';
 import { setPressFeedback } from './lib/usePress';
 import { click, setKeepAwake, vibrate } from './lib/feedback';
 import { useScanner } from './lib/useScanner';
+import { PointerLayer } from './components/PointerLayer';
 import { checkNativeLanguage, openTtsInstall, setTtsFailureHandler } from './lib/tts';
 import type { AACButton } from './types';
 
@@ -160,6 +161,7 @@ function Main() {
         />
       )}
       <TimerChip />
+      <PointerLayer s={s} active={screen !== 'grownup' && !editMode} />
       {toast && (
         <div className="toast" role="status">
           {toast}

@@ -37,6 +37,13 @@ export default defineConfig({
       workbox: {
         // Precache the app shell and every bundled symbol so Caleb works fully offline.
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        // The head/eye pointer runtime (~13 MB) is cached on first use instead of precached.
+        globIgnores: ['vision/**'],
+        runtimeCaching: [{
+          urlPattern: ({ url }) => url.pathname.includes('/vision/'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'caleb-vision', expiration: { maxEntries: 10 } },
+        }],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallbackDenylist: [/^\/landing/],
       },

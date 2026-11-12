@@ -4,6 +4,7 @@ import { listVoices, speak, type VoiceInfo } from '../../lib/tts';
 import { Capacitor } from '@capacitor/core';
 import { Choice, Section, Slider, Toggle } from './controls';
 import { WORD_COLORS } from '../../lib/colors';
+import { GazeCalibration } from '../../components/GazeCalibration';
 
 export function SpeechPanel() {
   const p = useProfile();
@@ -112,6 +113,7 @@ export function AccessPanel() {
         <Toggle label="Click sound" checked={s.clickSound} onChange={(clickSound) => updateSettings({ clickSound })} />
         <Toggle label="Vibrate" checked={s.haptics} onChange={(haptics) => updateSettings({ haptics })} />
       </Section>
+      <PointerSection />
       <Section title="Switch scanning" intro="For people who use a switch (or two). Bluetooth switches that act like a keyboard work: Space / Enter. Tapping the screen also works as a switch.">
         <Toggle label="Turn on scanning" checked={s.scanning} onChange={(scanning) => updateSettings({ scanning })} />
         <Choice label="Mode" value={s.scanMode} onChange={(scanMode) => updateSettings({ scanMode })}
@@ -149,6 +151,39 @@ function Pronunciations() {
         <button className="btn" disabled={!say.trim()} onClick={() => speak(say, s)}>Test</button>
         <button className="btn primary" disabled={!word.trim() || !say.trim()} onClick={() => { set({ ...map, [word.trim()]: say.trim() }); setWord(''); setSay(''); }}>Add</button>
       </div>
+    </Section>
+  );
+}
+
+function PointerSection() {
+  const s = useProfile().settings;
+  const { updateSettings } = useStore.getState();
+  const [calibrating, setCalibrating] = useState(false);
+  return (
+    <Section title="Eye gaze & head pointer" intro="Select by resting a pointer on a button (dwell). Use it with a mouse, a head-mouse or a hardware eye tracker, or let Caleb use the front camera. Camera images are processed on this device only and are never saved or sent. Touch always keeps working, so a grown-up can still tap.">
+      <Choice label="Pointer" value={s.pointer} onChange={(pointer) => updateSettings({ pointer })}
+        options={[
+          { value: 'off', label: 'Off' },
+          { value: 'dwell', label: 'Dwell (mouse / eye tracker)' },
+          { value: 'head', label: 'Head pointer (camera)' },
+          { value: 'eyes', label: 'Eye gaze (camera, experimental)' },
+        ]} />
+      <Slider label="Dwell time" hint="How long to rest on a button to select it." value={s.dwellMs} min={400} max={3000} step={100} onChange={(dwellMs) => updateSettings({ dwellMs })} format={(v) => `${(v / 1000).toFixed(1)} s`} />
+      {(s.pointer === 'head' || s.pointer === 'eyes') && (
+        <>
+          {s.pointer === 'head' && <Slider label="Sensitivity" hint="Higher = smaller head movements reach the edges." value={s.pointerSensitivity} min={1} max={10} onChange={(pointerSensitivity) => updateSettings({ pointerSensitivity })} />}
+          <Slider label="Smoothing" hint="Higher = steadier but slower pointer." value={s.pointerSmoothing} min={0} max={0.9} step={0.05} onChange={(pointerSmoothing) => updateSettings({ pointerSmoothing })} format={(v) => `${Math.round(v * 100)}%`} />
+          <Toggle label="Long blink selects" hint="Close both eyes for half a second to select what the pointer is on." checked={s.blinkSelect} onChange={(blinkSelect) => updateSettings({ blinkSelect })} />
+        </>
+      )}
+      {s.pointer === 'eyes' && (
+        <div className="row">
+          <button className="btn primary" onClick={() => setCalibrating(true)}>{s.gazeCalibration ? 'Re-calibrate eyes' : 'Calibrate eyes'}</button>
+          {!s.gazeCalibration && <span className="warn">Calibrate for best results.</span>}
+        </div>
+      )}
+      <p className="muted small">Tip: the pointer pauses in Grown-ups and in edit mode. With the head pointer, tap “Centre” (bottom left) while looking at the middle of the screen.</p>
+      {calibrating && <GazeCalibration onClose={() => setCalibrating(false)} />}
     </Section>
   );
 }

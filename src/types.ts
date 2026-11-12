@@ -154,6 +154,13 @@ export interface Settings {
   scanPattern: 'row-col' | 'linear';
   scanMs: number;
   scanSpeak: boolean;
+  // Head / eye pointer & dwell
+  pointer: 'off' | 'dwell' | 'head' | 'eyes';
+  dwellMs: number;
+  pointerSensitivity: number;
+  pointerSmoothing: number;
+  blinkSelect: boolean;
+  gazeCalibration?: number[][];
   // Keyboard
   keyboardLayout: 'qwerty' | 'abc';
   learnWords: boolean;
