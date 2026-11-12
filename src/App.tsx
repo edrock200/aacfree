@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { useStore, useProfile } from './store';
@@ -13,7 +13,6 @@ import { TalkScreen } from './screens/TalkScreen';
 import { KeyboardScreen } from './screens/KeyboardScreen';
 import { PhrasesScreen } from './screens/PhrasesScreen';
 import { ToolsScreen } from './screens/ToolsScreen';
-import { GrownUpScreen } from './screens/GrownUpScreen';
 import { Onboarding } from './screens/Onboarding';
 import { setPressFeedback } from './lib/usePress';
 import { click, setKeepAwake, vibrate } from './lib/feedback';
@@ -22,6 +21,9 @@ import { PointerLayer } from './components/PointerLayer';
 import { checkNativeLanguage, openTtsInstall, setTtsFailureHandler } from './lib/tts';
 import type { AACButton } from './types';
 import { setLangs, t } from './i18n';
+
+// Grown-up screens (settings, backup, OBF, sync, insights) load on first use; the chunk is precached offline.
+const GrownUpScreen = lazy(() => import('./screens/GrownUpScreen').then((m) => ({ default: m.GrownUpScreen })));
 
 export function App() {
   const loaded = useStore((s) => s.loaded);
@@ -146,7 +148,7 @@ function Main() {
         {screen === 'keyboard' && <KeyboardScreen />}
         {screen === 'phrases' && <PhrasesScreen />}
         {screen === 'tools' && <ToolsScreen />}
-        {screen === 'grownup' && <GrownUpScreen />}
+        {screen === 'grownup' && <Suspense fallback={<div className="grownup" aria-busy />}><GrownUpScreen /></Suspense>}
       </main>
       <NavBar onFind={() => setFinding(true)} />
       {formsFor && <MessageWordForms />}
