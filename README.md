@@ -88,7 +88,12 @@ For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 releas
 
 ## Roadmap / ideas
 - More languages (each is a pack in `src/i18n/packs.ts`: UI strings, vocabulary, words, grammar, keyboard)
-- Bilingual mode: show two languages on each button
+- **Sign mode** (key word signing): an optional setting that shows a short looping sign clip for each button.
+  1. Families record their own sign clips with the camera in the button editor, the same way voice recordings work now. This needs no licence and supports home signs and Makaton.
+  2. Add a pack format for downloadable sign sets, kept offline after download rather than bundled, because about 800 clips is around 80 MB.
+  3. Find a licensed set. Leads: ARASAAC's Spanish Sign Language (LSE) videos; ASL-LEX or ASL Signbank (videos need permission); Makaton (needs a licence); or paid recordings by a Deaf signer released under an open licence. Signs should be checked by Deaf signers.
+  - Show a still frame on each button and play the clip on press or in the message bar. Looping every cell at once is too heavy on cheap tablets and overwhelming for many users.
+  - Avoid AI or avatar signing.
 - Publish on Google Play (everything is prepared; it needs the owner's developer account; see docs/play-store.md)
 
 Suggestions are welcome. Open an issue.
