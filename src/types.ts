@@ -175,6 +175,8 @@ export interface Settings {
   pin?: string;
   // Data
   logging: boolean;
+  /** Weekly automatic backup file (Android: Documents/Caleb; web: a chosen folder). */
+  autoBackup: boolean;
 }
 
 export interface Profile {
@@ -193,6 +195,8 @@ export interface Profile {
   lexicon: Record<string, number>;
   history: { text: string; t: number }[];
   createdAt: number;
+  /** Last change (used to merge profiles when syncing between devices). */
+  updatedAt?: number;
 }
 
 export type LayoutId = 'big' | 'compact' | 'medium' | 'full';

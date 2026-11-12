@@ -9,6 +9,7 @@ import { buildProfile } from '../../data/defaults';
 import { formatDate } from '../../lib/util';
 import { Modal } from '../../components/Modal';
 import type { AppData } from '../../types';
+import { AutoBackupSection, SyncSection } from './SyncSection';
 import { t } from '../../i18n';
 
 export function BackupPanel() {
@@ -92,6 +93,8 @@ export function BackupPanel() {
           <button className="btn" disabled={busy} onClick={importAll}>{t('Restore from file…')}</button>
         </div>
       </Section>
+      <AutoBackupSection />
+      <SyncSection />
       <Section title={t('Automatic snapshots')} intro={t('Caleb keeps the last 15 versions on this device: one per day, plus one before every restore, layout change or import.')}>
         <button className="btn small" disabled={busy} onClick={snapshotNow}>{t('Take snapshot now')}</button>
         <ul className="snap-list">

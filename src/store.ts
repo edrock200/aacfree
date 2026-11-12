@@ -235,6 +235,12 @@ export const useStore = create<Store>((set, get) => ({
             const { referencedAssets } = await import('./lib/backup');
             await gcAssets(referencedAssets(useStore.getState().data), referencedAssets);
           }
+          // Weekly automatic backup file (if enabled and a destination exists).
+          const st = useStore.getState();
+          if (st.profile().settings.autoBackup) {
+            const { runAutoBackup } = await import('./lib/autobackup');
+            await runAutoBackup(st.data);
+          }
         } catch (e) {
           console.warn('Snapshot failed', e);
         }
@@ -261,6 +267,7 @@ export const useStore = create<Store>((set, get) => ({
     const current = get().profile();
     const next = opts.shallow ? { ...current } : structuredClone(current);
     fn(next);
+    next.updatedAt = Date.now();
     const profiles = data.profiles.map((p) => (p.id === current.id ? next : p));
     const newData = { ...data, profiles };
     const entry: UndoEntry = { profileId: current.id, boards: current.boards, quickBar: current.quickBar, rootId: current.rootId, layout: current.layout };

@@ -2,7 +2,7 @@
   "name": "caleb-aac",
   "private": true,
   "version": "0.2.0",
-  "description": "Caleb \u2014 a free, open-source AAC (augmentative & alternative communication) app for autistic people and their families.",
+  "description": "Caleb — a free, open-source AAC (augmentative & alternative communication) app for autistic people and their families.",
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "scripts": {
@@ -44,6 +44,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "fake-indexeddb": "^6.2.8",
     "sharp": "^0.35.5",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
