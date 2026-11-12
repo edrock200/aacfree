@@ -1,8 +1,19 @@
 /**
  * Spanish word forms: plurals, adjective gender/number and verb conjugation
- * (present, preterite, gerund, participle) for regular verbs and the most
- * common irregular ones. Used for the word-forms popover and for automatic
- * conjugation after a subject pronoun ("yo" + "querer" → "quiero").
+ * (present, preterite, gerund, participle). Used for the word-forms popover and
+ * for automatic conjugation after a subject pronoun ("yo" + "querer" → "quiero").
+ *
+ * Verbs are handled in layers, most specific first:
+ *  1. fully irregular verbs (IRREGULAR), and their prefixed compounds
+ *     (sostener ← tener, perseguir ← seguir, devolver ← volver…);
+ *  2. stem-changing verbs (STEM: e→ie, o→ue, u→ue, e→i), including the
+ *     -ir change in the preterite and gerund (sintió, durmiendo, pidió);
+ *  3. spelling rules: -ger/-gir → -jo, -guir → -go, -cer/-cir → -zco/-zo,
+ *     -uir → -uyo, -car/-gar/-zar → -qué/-gué/-cé, vowel stems → leyó/leyendo/leído,
+ *     stressed -iar/-uar (envío, continúo);
+ *  4. regular endings.
+ * Reflexive verbs ("vestirse", "lavarse los dientes") carry their pronoun in
+ * every form: me visto, me vestí, vistiéndome, voy a vestirme.
  */
 
 // Person index: 0 yo, 1 tú, 2 él/ella/usted, 3 nosotros, 4 ellos/ustedes
@@ -11,11 +22,14 @@ export const SUBJECTS: Record<string, number> = {
   ellos: 4, ellas: 4, ustedes: 4,
 };
 
+interface Irr { pres?: string[]; pret?: [string, string]; ger?: string; part?: string }
+
 /** Present tense (5 persons), preterite (yo, él), gerund, participle. */
-const IRREGULAR: Record<string, { pres?: string[]; pret?: [string, string]; ger?: string; part?: string }> = {
+const IRREGULAR: Record<string, Irr> = {
   ser: { pres: ['soy', 'eres', 'es', 'somos', 'son'], pret: ['fui', 'fue'] },
   estar: { pres: ['estoy', 'estás', 'está', 'estamos', 'están'], pret: ['estuve', 'estuvo'] },
   ir: { pres: ['voy', 'vas', 'va', 'vamos', 'van'], pret: ['fui', 'fue'], ger: 'yendo' },
+  haber: { pres: ['he', 'has', 'ha', 'hemos', 'han'], pret: ['hube', 'hubo'] },
   tener: { pres: ['tengo', 'tienes', 'tiene', 'tenemos', 'tienen'], pret: ['tuve', 'tuvo'] },
   querer: { pres: ['quiero', 'quieres', 'quiere', 'queremos', 'quieren'], pret: ['quise', 'quiso'] },
   poder: { pres: ['puedo', 'puedes', 'puede', 'podemos', 'pueden'], pret: ['pude', 'pudo'], ger: 'pudiendo' },
@@ -24,43 +38,58 @@ const IRREGULAR: Record<string, { pres?: string[]; pret?: [string, string]; ger?
   venir: { pres: ['vengo', 'vienes', 'viene', 'venimos', 'vienen'], pret: ['vine', 'vino'], ger: 'viniendo' },
   poner: { pres: ['pongo', 'pones', 'pone', 'ponemos', 'ponen'], pret: ['puse', 'puso'], part: 'puesto' },
   salir: { pres: ['salgo', 'sales', 'sale', 'salimos', 'salen'] },
+  valer: { pres: ['valgo', 'vales', 'vale', 'valemos', 'valen'] },
   ver: { pres: ['veo', 'ves', 've', 'vemos', 'ven'], pret: ['vi', 'vio'], part: 'visto' },
   dar: { pres: ['doy', 'das', 'da', 'damos', 'dan'], pret: ['di', 'dio'] },
   saber: { pres: ['sé', 'sabes', 'sabe', 'sabemos', 'saben'], pret: ['supe', 'supo'] },
-  jugar: { pres: ['juego', 'juegas', 'juega', 'jugamos', 'juegan'], pret: ['jugué', 'jugó'] },
-  dormir: { pres: ['duermo', 'duermes', 'duerme', 'dormimos', 'duermen'], pret: ['dormí', 'durmió'], ger: 'durmiendo' },
-  pedir: { pres: ['pido', 'pides', 'pide', 'pedimos', 'piden'], pret: ['pedí', 'pidió'], ger: 'pidiendo' },
-  sentir: { pres: ['siento', 'sientes', 'siente', 'sentimos', 'sienten'], pret: ['sentí', 'sintió'], ger: 'sintiendo' },
-  oír: { pres: ['oigo', 'oyes', 'oye', 'oímos', 'oyen'], pret: ['oí', 'oyó'], ger: 'oyendo', part: 'oído' },
-  traer: { pres: ['traigo', 'traes', 'trae', 'traemos', 'traen'], pret: ['traje', 'trajo'], ger: 'trayendo' },
-  conocer: { pres: ['conozco', 'conoces', 'conoce', 'conocemos', 'conocen'] },
-  empezar: { pres: ['empiezo', 'empiezas', 'empieza', 'empezamos', 'empiezan'], pret: ['empecé', 'empezó'] },
-  pensar: { pres: ['pienso', 'piensas', 'piensa', 'pensamos', 'piensan'] },
-  volver: { pres: ['vuelvo', 'vuelves', 'vuelve', 'volvemos', 'vuelven'], part: 'vuelto' },
-  encontrar: { pres: ['encuentro', 'encuentras', 'encuentra', 'encontramos', 'encuentran'] },
-  contar: { pres: ['cuento', 'cuentas', 'cuenta', 'contamos', 'cuentan'] },
-  mostrar: { pres: ['muestro', 'muestras', 'muestra', 'mostramos', 'muestran'] },
-  probar: { pres: ['pruebo', 'pruebas', 'prueba', 'probamos', 'prueban'] },
-  cerrar: { pres: ['cierro', 'cierras', 'cierra', 'cerramos', 'cierran'] },
-  sentar: { pres: ['siento', 'sientas', 'sienta', 'sentamos', 'sientan'] },
-  despertar: { pres: ['despierto', 'despiertas', 'despierta', 'despertamos', 'despiertan'] },
-  entender: { pres: ['entiendo', 'entiendes', 'entiende', 'entendemos', 'entienden'] },
-  perder: { pres: ['pierdo', 'pierdes', 'pierde', 'perdemos', 'pierden'] },
-  llover: { pres: ['llueve', 'llueve', 'llueve', 'llueve', 'llueve'] },
-  doler: { pres: ['duelo', 'dueles', 'duele', 'dolemos', 'duelen'] },
-  morir: { pres: ['muero', 'mueres', 'muere', 'morimos', 'mueren'], pret: ['morí', 'murió'], ger: 'muriendo', part: 'muerto' },
-  leer: { pret: ['leí', 'leyó'], ger: 'leyendo', part: 'leído' },
-  caer: { pres: ['caigo', 'caes', 'cae', 'caemos', 'caen'], pret: ['caí', 'cayó'], ger: 'cayendo', part: 'caído' },
+  caber: { pres: ['quepo', 'cabes', 'cabe', 'cabemos', 'caben'], pret: ['cupe', 'cupo'] },
+  andar: { pret: ['anduve', 'anduvo'] },
+  traer: { pres: ['traigo', 'traes', 'trae', 'traemos', 'traen'], pret: ['traje', 'trajo'] },
+  caer: { pres: ['caigo', 'caes', 'cae', 'caemos', 'caen'] },
+  oír: { pres: ['oigo', 'oyes', 'oye', 'oímos', 'oyen'] },
+  reír: { pres: ['río', 'ríes', 'ríe', 'reímos', 'ríen'], pret: ['reí', 'rio'], ger: 'riendo', part: 'reído' },
+  sonreír: { pres: ['sonrío', 'sonríes', 'sonríe', 'sonreímos', 'sonríen'], pret: ['sonreí', 'sonrió'], ger: 'sonriendo', part: 'sonreído' },
+  freír: { pres: ['frío', 'fríes', 'fríe', 'freímos', 'fríen'], pret: ['freí', 'frió'], ger: 'friendo', part: 'frito' },
+  oler: { pres: ['huelo', 'hueles', 'huele', 'olemos', 'huelen'] },
+  morir: { part: 'muerto' },
   escribir: { part: 'escrito' },
   abrir: { part: 'abierto' },
+  cubrir: { part: 'cubierto' },
   romper: { part: 'roto' },
-  buscar: { pret: ['busqué', 'buscó'] },
-  tocar: { pret: ['toqué', 'tocó'] },
-  sacar: { pret: ['saqué', 'sacó'] },
-  llegar: { pret: ['llegué', 'llegó'] },
-  pagar: { pret: ['pagué', 'pagó'] },
-  construir: { pres: ['construyo', 'construyes', 'construye', 'construimos', 'construyen'], pret: ['construí', 'construyó'], ger: 'construyendo' },
+  volver: { part: 'vuelto' },
+  resolver: { part: 'resuelto' },
+  imprimir: { part: 'impreso' },
+  mecer: { pres: ['mezo', 'meces', 'mece', 'mecemos', 'mecen'] },
+  cocer: { pres: ['cuezo', 'cueces', 'cuece', 'cocemos', 'cuecen'] },
+  llover: { pres: ['llueve', 'llueve', 'llueve', 'llueve', 'llueve'] },
+  nevar: { pres: ['nieva', 'nieva', 'nieva', 'nieva', 'nieva'] },
 };
+
+/** Stem-changing verbs (the vowel of the last stem syllable changes when stressed). */
+const STEM: Record<string, 'ie' | 'ue' | 'i'> = {
+  // e → ie
+  pensar: 'ie', cerrar: 'ie', empezar: 'ie', comenzar: 'ie', despertar: 'ie', sentar: 'ie', calentar: 'ie',
+  merendar: 'ie', recomendar: 'ie', regar: 'ie', fregar: 'ie', negar: 'ie', apretar: 'ie', confesar: 'ie',
+  entender: 'ie', perder: 'ie', encender: 'ie', defender: 'ie', atender: 'ie', querer: 'ie',
+  sentir: 'ie', preferir: 'ie', mentir: 'ie', divertir: 'ie', convertir: 'ie', hervir: 'ie', herir: 'ie', sugerir: 'ie', advertir: 'ie', invertir: 'ie', arrepentir: 'ie',
+  // o → ue (u → ue for jugar)
+  contar: 'ue', mostrar: 'ue', probar: 'ue', encontrar: 'ue', almorzar: 'ue', acostar: 'ue', recordar: 'ue',
+  costar: 'ue', soñar: 'ue', volar: 'ue', sonar: 'ue', colgar: 'ue', soltar: 'ue', rogar: 'ue', jugar: 'ue',
+  volver: 'ue', mover: 'ue', doler: 'ue', poder: 'ue', llover: 'ue', resolver: 'ue', torcer: 'ue', morder: 'ue',
+  dormir: 'ue', morir: 'ue',
+  // e → i
+  pedir: 'i', servir: 'i', vestir: 'i', repetir: 'i', seguir: 'i', medir: 'i', elegir: 'i', corregir: 'i', competir: 'i',
+};
+
+/** Roots whose prefixed compounds conjugate the same way (sostener, perseguir, devolver…). */
+const COMPOUND_ROOTS = ['tener', 'poner', 'venir', 'hacer', 'decir', 'traer', 'seguir', 'pedir', 'volver', 'mover',
+  'contar', 'probar', 'mostrar', 'cerrar', 'sentir', 'servir', 'vestir', 'coger', 'cubrir', 'escribir'];
+const PREFIXES = ['re', 'des', 'de', 'sos', 'man', 'ob', 'con', 'com', 'pro', 'pre', 'su', 'sub', 'dis', 'ex', 'im', 'in',
+  'en', 'a', 'per', 'entre', 'inter', 'contra', 'sobre', 'super', 'tras', 'ante', 'pos', 'pres', 'circun', 'de'];
+
+/** Stressed -iar/-uar verbs: envío, continúo. */
+const STRESSED_IU = new Set(['enviar', 'esquiar', 'confiar', 'enfriar', 'vaciar', 'guiar', 'criar', 'fiar', 'resfriar',
+  'continuar', 'actuar', 'graduar', 'evaluar', 'situar']);
 
 const strip = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 
@@ -68,38 +97,138 @@ export function isInfinitive(w: string) {
   return /^[a-záéíóúñü]*(ar|er|ir|ír)(se)?$/i.test(w.split(' ')[0]);
 }
 
-/** Conjugate an infinitive (first word only for multi-word verbs like "lavar manos"). */
-export function conjugate(verb: string, person: number): string {
-  const [head, ...rest] = verb.trim().split(' ');
-  const tail = rest.length ? ' ' + rest.join(' ') : '';
+interface Parsed { base: string; reflexive: boolean; tail: string }
+function parse(verb: string): Parsed {
+  const [head, ...rest] = verb.trim().split(/\s+/);
   const lower = head.toLowerCase();
-  const reflexive = /se$/.test(lower) && lower.length > 4;
-  const base = reflexive ? lower.slice(0, -2) : lower;
-  const irr = IRREGULAR[base];
-  let form: string;
-  if (irr?.pres) form = irr.pres[person];
-  else {
-    const stem = base.slice(0, -2);
-    const end = strip(base.slice(-2));
-    const table = end === 'ar' ? ['o', 'as', 'a', 'amos', 'an'] : end === 'er' ? ['o', 'es', 'e', 'emos', 'en'] : ['o', 'es', 'e', 'imos', 'en'];
-    form = stem + table[person];
-  }
-  if (reflexive) form = ['me', 'te', 'se', 'nos', 'se'][person] + ' ' + form;
-  return form + tail;
+  const reflexive = /(ar|er|ir|ír)se$/.test(lower);
+  return { base: reflexive ? lower.slice(0, -2) : lower, reflexive, tail: rest.length ? ' ' + rest.join(' ') : '' };
 }
 
-export function verbFormsEs(verb: string): string[] {
-  const [head, ...rest] = verb.trim().split(' ');
-  const tail = rest.length ? ' ' + rest.join(' ') : '';
-  const base = head.toLowerCase().replace(/se$/, '');
+/** Prefix + root, when `base` is a compound of a known irregular/stem-changing root. */
+function compound(base: string): { prefix: string; root: string } | null {
+  for (const root of COMPOUND_ROOTS) {
+    if (base.length <= root.length || !base.endsWith(root)) continue;
+    const prefix = base.slice(0, -root.length);
+    if (PREFIXES.includes(prefix)) return { prefix, root };
+  }
+  return null;
+}
+
+/** Change the last occurrence of `from` in the stem. */
+function changeLast(stem: string, from: string, to: string): string {
+  const i = stem.lastIndexOf(from);
+  return i < 0 ? stem : stem.slice(0, i) + to + stem.slice(i + from.length);
+}
+
+function stemChanged(stem: string, kind: 'ie' | 'ue' | 'i', base: string): string {
+  if (kind === 'ie') return changeLast(stem, 'e', 'ie');
+  if (kind === 'i') return changeLast(stem, 'e', 'i');
+  if (base === 'jugar') return changeLast(stem, 'u', 'ue');
+  return changeLast(stem, 'o', 'ue');
+}
+
+interface Paradigm { pres: string[]; pret: [string, string]; ger: string; part: string }
+
+/** Full paradigm of a (non-reflexive) infinitive. */
+function paradigm(base: string): Paradigm {
+  const c = IRREGULAR[base] || STEM[base] ? null : compound(base);
+  if (c) {
+    const r = paradigm(c.root);
+    const pre = (s: string) => c.prefix + s;
+    return { pres: r.pres.map(pre), pret: [pre(r.pret[0]), pre(r.pret[1])], ger: pre(r.ger), part: pre(r.part) };
+  }
   const irr = IRREGULAR[base] ?? {};
   const stem = base.slice(0, -2);
-  const end = strip(base.slice(-2));
-  const pres = [0, 1, 2, 3, 4].map((p) => conjugate(head, p) + tail);
-  const pret = irr.pret ?? (end === 'ar' ? [stem + 'é', stem + 'ó'] : [stem + 'í', stem + 'ió']);
-  const ger = irr.ger ?? stem + (end === 'ar' ? 'ando' : 'iendo');
-  const part = irr.part ?? stem + (end === 'ar' ? 'ado' : 'ido');
-  return [...pres, pret[0] + tail, pret[1] + tail, ger + tail, part + tail, 'voy a ' + verb];
+  const end = strip(base.slice(-2)) as 'ar' | 'er' | 'ir';
+  const kind = STEM[base];
+
+  // Present
+  let pres: string[];
+  if (irr.pres) pres = irr.pres;
+  else {
+    const endings = end === 'ar' ? ['o', 'as', 'a', 'amos', 'an'] : end === 'er' ? ['o', 'es', 'e', 'emos', 'en'] : ['o', 'es', 'e', 'imos', 'en'];
+    pres = endings.map((e, p) => {
+      let s = stem;
+      if (p !== 3) {
+        if (kind) s = stemChanged(s, kind, base);
+        else if (STRESSED_IU.has(base)) s = s.replace(/([iu])$/, (m) => (m === 'i' ? 'í' : 'ú'));
+        else if (end === 'ir' && /[^gq]u$/.test(s)) s += 'y'; // construir → construyo
+      }
+      if (p === 0) {
+        if (end !== 'ar' && /g$/.test(s)) s = s.slice(0, -1) + 'j'; // escoger → escojo
+        else if (end === 'ir' && /gu$/.test(s)) s = s.slice(0, -1); // seguir → sigo
+        else if (end !== 'ar' && /c$/.test(s)) s = s.slice(0, -1) + (/[aeiou]c$/.test(s) ? 'zc' : 'z'); // conocer → conozco, vencer → venzo
+      }
+      return s + e;
+    });
+  }
+
+  // Preterite (yo, él)
+  let pret: [string, string];
+  if (irr.pret) pret = irr.pret;
+  else if (end === 'ar') {
+    const yo = /c$/.test(stem) ? stem.slice(0, -1) + 'qu' : /g$/.test(stem) ? stem + 'u' : /z$/.test(stem) ? stem.slice(0, -1) + 'c' : /gu$/.test(stem) ? stem.slice(0, -1) + 'ü' : stem;
+    pret = [yo + 'é', stem + 'ó'];
+  } else if (/duc$/.test(stem)) {
+    pret = [stem.slice(0, -1) + 'je', stem.slice(0, -1) + 'jo']; // conducir → conduje
+  } else {
+    let s3 = stem;
+    if (end === 'ir' && kind) s3 = kind === 'ue' ? changeLast(stem, 'o', 'u') : changeLast(stem, 'e', 'i');
+    const vowelStem = /[aeiou]$/.test(stem) && !/[gq]u$/.test(stem);
+    pret = [stem + 'í', vowelStem ? stem + 'yó' : s3 + 'ió'];
+  }
+
+  // Gerund
+  let ger: string;
+  if (irr.ger) ger = irr.ger;
+  else if (end === 'ar') ger = stem + 'ando';
+  else if (/[aeiou]$/.test(stem) && !/[gq]u$/.test(stem)) ger = stem + 'yendo';
+  else {
+    let s = stem;
+    if (end === 'ir' && kind) s = kind === 'ue' ? changeLast(stem, 'o', 'u') : changeLast(stem, 'e', 'i');
+    ger = s + 'iendo';
+  }
+
+  // Participle
+  const part = irr.part ?? (end === 'ar' ? stem + 'ado' : /[aeo]$/.test(stem) ? stem + 'ído' : stem + 'ido');
+  return { pres, pret, ger, part };
+}
+
+const PRON = ['me', 'te', 'se', 'nos', 'se'];
+
+/** Put the stress accent on a gerund before attaching a pronoun: vistiendo → vistiéndo(me). */
+const stressGerund = (g: string) => g.replace(/([ae])(ndo)$/, (_, v, n) => (v === 'a' ? 'á' : 'é') + n);
+/** Infinitive with a first-person pronoun: vestirse → vestirme. */
+const withMe = (base: string) => base + 'me';
+
+/** Conjugate an infinitive in the present (first word only for multi-word verbs like "lavar manos"). */
+export function conjugate(verb: string, person: number): string {
+  const { base, reflexive, tail } = parse(verb);
+  const form = paradigm(base).pres[person];
+  return (reflexive ? PRON[person] + ' ' : '') + form + tail;
+}
+
+/**
+ * Forms for the word-forms popover, in a fixed order:
+ * [yo, tú, él, nosotros, ellos, pret yo, pret él, gerund, participle, "voy a …"].
+ * Empty strings mark forms that don't make sense for this verb.
+ */
+export function verbFormsEs(verb: string): string[] {
+  const { base, reflexive, tail } = parse(verb);
+  const f = paradigm(base);
+  const pres = f.pres.map((x, p) => (reflexive ? PRON[p] + ' ' : '') + x + tail);
+  if (!reflexive) {
+    return [...pres, f.pret[0] + tail, f.pret[1] + tail, f.ger + tail, f.part + tail, 'voy a ' + verb.trim()];
+  }
+  return [
+    ...pres,
+    'me ' + f.pret[0] + tail,
+    'se ' + f.pret[1] + tail,
+    stressGerund(f.ger) + 'me' + tail,
+    tail ? '' : f.part, // "sentado", "vestido"; skipped for "lavarse los dientes"
+    'voy a ' + withMe(base) + tail,
+  ];
 }
 
 export function pluralEs(noun: string): string {
@@ -136,7 +265,6 @@ export function formsForEs(word: string, type?: string): string[] {
 /**
  * Auto-conjugation: if the message ends with a subject pronoun (optionally
  * followed by "no"), conjugate the new infinitive to match.
- * Returns { replacePronoun, text } or null.
  */
 export function autoConjugate(prev: string[], verb: string): { text: string; dropPrevious: number } | null {
   if (!isInfinitive(verb)) return null;

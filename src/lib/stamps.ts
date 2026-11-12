@@ -451,6 +451,8 @@ class Recorder {
     if (present) { this.stamps![k] = this.s; delete this.tombs![k]; } else { this.tombs![k] = this.s; delete this.stamps![k]; }
   }
   tomb(k: string, s = this.s) { this.copy(); this.changed = true; this.tombs![k] = s; }
+  hasTomb(k: string) { const t = this.tombs ?? this.base.tombstones; return Object.hasOwn(t, k) ? t[k] : undefined; }
+  untomb(k: string) { if (!this.hasTomb(k)) return; this.copy(); this.changed = true; delete this.tombs![k]; }
   result(extra?: Partial<SyncInfo>): SyncInfo {
     if (!this.changed && !extra) return this.base;
     const seen = this.changed ? { ...this.base.seen, [this.s.d]: Math.max(this.base.seen?.[this.s.d] ?? 0, this.s.t) } : this.base.seen;
@@ -518,6 +520,14 @@ export function stampProfile(prev: Profile, next: Profile, s: SyncStamp, opts: {
 
 /** History rows a grown-up removed (not the ones that fell off the end) become tombstones. */
 function historyTombs(prev: Profile['history'], next: Profile['history'], rec: Recorder) {
+  // Rows put back (Undo right after clearing or removing) lose their tombstones again.
+  const had = new Set(prev.map((h) => `${h.t}\u0000${h.text}`));
+  const cut = rec.hasTomb('h:*');
+  for (const h of next) {
+    if (had.has(`${h.t}\u0000${h.text}`)) continue;
+    rec.untomb(`h:${h.t}`);
+    if (cut && h.t <= cut.t) rec.untomb('h:*');
+  }
   if (!prev.length) return;
   if (!next.length) { rec.tomb('h:*'); return; }
   const keep = new Set(next.map((h) => `${h.t}\u0000${h.text}`));

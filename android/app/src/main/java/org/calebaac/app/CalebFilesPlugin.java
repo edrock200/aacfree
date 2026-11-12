@@ -68,21 +68,75 @@ public class CalebFilesPlugin extends Plugin {
         call.resolve(ret);
     }
 
-    /** Overwrites the document with UTF-8 text. */
+    /**
+     * Overwrites the document with UTF-8 `text` (or base64 `data`).
+     *
+     * Large backups arrive in chunks so no single bridge message is huge:
+     * part "begin" / "append" collect base64 `data` in a private temp file, and
+     * part "commit" copies that file into the document in one go. The document is
+     * therefore only opened (and truncated) once everything has arrived. Every
+     * write is read back and rejected unless all bytes are there. Resolves { bytes }.
+     */
     @PluginMethod
     public void writeDocument(PluginCall call) {
         String uriStr = call.getString("uri");
-        String text = call.getString("text", "");
         if (uriStr == null) { call.reject("uri is required"); return; }
-        try (OutputStream out = getContext().getContentResolver().openOutputStream(Uri.parse(uriStr), "wt")) {
-            if (out == null) throw new Exception("Could not open the file");
-            out.write(text.getBytes(StandardCharsets.UTF_8));
-            out.flush();
-            call.resolve();
+        String part = call.getString("part");
+        String data = call.getString("data");
+        java.io.File tmp = new java.io.File(getContext().getCacheDir(), "caleb-cloud-backup.part");
+        try {
+            byte[] bytes = data != null
+                ? android.util.Base64.decode(data, android.util.Base64.DEFAULT)
+                : call.getString("text", "").getBytes(StandardCharsets.UTF_8);
+            if ("begin".equals(part) || "append".equals(part)) {
+                try (OutputStream out = new java.io.FileOutputStream(tmp, "append".equals(part))) {
+                    out.write(bytes);
+                }
+                call.resolve();
+                return;
+            }
+            Uri uri = Uri.parse(uriStr);
+            long expected;
+            if ("commit".equals(part)) {
+                if (!tmp.exists()) throw new Exception("nothing to commit");
+                if (bytes.length > 0) {
+                    try (OutputStream out = new java.io.FileOutputStream(tmp, true)) { out.write(bytes); }
+                }
+                expected = tmp.length();
+                try (InputStream in = new java.io.FileInputStream(tmp);
+                     OutputStream out = getContext().getContentResolver().openOutputStream(uri, "wt")) {
+                    if (out == null) throw new Exception("Could not open the file");
+                    byte[] chunk = new byte[65536];
+                    int n;
+                    while ((n = in.read(chunk)) > 0) out.write(chunk, 0, n);
+                    out.flush();
+                }
+            } else {
+                expected = bytes.length;
+                try (OutputStream out = getContext().getContentResolver().openOutputStream(uri, "wt")) {
+                    if (out == null) throw new Exception("Could not open the file");
+                    out.write(bytes);
+                    out.flush();
+                }
+            }
+            // Read it back: an interrupted or cut-short write must not pass as a backup.
+            long written = 0;
+            try (InputStream in = getContext().getContentResolver().openInputStream(uri)) {
+                if (in == null) throw new Exception("Could not check the file");
+                byte[] chunk = new byte[65536];
+                int n;
+                while ((n = in.read(chunk)) > 0) written += n;
+            }
+            if (written != expected) throw new Exception("verify failed: wrote " + written + " of " + expected + " bytes");
+            JSObject ret = new JSObject();
+            ret.put("bytes", written);
+            call.resolve(ret);
         } catch (SecurityException e) {
             call.reject("permission", e);
         } catch (Exception e) {
             call.reject(e.getMessage() != null ? e.getMessage() : "write failed", e);
+        } finally {
+            if ("commit".equals(part)) tmp.delete();
         }
     }
 

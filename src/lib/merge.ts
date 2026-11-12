@@ -218,11 +218,14 @@ const histKey = (h: { t: number; text: string }) => `${h.t}\u0000${h.text}`;
 
 function mergeHistory(x: Profile['history'], y: Profile['history'], tombs: Record<string, SyncStamp>): Profile['history'] {
   const cut = tombs['h:*']?.t ?? -Infinity;
-  const all = new Map<string, { text: string; t: number }>();
+  const all = new Map<string, Profile['history'][number]>();
   for (const h of [...(x ?? []), ...(y ?? [])]) {
     if (!h || typeof h.text !== 'string' || typeof h.t !== 'number') continue;
     if (h.t <= cut || Object.hasOwn(tombs, `h:${h.t}`)) continue;
-    all.set(histKey(h), { text: h.text, t: h.t });
+    const k = histKey(h);
+    const cur = all.get(k);
+    // The same sentence on both sides: keep one copy, chosen the same way whichever side merges.
+    if (!cur || canon(h) < canon(cur)) all.set(k, h);
   }
   const out = [...all.values()].sort((p, q) => q.t - p.t || (p.text < q.text ? -1 : p.text > q.text ? 1 : 0)).slice(0, HISTORY_CAP);
   if (out.length >= HISTORY_CAP) {

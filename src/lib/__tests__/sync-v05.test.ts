@@ -320,6 +320,21 @@ describe('change-by-change merge', () => {
     expect(Object.keys(a.data.profiles[0].lexicon)).toEqual(['five']);
   });
 
+  it('undo right after "clear recent" keeps the sentences on every device', () => {
+    const a = mk('devA', base);
+    speak(a, 'hello there');
+    speak(a, 'all done');
+    const b = mk('devB', a.data);
+    const kept = a.data.profiles[0].history;
+    edit(a, (p) => { p.history = []; });
+    edit(a, (p) => { p.history = kept; }); // Undo
+    pull(b, a.data);
+    expect(b.data.profiles[0].history.map((h) => h.text)).toEqual(['all done', 'hello there']);
+    edit(a, (p) => { p.history = []; }); // cleared for real this time
+    pull(b, a.data);
+    expect(b.data.profiles[0].history).toEqual([]);
+  });
+
   it('profile deletion propagates, but a manual file holding only some profiles deletes nothing', () => {
     const a = mk('devA', base);
     on(a, () => { const p2 = buildProfile('Ava', 'big'); a.data = stampData(a.data, { ...a.data, profiles: [...a.data.profiles, p2] }); });

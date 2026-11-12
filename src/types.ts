@@ -96,6 +96,8 @@ export interface Schedule {
   id: string;
   name: string;
   steps: ScheduleStep[];
+  /** Local date (YYYY-MM-DD) a step was last ticked; ticks reset when the date changes. */
+  tickedOn?: string;
 }
 
 export interface AboutMe {
@@ -134,6 +136,10 @@ export interface Settings {
   speakFolders: boolean;
   clearAfterSpeak: boolean;
   returnHome: boolean;
+  /** "Show, don't speak": messages open in Big text instead of being spoken (the person's own choice). */
+  showNotSpeak: boolean;
+  /** Recent sentences: kept ('on'), kept until Caleb restarts ('session') or not kept ('off'). */
+  keepRecent: 'on' | 'session' | 'off';
   // Display
   theme: Theme;
   style: Style;
@@ -152,6 +158,8 @@ export interface Settings {
   showKeyboardNav: boolean;
   showPhrasesNav: boolean;
   showToolsNav: boolean;
+  /** Tools a grown-up has hidden from the Tools menu (tool ids). About me also follows `aboutMe.enabled`. */
+  hiddenTools: string[];
   // Touch accommodations
   holdMs: number;
   debounceMs: number;
@@ -166,12 +174,32 @@ export interface Settings {
   scanPattern: 'row-col' | 'linear';
   scanMs: number;
   scanSpeak: boolean;
+  /** Switch acceptance time: the switch must stay down this long to count (ms, 0 = at once). */
+  scanAcceptMs: number;
+  /** After a selection, ignore the switch for this long (ms). */
+  scanLockoutMs: number;
+  /** Extra time on the first item when scanning starts or enters a row (ms). */
+  scanFirstMs: number;
+  /** Auto scanning pauses after this many passes with no press (0 = never). */
+  scanLoops: number;
+  /** Add a "leave row" step at the end of each row. */
+  scanLeaveRow: boolean;
+  /** Speak scan cues in a different (softer, higher) voice from the person's own. */
+  scanCueVoice: boolean;
+  /** Keys a grown-up assigned to the switches ('' = the defaults). Stored as KeyboardEvent.key or .code. */
+  scanKeySelect: string;
+  scanKeyNext: string;
+  /** Scan / dwell highlight colour ('' = theme default; hex only) and thickness in px. */
+  highlightColor: string;
+  highlightWidth: number;
   // Head / eye pointer & dwell
   pointer: 'off' | 'dwell' | 'head' | 'eyes';
   dwellMs: number;
   pointerSensitivity: number;
   pointerSmoothing: number;
   blinkSelect: boolean;
+  /** Show a "Rest" button that pauses dwell selection (and can itself be dwelled on). */
+  dwellRest: boolean;
   gazeCalibration?: number[][];
   // Keyboard
   keyboardLayout: 'qwerty' | 'abc' | 'azerty';
@@ -181,8 +209,14 @@ export interface Settings {
   // The grown-up lock and PIN are app-wide since v0.5: see AppData.grownUpLock.
   // Data
   logging: boolean;
-  /** Weekly automatic backup file (Android: Documents/Caleb; web: a chosen folder). */
-  autoBackup: boolean;
+}
+
+/** A recently spoken sentence (Phrases → Recent). */
+export interface HistoryEntry {
+  /** Stable id (filled in on load for older saves). */
+  id?: string;
+  text: string;
+  t: number;
 }
 
 export interface Profile {
@@ -199,7 +233,7 @@ export interface Profile {
   settings: Settings;
   /** Learned words for keyboard prediction (word → count). */
   lexicon: Record<string, number>;
-  history: { text: string; t: number }[];
+  history: HistoryEntry[];
   createdAt: number;
   /** Last change of any kind (v0.4 sync compared this; v0.5 merges item by item with `sync`). */
   updatedAt?: number;

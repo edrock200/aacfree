@@ -5,7 +5,7 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './styles/app.css';
 import { App } from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { useStore } from './store';
+import { blockSaves, updateCanReload, useStore } from './store';
 import { registerSW } from 'virtual:pwa-register';
 import { Capacitor } from '@capacitor/core';
 
@@ -18,8 +18,8 @@ if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
     onNeedRefresh() { pending = true; },
   });
   document.addEventListener('visibilitychange', () => {
-    const st = useStore.getState();
-    if (pending && document.visibilityState === 'hidden' && !st.message.length && !st.draft && !st.editMode) {
+    const dialogOpen = !!document.querySelector('.modal-root, .bigtext');
+    if (pending && document.visibilityState === 'hidden' && updateCanReload(useStore.getState(), dialogOpen)) {
       pending = false;
       updateSW(true);
     }
@@ -29,7 +29,8 @@ if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
 useStore.getState().init().catch((e) => {
   // Talking must never be blocked: fall through to a usable app.
   console.error('init failed', e);
-  useStore.setState({ loaded: true });
+  blockSaves(); // the data in memory is a placeholder: never let it overwrite what is stored
+  useStore.setState({ loaded: true, loadProblem: 'storage' });
 });
 
 createRoot(document.getElementById('root')!).render(

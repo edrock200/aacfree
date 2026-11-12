@@ -137,9 +137,9 @@ export const PACKS: Record<Lang, LangPack> = {
     words: FR_COMMON_WORDS, bigrams: FR_BIGRAMS,
     starters: ['je', 'veux', 'encore', 'non', 'oui', 'quoi', 'tu', 'mon', 'il', 'est'],
     keyboard: {
-      qwerty: ['éèêàçùôî', 'qwertyuiop', "asdfghjkl'", 'zxcvbnm'],
-      azerty: ['éèêàçùôî', 'azertyuiop', 'qsdfghjklm', "wxcvbn'"],
-      abc: ['éèêàçùôî', 'abcdefghi', 'jklmnopqr', "stuvwxyz'"],
+      qwerty: ['éèêëàâçîïôûùœ', 'qwertyuiop', "asdfghjkl'", 'zxcvbnm'],
+      azerty: ['éèêëàâçîïôûùœ', 'azertyuiop', 'qsdfghjklm', "wxcvbn'"],
+      abc: ['éèêëàâçîïôûùœ', 'abcdefghi', 'jklmnopqr', "stuvwxyz'"],
       nums: ['1234567890', '-/:;()€&@"', ".,?!'«»%+"],
     },
     forms: formsForFr,

@@ -6,6 +6,7 @@ import { allAssetIds, getAsset, putAsset } from './db';
 import { blobToDataURL, dataURLToBlob } from './util';
 import { ITER, KDF, b64, seal, unseal, type Sealed } from './crypto';
 import { FILE_STRIP_SETTINGS, canon } from './stamps';
+import { withoutTransient } from './validate';
 
 export { mergeData, totalReceived, type MergeSummary, type SyncConflict } from './merge';
 
@@ -157,7 +158,9 @@ export function syncSubset(data: AppData, profileIds?: string[]): AppData {
     for (const k of FILE_STRIP_SETTINGS) delete settings[k];
     return { ...p, settings: settings as unknown as Profile['settings'] };
   };
-  const profiles = (profileIds ? data.profiles.filter((p) => profileIds.includes(p.id)) : data.profiles).map(strip);
+  // Recent sentences kept "for this session only" (or not at all) never leave the device.
+  const kept = withoutTransient(data);
+  const profiles = (profileIds ? kept.profiles.filter((p) => profileIds.includes(p.id)) : kept.profiles).map(strip);
   // The grown-up lock belongs to this device and never travels in a sync file.
   const { grownUpLock: _lock, ...rest } = data;
   void _lock;

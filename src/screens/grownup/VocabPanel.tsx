@@ -9,10 +9,9 @@ import { uid } from '../../lib/util';
 import type { LayoutId } from '../../types';
 import { IconEdit, IconPlus } from '../../components/Icons';
 import { NewCategoryDialog } from '../../components/NewCategoryDialog';
-import { t } from '../../i18n';
-
-/** Highest-value first words for beginners (Project Core / common first core words). */
-export const STARTER_WORDS = ['i', 'you', 'want', 'more', 'help', 'stop', 'go', 'like', 'not', 'all done', 'eat', 'drink', 'play', 'what', 'look', 'open', 'turn', 'different', 'get', 'it'];
+import { t, type Lang } from '../../i18n';
+import { addSnapshot } from '../../lib/db';
+import { applyStarterWords } from '../../lib/starter';
 
 export const LAYOUTS: { id: LayoutId; name: string; desc: string }[] = [
   { id: 'big', name: 'Big buttons · 12', desc: '4 × 3 grid. Beginners, or harder motor access.' },
@@ -45,11 +44,11 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
     const id = uid('board-');
     const cols = p.boards[p.rootId].cols;
     updateProfile((pp) => {
-      pp.boards[id] = { id, name: 'New board', cols, rows: 4, cells: Array(cols * 4).fill(null) };
+      pp.boards[id] = { id, name: t('New board'), cols, rows: 4, cells: Array(cols * 4).fill(null) };
       // Link it from the More board if there is room, else from home's first empty cell.
       const target = pp.boards.more ?? pp.boards[pp.rootId];
       const idx = target.cells.findIndex((c) => !c);
-      const btn = { id: uid('b'), label: 'New board', type: 'folder' as const, link: id };
+      const btn = { id: uid('b'), label: t('New board'), type: 'folder' as const, link: id };
       if (idx >= 0) target.cells[idx] = btn;
       else { target.rows += 1; target.cells.push(btn, ...Array(target.cols - 1).fill(null)); }
     }, { undoable: true });
@@ -57,16 +56,33 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
     editBoard(id);
   };
 
-  const applyLayout = (layout: LayoutId) => {
-    const fresh = buildProfile(p.name, layout);
+  const applyLayout = async (layout: LayoutId) => {
+    setConfirmLayout(null);
+    const before = useStore.getState().profile();
+    // Keep a snapshot first (the dialog promises one); never change the layout without it.
+    try { await addSnapshot(useStore.getState().data, 'Before changing layout'); } catch (e) {
+      showToast(t('Could not save a snapshot, so the layout was not changed.'));
+      console.warn('snapshot failed', e);
+      return;
+    }
+    // Built in the profile's own language, so a Spanish profile gets Spanish boards.
+    const fresh = buildProfile(before.name, layout, (before.settings.language ?? 'en') as Lang);
     updateProfile((pp) => {
       pp.layout = layout;
       pp.boards = fresh.boards;
       pp.rootId = fresh.rootId;
     }, { undoable: true });
     home();
-    setConfirmLayout(null);
-    showToast(t('Layout changed. Undo is available in edit mode.'));
+    showToast(t('Layout changed. A snapshot was saved first.'), {
+      label: 'Undo',
+      run: () => {
+        const st = useStore.getState();
+        // Normally the last undo step is this change; if not, put the old boards back directly.
+        if (st.undo[st.undo.length - 1]?.boards === before.boards) st.undoEdit();
+        else st.updateProfile((pp) => { pp.layout = before.layout; pp.boards = before.boards; pp.rootId = before.rootId; }, { undoable: true });
+        st.home();
+      },
+    });
   };
 
   return (
@@ -83,7 +99,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
               {b.symbol ? <Symbol value={b.symbol} /> : <span className="sym" />}
               <span className="grow">
                 <b>{b.name}</b>
-                <small>{b.cols}×{b.rows} · {b.cells.filter(Boolean).length} buttons{b.cells.some((c) => c?.hidden) ? ` · ${b.cells.filter((c) => c?.hidden).length} hidden` : ''}{!paths[b.id] ? ' · not linked' : ''}</small>
+                <small>{b.cols}×{b.rows} · {t('{n} buttons', { n: b.cells.filter(Boolean).length })}{b.cells.some((c) => c?.hidden) ? ` · ${t('{n} hidden', { n: b.cells.filter((c) => c?.hidden).length })}` : ''}{!paths[b.id] ? ` · ${t('not linked')}` : ''}</small>
               </span>
               <button className="btn small" onClick={() => editBoard(b.id)}>{t('Edit')}</button>
             </div>
@@ -93,10 +109,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
       <Section title={t('Grow vocabulary over time')} intro={t('AAC best practice: keep every word in its place and reveal more as the person is ready. Starter mode hides all but about 12 to 20 key words on Home, plus all folders. Nothing moves, and hidden words leave a gap. Reveal words one at a time in edit mode, or all at once here.')}>
         <div className="row">
           <button className="btn" onClick={() => {
-            updateProfile((pp) => {
-              const home = pp.boards[pp.rootId];
-              home.cells.forEach((c) => { if (c && !c.link && !c.action) c.hidden = !STARTER_WORDS.includes(c.label.toLowerCase()) || undefined; });
-            }, { undoable: true });
+            updateProfile((pp) => applyStarterWords(pp.boards[pp.rootId]), { undoable: true });
             showToast(t('Starter words only. Other words are hidden but keep their places.'));
           }}>{t('Starter words only')}</button>
           <button className="btn" onClick={() => {
@@ -104,7 +117,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
             showToast(t('All words are showing'));
           }}>{t('Show all words')}</button>
         </div>
-        <p className="muted small">{Object.values(p.boards).reduce((n, b) => n + b.cells.filter((c) => c?.hidden).length, 0)} word(s) hidden right now. Babble mode (Display) shows them temporarily.</p>
+        <p className="muted small">{t('Words hidden right now: {n}. Babble mode (Display) shows them for a while.', { n: Object.values(p.boards).reduce((n, b) => n + b.cells.filter((c) => c?.hidden).length, 0) })}</p>
       </Section>
       <Section title={t('Paper boards')} intro={t('Print a low-tech backup for bath time, the pool, a flat battery or a broken screen. It includes the quick bar on every page.')}>
         <button className="btn" onClick={() => setPrintSel([p.rootId, ...(p.boards[p.rootId]?.cells.filter((c) => c?.link).map((c) => c!.link!) ?? [])])}>{t('Print boards…')}</button>
@@ -125,7 +138,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
           options={[{ value: 'qwerty', label: 'QWERTY' }, { value: 'azerty', label: 'AZERTY' }, { value: 'abc', label: 'ABC' }]} />
         <Toggle label={t('Learn from what is typed and said')} hint={t("Improves word prediction using this person's own words. Stays on this device. Off by default.")} checked={s.learnWords} onChange={(learnWords) => updateSettings({ learnWords })} />
         {Object.keys(p.lexicon).length > 0 && (
-          <button className="btn small" onClick={() => updateProfile((pp) => { pp.lexicon = {}; })}>Forget learned words ({Object.keys(p.lexicon).length})</button>
+          <button className="btn small" onClick={() => updateProfile((pp) => { pp.lexicon = {}; })}>{t('Forget learned words ({n})', { n: Object.keys(p.lexicon).length })}</button>
         )}
       </Section>
       {newCat && <NewCategoryDialog parentBoardId={p.rootId} onClose={() => setNewCat(false)} onCreated={(id) => editBoard(id)} />}
@@ -135,7 +148,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
             <button className="btn primary" disabled={!printSel.length || printing} onClick={async () => {
               setPrinting(true);
               try { const { printBoards } = await import('../../lib/print'); showToast(await printBoards(p, boards.map((b) => b.id).filter((id) => printSel.includes(id)))); } finally { setPrinting(false); setPrintSel(null); }
-            }}>{printing ? 'Preparing…' : `Print ${printSel.length} board(s)`}</button></>}>
+            }}>{printing ? t('Preparing…') : t('Print boards: {n}', { n: printSel.length })}</button></>}>
           <div className="print-pick">
             {boards.map((b) => (
               <label key={b.id} className="check">

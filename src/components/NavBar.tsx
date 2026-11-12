@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
 import { useStore, useSettings, useLock, type Screen } from '../store';
 import { IconChat, IconEdit, IconKeyboard, IconLock, IconPerson, IconSearch, IconSettings, IconTools, IconUnlock } from './Icons';
 import { LockGate } from './LockGate';
@@ -14,7 +14,7 @@ export function NavBar({ onFind }: { onFind: () => void }) {
   const editMode = useStore((st) => st.editMode);
   const modeling = useStore((st) => st.modeling);
   const { setScreen, setUnlocked, setEditMode, lock, setTool, setModeling } = useStore.getState();
-  const [gate, setGate] = useState(false);
+  const [gate, setGate] = useState<false | 'auto' | 'math'>(false);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [holding, setHolding] = useState(false);
 
@@ -37,7 +37,7 @@ export function NavBar({ onFind }: { onFind: () => void }) {
         setHolding(false);
         if (s.scanning && s.lock === 'hold') openGrownUps();
         else if (s.lock === 'hold') openGrownUps();
-        else setGate(true);
+        else setGate('auto');
       }, HOLD_MS);
     }
   };
@@ -45,11 +45,14 @@ export function NavBar({ onFind }: { onFind: () => void }) {
     setHolding(false);
     if (holdTimer.current) clearTimeout(holdTimer.current);
   };
-  const lockClick = () => {
+  const lockClick = (e: MouseEvent) => {
     if (unlocked) return setScreen(screen === 'grownup' ? 'talk' : 'grownup');
     if (s.lock === 'none') return openGrownUps();
+    // Keyboard and screen-reader activation (detail 0) can't hold: ask the grown-up question instead.
+    // (Scanning and dwell never target this button: it is scan-exempt.)
+    if (e.detail === 0 && s.lock === 'hold') return setGate('math');
     if (s.lock === 'hold' || s.scanning) return; // handled by hold
-    setGate(true);
+    setGate('auto');
   };
 
   const pressOpts = { holdMs: s.holdMs, debounceMs: s.debounceMs, pressOnDown: s.pressOnDown };
@@ -71,22 +74,23 @@ export function NavBar({ onFind }: { onFind: () => void }) {
       )}
       <button className="navbtn" data-scan-item aria-label={t('Find a word')} {...fd}><IconSearch /><span>{t('Find')}</span></button>
       {(s.logging || s.learnWords) && (
-        <button className={`navbtn ${modeling ? 'on modeling' : ''}`} onClick={() => setModeling(!modeling)} aria-pressed={modeling}
+        <button className={`navbtn scan-exempt ${modeling ? 'on modeling' : ''}`} onClick={() => setModeling(!modeling)} aria-pressed={modeling}
           aria-label={t('Modelling mode: partner taps are not counted')} title={t("Modelling: your taps aren't counted as the user's")}>
           <IconPerson /><span>{t(modeling ? 'Modelling' : 'Model')}</span>
         </button>
       )}
       <span className="spacer" />
       {unlocked && (
-        <button className={`navbtn ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label={t('Edit boards')}><IconEdit /><span>{t(editMode ? 'Editing' : 'Edit')}</span></button>
+        // Grown-up controls stay tappable while scanning (scan-exempt).
+        <button className={`navbtn scan-exempt ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label={t('Edit boards')}><IconEdit /><span>{t(editMode ? 'Editing' : 'Edit')}</span></button>
       )}
       {unlocked && (
-        <button className="navbtn nav-lock" onClick={lock} aria-label={t('Lock')}><IconLock /><span>{t('Lock')}</span></button>
+        <button className="navbtn nav-lock scan-exempt" onClick={lock} aria-label={t('Lock')}><IconLock /><span>{t('Lock')}</span></button>
       )}
       <button
         className={`navbtn lockbtn scan-exempt ${holding ? 'holding' : ''} ${screen === 'grownup' ? 'on' : ''}`}
         style={{ ['--hold-ms' as string]: `${HOLD_MS}ms` }}
-        aria-label={unlocked ? 'Grown-up settings' : 'Grown-ups (hold)'}
+        aria-label={unlocked ? t('Grown-up settings') : t('Grown-ups (hold)')}
         onPointerDown={lockDown}
         onPointerUp={lockUp}
         onPointerLeave={lockUp}
@@ -97,7 +101,7 @@ export function NavBar({ onFind }: { onFind: () => void }) {
         {unlocked ? <IconSettings /> : <IconUnlock />}
         <span>{t(unlocked ? 'Grown-ups' : holding ? 'Keep holding…' : 'Grown-ups')}</span>
       </button>
-      {gate && <LockGate onClose={() => setGate(false)} onUnlock={() => { setGate(false); openGrownUps(); }} />}
+      {gate && <LockGate method={gate === 'math' ? 'math' : undefined} onClose={() => setGate(false)} onUnlock={() => { setGate(false); openGrownUps(); }} />}
     </nav>
   );
 }

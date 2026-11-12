@@ -1,6 +1,7 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { AACButton, Board, Cell, Settings } from '../types';
 import { CellButton } from './CellButton';
+import { PressButton } from './PressButton';
 import { t } from '../i18n';
 
 interface Props {
@@ -91,11 +92,13 @@ export const BoardGrid = memo(function BoardGrid({ board, settings: s, editMode,
       </div>
       {paged && (
         <div className="page-bar" data-scan-group style={{ height: PAGE_BAR - 8 }}>
-          <button className="btn page-btn" data-scan-item disabled={page === 0} onClick={() => setPage(page - 1)} aria-label={t('Previous page')}>{t('◀ Previous')}</button>
-          <span className="page-dots" aria-label={`Page ${page + 1} of ${pages}`}>
+          <PressButton className="btn page-btn" data-scan-item disabled={page === 0} onPress={() => setPage((pg) => Math.max(0, pg - 1))} aria-label={t('Previous page')}
+            touch={editMode ? { holdMs: 0, debounceMs: 0, pressOnDown: false } : undefined}>{t('◀ Previous')}</PressButton>
+          <span className="page-dots" role="img" aria-label={t('Page {n} of {total}', { n: page + 1, total: pages })}>
             {Array.from({ length: pages }, (_, k) => <i key={k} className={k === page ? 'on' : ''} />)}
           </span>
-          <button className="btn page-btn" data-scan-item disabled={page >= pages - 1} onClick={() => setPage(page + 1)} aria-label={t('Next page')}>{t('Next ▶')}</button>
+          <PressButton className="btn page-btn" data-scan-item disabled={page >= pages - 1} onPress={() => setPage((pg) => Math.min(pages - 1, pg + 1))} aria-label={t('Next page')}
+            touch={editMode ? { holdMs: 0, debounceMs: 0, pressOnDown: false } : undefined}>{t('Next ▶')}</PressButton>
         </div>
       )}
     </div>

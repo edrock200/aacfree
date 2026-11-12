@@ -3,6 +3,7 @@ import type { AppData } from '../types';
 import { applySyncedData, useStore } from '../store';
 import { addSnapshot, getMeta, setMeta } from './db';
 import { forgetKeys } from './crypto';
+import { blobToDataURL } from './util';
 import { getDeviceId, onContentChange } from './stamps';
 import {
   buildSyncText, mergeData, mergeDevices, openSyncFile, peekSyncFile, totalReceived,
@@ -46,7 +47,8 @@ export interface SyncLogEntry {
 interface CalebFilesPlugin {
   createDocument(o: { name: string }): Promise<{ uri: string; name: string }>;
   openDocument(): Promise<{ uri: string; name: string }>;
-  writeDocument(o: { uri: string; text: string }): Promise<void>;
+  /** With `part`, base64 chunks collect in a temp file; 'commit' copies it in one go and checks every byte. */
+  writeDocument(o: { uri: string; text?: string; data?: string; part?: 'begin' | 'append' | 'commit' }): Promise<{ bytes?: number }>;
   readDocument(o: { uri: string }): Promise<{ text: string }>;
 }
 let plugin: CalebFilesPlugin | null = null;
@@ -179,7 +181,7 @@ function ioFor(target: SyncTarget, interactive: boolean): FileIO {
   if (target.kind === 'android') {
     return {
       read: async () => (await files().readDocument({ uri: target.uri })).text ?? '',
-      write: async (text) => { await files().writeDocument({ uri: target.uri, text }); },
+      write: (text) => writeAndroid(target.uri, text),
     };
   }
   return {
@@ -191,6 +193,18 @@ function ioFor(target: SyncTarget, interactive: boolean): FileIO {
       await w.close();
     },
   };
+}
+
+/** Android: send the file over the bridge in pieces; the document is only replaced once all of it arrived. */
+async function writeAndroid(uri: string, text: string) {
+  const blob = new Blob([text]);
+  const CHUNK = 3 * 1024 * 1024; // a multiple of 3, so every base64 piece stands alone
+  for (let off = 0, first = true; off < Math.max(1, blob.size); off += CHUNK, first = false) {
+    const url = await blobToDataURL(blob.slice(off, off + CHUNK));
+    await files().writeDocument({ uri, data: url.slice(url.indexOf(',') + 1), part: first ? 'begin' : 'append' });
+  }
+  const r = await files().writeDocument({ uri, data: '', part: 'commit' });
+  if (typeof r?.bytes === 'number' && r.bytes !== blob.size) throw new SyncError('Couldn’t save the sync file. Caleb will try again.', 'verify');
 }
 
 const reach = async <T>(p: Promise<T>): Promise<T> => {
@@ -315,7 +329,8 @@ async function snapshotBeforeApplying(data: AppData, summary: MergeSummary) {
 async function doSync(interactive: boolean, source: SyncSource): Promise<SyncLogEntry | null> {
   const prefs = await getSyncPrefs();
   if (!prefs.enabled || !prefs.target) return null;
-  if (!useStore.getState().loaded) return null;
+  // Saved boards that couldn't be opened: the screen shows a placeholder, which must never reach the family's file.
+  if (!useStore.getState().loaded || useStore.getState().loadProblem) return null;
   if (!interactive && busyTalking()) { schedule(15_000); return null; }
   const passcode = await getPasscode();
   if (!passcode) { await setStatus({ error: 'Enter the sync passcode again.', lastTry: Date.now() }); return null; }
