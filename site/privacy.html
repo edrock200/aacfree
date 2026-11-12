@@ -54,6 +54,7 @@
         <li>No analytics, no tracking and no ads.</li>
         <li>Everything you create in Caleb is stored only on your device.</li>
         <li>We have no servers, so there is nowhere for your data to go.</li>
+        <li>Backups and sync go only to a place you choose, and can be locked with your own passcode.</li>
       </ul>
     </div>
 
@@ -83,6 +84,8 @@
       <p>Caleb works fully offline. It uses the internet only for:</p>
       <ul>
         <li><b>Online symbol search</b>, when you search for more pictures. Your search words are sent to ARASAAC (<code>api.arasaac.org</code>) and the pictures are downloaded from <code>static.arasaac.org</code>. Like any website, ARASAAC's servers can see your device's IP address. See <a href="https://arasaac.org">arasaac.org</a> for their policies.</li>
+        <li><b>Missing pictures.</b> Every built-in picture comes with the app. If a board uses an ARASAAC picture that isn't included (for example, boards imported from another AAC app), Caleb downloads that one picture from <code>static.arasaac.org</code> when it is shown. Only the picture's number is requested, nothing about the person. You can turn this off in Grown-ups → Lock → “Download missing pictures from ARASAAC”; the picture is then left blank.</li>
+        <li><b>Backups and sync to a cloud file you pick</b> (see below). Caleb writes only to the file you choose, through your device's own file picker.</li>
         <li><b>Text-to-speech voices.</b> Caleb speaks with the voices of your device's text-to-speech engine. If you choose an online voice, the engine (for example, Speech Services by Google) may send the text being spoken to its provider. That is controlled by the engine you have installed and its own privacy policy. Offline voices keep speech on the device.</li>
       </ul>
       <p>Caleb sends nothing else over the internet.</p>
@@ -92,7 +95,10 @@
       <h2>Backups, sync and sharing</h2>
       <ul>
         <li>Backup files, Open Board Format (<code>.obz</code>) exports, printed boards and CSV exports are created <b>only when you choose</b>, and you decide where they go.</li>
+        <li><b>Automatic backups</b>, if you turn them on, are saved to a folder on the device or to one file you pick (for example in Google Drive, OneDrive or Dropbox). You can lock them with a passcode, and you choose whether photos, recordings and message history are included.</li>
         <li>Sync files for moving boards between devices are created only when you choose, and are <b>encrypted with a passcode</b> you set.</li>
+        <li><b>Automatic sync</b>, if you turn it on, keeps devices in step through one file your family picks in a cloud drive. The data is always encrypted on the device with your family's passcode before it is written, and it goes only to that file. Caleb has no server and no account, so neither the developers nor anyone without the passcode can read it. The cloud provider's own policy applies to storing the encrypted file.</li>
+        <li>The grown-up PIN stays on the device. It is not put in unencrypted backups.</li>
         <li>When you share a message or a file, Android's share sheet hands it to the app you pick. That app's own privacy policy then applies.</li>
         <li><b>Android Auto Backup:</b> Android may include Caleb's data in your own Google account backup, as it does for most apps. That backup belongs to you and is managed by Google, not by Caleb. You can turn it off in Android Settings → Google → Backup.</li>
       </ul>

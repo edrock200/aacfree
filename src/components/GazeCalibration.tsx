@@ -22,7 +22,6 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
     });
     e.start();
     return () => { unsub(); e.stop(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -43,7 +42,6 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
       }
     }, 50);
     return () => clearInterval(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i]);
 
   const finish = () => {
