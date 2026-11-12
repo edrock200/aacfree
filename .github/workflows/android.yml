@@ -10,24 +10,29 @@ on:
         description: 'Publish a GitHub Release for the package.json version (creates the v<version> tag; main only)'
         type: boolean
         default: false
+      overwrite:
+        description: 'Replace the APKs of an existing release for this version (only with publish)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+# Third-party actions are pinned to commit SHAs (the tag is in the comment).
 jobs:
   apk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: 21
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
         with:
           # The default list includes the removed 'tools' package, which makes sdkmanager fail.
           packages: 'platform-tools build-tools;36.0.0'
@@ -36,16 +41,17 @@ jobs:
       - run: npm run build && npx cap sync android
       # Signing: add repository secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
       # ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD to build and sign here.
-      # Without them, a release tag publishes the committed release/caleb-latest.apk, but only if
-      # its version matches the tag and it is signed with Caleb's release key (pinned below).
+      # Pull requests never see the secrets and always build a debug-signed APK.
+      # Without the secrets, a release publishes the committed release/caleb-latest.apk, but only
+      # if its version matches and it is signed with Caleb's release key (pinned below).
       # Other runs produce a debug-signed APK.
       - name: Build APK
         working-directory: android
         env:
-          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KS_B64: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
+          KS_PASS: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEYSTORE_PASSWORD || '' }}
+          KEY_ALIAS: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEY_ALIAS || '' }}
+          KEY_PASS: ${{ github.event_name != 'pull_request' && secrets.ANDROID_KEY_PASSWORD || '' }}
           RELEASE_CERT_SHA256: 4158144afae7107a6a0c8f0480f1935000bd5009fa502d5d27fd1786f6543824
           PUBLISH: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
         run: |
@@ -61,11 +67,13 @@ jobs:
             echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $VERSION."
             exit 1
           fi
-          if [ -n "$KS_B64" ]; then
+          if [[ "$GITHUB_EVENT_NAME" != "pull_request" && -n "$KS_B64" ]]; then
             mkdir -p signing
+            umask 077
             echo "$KS_B64" | base64 -d > signing/release.jks
             printf 'storeFile=signing/release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' "$KS_PASS" "$KEY_ALIAS" "$KEY_PASS" > keystore.properties
             ./gradlew assembleRelease --no-daemon
+            rm -f signing/release.jks keystore.properties
             CERT=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
             if [ "$CERT" != "$RELEASE_CERT_SHA256" ]; then
               echo "::error::The keystore in ANDROID_KEYSTORE_BASE64 is not Caleb's release key. Its APKs could not update existing installs."
@@ -88,14 +96,23 @@ jobs:
             fi
             cp "$APK" "../$OUT"
           else
-            echo "::warning::No signing secrets set; building a debug-signed APK."
+            if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+              echo "Pull request: building a debug-signed APK."
+            else
+              echo "::warning::No signing secrets set; building a debug-signed APK."
+            fi
             ./gradlew assembleDebug --no-daemon
             cp app/build/outputs/apk/debug/app-debug.apk "../$OUT"
           fi
           # Same file under a fixed name, so the newest release is always at
           # https://github.com/<owner>/<repo>/releases/latest/download/caleb.apk
           cp "../$OUT" ../caleb.apk
-      - uses: actions/upload-artifact@v4
+      # Never leave key material on the runner, even when the build fails.
+      - name: Remove signing key
+        if: always()
+        working-directory: android
+        run: rm -f signing/release.jks keystore.properties && rm -rf signing
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: caleb-apk
           path: |
@@ -109,8 +126,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: caleb-apk
       - name: Release notes from CHANGELOG.md
@@ -135,13 +152,30 @@ jobs:
             echo "Web app: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/app/"
           } >> notes.md
           cat notes.md
-      - uses: softprops/action-gh-release@v2
+      # A published version is never silently replaced: people may already have installed it.
+      - name: Refuse to replace an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERWRITE: ${{ github.event_name == 'workflow_dispatch' && inputs.overwrite }}
+          TAG: v${{ steps.notes.outputs.version }}
+        run: |
+          if ASSETS=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length' 2>/dev/null); then
+            if [[ "$ASSETS" != "0" && "$OVERWRITE" != "true" ]]; then
+              echo "::error::Release $TAG already has $ASSETS file(s). Bump the version, or run the workflow with publish and overwrite to replace them."
+              exit 1
+            fi
+            echo "Release $TAG exists (assets: $ASSETS, overwrite: $OVERWRITE)."
+          else
+            echo "No release $TAG yet."
+          fi
+      - uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           tag_name: v${{ steps.notes.outputs.version }}
           target_commitish: ${{ github.sha }}
           name: Caleb v${{ steps.notes.outputs.version }}
           body_path: notes.md
           make_latest: true
+          overwrite_files: ${{ github.event_name == 'workflow_dispatch' && inputs.overwrite }}
           files: |
             caleb.apk
             caleb-v*.apk
