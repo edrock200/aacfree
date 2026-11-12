@@ -3,6 +3,7 @@ import { useStore, useSettings, type Screen } from '../store';
 import { IconChat, IconEdit, IconKeyboard, IconLock, IconPerson, IconSearch, IconSettings, IconTools, IconUnlock } from './Icons';
 import { LockGate } from './LockGate';
 import { usePress } from '../lib/usePress';
+import { t } from '../i18n';
 
 const HOLD_MS = 2000;
 
@@ -60,27 +61,27 @@ export function NavBar({ onFind }: { onFind: () => void }) {
   return (
     <nav className="navbar" data-scan-group>
       {s.showKeyboardNav && (
-        <button className={`navbtn ${screen === 'keyboard' ? 'on' : ''}`} data-scan-item aria-label="Keyboard" {...kb}><IconKeyboard /><span>Keyboard</span></button>
+        <button className={`navbtn ${screen === 'keyboard' ? 'on' : ''}`} data-scan-item aria-label={t('Keyboard')} {...kb}><IconKeyboard /><span>{t('Keyboard')}</span></button>
       )}
       {s.showPhrasesNav && (
-        <button className={`navbtn ${screen === 'phrases' ? 'on' : ''}`} data-scan-item aria-label="Phrases" {...ph}><IconChat /><span>Phrases</span></button>
+        <button className={`navbtn ${screen === 'phrases' ? 'on' : ''}`} data-scan-item aria-label={t('Phrases')} {...ph}><IconChat /><span>{t('Phrases')}</span></button>
       )}
       {s.showToolsNav && (
-        <button className={`navbtn ${screen === 'tools' ? 'on' : ''}`} data-scan-item aria-label="Tools" {...tl}><IconTools /><span>Tools</span></button>
+        <button className={`navbtn ${screen === 'tools' ? 'on' : ''}`} data-scan-item aria-label={t('Tools')} {...tl}><IconTools /><span>{t('Tools')}</span></button>
       )}
-      <button className="navbtn" data-scan-item aria-label="Find a word" {...fd}><IconSearch /><span>Find</span></button>
+      <button className="navbtn" data-scan-item aria-label={t('Find a word')} {...fd}><IconSearch /><span>{t('Find')}</span></button>
       {(s.logging || s.learnWords) && (
         <button className={`navbtn ${modeling ? 'on modeling' : ''}`} onClick={() => setModeling(!modeling)} aria-pressed={modeling}
-          aria-label="Modelling mode: partner taps are not counted" title="Modelling: your taps aren't counted as the user's">
+          aria-label={t('Modelling mode: partner taps are not counted')} title={t("Modelling: your taps aren't counted as the user's")}>
           <IconPerson /><span>{modeling ? 'Modelling' : 'Model'}</span>
         </button>
       )}
       <span className="spacer" />
       {unlocked && (
-        <button className={`navbtn ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label="Edit boards"><IconEdit /><span>{editMode ? 'Editing' : 'Edit'}</span></button>
+        <button className={`navbtn ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label={t('Edit boards')}><IconEdit /><span>{editMode ? 'Editing' : 'Edit'}</span></button>
       )}
       {unlocked && (
-        <button className="navbtn nav-lock" onClick={lock} aria-label="Lock"><IconLock /><span>Lock</span></button>
+        <button className="navbtn nav-lock" onClick={lock} aria-label={t('Lock')}><IconLock /><span>{t('Lock')}</span></button>
       )}
       <button
         className={`navbtn lockbtn scan-exempt ${holding ? 'holding' : ''} ${screen === 'grownup' ? 'on' : ''}`}

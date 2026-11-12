@@ -8,6 +8,7 @@ import { SymbolPicker } from './SymbolPicker';
 import { IconBack, IconEdit, IconPlus, IconSearch, IconTrash } from './Icons';
 import { uid } from '../lib/util';
 import { WORD_COLORS } from '../lib/colors';
+import { t } from '../i18n';
 
 interface Props {
   mode: 'pick' | 'manage';
@@ -38,7 +39,7 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
     <div className="library">
       <label className="search">
         <IconSearch size={20} />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search all pictures…" aria-label="Search pictures" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Search all pictures…')} aria-label={t('Search pictures')} />
       </label>
 
       {q.trim() ? (
@@ -51,14 +52,14 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
               </button>
             ))}
           </div>
-          {!results.length && <p className="muted">No matching pictures. Try different words, or the “Online” or “Photo” tab.</p>}
+          {!results.length && <p className="muted">{t('No matching pictures. Try different words, or the “Online” or “Photo” tab.')}</p>}
         </>
       ) : !open ? (
         <div className="lib-folders">
           {mode === 'manage' && (
             <button className="lib-folder add" onClick={() => setEditCat('new')}>
               <IconPlus size={40} />
-              <b>New category</b>
+              <b>{t('New category')}</b>
             </button>
           )}
           {cats.map((c) => (
@@ -72,14 +73,14 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
       ) : (
         <>
           <div className="lib-head">
-            <button className="btn small" onClick={() => setOpenId(null)}><IconBack size={18} /> All categories</button>
+            <button className="btn small" onClick={() => setOpenId(null)}><IconBack size={18} /> {t('All categories')}</button>
             {open.icon && <Symbol value={open.icon} className="lib-head-icon" />}
             <b className="grow">{open.name}</b>
             {mode === 'manage' && !open.builtIn && (
-              <button className="btn small" onClick={() => setEditCat(open)}><IconEdit size={18} /> Edit</button>
+              <button className="btn small" onClick={() => setEditCat(open)}><IconEdit size={18} /> {t('Edit')}</button>
             )}
             {mode === 'manage' && (
-              <button className="btn small primary" onClick={() => setEditSym({ cat: open, sym: null })}><IconPlus size={18} /> Add symbol</button>
+              <button className="btn small primary" onClick={() => setEditSym({ cat: open, sym: null })}><IconPlus size={18} /> {t('Add symbol')}</button>
             )}
           </div>
           <div className="sym-grid">
@@ -93,11 +94,11 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
             {mode === 'manage' && (
               <button className="sym-opt add" onClick={() => setEditSym({ cat: open, sym: null })}>
                 <IconPlus size={32} />
-                <span>Add symbol</span>
+                <span>{t('Add symbol')}</span>
               </button>
             )}
           </div>
-          {open.symbols.length === 0 && mode === 'pick' && <p className="muted">This category is empty. Add symbols in Grown-ups → Symbols.</p>}
+          {open.symbols.length === 0 && mode === 'pick' && <p className="muted">{t('This category is empty. Add symbols in Grown-ups → Symbols.')}</p>}
         </>
       )}
 
@@ -138,27 +139,27 @@ export function CategoryEditor({ cat, onClose, onSaved, onDeleted }: {
     <>
       <Modal title={cat ? 'Edit category' : 'New category'} onClose={onClose}
         footer={<>
-          {cat && <button className="btn danger-outline" onClick={() => setConfirm(true)}><IconTrash /> Delete</button>}
+          {cat && <button className="btn danger-outline" onClick={() => setConfirm(true)}><IconTrash /> {t('Delete')}</button>}
           <span className="spacer" />
-          <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" disabled={!name.trim()} onClick={save}>Save</button>
+          <button className="btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="btn primary" disabled={!name.trim()} onClick={save}>{t('Save')}</button>
         </>}>
         <div className="cat-editor">
-          <button className="lib-folder preview" onClick={() => setPicking(true)} aria-label="Choose category icon">
+          <button className="lib-folder preview" onClick={() => setPicking(true)} aria-label={t('Choose category icon')}>
             <span className="lib-folder-icon">{icon ? <Symbol value={icon} /> : <span className="lib-folder-blank">{name[0] ?? '?'}</span>}</span>
             <b>{name || 'Category'}</b>
-            <small>Tap to choose icon</small>
+            <small>{t('Tap to choose icon')}</small>
           </button>
-          <label className="field grow"><span>Name</span>
-            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Grandma's house, Soccer, My toys" />
+          <label className="field grow"><span>{t('Name')}</span>
+            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("e.g. Grandma's house, Soccer, My toys")} />
           </label>
         </div>
       </Modal>
       {picking && <SymbolPicker initialQuery={name} noLibrarySave onClose={() => setPicking(false)} onPick={(s) => { setIcon(s); setPicking(false); }} />}
       {confirm && cat && (
         <Modal title={`Delete “${cat.name}”?`} onClose={() => setConfirm(false)}
-          footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirm(false)}>Cancel</button>
-            <button className="btn danger" onClick={() => { updateLibrary((lib) => { lib.categories = lib.categories.filter((c) => c.id !== cat.id); }, { undo: `Deleted “${cat.name}”` }); onDeleted(); }}>Delete</button></>}>
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirm(false)}>{t('Cancel')}</button>
+            <button className="btn danger" onClick={() => { updateLibrary((lib) => { lib.categories = lib.categories.filter((c) => c.id !== cat.id); }, { undo: `Deleted “${cat.name}”` }); onDeleted(); }}>{t('Delete')}</button></>}>
           <p>This removes the category and its {cat.symbols.length} symbol(s) from the library. Buttons already on boards keep their pictures.</p>
         </Modal>
       )}
@@ -198,28 +199,28 @@ export function SymbolEditor({ cat, sym, categories, onClose, initial }: {
     <>
       <Modal title={sym ? 'Edit symbol' : 'New symbol'} onClose={onClose}
         footer={<>
-          {sym && <button className="btn danger-outline" onClick={() => { updateLibrary((lib) => removeFrom(lib, sym.id), { undo: `Deleted “${sym.label}”` }); onClose(); }}><IconTrash /> Delete</button>}
+          {sym && <button className="btn danger-outline" onClick={() => { updateLibrary((lib) => removeFrom(lib, sym.id), { undo: `Deleted “${sym.label}”` }); onClose(); }}><IconTrash /> {t('Delete')}</button>}
           <span className="spacer" />
-          <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" disabled={!symbol || !label.trim()} onClick={save}>Save</button>
+          <button className="btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="btn primary" disabled={!symbol || !label.trim()} onClick={save}>{t('Save')}</button>
         </>}>
         <div className="cat-editor">
-          <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label="Choose picture">
+          <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label={t('Choose picture')}>
             {symbol ? <Symbol value={symbol} /> : <IconPlus size={40} />}
             <span>{symbol ? 'Change picture' : 'Add picture'}</span>
           </button>
           <div className="grow">
-            <label className="field"><span>Word</span>
-              <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Grandma, trampoline" />
+            <label className="field"><span>{t('Word')}</span>
+              <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t('e.g. Grandma, trampoline')} />
             </label>
-            <label className="field"><span>Category</span>
+            <label className="field"><span>{t('Category')}</span>
               <select value={catId} onChange={(e) => setCatId(e.target.value)}>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}{c.builtIn ? '' : ' (yours)'}</option>)}
               </select>
             </label>
             <label className="field"><span>Word type (colour on buttons)</span>
               <select value={type} onChange={(e) => setType(e.target.value as WordType)}>
-                {(Object.keys(WORD_COLORS) as WordType[]).filter((t) => t !== 'folder').map((t) => <option key={t} value={t}>{WORD_COLORS[t].name}</option>)}
+                {(Object.keys(WORD_COLORS) as WordType[]).filter((w) => w !== 'folder').map((w) => <option key={w} value={w}>{t(WORD_COLORS[w].name)}</option>)}
               </select>
             </label>
           </div>

@@ -57,6 +57,8 @@ export interface AACButton {
   forms?: string[];
   /** Speak immediately and do not add to the message bar (e.g. "Hey!"). */
   speakOnly?: boolean;
+  /** Original English word of a built-in button (lets language switches round-trip exactly). */
+  key?: string;
 }
 
 export type Cell = AACButton | null;
@@ -106,6 +108,10 @@ export type ColorMode = 'fill' | 'border' | 'none';
 export type LockMethod = 'hold' | 'pin' | 'math' | 'none';
 
 export interface Settings {
+  /** Language of the interface, vocabulary, grammar and keyboard. */
+  language: 'en' | 'es';
+  /** Spanish: conjugate a verb automatically after a subject pronoun (yo + querer → quiero). */
+  autoConjugate: boolean;
   // Voice
   voiceURI?: string;
   voiceIndex?: number;

@@ -3,6 +3,7 @@ import { useStore, useProfile } from '../../store';
 import { Section, Toggle } from './controls';
 import { clearLog, getLog, type LogEntry } from '../../lib/db';
 import { saveFile } from '../../lib/files';
+import { t } from '../../i18n';
 
 const DAY = 86400000;
 
@@ -50,8 +51,8 @@ export function DataPanel() {
 
   return (
     <>
-      <Section title="Usage insights" intro="Off by default. When on, Caleb keeps a private log on this device only. It is never uploaded. Remember: number of taps isn't the same as communication — use this to spot words to model and celebrate growth. Turn on “Model” in the bottom bar while you demonstrate, so your taps aren't counted as theirs.">
-        <Toggle label="Keep a usage log" checked={s.logging} onChange={(logging) => updateSettings({ logging })} />
+      <Section title={t('Usage insights')} intro={t("Off by default. When on, Caleb keeps a private log on this device only. It is never uploaded. Remember: number of taps isn't the same as communication — use this to spot words to model and celebrate growth. Turn on “Model” in the bottom bar while you demonstrate, so your taps aren't counted as theirs.")}>
+        <Toggle label={t('Keep a usage log')} checked={s.logging} onChange={(logging) => updateSettings({ logging })} />
       </Section>
       {log.length > 0 && (
         <>
@@ -59,15 +60,15 @@ export function DataPanel() {
             {[7, 14, 30, 90].map((r) => <button key={r} className={range === r ? 'on' : ''} onClick={() => setRange(r)}>{r} days</button>)}
           </div>
           <div className="stat-tiles">
-            <div className="stat"><b>{stats.words}</b><small>words tapped</small></div>
-            <div className="stat"><b>{stats.unique}</b><small>different words</small></div>
-            <div className="stat"><b>{stats.sentences.length}</b><small>messages spoken</small></div>
-            <div className="stat"><b>{stats.avgLen.toFixed(1)}</b><small>words per message</small></div>
-            <div className="stat"><b>{stats.phrases}</b><small>phrases used</small></div>
+            <div className="stat"><b>{stats.words}</b><small>{t('words tapped')}</small></div>
+            <div className="stat"><b>{stats.unique}</b><small>{t('different words')}</small></div>
+            <div className="stat"><b>{stats.sentences.length}</b><small>{t('messages spoken')}</small></div>
+            <div className="stat"><b>{stats.avgLen.toFixed(1)}</b><small>{t('words per message')}</small></div>
+            <div className="stat"><b>{stats.phrases}</b><small>{t('phrases used')}</small></div>
             <div className="stat"><b>{stats.modeled}</b><small>modelled by partners (not counted)</small></div>
           </div>
-          <h4>Activity per day</h4>
-          <div className="bars" role="img" aria-label="Activity per day chart">
+          <h4>{t('Activity per day')}</h4>
+          <div className="bars" role="img" aria-label={t('Activity per day chart')}>
             {stats.days.map((d, i) => (
               <div key={i} className="bar-col" title={`${d.label}: ${d.n}`}>
                 <div className="bar" style={{ height: `${(d.n / max) * 100}%` }} />
@@ -75,7 +76,7 @@ export function DataPanel() {
               </div>
             ))}
           </div>
-          <h4>Most used words</h4>
+          <h4>{t('Most used words')}</h4>
           <ol className="top-words">
             {stats.top.map(([w, n]) => (
               <li key={w}><span>{w}</span><i style={{ width: `${(n / (stats.top[0]?.[1] ?? 1)) * 100}%` }} /><b>{n}</b></li>
@@ -83,21 +84,21 @@ export function DataPanel() {
           </ol>
           {stats.newWords.length > 0 && (
             <>
-              <h4>New words in this period 🎉</h4>
+              <h4>{t('New words in this period 🎉')}</h4>
               <p className="chips">{stats.newWords.slice(0, 40).map((w) => <span key={w} className="chip">{w}</span>)}</p>
             </>
           )}
-          <h4>Recent messages</h4>
+          <h4>{t('Recent messages')}</h4>
           <ul className="recent-msgs">
             {stats.sentences.slice(-15).reverse().map((e) => <li key={e.id}><small>{new Date(e.t).toLocaleString()}</small> {e.text}</li>)}
           </ul>
           <div className="row">
             <button className="btn" onClick={exportCsv}>Export CSV (for therapist)</button>
-            <button className="btn danger-outline" onClick={async () => { await clearLog(p.id); setLog([]); showToast('Log cleared'); }}>Delete log</button>
+            <button className="btn danger-outline" onClick={async () => { await clearLog(p.id); setLog([]); showToast(t('Log cleared')); }}>{t('Delete log')}</button>
           </div>
         </>
       )}
-      {log.length === 0 && s.logging && <p className="muted">Nothing logged yet. Data will appear here as the app is used.</p>}
+      {log.length === 0 && s.logging && <p className="muted">{t('Nothing logged yet. Data will appear here as the app is used.')}</p>}
     </>
   );
 }

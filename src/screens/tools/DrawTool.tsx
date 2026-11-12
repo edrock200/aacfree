@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { t } from '../../i18n';
 
 const COLORS = ['#1d1d1f', '#e63946', '#f4a261', '#2a9d8f', '#457b9d', '#8e44ad', '#ffffff'];
 
@@ -56,8 +57,8 @@ export function DrawTool() {
         {COLORS.map((c) => (
           <button key={c} className={`swatch ${color === c ? 'on' : ''}`} style={{ background: c }} onClick={() => setColor(c)} aria-label={c === '#ffffff' ? 'Eraser' : c}>{c === '#ffffff' ? '⌫' : ''}</button>
         ))}
-        <input type="range" min={2} max={24} value={size} onChange={(e) => setSize(+e.target.value)} aria-label="Pen size" />
-        <button className="btn" onClick={clear}>Clear</button>
+        <input type="range" min={2} max={24} value={size} onChange={(e) => setSize(+e.target.value)} aria-label={t('Pen size')} />
+        <button className="btn" onClick={clear}>{t('Clear')}</button>
       </div>
       <canvas
         ref={canvas}

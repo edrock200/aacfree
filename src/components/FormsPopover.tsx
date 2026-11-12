@@ -2,6 +2,7 @@ import { formsFor } from '../lib/morphology';
 import { Modal } from './Modal';
 import type { WordType } from '../types';
 import { Symbol } from './Symbol';
+import { t } from '../i18n';
 
 interface Props {
   word: string;
@@ -24,10 +25,10 @@ export function FormsPopover({ word, type, symbol, explicit, onPick, onRemove, o
           <button key={f} className="form-btn" onClick={() => onPick(f)} data-scan-item>{f}</button>
         ))}
       </div>
-      {forms.length === 0 && <p className="muted">No other forms for this word.</p>}
+      {forms.length === 0 && <p className="muted">{t('No other forms for this word.')}</p>}
       {onRemove && (
         <div className="row-end" data-scan-group>
-          <button className="btn danger" onClick={onRemove} data-scan-item>Remove word</button>
+          <button className="btn danger" onClick={onRemove} data-scan-item>{t('Remove word')}</button>
         </div>
       )}
     </Modal>

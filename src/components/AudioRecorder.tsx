@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { putAsset, assetURL } from '../lib/db';
 import { uid } from '../lib/util';
 import { IconMic, IconPlay, IconStop, IconTrash } from './Icons';
+import { t } from '../i18n';
 
 /** Record a custom voice clip (e.g. a family member's voice or a favourite sound). */
 export function AudioRecorder({ value, onChange }: { value?: string; onChange: (id: string | undefined) => void }) {
@@ -30,7 +31,7 @@ export function AudioRecorder({ value, onChange }: { value?: string; onChange: (
       setRecording(true);
       setTimeout(() => mr.state === 'recording' && mr.stop(), 15000);
     } catch {
-      setError('Microphone not available. Check permissions.');
+      setError(t('Microphone not available. Check permissions.'));
     }
   };
 
@@ -50,12 +51,12 @@ export function AudioRecorder({ value, onChange }: { value?: string; onChange: (
       {!recording ? (
         <button className="btn" onClick={start}><IconMic /> {value ? 'Re-record' : 'Record voice'}</button>
       ) : (
-        <button className="btn danger pulse" onClick={stop}><IconStop /> Stop</button>
+        <button className="btn danger pulse" onClick={stop}><IconStop /> {t('Stop')}</button>
       )}
       {value && !recording && (
         <>
-          <button className="btn" onClick={play}><IconPlay /> Play</button>
-          <button className="btn" onClick={() => onChange(undefined)}><IconTrash /> Remove</button>
+          <button className="btn" onClick={play}><IconPlay /> {t('Play')}</button>
+          <button className="btn" onClick={() => onChange(undefined)}><IconTrash /> {t('Remove')}</button>
         </>
       )}
       {error && <span className="error">{error}</span>}

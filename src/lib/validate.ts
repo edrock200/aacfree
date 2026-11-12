@@ -38,6 +38,7 @@ export function cleanButton(raw: unknown): AACButton | null {
   const audio = str(b.audio, 80); if (audio && /^[\w-]+$/.test(audio)) out.audio = audio;
   if (b.hidden === true) out.hidden = true;
   if (b.speakOnly === true) out.speakOnly = true;
+  const key = str(b.key, 200); if (key) out.key = key;
   if (Array.isArray(b.forms)) out.forms = b.forms.filter((f): f is string => typeof f === 'string').slice(0, 20).map((f) => f.slice(0, 80));
   return out;
 }

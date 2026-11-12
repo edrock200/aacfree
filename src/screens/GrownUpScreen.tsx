@@ -9,6 +9,7 @@ import { HelpPanel } from './grownup/HelpPanel';
 import { LibraryBrowser } from '../components/LibraryBrowser';
 import { Section } from './grownup/controls';
 import { IconImage, IconChart, IconEdit, IconGrid, IconHelp, IconLock, IconSave, IconSettings, IconSpeak, IconUsers, IconEye, IconPerson } from '../components/Icons';
+import { t } from '../i18n';
 
 type Panel = 'boards' | 'symbols' | 'speech' | 'display' | 'access' | 'data' | 'backup' | 'profiles' | 'security' | 'help';
 
@@ -34,7 +35,7 @@ function BackupNudge({ onGo, hidden }: { onGo: () => void; hidden: boolean }) {
   return (
     <div className="nudge">
       <span>💾 {last ? 'Your last backup file is over a month old.' : 'You haven\'t saved a backup file yet.'} Keep a copy somewhere safe so customisations are never lost.</span>
-      <button className="btn small primary" onClick={onGo}>Back up now</button>
+      <button className="btn small primary" onClick={onGo}>{t('Back up now')}</button>
     </div>
   );
 }
@@ -50,19 +51,19 @@ export function GrownUpScreen() {
         <div className="gu-who"><IconPerson /> <b>{p.name || 'Caleb'}</b></div>
         {PANELS.map((x) => (
           <button key={x.id} className={`gu-tab ${panel === x.id ? 'on' : ''}`} onClick={() => setPanel(x.id)}>
-            {x.icon}<span>{x.label}</span>
+            {x.icon}<span>{t(x.label)}</span>
           </button>
         ))}
         <div className="gu-nav-foot">
-          <button className="btn" onClick={() => { setEditMode(true); setScreen('talk'); }}><IconEdit /> Edit boards</button>
-          <button className="btn primary" onClick={() => useStore.getState().lock()}><IconLock /> Lock & return</button>
+          <button className="btn" onClick={() => { setEditMode(true); setScreen('talk'); }}><IconEdit /> {t('Edit boards')}</button>
+          <button className="btn primary" onClick={() => useStore.getState().lock()}><IconLock /> {t('Lock & return')}</button>
         </div>
       </aside>
       <div className="gu-main" key={panel}>
         <BackupNudge onGo={() => setPanel('backup')} hidden={panel === 'backup'} />
         {panel === 'boards' && <VocabPanel onDone={() => setScreen('talk')} />}
         {panel === 'symbols' && (
-          <Section title="Symbol library" intro="Pictures are organised into category folders. Add your own categories, such as family, school or favourite things, and your own symbols using photos, online symbols or emoji. Library symbols show up whenever you choose a picture for a button, and you can make a whole board category from a library category.">
+          <Section title={t('Symbol library')} intro={t('Pictures are organised into category folders. Add your own categories, such as family, school or favourite things, and your own symbols using photos, online symbols or emoji. Library symbols show up whenever you choose a picture for a button, and you can make a whole board category from a library category.')}>
             <LibraryBrowser mode="manage" />
           </Section>
         )}

@@ -4,6 +4,7 @@ import { Symbol } from './Symbol';
 import { useProfile } from '../store';
 import { searchBundled } from '../data/defaults';
 import { IconSearch } from './Icons';
+import { t } from '../i18n';
 
 export interface PickedItem { label: string; symbol?: string }
 
@@ -33,11 +34,11 @@ export function VocabPicker({ title = 'Choose', onPick, onClose }: { title?: str
     <Modal title={title} onClose={onClose} wide>
       <label className="search">
         <IconSearch size={20} />
-        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search words…" />
+        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Search words…')} />
       </label>
       <div className="sym-grid">
         {ql && !results.some((r) => r.label.toLowerCase() === ql) && (
-          <button className="sym-opt text-only" onClick={() => onPick({ label: q.trim() })}><span className="big">“{q.trim()}”</span><span>use text</span></button>
+          <button className="sym-opt text-only" onClick={() => onPick({ label: q.trim() })}><span className="big">“{q.trim()}”</span><span>{t('use text')}</span></button>
         )}
         {results.map((r, i) => (
           <button key={r.label + i} className="sym-opt" onClick={() => onPick(r)}>

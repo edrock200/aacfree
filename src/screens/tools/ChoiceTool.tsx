@@ -3,6 +3,7 @@ import { useStore, type PickedItem } from '../../store';
 import { Symbol } from '../../components/Symbol';
 import { VocabPicker } from '../../components/VocabPicker';
 import { IconPlus, IconClose } from '../../components/Icons';
+import { t } from '../../i18n';
 
 /** Quick choice board: a grown-up (or the person) sets up 2–6 options. */
 export function ChoiceTool() {
@@ -20,25 +21,25 @@ export function ChoiceTool() {
         {items.map((it, i) => (
           <div key={i} className="choice-wrap">
             <button className={`choice-btn ${chosen === i ? 'on' : ''}`} data-scan-item
-              onClick={() => { if (!setup) { setChosen(i); speakText(`I choose ${it.label}.`); } }}>
+              onClick={() => { if (!setup) { setChosen(i); speakText(t('I choose {v0}.', { v0: it.label })); } }}>
               <Symbol value={it.symbol} />
               <b>{it.label}</b>
             </button>
-            {setup && <button className="iconbtn remove" aria-label="Remove" onClick={() => setItems(items.filter((_, j) => j !== i))}><IconClose /></button>}
+            {setup && <button className="iconbtn remove" aria-label={t('Remove')} onClick={() => setItems(items.filter((_, j) => j !== i))}><IconClose /></button>}
           </div>
         ))}
         {setup && items.length < 6 && (
-          <button className="choice-btn add" onClick={() => setPicking(true)}><IconPlus size={40} /><b>Add option</b></button>
+          <button className="choice-btn add" onClick={() => setPicking(true)}><IconPlus size={40} /><b>{t('Add option')}</b></button>
         )}
       </div>
       <div className="row-center" data-scan-group>
         {setup ? (
-          <button className="btn primary big" disabled={items.length < 2} onClick={() => { setSetup(false); setChosen(null); speakText('Which one do you want?'); }} data-scan-item>Ready – offer choices</button>
+          <button className="btn primary big" disabled={items.length < 2} onClick={() => { setSetup(false); setChosen(null); speakText(t('Which one do you want?')); }} data-scan-item>{t('Ready – offer choices')}</button>
         ) : (
-          <button className="btn" onClick={() => setSetup(true)} data-scan-item>Change options</button>
+          <button className="btn" onClick={() => setSetup(true)} data-scan-item>{t('Change options')}</button>
         )}
       </div>
-      {picking && <VocabPicker title="Add an option" onClose={() => setPicking(false)} onPick={(it) => { setItems([...items, it]); setPicking(false); }} />}
+      {picking && <VocabPicker title={t('Add an option')} onClose={() => setPicking(false)} onPick={(it) => { setItems([...items, it]); setPicking(false); }} />}
     </div>
   );
 }

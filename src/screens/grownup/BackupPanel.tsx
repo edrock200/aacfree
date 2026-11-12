@@ -9,6 +9,7 @@ import { buildProfile } from '../../data/defaults';
 import { formatDate } from '../../lib/util';
 import { Modal } from '../../components/Modal';
 import type { AppData } from '../../types';
+import { t } from '../../i18n';
 
 export function BackupPanel() {
   const p = useProfile();
@@ -59,12 +60,12 @@ export function BackupPanel() {
     np.name = name;
     np.layout = 'medium';
     await replaceData({ ...data, profiles: [...data.profiles, np], activeProfileId: np.id }, 'Before importing boards');
-    showToast(`Imported “${name}” as a new profile`);
+    showToast(t('Imported “{v0}” as a new profile', { v0: name }));
   });
 
   const snapshotNow = () => run(async () => {
     await addSnapshot(data, 'Manual snapshot');
-    showToast('Snapshot saved');
+    showToast(t('Snapshot saved'));
     refresh();
   });
 
@@ -73,7 +74,7 @@ export function BackupPanel() {
     if (!s) return;
     await replaceData(s.data, 'Before restoring a snapshot');
     setRestore(null);
-    showToast('Restored');
+    showToast(t('Restored'));
     refresh();
   });
 
@@ -81,51 +82,51 @@ export function BackupPanel() {
 
   return (
     <>
-      <Section title="Backup file" intro="Saves everything — all profiles, boards, photos, recordings, phrases and settings — in one file. Keep a copy somewhere safe (cloud drive, email to yourself). Use it to move to a new device too.">
+      <Section title={t('Backup file')} intro={t('Saves everything — all profiles, boards, photos, recordings, phrases and settings — in one file. Keep a copy somewhere safe (cloud drive, email to yourself). Use it to move to a new device too.')}>
         <p className={last && Date.now() - last < 30 * 86400000 ? 'muted' : 'warn'}>
           {last ? `Last backup file: ${formatDate(last)}` : 'You have not saved a backup file yet.'}
         </p>
         {usage && <p className="muted small">Storage used on this device: {(usage.used / 1048576).toFixed(1)} MB of {(usage.quota / 1073741824).toFixed(1)} GB available.</p>}
         <div className="row">
-          <button className="btn primary" disabled={busy} onClick={exportAll}>Save backup file</button>
-          <button className="btn" disabled={busy} onClick={importAll}>Restore from file…</button>
+          <button className="btn primary" disabled={busy} onClick={exportAll}>{t('Save backup file')}</button>
+          <button className="btn" disabled={busy} onClick={importAll}>{t('Restore from file…')}</button>
         </div>
       </Section>
-      <Section title="Automatic snapshots" intro="Caleb keeps the last 15 versions on this device: one per day, plus one before every restore, layout change or import.">
-        <button className="btn small" disabled={busy} onClick={snapshotNow}>Take snapshot now</button>
+      <Section title={t('Automatic snapshots')} intro={t('Caleb keeps the last 15 versions on this device: one per day, plus one before every restore, layout change or import.')}>
+        <button className="btn small" disabled={busy} onClick={snapshotNow}>{t('Take snapshot now')}</button>
         <ul className="snap-list">
           {snaps.map((s) => (
             <li key={s.id}>
               <span><b>{formatDate(s.t)}</b><small>{s.reason}</small></span>
-              <button className="btn small" onClick={() => setRestore(s)}>Restore</button>
+              <button className="btn small" onClick={() => setRestore(s)}>{t('Restore')}</button>
             </li>
           ))}
-          {snaps.length === 0 && <li className="muted">No snapshots yet.</li>}
+          {snaps.length === 0 && <li className="muted">{t('No snapshots yet.')}</li>}
         </ul>
       </Section>
-      <Section title="Share boards (Open Board Format)" intro="Export boards as .obz to use in other AAC apps (CoughDrop, Cboard, etc.), or import .obz/.obf boards made elsewhere. Imports become a new profile so nothing is overwritten.">
+      <Section title={t('Share boards (Open Board Format)')} intro={t('Export boards as .obz to use in other AAC apps (CoughDrop, Cboard, etc.), or import .obz/.obf boards made elsewhere. Imports become a new profile so nothing is overwritten.')}>
         <div className="row">
           <button className="btn" disabled={busy} onClick={exportObz}>Export boards (.obz)</button>
-          <button className="btn" disabled={busy} onClick={importObz}>Import boards…</button>
+          <button className="btn" disabled={busy} onClick={importObz}>{t('Import boards…')}</button>
         </div>
       </Section>
       {pendingFile && (
-        <Modal title="Restore this backup?" onClose={() => setPendingFile(null)}
-          footer={<><span className="spacer" /><button className="btn" onClick={() => setPendingFile(null)}>Cancel</button>
+        <Modal title={t('Restore this backup?')} onClose={() => setPendingFile(null)}
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setPendingFile(null)}>{t('Cancel')}</button>
             <button className="btn primary" onClick={() => run(async () => {
               await replaceData(pendingFile.data, 'Before importing a backup');
               setPendingFile(null);
-              showToast('Backup restored');
+              showToast(t('Backup restored'));
               refresh();
-            })}>Replace with backup</button></>}>
+            })}>{t('Replace with backup')}</button></>}>
           <p><b>{pendingFile.name}</b> contains {pendingFile.data.profiles.length} profile(s): {pendingFile.data.profiles.map((x) => x.name || 'Unnamed').join(', ')}.</p>
-          <p>Everything on this device is replaced by the backup. Your current version is saved as a snapshot first, so you can go back.</p>
+          <p>{t('Everything on this device is replaced by the backup. Your current version is saved as a snapshot first, so you can go back.')}</p>
         </Modal>
       )}
       {restore && (
-        <Modal title="Restore this snapshot?" onClose={() => setRestore(null)}
-          footer={<><span className="spacer" /><button className="btn" onClick={() => setRestore(null)}>Cancel</button><button className="btn primary" onClick={() => doRestore(restore.id!)}>Restore</button></>}>
-          <p>Go back to the version from <b>{formatDate(restore.t)}</b>? Your current version is saved as a snapshot first, so you can undo this.</p>
+        <Modal title={t('Restore this snapshot?')} onClose={() => setRestore(null)}
+          footer={<><span className="spacer" /><button className="btn" onClick={() => setRestore(null)}>{t('Cancel')}</button><button className="btn primary" onClick={() => doRestore(restore.id!)}>{t('Restore')}</button></>}>
+          <p>{t('Go back to the version from')} <b>{formatDate(restore.t)}</b>{t('? Your current version is saved as a snapshot first, so you can undo this.')}</p>
         </Modal>
       )}
     </>

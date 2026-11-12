@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { PointerEngine, type PointerState } from '../lib/pointer';
 import type { Settings } from '../types';
+import { t } from '../i18n';
 
 let shared: PointerEngine | null = null;
 /** The running pointer engine (used by "Centre" and calibration). */
@@ -45,7 +46,7 @@ export function PointerLayer({ s, active }: { s: Settings; active: boolean }) {
         <div className={`pointer-status pointer-exempt ${st.status}`} role="status">
           {st.message ?? (mode === 'head' ? 'Head pointer on' : 'Eye gaze on')}
           {mode === 'head' && st.status === 'tracking' && (
-            <button className="btn small" onClick={() => engineRef.current?.recenter()}>Centre</button>
+            <button className="btn small" onClick={() => engineRef.current?.recenter()}>{t('Centre')}</button>
           )}
         </div>
       )}

@@ -1,6 +1,7 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { AACButton, Board, Cell, Settings } from '../types';
 import { CellButton } from './CellButton';
+import { t } from '../i18n';
 
 interface Props {
   board: Board;
@@ -90,11 +91,11 @@ export const BoardGrid = memo(function BoardGrid({ board, settings: s, editMode,
       </div>
       {paged && (
         <div className="page-bar" data-scan-group style={{ height: PAGE_BAR - 8 }}>
-          <button className="btn page-btn" data-scan-item disabled={page === 0} onClick={() => setPage(page - 1)} aria-label="Previous page">◀ Previous</button>
+          <button className="btn page-btn" data-scan-item disabled={page === 0} onClick={() => setPage(page - 1)} aria-label={t('Previous page')}>{t('◀ Previous')}</button>
           <span className="page-dots" aria-label={`Page ${page + 1} of ${pages}`}>
             {Array.from({ length: pages }, (_, k) => <i key={k} className={k === page ? 'on' : ''} />)}
           </span>
-          <button className="btn page-btn" data-scan-item disabled={page >= pages - 1} onClick={() => setPage(page + 1)} aria-label="Next page">Next ▶</button>
+          <button className="btn page-btn" data-scan-item disabled={page >= pages - 1} onClick={() => setPage(page + 1)} aria-label={t('Next page')}>{t('Next ▶')}</button>
         </div>
       )}
     </div>

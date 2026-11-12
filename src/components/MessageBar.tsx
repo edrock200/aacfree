@@ -7,6 +7,7 @@ import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { usePress } from '../lib/usePress';
 import { uid } from '../lib/util';
+import { t } from '../i18n';
 
 export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
   const message = useStore((st) => st.message);
@@ -42,7 +43,7 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
       }
     });
     setSaved(true);
-    showToast('Saved to Phrases ★');
+    showToast(t('Saved to Phrases ★'));
   };
 
   const share = async () => {
@@ -52,7 +53,7 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
       else if (navigator.share) await navigator.share({ text });
       else {
         await navigator.clipboard.writeText(text);
-        showToast('Copied');
+        showToast(t('Copied'));
       }
     } catch { /* cancelled */ }
   };
@@ -61,11 +62,11 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
 
   return (
     <div className="msgbar" data-scan-group>
-      <button className="iconbtn nav-home" aria-label="Home" data-scan-item {...homePress}><IconHome /></button>
-      <button className="iconbtn nav-back" aria-label="Back" data-scan-item disabled={!canBack} {...backPress}><IconBack /></button>
+      <button className="iconbtn nav-home" aria-label={t('Home')} data-scan-item {...homePress}><IconHome /></button>
+      <button className="iconbtn nav-back" aria-label={t('Back')} data-scan-item disabled={!canBack} {...backPress}><IconBack /></button>
       <div className="msg" role="button" tabIndex={0} aria-label={text ? `Message: ${text}. Tap to speak.` : 'Message bar, empty'} {...barPress}>
         <div className="msg-words" ref={scroller}>
-          {message.length === 0 && !draft && <span className="msg-placeholder">Tap words to talk</span>}
+          {message.length === 0 && !draft && <span className="msg-placeholder">{t('Tap words to talk')}</span>}
           {message.map((w, i) => (
             <button
               key={w.id}
@@ -84,35 +85,35 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
         {(message.length > 0 || draft) && (
           <div className="msg-tools" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}>
             <span className="msg-tools-full">
-              <button className="iconbtn small" aria-label="Save as phrase" onClick={(e) => { e.stopPropagation(); savePhrase(); }} data-scan-item>
+              <button className="iconbtn small" aria-label={t('Save as phrase')} onClick={(e) => { e.stopPropagation(); savePhrase(); }} data-scan-item>
                 <IconStar size={20} filled={saved} />
               </button>
-              <button className="iconbtn small" aria-label="Share or copy text" onClick={(e) => { e.stopPropagation(); share(); }} data-scan-item>
+              <button className="iconbtn small" aria-label={t('Share or copy text')} onClick={(e) => { e.stopPropagation(); share(); }} data-scan-item>
                 <IconShare size={20} />
               </button>
-              <button className="iconbtn small" aria-label="Show in big text" onClick={(e) => { e.stopPropagation(); onShow(text); }} data-scan-item>
+              <button className="iconbtn small" aria-label={t('Show in big text')} onClick={(e) => { e.stopPropagation(); onShow(text); }} data-scan-item>
                 <IconExpand size={20} />
               </button>
-              <button className="iconbtn small" aria-label="Clear message" onClick={(e) => { e.stopPropagation(); clearMessage(); }} data-scan-item>
+              <button className="iconbtn small" aria-label={t('Clear message')} onClick={(e) => { e.stopPropagation(); clearMessage(); }} data-scan-item>
                 <IconClose size={20} />
               </button>
             </span>
-            <button className="iconbtn small msg-tools-more" aria-label="More message options" aria-expanded={menu} onClick={(e) => { e.stopPropagation(); setMenu(!menu); }} data-scan-item>
+            <button className="iconbtn small msg-tools-more" aria-label={t('More message options')} aria-expanded={menu} onClick={(e) => { e.stopPropagation(); setMenu(!menu); }} data-scan-item>
               <IconMore size={22} />
             </button>
           </div>
         )}
         {menu && (message.length > 0 || !!draft) && (
           <div className="msg-menu" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()} data-scan-group>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); savePhrase(); setMenu(false); }} data-scan-item><IconStar size={20} filled={saved} /> Save phrase</button>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); share(); setMenu(false); }} data-scan-item><IconShare size={20} /> Share / copy</button>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); onShow(text); setMenu(false); }} data-scan-item><IconExpand size={20} /> Big text</button>
-            <button className="btn" onClick={(e) => { e.stopPropagation(); clearMessage(); setMenu(false); }} data-scan-item><IconClose size={20} /> Clear</button>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); savePhrase(); setMenu(false); }} data-scan-item><IconStar size={20} filled={saved} /> {t('Save phrase')}</button>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); share(); setMenu(false); }} data-scan-item><IconShare size={20} /> {t('Share / copy')}</button>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); onShow(text); setMenu(false); }} data-scan-item><IconExpand size={20} /> {t('Big text')}</button>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); clearMessage(); setMenu(false); }} data-scan-item><IconClose size={20} /> {t('Clear')}</button>
           </div>
         )}
       </div>
-      <button className="iconbtn nav-bs" aria-label="Delete last word (hold to clear)" data-scan-item {...bsPress}><IconBackspace /></button>
-      <button className="speakbtn" aria-label="Speak" data-scan-item {...speakPress}><IconSpeak size={30} /><span>Speak</span></button>
+      <button className="iconbtn nav-bs" aria-label={t('Delete last word (hold to clear)')} data-scan-item {...bsPress}><IconBackspace /></button>
+      <button className="speakbtn" aria-label={t('Speak')} data-scan-item {...speakPress}><IconSpeak size={30} /><span>{t('Speak')}</span></button>
     </div>
   );
 }

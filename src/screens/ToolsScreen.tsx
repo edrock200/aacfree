@@ -11,6 +11,7 @@ import { BodyTool } from './tools/BodyTool';
 import { ChoiceTool } from './tools/ChoiceTool';
 import { AboutMeTool } from './tools/AboutMeTool';
 import { DrawTool } from './tools/DrawTool';
+import { t } from '../i18n';
 
 type ToolId = 'schedule' | 'firstthen' | 'timer' | 'feelings' | 'pain' | 'body' | 'choice' | 'aboutme' | 'draw';
 
@@ -33,12 +34,12 @@ export function ToolsScreen() {
   const { speakText } = useStore.getState();
 
   if (tool) {
-    const t = TOOLS.find((x) => x.id === tool)!;
+    const tl = TOOLS.find((x) => x.id === tool)!;
     return (
       <div className="tool-screen">
         <div className="tool-head" data-scan-group>
-          <button className="btn" onClick={() => setTool(null)} data-scan-item><IconBack /> Tools</button>
-          <h2>{t.name}</h2>
+          <button className="btn" onClick={() => setTool(null)} data-scan-item><IconBack /> {t('Tools')}</button>
+          <h2>{t(tl.name)}</h2>
         </div>
         <div className="tool-body">
           {tool === 'schedule' && <ScheduleTool />}
@@ -57,17 +58,17 @@ export function ToolsScreen() {
 
   return (
     <div className="tools-menu" data-scan-group>
-      {TOOLS.filter((t) => t.id !== 'aboutme' || p.aboutMe.enabled).map((t) => (
-        <button key={t.id} className="tool-tile" onClick={() => setTool(t.id)} data-scan-item aria-label={t.name}>
-          <Symbol value={symbolFor(t.icon)} />
-          <b>{t.name}</b>
-          <small>{t.desc}</small>
+      {TOOLS.filter((x) => x.id !== 'aboutme' || p.aboutMe.enabled).map((x) => (
+        <button key={x.id} className="tool-tile" onClick={() => setTool(x.id)} data-scan-item aria-label={t(x.name)}>
+          <Symbol value={symbolFor(x.icon)} />
+          <b>{t(x.name)}</b>
+          <small>{t(x.desc)}</small>
         </button>
       ))}
-      <button className="tool-tile attention" onClick={() => { chime(); setTimeout(() => speakText('Excuse me! I want to say something.'), 700); }} data-scan-item aria-label="Get attention">
+      <button className="tool-tile attention" onClick={() => { chime(); setTimeout(() => speakText(t('Excuse me! I want to say something.')), 700); }} data-scan-item aria-label={t('Get attention')}>
         <IconBell size={48} />
-        <b>Get attention</b>
-        <small>Chime + “Excuse me!”</small>
+        <b>{t('Get attention')}</b>
+        <small>{t('Chime + “Excuse me!”')}</small>
       </button>
     </div>
   );

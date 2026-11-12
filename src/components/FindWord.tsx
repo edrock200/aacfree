@@ -5,6 +5,7 @@ import { useStore, useProfile } from '../store';
 import { findWord } from '../lib/boards';
 import { IconSearch } from './Icons';
 import { AddWordDialog } from './AddWordDialog';
+import { t } from '../i18n';
 
 /**
  * "Where is that word?" — shows the path to a word and highlights each
@@ -28,10 +29,10 @@ export function FindWord({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <Modal title="Find a word" onClose={onClose} wide>
+    <Modal title={t('Find a word')} onClose={onClose} wide>
       <label className="search">
         <IconSearch size={20} />
-        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Type a word…" />
+        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Type a word…')} />
       </label>
       <ul className="find-results">
         {results.map((r) => (
@@ -42,13 +43,13 @@ export function FindWord({ onClose }: { onClose: () => void }) {
                 <b>{r.button.label}</b>
                 <small>{r.path.map((id) => p.boards[id]?.name).join(' › ')}{r.button.hidden ? ' · hidden for now' : ''}</small>
               </span>
-              <span className="chip">Show me</span>
+              <span className="chip">{t('Show me')}</span>
             </button>
             {r.button.hidden && unlocked && (
               <button className="btn small" onClick={() => updateProfile((pp) => {
                 const c = pp.boards[r.boardId].cells.find((x) => x?.id === r.button.id);
                 if (c) delete c.hidden;
-              }, { undoable: true })}>Reveal</button>
+              }, { undoable: true })}>{t('Reveal')}</button>
             )}
           </li>
         ))}
@@ -57,9 +58,9 @@ export function FindWord({ onClose }: { onClose: () => void }) {
         <div className="find-miss">
           <p className="muted">“{q.trim()}” isn't on a board yet.</p>
           <div className="row">
-            <button className="btn primary" onClick={() => speakText(q.trim())}>Say it</button>
-            <button className="btn" onClick={() => { addText(q.trim()); onClose(); }}>Put in message</button>
-            {unlocked && <button className="btn" onClick={() => setAdding(true)}>Add to a board…</button>}
+            <button className="btn primary" onClick={() => speakText(q.trim())}>{t('Say it')}</button>
+            <button className="btn" onClick={() => { addText(q.trim()); onClose(); }}>{t('Put in message')}</button>
+            {unlocked && <button className="btn" onClick={() => setAdding(true)}>{t('Add to a board…')}</button>}
           </div>
         </div>
       )}

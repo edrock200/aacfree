@@ -10,6 +10,7 @@ import { Symbol } from '../components/Symbol';
 import { resizeBoard, orphanBoards } from '../lib/boards';
 import type { AACButton, Board } from '../types';
 import { IconCheck, IconEyeOff, IconPlus, IconSettings, IconUndo } from '../components/Icons';
+import { t } from '../i18n';
 
 export const TalkScreen = memo(function TalkScreen() {
   const p = useProfile();
@@ -94,19 +95,19 @@ export const TalkScreen = memo(function TalkScreen() {
           <span>{board.name}</span>
           {editMode && (
             <div className="edit-tools">
-              {moveFrom !== null && <span className="hint">Now tap where it should go</span>}
-              {hideMode && <span className="hint">Tap words to hide or show them</span>}
+              {moveFrom !== null && <span className="hint">{t('Now tap where it should go')}</span>}
+              {hideMode && <span className="hint">{t('Tap words to hide or show them')}</span>}
               <button className={`btn small ${hideMode ? 'primary' : ''}`} onClick={() => setHideMode(!hideMode)}><IconEyeOff size={18} /> {hideMode ? 'Done hiding' : 'Show/Hide'}</button>
               {hideMode && board.cells.some((c) => c?.hidden) && (
                 <button className="btn small" onClick={() => updateProfile((pp) => {
                   pp.boards[board.id].cells.filter((c) => c?.hidden).slice(0, 5).forEach((c) => { delete c!.hidden; });
-                }, { undoable: true })}>Reveal 5 more</button>
+                }, { undoable: true })}>{t('Reveal 5 more')}</button>
               )}
-              <button className="btn small" onClick={() => setAddingWord(true)}><IconPlus size={18} /> Word</button>
-              <button className="btn small" onClick={undoEdit} disabled={!undo.length}><IconUndo size={18} /> Undo</button>
-              <button className="btn small" onClick={() => setNewCat(true)}><IconPlus size={18} /> Category</button>
-              <button className="btn small" onClick={() => setBoardSettings(true)}><IconSettings size={18} /> Board</button>
-              <button className="btn small primary" onClick={() => { setEditMode(false); setMoveFrom(null); }}><IconCheck size={18} /> Done</button>
+              <button className="btn small" onClick={() => setAddingWord(true)}><IconPlus size={18} /> {t('Word')}</button>
+              <button className="btn small" onClick={undoEdit} disabled={!undo.length}><IconUndo size={18} /> {t('Undo')}</button>
+              <button className="btn small" onClick={() => setNewCat(true)}><IconPlus size={18} /> {t('Category')}</button>
+              <button className="btn small" onClick={() => setBoardSettings(true)}><IconSettings size={18} /> {t('Board')}</button>
+              <button className="btn small primary" onClick={() => { setEditMode(false); setMoveFrom(null); }}><IconCheck size={18} /> {t('Done')}</button>
             </div>
           )}
         </div>
@@ -180,7 +181,7 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
       }
     }, { undoable: true });
     back();
-    showToast('Folder deleted (Undo is available)');
+    showToast(t('Folder deleted (Undo is available)'));
     onClose();
   };
 
@@ -196,22 +197,22 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
   );
 
   return (
-    <Modal title="Board settings" onClose={onClose}
+    <Modal title={t('Board settings')} onClose={onClose}
       footer={
         <>
-          {!isRoot && <button className="btn danger-outline" onClick={remove}>Delete folder</button>}
+          {!isRoot && <button className="btn danger-outline" onClick={remove}>{t('Delete folder')}</button>}
           <span className="spacer" />
-          <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" onClick={save}>Save</button>
+          <button className="btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="btn primary" onClick={save}>{t('Save')}</button>
         </>
       }>
-      <label className="field"><span>Name</span><input value={name} onChange={(e) => setName(e.target.value)} /></label>
+      <label className="field"><span>{t('Name')}</span><input value={name} onChange={(e) => setName(e.target.value)} /></label>
       <div className="row">
         {stepper('Columns', cols, setCols, 1, 12)}
         {stepper('Rows', rows, setRows, 1, 14)}
       </div>
       {lost > 0 && <p className="error">{lost} button(s) would be removed by shrinking. Consider hiding them instead.</p>}
-      <p className="muted small">Buttons keep their row and column when you resize, so the motor plan stays the same.</p>
+      <p className="muted small">{t('Buttons keep their row and column when you resize, so the motor plan stays the same.')}</p>
     </Modal>
   );
 }

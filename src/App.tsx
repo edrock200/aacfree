@@ -21,13 +21,22 @@ import { useScanner } from './lib/useScanner';
 import { PointerLayer } from './components/PointerLayer';
 import { checkNativeLanguage, openTtsInstall, setTtsFailureHandler } from './lib/tts';
 import type { AACButton } from './types';
+import { setLang, t } from './i18n';
 
 export function App() {
   const loaded = useStore((s) => s.loaded);
   const onboarded = useStore((s) => s.data.onboarded);
-  if (!loaded) return <div className="splash"><img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" /><b>Caleb</b></div>;
+  if (!loaded) return <div className="splash"><img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" /><b>{t('Caleb')}</b></div>;
   if (!onboarded) return <Onboarding />;
-  return <Main />;
+  return <LangMain />;
+}
+
+/** The whole UI remounts when the language changes so every string re-translates. */
+function LangMain() {
+  const lang = useProfile().settings.language ?? 'en';
+  setLang(lang);
+  document.documentElement.lang = lang;
+  return <Main key={lang} />;
 }
 
 function Main() {
@@ -89,7 +98,7 @@ function Main() {
 
   // Speech must never fail silently.
   useEffect(() => {
-    setTtsFailureHandler(() => useStore.getState().showToast('Speech is not working on this device.', { label: 'Install voices', run: openTtsInstall }));
+    setTtsFailureHandler(() => useStore.getState().showToast(t('Speech is not working on this device.'), { label: 'Install voices', run: openTtsInstall }));
     return () => setTtsFailureHandler(null);
   }, []);
   useEffect(() => {
@@ -125,7 +134,7 @@ function Main() {
             const { createBackup, backupFilename } = await import('./lib/backup');
             const { saveFile } = await import('./lib/files');
             saveFile(backupFilename(p.name), await createBackup(useStore.getState().data));
-          }}>Save a backup file now</button>
+          }}>{t('Save a backup file now')}</button>
         </div>
       )}
       {screen !== 'grownup' && <MessageBar onShow={setBigText} />}

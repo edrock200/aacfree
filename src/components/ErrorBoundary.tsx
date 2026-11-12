@@ -1,6 +1,7 @@
 import { Component, type ReactNode } from 'react';
 import { getSnapshot, listSnapshots, loadData, saveData } from '../lib/db';
 import { downloadBlob } from '../lib/util';
+import { t } from '../i18n';
 
 /**
  * Last line of defence: if rendering crashes, never leave a blank screen.
@@ -49,14 +50,14 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
     if (!this.state.error) return this.props.children;
     return (
       <div className="crash">
-        <h1>Something went wrong</h1>
-        <p>Caleb hit an unexpected problem. Your boards are usually still saved.</p>
+        <h1>{t('Something went wrong')}</h1>
+        <p>{t('Caleb hit an unexpected problem. Your boards are usually still saved.')}</p>
         <div className="row">
-          <button className="btn primary big" onClick={() => location.reload()}>Reload Caleb</button>
-          <button className="btn big" disabled={this.state.busy} onClick={this.restore}>Restore last automatic backup</button>
-          <button className="btn big" onClick={this.saveRaw}>Save my data</button>
+          <button className="btn primary big" onClick={() => location.reload()}>{t('Reload Caleb')}</button>
+          <button className="btn big" disabled={this.state.busy} onClick={this.restore}>{t('Restore last automatic backup')}</button>
+          <button className="btn big" onClick={this.saveRaw}>{t('Save my data')}</button>
         </div>
-        <details><summary>Details</summary><pre>{String(this.state.error?.message ?? this.state.error)}</pre></details>
+        <details><summary>{t('Details')}</summary><pre>{String(this.state.error?.message ?? this.state.error)}</pre></details>
       </div>
     );
   }

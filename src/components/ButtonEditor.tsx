@@ -10,6 +10,7 @@ import { uid } from '../lib/util';
 import { IconEyeOff, IconMove, IconTrash } from './Icons';
 import { formsFor } from '../lib/morphology';
 import { useStore } from '../store';
+import { t } from '../i18n';
 
 interface Props {
   button: AACButton | null;
@@ -50,7 +51,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
       }
     }, { undoable: true });
     setCopying(false);
-    showToast(`Copied to “${boards.find((x) => x.id === boardId)?.name}”`);
+    showToast(t('Copied to “{v0}”', { v0: boards.find((x) => x.id === boardId)?.name }));
   };
 
   const set = (patch: Partial<AACButton>) => setB((x) => ({ ...x, ...patch }));
@@ -98,40 +99,40 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
         wide
         footer={
           <>
-            {onOpenFolder && <button className="btn primary" onClick={onOpenFolder}>Open folder →</button>}
-            {button && onMove && <button className="btn" onClick={onMove}><IconMove /> Move</button>}
-            {button && boards.length > 1 && <button className="btn" onClick={() => setCopying(true)}>Copy to…</button>}
-            {button && onDelete && <button className="btn danger-outline" onClick={() => setConfirmDelete(true)}><IconTrash /> Delete</button>}
+            {onOpenFolder && <button className="btn primary" onClick={onOpenFolder}>{t('Open folder →')}</button>}
+            {button && onMove && <button className="btn" onClick={onMove}><IconMove /> {t('Move')}</button>}
+            {button && boards.length > 1 && <button className="btn" onClick={() => setCopying(true)}>{t('Copy to…')}</button>}
+            {button && onDelete && <button className="btn danger-outline" onClick={() => setConfirmDelete(true)}><IconTrash /> {t('Delete')}</button>}
             <span className="spacer" />
-            <button className="btn" onClick={onClose}>Cancel</button>
-            <button className="btn primary" onClick={save} disabled={!b.label.trim()}>Save</button>
+            <button className="btn" onClick={onClose}>{t('Cancel')}</button>
+            <button className="btn primary" onClick={save} disabled={!b.label.trim()}>{t('Save')}</button>
           </>
         }
       >
         <div className="editor">
           <div className="editor-preview">
             <button className="cell preview" style={{ background: b.color ?? WORD_COLORS[kind === 'folder' ? 'folder' : b.type].light }} onClick={() => setPicking(true)}>
-              {b.symbol ? <Symbol value={b.symbol} /> : <span className="muted">Tap to add picture</span>}
+              {b.symbol ? <Symbol value={b.symbol} /> : <span className="muted">{t('Tap to add picture')}</span>}
               <span className="cell-label">{b.label || 'Label'}</span>
             </button>
-            <button className="btn small" onClick={() => setPicking(true)}>Change picture</button>
+            <button className="btn small" onClick={() => setPicking(true)}>{t('Change picture')}</button>
           </div>
           <div className="editor-fields">
             <label className="field">
-              <span>Label</span>
-              <input autoFocus={!button} value={b.label} onChange={(e) => onLabel(e.target.value)} placeholder="e.g. trampoline" />
+              <span>{t('Label')}</span>
+              <input autoFocus={!button} value={b.label} onChange={(e) => onLabel(e.target.value)} placeholder={t('e.g. trampoline')} />
             </label>
             <div className="field">
-              <span>What it does</span>
+              <span>{t('What it does')}</span>
               <div className="seg">
-                <button className={kind === 'word' ? 'on' : ''} onClick={() => setKind('word')}>Adds word</button>
-                {allowFolder && <button className={kind === 'folder' ? 'on' : ''} onClick={() => setKind('folder')}>Opens folder</button>}
-                <button className={kind === 'speak' ? 'on' : ''} onClick={() => setKind('speak')}>Speaks right away</button>
+                <button className={kind === 'word' ? 'on' : ''} onClick={() => setKind('word')}>{t('Adds word')}</button>
+                {allowFolder && <button className={kind === 'folder' ? 'on' : ''} onClick={() => setKind('folder')}>{t('Opens folder')}</button>}
+                <button className={kind === 'speak' ? 'on' : ''} onClick={() => setKind('speak')}>{t('Speaks right away')}</button>
               </div>
             </div>
             {kind === 'folder' && (
               <label className="field">
-                <span>Folder to open</span>
+                <span>{t('Folder to open')}</span>
                 <select
                   value={newFolder ? '__new' : b.link ?? '__new'}
                   onChange={(e) => {
@@ -146,26 +147,26 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
             )}
             {kind !== 'folder' && (
               <label className="field">
-                <span>Say something different <small>(optional)</small></span>
+                <span>{t('Say something different')} <small>(optional)</small></span>
                 <input value={b.speak ?? ''} onChange={(e) => set({ speak: e.target.value })} placeholder={b.label ? `Says “${b.label}”` : 'Spoken text'} />
               </label>
             )}
             {kind !== 'folder' && (
               <div className="field">
-                <span>Word type (colour)</span>
+                <span>{t('Word type (colour)')}</span>
                 <div className="types">
-                  {(Object.keys(WORD_COLORS) as WordType[]).filter((t) => t !== 'folder').map((t) => (
-                    <button key={t} className={`type-chip ${b.type === t ? 'on' : ''}`} style={{ background: WORD_COLORS[t].light }} onClick={() => set({ type: t })}>
-                      {WORD_COLORS[t].name}
+                  {(Object.keys(WORD_COLORS) as WordType[]).filter((w) => w !== 'folder').map((w) => (
+                    <button key={w} className={`type-chip ${b.type === w ? 'on' : ''}`} style={{ background: WORD_COLORS[w].light }} onClick={() => set({ type: w })}>
+                      {t(WORD_COLORS[w].name)}
                     </button>
                   ))}
                 </div>
               </div>
             )}
             <div className="field">
-              <span>Custom colour <small>(optional)</small></span>
+              <span>{t('Custom colour')} <small>(optional)</small></span>
               <div className="swatches">
-                <button className={`swatch none ${!b.color ? 'on' : ''}`} onClick={() => set({ color: undefined })} aria-label="Automatic colour">A</button>
+                <button className={`swatch none ${!b.color ? 'on' : ''}`} onClick={() => set({ color: undefined })} aria-label={t('Automatic colour')}>A</button>
                 {COLOR_SWATCHES.map((c) => (
                   <button key={c} className={`swatch ${b.color === c ? 'on' : ''}`} style={{ background: c }} onClick={() => set({ color: c })} aria-label={c} />
                 ))}
@@ -173,19 +174,19 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
             </div>
             {kind !== 'folder' && (
               <div className="field">
-                <span>Recorded voice <small>(plays instead of the computer voice)</small></span>
+                <span>{t('Recorded voice')} <small>(plays instead of the computer voice)</small></span>
                 <AudioRecorder value={b.audio} onChange={(audio) => set({ audio })} />
               </div>
             )}
             {kind === 'word' && (
               <label className="field">
-                <span>Word forms <small>(comma separated, optional)</small></span>
+                <span>{t('Word forms')} <small>(comma separated, optional)</small></span>
                 <input value={formsText} onChange={(e) => setFormsText(e.target.value)} placeholder={autoForms.slice(0, 4).join(', ') || 'e.g. went, going'} />
               </label>
             )}
             <label className="check">
               <input type="checkbox" checked={!!b.hidden} onChange={(e) => set({ hidden: e.target.checked || undefined })} />
-              <span><IconEyeOff size={18} /> Hide from the user for now <small>(keeps its place, so the motor plan stays the same)</small></span>
+              <span><IconEyeOff size={18} /> {t('Hide from the user for now')} <small>(keeps its place, so the motor plan stays the same)</small></span>
             </label>
           </div>
         </div>
@@ -198,7 +199,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
         />
       )}
       {copying && (
-        <Modal title="Copy to which board?" onClose={() => setCopying(false)}>
+        <Modal title={t('Copy to which board?')} onClose={() => setCopying(false)}>
           <div className="copy-list">
             {otherBoards.map((x) => (
               <button key={x.id} className="find-row" onClick={() => copyTo(x.id)}>
@@ -210,16 +211,16 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
         </Modal>
       )}
       {confirmDelete && (
-        <Modal title="Delete this button?" onClose={() => setConfirmDelete(false)}
+        <Modal title={t('Delete this button?')} onClose={() => setConfirmDelete(false)}
           footer={
             <>
-              <button className="btn" onClick={() => { set({ hidden: true }); setConfirmDelete(false); }}>Hide instead</button>
+              <button className="btn" onClick={() => { set({ hidden: true }); setConfirmDelete(false); }}>{t('Hide instead')}</button>
               <span className="spacer" />
-              <button className="btn" onClick={() => setConfirmDelete(false)}>Cancel</button>
-              <button className="btn danger" onClick={onDelete}>Delete</button>
+              <button className="btn" onClick={() => setConfirmDelete(false)}>{t('Cancel')}</button>
+              <button className="btn danger" onClick={onDelete}>{t('Delete')}</button>
             </>
           }>
-          <p>AAC tip: <b>hiding</b> a word keeps its spot, so the person's muscle memory still works when it comes back. Deleting removes it for good (you can still undo).</p>
+          <p>{t('AAC tip:')} <b>{t('hiding')}</b> a word keeps its spot, so the person's muscle memory still works when it comes back. Deleting removes it for good (you can still undo).</p>
         </Modal>
       )}
     </>

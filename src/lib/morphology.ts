@@ -1,3 +1,5 @@
+import { getLang } from '../i18n';
+import { formsForEs, isInfinitive, pluralEs, verbFormsEs } from './morphology-es';
 /**
  * Lightweight English morphology for word forms (plurals, verb tenses,
  * comparatives). Forms are offered on demand — never auto-applied.
@@ -139,8 +141,13 @@ function matchCase(src: string, out: string) {
 const NO_FORMS = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them',
   'a', 'the', 'and', 'or', 'but', 'not', 'no', 'yes', 'to', 'of', 'in', 'on', 'up', 'at', 'for', 'with']);
 
-/** Returns sensible alternative forms for a word, given its type. */
+/** Returns sensible alternative forms for a word, given its type (in the current language). */
 export function formsFor(word: string, type?: string): string[] {
+  if (getLang() === 'es') return formsForEs(word, type);
+  return formsForEn(word, type);
+}
+
+function formsForEn(word: string, type?: string): string[] {
   const base = word.trim();
   if (!base || base.includes(' ') && type !== 'verb') return [];
   const lower = base.toLowerCase();
@@ -164,6 +171,11 @@ export function formsFor(word: string, type?: string): string[] {
 
 /** Apply a quick grammar ending to a word (used by +s / +ing / +ed buttons). */
 export function applyEnding(word: string, ending: 's' | 'ing' | 'ed', type?: string): string {
+  if (getLang() === 'es') {
+    if (ending === 's') return pluralEs(word);
+    const f = isInfinitive(word) ? verbFormsEs(word) : [];
+    return ending === 'ing' ? f[7] ?? word : f[5] ?? word; // gerund / preterite (yo)
+  }
   if (ending === 's') return type === 'verb' ? verbForms(word).s : plural(word);
   const f = verbForms(word);
   return ending === 'ing' ? f.ing : f.ed;

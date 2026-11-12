@@ -6,6 +6,7 @@ import { SymbolPicker } from './SymbolPicker';
 import { allCategories } from '../lib/library';
 import { uid } from '../lib/util';
 import type { AACButton, Cell } from '../types';
+import { t } from '../i18n';
 
 /**
  * Create a new category on the boards: a folder button (with an icon) that
@@ -60,26 +61,26 @@ export function NewCategoryDialog({ parentBoardId, onClose, onCreated }: {
       }
       placedOn = target.name;
     }, { undoable: true });
-    showToast(`“${name.trim()}” added to ${placedOn}`);
+    showToast(t('“{v0}” added to {v1}', { v0: name.trim(), v1: placedOn }));
     onCreated?.(id);
     onClose();
   };
 
   return (
     <>
-      <Modal title="New category" onClose={onClose}
-        footer={<><span className="spacer" /><button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" disabled={!name.trim()} onClick={create}>Create category</button></>}>
+      <Modal title={t('New category')} onClose={onClose}
+        footer={<><span className="spacer" /><button className="btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="btn primary" disabled={!name.trim()} onClick={create}>{t('Create category')}</button></>}>
         <div className="cat-editor">
-          <button className="cell cell-folder preview" onClick={() => setPicking(true)} aria-label="Choose category icon">
-            {icon ? <Symbol value={icon} /> : <span className="muted">Tap for icon</span>}
+          <button className="cell cell-folder preview" onClick={() => setPicking(true)} aria-label={t('Choose category icon')}>
+            {icon ? <Symbol value={icon} /> : <span className="muted">{t('Tap for icon')}</span>}
             <span className="cell-label">{name || 'Category'}</span>
           </button>
           <div className="grow">
-            <label className="field"><span>Name</span>
-              <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Soccer, Grandma's, Minecraft" />
+            <label className="field"><span>{t('Name')}</span>
+              <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("e.g. Soccer, Grandma's, Minecraft")} />
             </label>
-            <label className="field"><span>Start with symbols from</span>
+            <label className="field"><span>{t('Start with symbols from')}</span>
               <select value={from} onChange={(e) => chooseFrom(e.target.value)}>
                 <option value="">Nothing (empty folder)</option>
                 {cats.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.symbols.length}){c.builtIn ? '' : ' (yours)'}</option>)}

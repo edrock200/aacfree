@@ -8,6 +8,7 @@ import { SymbolPicker } from '../components/SymbolPicker';
 import { AudioRecorder } from '../components/AudioRecorder';
 import { uid } from '../lib/util';
 import type { Phrase, Settings } from '../types';
+import { t } from '../i18n';
 
 function PhraseButton({ phrase, s, onPress, onEdit, edit }: { phrase: Phrase; s: Settings; onPress: () => void; onEdit?: () => void; edit: boolean }) {
   const press = usePress({ onActivate: edit && onEdit ? onEdit : onPress, holdMs: edit ? 0 : s.holdMs, debounceMs: s.debounceMs, pressOnDown: !edit && s.pressOnDown });
@@ -48,18 +49,18 @@ export function PhrasesScreen() {
         {cats.map((c) => (
           <button key={c} className={`tab ${cat === c ? 'active' : ''}`} onClick={() => setCat(c)} data-scan-item>{c}</button>
         ))}
-        {edit && <button className="tab add" onClick={() => setNewCat(true)}><IconPlus size={18} /> Group</button>}
+        {edit && <button className="tab add" onClick={() => setNewCat(true)}><IconPlus size={18} /> {t('Group')}</button>}
       </div>
       {cat === 'Recent' ? (
         <div className="phrase-list" data-scan-group>
-          {p.history.length === 0 && <p className="muted center">Sentences you speak will show up here.</p>}
+          {p.history.length === 0 && <p className="muted center">{t('Sentences you speak will show up here.')}</p>}
           {p.history.slice(0, 50).map((h, i) => (
             <div className="recent-row" key={h.t + '-' + i}>
               <PhraseButton phrase={{ id: String(i), text: h.text, category: '' }} s={s} edit={false} onPress={() => speakText(h.text, { log: 'phrase' })} />
-              <button className="iconbtn" aria-label="Put in message bar" onClick={() => addText(h.text)} data-scan-item><IconPlus /></button>
+              <button className="iconbtn" aria-label={t('Put in message bar')} onClick={() => addText(h.text)} data-scan-item><IconPlus /></button>
               <button
                 className="iconbtn"
-                aria-label="Save to favourites"
+                aria-label={t('Save to favourites')}
                 data-scan-item
                 onClick={() => updateProfile((pp) => {
                   if (pp.phrases.some((x) => x.text === h.text)) return;
@@ -80,10 +81,10 @@ export function PhrasesScreen() {
           ))}
           {edit && (
             <button className="phrase add" onClick={() => setEditing({ id: uid('ph'), text: '', category: cat })}>
-              <IconPlus /> <span>Add phrase</span>
+              <IconPlus /> <span>{t('Add phrase')}</span>
             </button>
           )}
-          {list.length === 0 && !edit && <p className="muted center">No phrases here yet. Tap ★ in the message bar to save one.</p>}
+          {list.length === 0 && !edit && <p className="muted center">{t('No phrases here yet. Tap ★ in the message bar to save one.')}</p>}
         </div>
       )}
       {editing && <PhraseEditor phrase={editing} categories={p.phraseCategories} onSave={save} onClose={() => setEditing(null)}
@@ -113,22 +114,22 @@ function PhraseEditor({ phrase, categories, onSave, onClose, onDelete }: { phras
       <Modal title={phrase.text ? 'Edit phrase' : 'New phrase'} onClose={onClose}
         footer={
           <>
-            {phrase.text && <button className="btn danger-outline" onClick={onDelete}><IconTrash /> Delete</button>}
+            {phrase.text && <button className="btn danger-outline" onClick={onDelete}><IconTrash /> {t('Delete')}</button>}
             <span className="spacer" />
-            <button className="btn" onClick={onClose}>Cancel</button>
-            <button className="btn primary" disabled={!ph.text.trim()} onClick={() => onSave({ ...ph, text: ph.text.trim() })}>Save</button>
+            <button className="btn" onClick={onClose}>{t('Cancel')}</button>
+            <button className="btn primary" disabled={!ph.text.trim()} onClick={() => onSave({ ...ph, text: ph.text.trim() })}>{t('Save')}</button>
           </>
         }>
-        <label className="field"><span>Phrase or script</span>
-          <textarea rows={3} autoFocus value={ph.text} onChange={(e) => setPh({ ...ph, text: e.target.value })} placeholder="e.g. To infinity and beyond!" />
+        <label className="field"><span>{t('Phrase or script')}</span>
+          <textarea rows={3} autoFocus value={ph.text} onChange={(e) => setPh({ ...ph, text: e.target.value })} placeholder={t('e.g. To infinity and beyond!')} />
         </label>
-        <p className="muted small">Tip for gestalt language processors: save whole scripts exactly as the person says them, like movie lines and song lyrics. They carry real meaning.</p>
-        <label className="field"><span>Group</span>
+        <p className="muted small">{t('Tip for gestalt language processors: save whole scripts exactly as the person says them, like movie lines and song lyrics. They carry real meaning.')}</p>
+        <label className="field"><span>{t('Group')}</span>
           <select value={ph.category} onChange={(e) => setPh({ ...ph, category: e.target.value })}>
             {categories.map((c) => <option key={c}>{c}</option>)}
           </select>
         </label>
-        <div className="field"><span>Picture</span>
+        <div className="field"><span>{t('Picture')}</span>
           <div className="row">
             {ph.symbol && <Symbol value={ph.symbol} className="preview-sym" />}
             <button className="btn" onClick={() => setPicking(true)}>{ph.symbol ? 'Change' : 'Add picture'}</button>
@@ -146,9 +147,9 @@ function PhraseEditor({ phrase, categories, onSave, onClose, onDelete }: { phras
 function NewCategory({ onSave, onClose }: { onSave: (n: string) => void; onClose: () => void }) {
   const [name, setName] = useState('');
   return (
-    <Modal title="New phrase group" onClose={onClose}
-      footer={<><span className="spacer" /><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" disabled={!name.trim()} onClick={() => onSave(name.trim())}>Add</button></>}>
-      <label className="field"><span>Name</span><input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Scripts, Grandma, Soccer" /></label>
+    <Modal title={t('New phrase group')} onClose={onClose}
+      footer={<><span className="spacer" /><button className="btn" onClick={onClose}>{t('Cancel')}</button><button className="btn primary" disabled={!name.trim()} onClick={() => onSave(name.trim())}>{t('Add')}</button></>}>
+      <label className="field"><span>{t('Name')}</span><input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('e.g. Scripts, Grandma, Soccer')} /></label>
     </Modal>
   );
 }

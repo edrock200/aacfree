@@ -5,6 +5,7 @@ import { applyCase } from '../lib/sentence';
 import { usePress } from '../lib/usePress';
 import { Symbol } from './Symbol';
 import { IconEyeOff, IconPlus } from './Icons';
+import { t } from '../i18n';
 
 interface Props {
   button: AACButton | null;
@@ -40,7 +41,7 @@ export const CellButton = memo(function CellButton({
   if (!button) {
     if (!editMode) return <div className="cell cell-empty" aria-hidden />;
     return (
-      <button className={`cell cell-add ${selected ? 'selected' : ''}`} {...press} aria-label="Add a button">
+      <button className={`cell cell-add ${selected ? 'selected' : ''}`} {...press} aria-label={t('Add a button')}>
         <IconPlus size={28} />
       </button>
     );
@@ -81,8 +82,8 @@ export const CellButton = memo(function CellButton({
     >
       {button.symbol && <Symbol value={button.symbol} />}
       {(s.showLabels || !button.symbol) && <span className="cell-label">{label}</span>}
-      {masked && <span className="cell-badge" title="Hidden from the user"><IconEyeOff size={16} /></span>}
-      {button.audio && editMode && <span className="cell-badge left" title="Recorded voice">🎙</span>}
+      {masked && <span className="cell-badge" title={t('Hidden from the user')}><IconEyeOff size={16} /></span>}
+      {button.audio && editMode && <span className="cell-badge left" title={t('Recorded voice')}>🎙</span>}
     </button>
   );
 });

@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { IconClose } from './Icons';
+import { t } from '../i18n';
 
 /** Stack of open dialogs so Escape / Android Back closes only the top one. */
 const stack: object[] = [];
@@ -46,7 +47,7 @@ export function Modal({ title, onClose, children, wide, footer, className, rootC
         {title !== undefined && (
           <div className="modal-head" data-scan-group>
             <h2>{title}</h2>
-            <button className="iconbtn" onClick={onClose} aria-label="Close" data-scan-item><IconClose /></button>
+            <button className="iconbtn" onClick={onClose} aria-label={t('Close')} data-scan-item><IconClose /></button>
           </div>
         )}
         <div className="modal-body">{children}</div>

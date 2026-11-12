@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { Modal } from './Modal';
 import { useSettings, useStore } from '../store';
+import { t } from '../i18n';
 
 /** PIN or math-question gate for the grown-up area. */
 export function LockGate({ onUnlock, onClose }: { onUnlock: () => void; onClose: () => void }) {
@@ -23,23 +24,23 @@ export function LockGate({ onUnlock, onClose }: { onUnlock: () => void; onClose:
   if (recover) {
     const ok = held && phrase.trim().toLowerCase() === PHRASE.toLowerCase();
     return (
-      <Modal title="Forgot the PIN?" onClose={onClose} rootClassName="scan-exempt">
+      <Modal title={t('Forgot the PIN?')} onClose={onClose} rootClassName="scan-exempt">
         <div className="lockgate">
-          <p className="small">This removes the PIN without touching any boards. Then you can set a new one.</p>
+          <p className="small">{t('This removes the PIN without touching any boards. Then you can set a new one.')}</p>
           <button className={`btn big ${held ? 'primary' : ''} hold10`}
             onPointerDown={() => { holdTimer.current = setTimeout(() => setHeld(true), 10000); }}
             onPointerUp={() => clearTimeout(holdTimer.current)} onPointerLeave={() => clearTimeout(holdTimer.current)}
             onContextMenu={(e) => e.preventDefault()}>
             {held ? '✓ Held' : '1. Press and hold here for 10 seconds'}
           </button>
-          <label className="field"><span>2. Type: <b>{PHRASE}</b></span>
+          <label className="field"><span>{t('2. Type:')} <b>{PHRASE}</b></span>
             <input value={phrase} onChange={(e) => setPhrase(e.target.value)} autoComplete="off" />
           </label>
           <button className="btn primary" disabled={!ok} onClick={() => {
             useStore.getState().updateSettings({ lock: 'hold', pin: undefined });
-            useStore.getState().showToast('PIN removed. Set a new one in Grown-ups → Lock.');
+            useStore.getState().showToast(t('PIN removed. Set a new one in Grown-ups → Lock.'));
             onUnlock();
-          }}>Remove PIN and open Grown-ups</button>
+          }}>{t('Remove PIN and open Grown-ups')}</button>
         </div>
       </Modal>
     );
@@ -57,7 +58,7 @@ export function LockGate({ onUnlock, onClose }: { onUnlock: () => void; onClose:
   };
 
   return (
-    <Modal title="Grown-ups only" onClose={onClose} rootClassName="scan-exempt">
+    <Modal title={t('Grown-ups only')} onClose={onClose} rootClassName="scan-exempt">
       <div className="lockgate">
         <p className="center">{s.lock === 'pin' ? 'Enter your PIN' : <>What is <b>{q.text}</b>?</>}</p>
         <div className={`pin-dots ${error ? 'shake' : ''}`}>
@@ -72,7 +73,7 @@ export function LockGate({ onUnlock, onClose }: { onUnlock: () => void; onClose:
             ),
           )}
         </div>
-        {s.lock === 'pin' && <button className="btn small" onClick={() => setRecover(true)}>Forgot PIN?</button>}
+        {s.lock === 'pin' && <button className="btn small" onClick={() => setRecover(true)}>{t('Forgot PIN?')}</button>}
       </div>
     </Modal>
   );

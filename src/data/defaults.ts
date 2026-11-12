@@ -1,5 +1,6 @@
 import type { AACButton, Board, Cell, LayoutId, LibraryCategory, Profile, Settings, WordType } from '../types';
 import { uid } from '../lib/util';
+import { translateProfile } from '../lib/translate';
 import symbolMap from './symbols.json';
 import {
   CATEGORIES, DEFAULT_PHRASES, DEFAULT_SCHEDULES, HOME_LAYOUTS, MORE_BOARD, PHRASE_CATEGORIES,
@@ -14,6 +15,8 @@ export function symbolFor(keyword: string): string | undefined {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  language: 'en',
+  autoConjugate: true,
   rate: 1,
   pitch: 1,
   volume: 1,
@@ -108,7 +111,15 @@ function makeBoard(id: string, name: string, cols: number, specs: string[], defa
   return { id, name, cols, rows, cells, symbol };
 }
 
-export function buildProfile(name: string, layout: LayoutId): Profile {
+export function buildProfile(name: string, layout: LayoutId, lang: 'en' | 'es' = 'en'): Profile {
+  const p = buildProfileEn(name, layout);
+  if (lang === 'en') return p;
+  const es = translateProfile(p, lang);
+  es.aboutMe.text = `¡Hola! Me llamo ${name || '…'}. Soy autista y uso esta aplicación para comunicarme. Por favor, ten paciencia y dame más tiempo para responder. Entiendo más de lo que puedo decir.`;
+  return es;
+}
+
+function buildProfileEn(name: string, layout: LayoutId): Profile {
   const catNames: Record<string, { name: string; icon: string }> = {
     more: { name: 'More', icon: 'more' },
   };

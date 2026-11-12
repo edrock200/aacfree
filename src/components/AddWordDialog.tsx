@@ -7,6 +7,7 @@ import { searchLibrary } from '../lib/library';
 import { boardPaths } from '../lib/boards';
 import { uid } from '../lib/util';
 import type { AACButton, WordType } from '../types';
+import { t } from '../i18n';
 
 /**
  * Quickest way to add a word: type it, a picture is suggested, pick a board.
@@ -44,25 +45,25 @@ export function AddWordDialog({ initialWord = '', boardId, onClose }: { initialW
       if (i >= 0) b.cells[i] = btn;
       else { b.rows += 1; b.cells.push(btn, ...Array(b.cols - 1).fill(null)); }
     }, { undoable: true });
-    showToast(`Added “${label}” to ${board.name}`);
+    showToast(t('Added “{v0}” to {v1}', { v0: label, v1: board.name }));
     onClose();
   };
 
   return (
     <>
-      <Modal title="Add a word" onClose={onClose}
-        footer={<><span className="spacer" /><button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" disabled={!word.trim()} onClick={add}>Add word</button></>}>
+      <Modal title={t('Add a word')} onClose={onClose}
+        footer={<><span className="spacer" /><button className="btn" onClick={onClose}>{t('Cancel')}</button>
+          <button className="btn primary" disabled={!word.trim()} onClick={add}>{t('Add word')}</button></>}>
         <div className="cat-editor">
-          <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label="Choose picture">
-            {pic?.symbol ? <Symbol value={pic.symbol} /> : <span className="muted">No picture yet</span>}
+          <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label={t('Choose picture')}>
+            {pic?.symbol ? <Symbol value={pic.symbol} /> : <span className="muted">{t('No picture yet')}</span>}
             <span>{pic?.symbol ? 'Change picture' : 'Add picture'}</span>
           </button>
           <div className="grow">
-            <label className="field"><span>Word</span>
-              <input autoFocus value={word} onChange={(e) => { setWord(e.target.value); setChosen(null); }} placeholder="e.g. grandma, trampoline" />
+            <label className="field"><span>{t('Word')}</span>
+              <input autoFocus value={word} onChange={(e) => { setWord(e.target.value); setChosen(null); }} placeholder={t('e.g. grandma, trampoline')} />
             </label>
-            <label className="field"><span>Put it on</span>
+            <label className="field"><span>{t('Put it on')}</span>
               <select value={target} onChange={(e) => setTarget(e.target.value)}>
                 {boards.map((b) => <option key={b.id} value={b.id}>{b.name} ({b.cells.filter((c) => !c).length} free)</option>)}
               </select>
