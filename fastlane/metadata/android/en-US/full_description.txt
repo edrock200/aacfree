@@ -1,0 +1,41 @@
+Caleb is a free, open-source AAC (augmentative and alternative communication) app for autistic people and the families, teachers and therapists who support them. Tap picture-and-word buttons to build a sentence, and Caleb speaks it aloud.
+
+Caleb is built from what autistic AAC users, parents and speech-language pathologists say they need: words that never move, "no" and "stop" always within reach, fast typing, and privacy by default.
+
+FREE, PRIVATE AND OFFLINE
+• Free forever. No ads, no subscriptions, no in-app purchases.
+• No accounts, no sign-in, no analytics, no tracking.
+• Everything is stored on your device and works without the internet.
+• Open source under the GNU AGPL-3.0.
+
+FOR THE PERSON COMMUNICATING
+• Core words that stay put. Choose from four home layouts, from 12 big buttons to 48. Words never move, so they can be learned by motor memory. Hidden words keep their place.
+• 25 topic folders with about 770 words and 740 built-in pictures: food, drinks, feelings, people, places, play, school, body, health and more.
+• Colour-coded word types (Modified Fitzgerald Key), shown filled, as borders, or turned off.
+• Yes, no, stop, help, wait and break are on every screen. Talking is never locked.
+• Word forms when you want them: go → went, going, goes; plurals; bigger, biggest.
+• A keyboard with private word prediction and next-word suggestions.
+• Ready-made phrases for needs, feelings, boundaries, chat, questions and emergencies. Save your own phrases and scripts, which helps gestalt language processors.
+• Tools: visual schedule, first/then board, visual timer, choice board, feelings and pain scales, a "where does it hurt" body map, an About-me card, a drawing pad and a get-attention chime.
+• Use any voice on your device and set its speed and pitch. Record a family member's voice on any button.
+• Access options: hold-to-select, ignore repeated taps, 1- and 2-switch scanning, Bluetooth switches, large text, dark and high-contrast themes, and a calm "Clean" style for teens and adults.
+
+FOR PARENTS, TEACHERS AND THERAPISTS
+• A grown-up area behind a 2-second hold, a PIN or a math question keeps settings safe from accidental taps.
+• Edit in place: tap a button to change its word, picture, colour or voice. Use the built-in symbols, online ARASAAC search, emoji or your own photos. Undo any change.
+• A symbol library in category folders. Create your own categories, such as family, school or favourite shows.
+• Find word shows step by step where any word lives, which makes modelling easier. Modelling mode keeps your taps out of the insights.
+• Never lose work: every change is saved straight away, with daily snapshots and one-file backups for moving to a new device.
+• Print paper boards as a low-tech backup for the pool, bath time or a flat battery.
+• Share boards with other AAC apps using the Open Board Format (.obz).
+• Optional private usage insights. They are off unless you turn them on, and they never leave the device.
+• Several profiles on one device.
+• The Back button never closes the app, and Caleb works well with Android app pinning.
+
+CREDITS
+Pictograms by Sergio Palao. Origin: ARASAAC (arasaac.org), Government of Aragón (Spain). Licence: CC BY-NC-SA 4.0. Because the pictograms are licensed for non-commercial use, Caleb will always be free.
+Font: Atkinson Hyperlegible, by the Braille Institute.
+
+Caleb is a communication tool, not a medical device. Please work with a speech-language pathologist when choosing and setting up AAC.
+
+Source code, questions and suggestions: github.com/edrock200/caleb

@@ -1,0 +1,6 @@
+First Google Play release (0.2.0):
+• New Phone core layout, and big folders split into fixed pages with no scrolling
+• Show/Hide mode and + Word for quick editing
+• Timer keeps running across screens; schedules get pictures and durations
+• Modelling mode, a pronunciations list and next-word suggestions
+• Safer saving, restores and backups
