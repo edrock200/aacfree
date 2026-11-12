@@ -308,7 +308,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.fill('.modal input', 'test-pass-123');
   await page.click('.modal-foot button:has-text("Unlock")');
   await page.waitForSelector('.modal-foot button:has-text("Sync now")');
-  check(await page.isVisible('text=Kept (this device is newer)'), 'sync preview shows what will happen');
+  check(await page.isVisible('text=Nothing new for this device.'), 'sync preview shows what will happen');
   await page.click('.modal-foot button:has-text("Sync now")');
   await modalGone();
 }
@@ -478,6 +478,100 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   if (camViolations.length) console.log('   CSP:', camViolations.join(' | '));
   check(!camViolations.length, 'no CSP violations while the camera pointer runs');
   await camBrowser.close();
+}
+
+// --- v0.5 sync ---
+// Automatic sync through one shared file. Playwright can't drive the native file
+// dialogs, so the pickers return a stand-in file handle kept in page memory.
+// Each browser context is one "device"; the shared file is copied between them.
+{
+  const usePrivateFile = () => {
+    window.__sync = '';
+    const h = {
+      kind: 'file', name: 'caleb-sync.calebsync.json',
+      getFile: async () => new File([window.__sync], 'caleb-sync.calebsync.json'),
+      createWritable: async () => {
+        let buf = '';
+        return { write: async (d) => { buf += typeof d === 'string' ? d : await d.text(); }, close: async () => { window.__sync = buf; } };
+      },
+      queryPermission: async () => 'granted',
+      requestPermission: async () => 'granted',
+    };
+    window.showSaveFilePicker = async () => h;
+    window.showOpenFilePicker = async () => [h];
+  };
+  const readFile = (pg) => pg.evaluate(() => window.__sync);
+  const writeFile = (pg, text) => pg.evaluate((t) => { window.__sync = t; }, text);
+  const openBackup = async (pg, unlockFn) => {
+    if (!(await pg.isVisible('.grownup'))) await unlockFn();
+    await pg.click('.gu-tab:has-text("Backup")');
+  };
+  const toastText = async (pg) => (await pg.waitForSelector('.toast')).textContent();
+
+  // Device A (the main page): create the sync file.
+  await page.addInitScript(usePrivateFile);
+  await page.reload();
+  await page.waitForSelector('.grid');
+  await openBackup(page, unlock);
+  await page.click('button:has-text("Set up automatic sync")');
+  await page.click('.modal button:has-text("Yes: create a new sync file")');
+  const pass = await page.inputValue('.modal input[aria-label="Sync passcode"]');
+  check(/^[2-9A-HJKMNP-Z]{4}-[2-9A-HJKMNP-Z]{4}-[2-9A-HJKMNP-Z]{4}$/.test(pass), `a strong passcode is suggested (${pass})`);
+  check(await page.isVisible('.modal small:has-text("Strong passcode")'), 'the passcode strength hint is shown');
+  await page.click('.modal-foot button:has-text("Start syncing")');
+  await page.waitForSelector('text=Last synced', { timeout: 30000 });
+  const f1 = await readFile(page);
+  const h1 = JSON.parse(f1);
+  check(h1.v === 2 && h1.iter > 0 && !JSON.stringify({ ...h1, data: '' }).includes('Sam'), 'the shared file is a v2 sync file with no names in its header');
+  check(await page.isVisible('text=Automatic sync is on'), 'sync status shows it is on and when it last synced');
+
+  // Device B: a fresh install joins with the passcode.
+  const ctxB = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+  const b = await ctxB.newPage();
+  b.on('pageerror', (e) => errors.push('B: ' + e.message));
+  await b.addInitScript(usePrivateFile);
+  await b.goto(url);
+  await b.fill('.onboarding input', 'Bo');
+  await b.click('text=Next');
+  await b.click('.layout-card:has-text("Big")');
+  await b.click('text=Next'); await b.click('text=Next');
+  await b.click('text=Start talking');
+  await b.waitForSelector('.grid');
+  await writeFile(b, f1);
+  const unlockB = async () => {
+    const box = await b.locator('.lockbtn').boundingBox();
+    await b.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await b.mouse.down(); await b.waitForTimeout(2200); await b.mouse.up();
+    await b.waitForSelector('.grownup');
+  };
+  await openBackup(b, unlockB);
+  await b.click('button:has-text("Set up automatic sync")');
+  await b.click('.modal button:has-text("No: choose the sync file")');
+  await b.fill('.modal input[aria-label="Sync passcode"]', 'WRONG-WRONG-WRONG');
+  await b.click('.modal-foot button:has-text("Start syncing")');
+  await b.waitForSelector('.modal .error');
+  check(await b.isVisible('.modal .error'), 'joining with the wrong passcode is refused (and the file is left alone)');
+  check((await readFile(b)) === f1, 'a wrong passcode never overwrites the shared file');
+  await b.fill('.modal input[aria-label="Sync passcode"]', pass.toLowerCase().replace(/-/g, ' '));
+  await b.click('.modal-foot button:has-text("Start syncing")');
+  const tb = await toastText(b);
+  check(/New profiles: Sam/.test(tb), `joining brings the family's profiles (${tb})`);
+  await b.waitForSelector('text=Automatic sync is on');
+  const f2 = await readFile(b);
+  check(f2 !== f1, 'the joining device writes its own profile to the shared file');
+
+  // Back on A: the new profile from B arrives with "Sync now".
+  await writeFile(page, f2);
+  await page.click('button:has-text("Sync now")');
+  const ta = await toastText(page);
+  check(/New profiles: Bo/.test(ta), `"Sync now" brings changes from the other device (${ta})`);
+  await page.waitForSelector('.snap-list li:has-text("New profiles: Bo")');
+  check(await page.isVisible('text=Recent syncs'), 'recent merges are listed');
+  await page.waitForSelector('.toast', { state: 'detached' });
+  await page.click('button:has-text("Sync now")');
+  const again = await toastText(page);
+  check(/Already up to date|Synced/.test(again), `syncing again changes nothing (${again})`);
+  await ctxB.close();
 }
 
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');

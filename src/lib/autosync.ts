@@ -163,8 +163,11 @@ class SyncError extends Error {
 
 interface FileIO { read(): Promise<string>; write(text: string): Promise<void> }
 
+/** The picked file for this session (also kept in IndexedDB so it survives a restart, where the browser allows). */
+let memHandle: FileHandle | null = null;
+
 async function fsHandle(interactive: boolean): Promise<FileHandle> {
-  const h = await getMeta<FileHandle>('syncFileHandle');
+  const h = memHandle ?? (await getMeta<FileHandle>('syncFileHandle'));
   if (!h) throw new SyncError('Choose the sync file again.', 'reach');
   let perm: PermissionState = h.queryPermission ? await h.queryPermission({ mode: 'readwrite' }) : 'granted';
   if (perm !== 'granted' && interactive && h.requestPermission) perm = await h.requestPermission({ mode: 'readwrite' });
@@ -244,7 +247,10 @@ export async function chooseExistingSyncFile(): Promise<{ target: SyncTarget; ha
  * against the file first (if it already holds data), then syncs once.
  */
 export async function setupAutoSync(choice: { target: SyncTarget; handle?: FileHandle }, passcode: string): Promise<SyncLogEntry | null> {
-  if (choice.handle) await setMeta('syncFileHandle', choice.handle);
+  if (choice.handle) {
+    memHandle = choice.handle;
+    try { await setMeta('syncFileHandle', choice.handle); } catch { /* not storable here: works until Caleb restarts */ }
+  }
   const io = ioFor(choice.target, true);
   const text = await reach(io.read());
   await openText(text, passcode); // throws on a wrong passcode or a damaged/other file
@@ -259,6 +265,7 @@ export async function turnOffAutoSync() {
   await setSyncPrefs({ enabled: false });
   await setMeta('syncPasscode', undefined);
   await setMeta('syncFileHandle', undefined);
+  memHandle = null;
   forgetKeys();
   status = {};
   await setMeta('syncStatus', {});
@@ -275,16 +282,18 @@ let lastInteraction = 0;
 let lastSalt: string | undefined;
 
 /** Read → merge → apply → write. Resolves with what happened (null if nothing ran). */
-export function runSync(opts: { interactive?: boolean; source?: SyncSource } = {}): Promise<SyncLogEntry | null> {
-  if (running) {
-    again = true;
-    return running;
+export async function runSync(opts: { interactive?: boolean; source?: SyncSource } = {}): Promise<SyncLogEntry | null> {
+  while (running) {
+    // A background sync joins the one in progress; "Sync now" and setup wait for it, then run their own.
+    if (!opts.interactive) { again = true; return running; }
+    await running.catch(() => null);
   }
-  running = doSync(opts.interactive ?? false, opts.source ?? 'auto').finally(() => {
+  const p = doSync(opts.interactive ?? false, opts.source ?? 'auto').finally(() => {
     running = null;
     if (again) { again = false; schedule(1000); }
   });
-  return running;
+  running = p;
+  return p;
 }
 
 /** Sync from "Sync now". */
