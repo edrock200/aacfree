@@ -1,0 +1,192 @@
+import { useState } from 'react';
+import type { AACButton, Board, WordType } from '../types';
+import { Modal } from './Modal';
+import { Symbol } from './Symbol';
+import { SymbolPicker } from './SymbolPicker';
+import { AudioRecorder } from './AudioRecorder';
+import { COLOR_SWATCHES, WORD_COLORS } from '../lib/colors';
+import { searchBundled } from '../data/defaults';
+import { uid } from '../lib/util';
+import { IconEyeOff, IconMove, IconTrash } from './Icons';
+import { formsFor } from '../lib/morphology';
+
+interface Props {
+  button: AACButton | null;
+  boards: Board[];
+  currentBoardId?: string;
+  allowFolder?: boolean;
+  onSave: (b: AACButton, newBoard?: Board) => void;
+  onDelete?: () => void;
+  onMove?: () => void;
+  onClose: () => void;
+  defaultCols?: number;
+}
+
+type Kind = 'word' | 'folder' | 'speak';
+
+export function ButtonEditor({ button, boards, currentBoardId, allowFolder = true, onSave, onDelete, onMove, onClose, defaultCols = 6 }: Props) {
+  const [b, setB] = useState<AACButton>(() => button ? { ...button } : { id: uid('b'), label: '', type: 'noun' });
+  const [kind, setKind] = useState<Kind>(button?.link ? 'folder' : button?.speakOnly ? 'speak' : 'word');
+  const [picking, setPicking] = useState(false);
+  const [newFolder, setNewFolder] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [formsText, setFormsText] = useState(button?.forms?.join(', ') ?? '');
+
+  const set = (patch: Partial<AACButton>) => setB((x) => ({ ...x, ...patch }));
+
+  // Suggest a symbol automatically as the label is typed (new buttons only).
+  const onLabel = (label: string) => {
+    const patch: Partial<AACButton> = { label };
+    if (!button && (!b.symbol || b.symbol.startsWith('a:'))) {
+      const hit = searchBundled(label, 1)[0];
+      if (hit && hit.keyword === label.trim().toLowerCase()) patch.symbol = hit.symbol;
+    }
+    set(patch);
+  };
+
+  const save = () => {
+    if (!b.label.trim()) return;
+    const out: AACButton = { ...b, label: b.label.trim() };
+    if (!out.speak?.trim() || out.speak.trim() === out.label) delete out.speak;
+    out.speakOnly = kind === 'speak' || undefined;
+    const forms = formsText.split(',').map((x) => x.trim()).filter(Boolean);
+    out.forms = forms.length ? forms : undefined;
+    let nb: Board | undefined;
+    if (kind === 'folder') {
+      out.type = 'folder';
+      if (newFolder || !out.link) {
+        const id = uid('board-');
+        nb = { id, name: out.label, cols: defaultCols, rows: 4, cells: Array(defaultCols * 4).fill(null), symbol: out.symbol };
+        out.link = id;
+      }
+    } else {
+      delete out.link;
+      if (out.type === 'folder') out.type = 'noun';
+    }
+    onSave(out, nb);
+  };
+
+  const otherBoards = boards.filter((x) => x.id !== currentBoardId);
+  const autoForms = formsFor(b.label, b.type);
+
+  return (
+    <>
+      <Modal
+        title={button ? 'Edit button' : 'New button'}
+        onClose={onClose}
+        wide
+        footer={
+          <>
+            {button && onMove && <button className="btn" onClick={onMove}><IconMove /> Move</button>}
+            {button && onDelete && <button className="btn danger-outline" onClick={() => setConfirmDelete(true)}><IconTrash /> Delete</button>}
+            <span className="spacer" />
+            <button className="btn" onClick={onClose}>Cancel</button>
+            <button className="btn primary" onClick={save} disabled={!b.label.trim()}>Save</button>
+          </>
+        }
+      >
+        <div className="editor">
+          <div className="editor-preview">
+            <button className="cell preview" style={{ background: b.color ?? WORD_COLORS[kind === 'folder' ? 'folder' : b.type].light }} onClick={() => setPicking(true)}>
+              {b.symbol ? <Symbol value={b.symbol} /> : <span className="muted">Tap to add picture</span>}
+              <span className="cell-label">{b.label || 'Label'}</span>
+            </button>
+            <button className="btn small" onClick={() => setPicking(true)}>Change picture</button>
+          </div>
+          <div className="editor-fields">
+            <label className="field">
+              <span>Label</span>
+              <input autoFocus={!button} value={b.label} onChange={(e) => onLabel(e.target.value)} placeholder="e.g. trampoline" />
+            </label>
+            <div className="field">
+              <span>What it does</span>
+              <div className="seg">
+                <button className={kind === 'word' ? 'on' : ''} onClick={() => setKind('word')}>Adds word</button>
+                {allowFolder && <button className={kind === 'folder' ? 'on' : ''} onClick={() => setKind('folder')}>Opens folder</button>}
+                <button className={kind === 'speak' ? 'on' : ''} onClick={() => setKind('speak')}>Speaks right away</button>
+              </div>
+            </div>
+            {kind === 'folder' && (
+              <label className="field">
+                <span>Folder to open</span>
+                <select
+                  value={newFolder ? '__new' : b.link ?? '__new'}
+                  onChange={(e) => {
+                    if (e.target.value === '__new') { setNewFolder(true); set({ link: undefined }); }
+                    else { setNewFolder(false); set({ link: e.target.value }); }
+                  }}
+                >
+                  <option value="__new">+ New empty folder called “{b.label || '…'}”</option>
+                  {otherBoards.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                </select>
+              </label>
+            )}
+            {kind !== 'folder' && (
+              <label className="field">
+                <span>Say something different <small>(optional)</small></span>
+                <input value={b.speak ?? ''} onChange={(e) => set({ speak: e.target.value })} placeholder={b.label ? `Says “${b.label}”` : 'Spoken text'} />
+              </label>
+            )}
+            {kind !== 'folder' && (
+              <div className="field">
+                <span>Word type (colour)</span>
+                <div className="types">
+                  {(Object.keys(WORD_COLORS) as WordType[]).filter((t) => t !== 'folder').map((t) => (
+                    <button key={t} className={`type-chip ${b.type === t ? 'on' : ''}`} style={{ background: WORD_COLORS[t].light }} onClick={() => set({ type: t })}>
+                      {WORD_COLORS[t].name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="field">
+              <span>Custom colour <small>(optional)</small></span>
+              <div className="swatches">
+                <button className={`swatch none ${!b.color ? 'on' : ''}`} onClick={() => set({ color: undefined })} aria-label="Automatic colour">A</button>
+                {COLOR_SWATCHES.map((c) => (
+                  <button key={c} className={`swatch ${b.color === c ? 'on' : ''}`} style={{ background: c }} onClick={() => set({ color: c })} aria-label={c} />
+                ))}
+              </div>
+            </div>
+            {kind !== 'folder' && (
+              <div className="field">
+                <span>Recorded voice <small>(plays instead of the computer voice)</small></span>
+                <AudioRecorder value={b.audio} onChange={(audio) => set({ audio })} />
+              </div>
+            )}
+            {kind === 'word' && (
+              <label className="field">
+                <span>Word forms <small>(comma separated, optional)</small></span>
+                <input value={formsText} onChange={(e) => setFormsText(e.target.value)} placeholder={autoForms.slice(0, 4).join(', ') || 'e.g. went, going'} />
+              </label>
+            )}
+            <label className="check">
+              <input type="checkbox" checked={!!b.hidden} onChange={(e) => set({ hidden: e.target.checked || undefined })} />
+              <span><IconEyeOff size={18} /> Hide from the user for now <small>(keeps its place, so the motor plan stays the same)</small></span>
+            </label>
+          </div>
+        </div>
+      </Modal>
+      {picking && (
+        <SymbolPicker
+          initialQuery={b.label}
+          onClose={() => setPicking(false)}
+          onPick={(symbol) => { set({ symbol }); setPicking(false); }}
+        />
+      )}
+      {confirmDelete && (
+        <Modal title="Delete this button?" onClose={() => setConfirmDelete(false)}
+          footer={
+            <>
+              <button className="btn" onClick={() => { set({ hidden: true }); setConfirmDelete(false); }}>Hide instead</button>
+              <span className="spacer" />
+              <button className="btn" onClick={() => setConfirmDelete(false)}>Cancel</button>
+              <button className="btn danger" onClick={onDelete}>Delete</button>
+            </>
+          }>
+          <p>AAC tip: <b>hiding</b> a word keeps its spot, so the person's muscle memory still works when it comes back. Deleting removes it for good (you can still undo).</p>
+        </Modal>
+      )}
+    </>
+  );
+}
