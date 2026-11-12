@@ -15,6 +15,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 | Platform | How |
 |---|---|
 | **Android** (7.0+) | Download [**caleb.apk**](https://github.com/edrock200/caleb/releases/latest/download/caleb.apk) (always the newest version; changes are on the [Releases page](https://github.com/edrock200/caleb/releases)), open it, and allow "install unknown apps". |
+| **Fire TV / Android TV / Fire tablet** | In the [Downloader](https://www.aftvnews.com/downloader/) app, enter code **5791841** (or go to [aftv.news/5791841](http://aftv.news/5791841)). It downloads the newest `caleb.apk`. |
 | **Any browser / iPad / iPhone / Chromebook / PC** | Open the web app (GitHub Pages, see [Website](#website)) and choose **Install** / **Add to Home Screen**. It then works offline. |
 
 ## Features
