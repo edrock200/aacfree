@@ -365,6 +365,53 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.click('.setting:has-text("Lock backups with a passcode") .switch');
 }
 
+// --- v0.5 data ---
+{
+  if (await page.isVisible('.grownup')) await page.click('.gu-nav-foot .btn.primary');
+  await page.waitForSelector('.grid');
+  // A word edit and a spoken sentence must both survive a reload.
+  await unlock();
+  await page.click('.gu-tab:has-text("Boards")');
+  await page.click('text=Edit Home board');
+  await page.waitForSelector('.editing');
+  const word = (await cells()).find((l) => l && !/folder$/.test(l) && l !== 'zoom');
+  await page.click(`.grid .cell[aria-label="${word}"]`);
+  await page.fill('.editor input >> nth=0', 'zoom');
+  await page.click('.modal-foot button:has-text("Save")');
+  await page.click('.edit-tools button:has-text("Done")');
+  await page.waitForSelector('.grid');
+  await page.click('.grid .cell[aria-label="zoom"]');
+  await page.click('.speakbtn');
+  const beforeReload = await cells();
+  await page.waitForTimeout(800); // past the save debounce
+  await page.reload();
+  await page.waitForSelector('.grid');
+  const afterReload = await cells();
+  check(afterReload.includes('zoom') && JSON.stringify(afterReload) === JSON.stringify(beforeReload), 'edits survive a page reload');
+  check(!(await page.isVisible('.save-error')), 'no load or save problem after a reload');
+  await page.click('.navbtn[aria-label="Phrases"]');
+  await page.click('.tab:has-text("Recent")');
+  check(await page.isVisible('.phrase:has-text("zoom")'), 'recent sentences survive a reload');
+  await page.click('.nav-home');
+  // A second window sees the same data.
+  const page2 = await ctx.newPage();
+  await page2.goto(url);
+  await page2.waitForSelector('.grid');
+  const other = await page2.$$eval('.grid .cell', (els) => els.map((e) => e.getAttribute('aria-label')));
+  check(other.includes('zoom'), 'a second window opens the same saved boards');
+  await page2.close();
+  // Offline reload (only when the service worker already controls the page).
+  if (await page.evaluate(() => !!navigator.serviceWorker?.controller)) {
+    await ctx.setOffline(true);
+    await page.reload();
+    await page.waitForSelector('.grid');
+    check((await cells()).includes('zoom'), 'reloads offline with saved boards');
+    await ctx.setOffline(false);
+  } else {
+    console.log('- offline reload skipped (service worker not controlling yet)');
+  }
+}
+
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();
 process.exit(failures || errors.length ? 1 : 0);
