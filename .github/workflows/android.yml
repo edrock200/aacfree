@@ -66,6 +66,12 @@ jobs:
             echo "$KS_B64" | base64 -d > signing/release.jks
             printf 'storeFile=signing/release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' "$KS_PASS" "$KEY_ALIAS" "$KEY_PASS" > keystore.properties
             ./gradlew assembleRelease --no-daemon
+            CERT=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
+            if [ "$CERT" != "$RELEASE_CERT_SHA256" ]; then
+              echo "::error::The keystore in ANDROID_KEYSTORE_BASE64 is not Caleb's release key. Its APKs could not update existing installs."
+              exit 1
+            fi
+            echo "Signed with Caleb's release key."
             cp app/build/outputs/apk/release/app-release.apk "../$OUT"
           elif [[ "$RELEASE" == "true" ]]; then
             BT="$ANDROID_HOME/build-tools/36.0.0"
