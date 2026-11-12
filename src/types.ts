@@ -184,9 +184,9 @@ export interface Settings {
   // Keyboard
   keyboardLayout: 'qwerty' | 'abc' | 'azerty';
   learnWords: boolean;
-  // Grown-up lock
-  lock: LockMethod;
-  pin?: string;
+  /** Fetch a pictogram from arasaac.org when its bundled copy is missing (e.g. on imported boards). */
+  downloadSymbols: boolean;
+  // The grown-up lock and PIN are app-wide since v0.5: see AppData.grownUpLock.
   // Data
   logging: boolean;
   /** Weekly automatic backup file (Android: Documents/Caleb; web: a chosen folder). */
@@ -239,12 +239,23 @@ export interface SymbolLibrary {
   additions: Record<string, LibrarySymbol[]>;
 }
 
+/** The grown-up lock: one for the whole app, so switching or adding profiles can't get round it. */
+export interface GrownUpLock {
+  lock: LockMethod;
+  /** 4–6 digits, required when `lock` is 'pin'. */
+  pin?: string;
+  /** Set once when profiles had different PINs: name of the profile whose PIN was kept. */
+  pinNotice?: string;
+}
+
 export interface AppData {
   version: number;
   profiles: Profile[];
   activeProfileId: string;
   onboarded: boolean;
   library: SymbolLibrary;
+  /** App-wide grown-up lock (v0.5+). Older saves kept it per profile; migrate() moves it here. */
+  grownUpLock?: GrownUpLock;
 }
 
 export interface MessageWord {

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { readFileSync } from 'node:fs';
@@ -8,11 +8,24 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 // BASE lets the site be served from a sub-path (e.g. GitHub Pages: /caleb/).
 const base = process.env.BASE ?? './';
 
+/**
+ * index.html carries the app's Content-Security-Policy. The dev server injects inline scripts
+ * (React refresh), so the policy is left out while developing; builds always keep it.
+ */
+function devWithoutCsp(): Plugin {
+  return {
+    name: 'caleb-dev-without-csp',
+    apply: 'serve',
+    transformIndexHtml: (html) => html.replace(/\s*<meta http-equiv="Content-Security-Policy"[^>]*>/, ''),
+  };
+}
+
 export default defineConfig({
   base,
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [
     react(),
+    devWithoutCsp(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: null,
@@ -51,6 +64,20 @@ export default defineConfig({
   ],
   build: {
     target: 'es2020',
-    chunkSizeWarningLimit: 900,
+    chunkSizeWarningLimit: 600,
+    rolldownOptions: {
+      output: {
+        // Separate long-lived chunks: the framework, the camera pointer (MediaPipe) and OBF
+        // (fflate). Grown-up screens are a lazy route (App.tsx). Every chunk is still
+        // precached by the service worker and bundled in the APK, so all of it works offline.
+        codeSplitting: {
+          groups: [
+            { name: 'mediapipe', test: /node_modules[\\/]@mediapipe[\\/]/, priority: 30 },
+            { name: 'obf', test: /node_modules[\\/]fflate[\\/]|src[\\/]lib[\\/]obf\.ts/, priority: 20 },
+            { name: 'vendor', test: /node_modules[\\/](react|react-dom|scheduler|zustand|idb|@capacitor)[\\/]/, priority: 10 },
+          ],
+        },
+      },
+    },
   },
 });

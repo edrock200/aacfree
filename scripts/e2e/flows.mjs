@@ -13,6 +13,9 @@ let failures = 0;
 const check = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) failures++; };
 const cells = () => page.$$eval('.grid .cell', (els) => els.map((e) => e.getAttribute('aria-label')));
 const msgText = () => page.$$eval('.msg-word', (els) => els.map((e) => e.textContent).join(' '));
+/** Wait for a selector instead of sleeping; a timeout is reported by the check that follows. */
+const waitFor = (sel, opts = {}) => page.waitForSelector(sel, { timeout: 5000, ...opts }).catch(() => null);
+const modalGone = () => waitFor('.modal', { state: 'detached', timeout: 8000 });
 
 async function unlock() {
   const box = await page.locator('.lockbtn').boundingBox();
@@ -51,7 +54,7 @@ await page.click('.nav-home');
 await page.click('.navbtn[aria-label="Find a word"]');
 await page.fill('.modal input', 'banana');
 await page.click('.find-row >> nth=0');
-await page.waitForTimeout(1500);
+await waitFor('.cell-highlight[aria-label="banana"]');
 check(await page.isVisible('.cell-highlight[aria-label="banana"]'), 'find word walks to the word and highlights it');
 await page.click('.nav-home');
 
@@ -91,7 +94,10 @@ await page.click('.edit-tools button:has-text("Undo")');
 check((await cells()).indexOf('want') === idxWant, 'undo restores position');
 await page.click('.edit-tools button:has-text("Done")');
 check(!(await cells()).includes('look'), 'hidden button is masked for the user');
-check((await cells()).length === before.length - 1 || true, 'grid keeps its size');
+{
+  const now = await cells();
+  check(now.length === before.length && now[before.indexOf('look')] === null, 'grid keeps its size (the hidden word leaves an empty gap in place)');
+}
 const emptyCount = await page.$$eval('.grid .cell-empty', (e) => e.length);
 check(emptyCount >= 1, 'masked button leaves an empty gap (motor plan kept)');
 
@@ -116,7 +122,7 @@ await page.click('.gu-tab:has-text("Boards")');
 await page.click('button:has-text("New category")');
 await page.selectOption('.modal select', { label: 'Soccer (1) (yours)' });
 await page.click('.modal-foot button:has-text("Create category")');
-await page.waitForTimeout(400);
+await waitFor('.grid .cell[aria-label="goal"]');
 check((await cells()).includes('goal'), 'board category created from library category');
 await page.click('.edit-tools button:has-text("Done")');
 await page.click('.nav-home');
@@ -147,7 +153,7 @@ await page.click('.gu-tab:has-text("Backup")');
 const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('text=Restore from file…')]);
 await chooser.setFiles(backupPath);
 await page.click('.modal-foot button:has-text("Replace with backup")');
-await page.waitForTimeout(800);
+await modalGone();
 await page.click('.gu-nav-foot button:has-text("Lock")');
 await page.waitForSelector('.grid');
 check((await cells()).includes('tablet'), 'backup restore brings back edited board');
@@ -157,7 +163,7 @@ await unlock();
 await page.click('.gu-tab:has-text("Backup")');
 const [chooser2] = await Promise.all([page.waitForEvent('filechooser'), page.click('text=Import boards…')]);
 await chooser2.setFiles(obzPath);
-await page.waitForTimeout(1500);
+await waitFor('.toast:has-text("new profile")', { timeout: 10000 });
 await page.click('.gu-tab:has-text("Profiles")');
 const profiles = await page.$$eval('.profile-list li', (els) => els.length);
 check(profiles === 2, 'OBZ import creates a second profile');
@@ -182,15 +188,11 @@ await page.click('.setting:has-text("Turn on scanning") .switch');
 await page.click('.gu-nav-foot button:has-text("Lock")');
 await page.waitForSelector('.grid');
 await page.click('.nav-bs').catch(() => {});
-await page.waitForTimeout(400);
+await waitFor('.scan-hl');
 check(await page.$('.scan-hl') !== null, 'scanning highlights an item');
 const initialMsg = await msgText();
 // Wait for highlight to land on a grid row then press switch twice (row then item).
-for (let i = 0; i < 12; i++) {
-  const inGrid = await page.$('.grid .scan-hl');
-  if (inGrid) break;
-  await page.waitForTimeout(1500);
-}
+await waitFor('.grid .scan-hl', { timeout: 20000 });
 await page.keyboard.press('Space');
 await page.waitForTimeout(300);
 await page.keyboard.press('Space');
@@ -200,7 +202,7 @@ check((await msgText()) !== initialMsg, 'switch selection adds a word');
 // Find word must not trap a switch user in its text box.
 await page.evaluate(() => document.querySelector('.navbtn[aria-label="Find a word"]').dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 })));
 await page.waitForSelector('.modal input');
-await page.waitForTimeout(300);
+await waitFor('.modal .scan-hl');
 await page.keyboard.press('Space'); // the switch selects the highlighted Close button…
 await page.waitForTimeout(300);
 check(!(await page.$('.modal input')), 'switch keys drive scanning inside Find word (not typed into the box)');
@@ -210,7 +212,7 @@ check(!(await page.$('.modal input')), 'switch keys drive scanning inside Find w
   const box = await page.locator('.lockbtn').boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up();
-  await page.waitForTimeout(600);
+  await waitFor('.lockgate');
   check(await page.isVisible('.lockgate'), 'PIN gate stays open while scanning');
   for (const d of '1234') await page.click(`.pinpad .btn:text-is("${d}")`);
   await page.waitForSelector('.grownup', { timeout: 3000 }).catch(() => {});
@@ -269,7 +271,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.click('.gu-tab:has-text("Display")');
   await page.click('.seg button:has-text("Español")');
   await page.click('.modal-foot button:has-text("Cambiar")');
-  await page.waitForTimeout(500);
+  await waitFor('.gu-tab:has-text("Vista")');
   check(await page.isVisible('.gu-tab:has-text("Vista")'), 'switching to Spanish translates the interface');
   await page.click('.gu-nav-foot .btn.primary'); // Bloquear y volver
   await page.waitForSelector('.grid');
@@ -283,7 +285,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.click('.gu-tab:has-text("Vista")');
   await page.click('.seg button:has-text("English")');
   await page.click('.modal-foot button:has-text("Switch")');
-  await page.waitForTimeout(500);
+  await waitFor('.gu-tab:has-text("Display")');
   await page.click('.gu-nav-foot .btn.primary');
   await page.waitForSelector('.grid');
   { const after = await cells(); const diff = before.map((x, i) => x !== after[i] ? `${x}→${after[i]}` : null).filter(Boolean); if (diff.length) console.log('   diff:', diff.join(', ')); }
@@ -308,7 +310,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.waitForSelector('.modal-foot button:has-text("Sync now")');
   check(await page.isVisible('text=Kept (this device is newer)'), 'sync preview shows what will happen');
   await page.click('.modal-foot button:has-text("Sync now")');
-  await page.waitForTimeout(500);
+  await modalGone();
 }
 
 // --- v0.4: language options and encrypted backups
@@ -321,9 +323,10 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   const choice = (n) => page.locator('.gu-main .setting.choice').nth(n);
   await choice(0).locator('button:has-text("Français")').click();
   await page.click('.modal-foot .btn.primary');
-  await page.waitForTimeout(500);
+  await modalGone();
+  await waitFor('.gu-main .setting.choice');
   await choice(1).locator('button:has-text("English")').click(); // app language stays English
-  await page.waitForTimeout(300);
+  await waitFor('.gu-tab:has-text("Display")');
   check(await page.isVisible('.gu-tab:has-text("Display")'), 'app language can differ from the communication language');
   await choice(2).locator('button:has-text("English")').click(); // second language on buttons
   await page.click('.gu-nav-foot .btn.primary');
@@ -340,7 +343,8 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await choice(2).locator('button').first().click(); // none
   await choice(0).locator('button:has-text("English")').click();
   await page.click('.modal-foot .btn.primary');
-  await page.waitForTimeout(500);
+  await modalGone();
+  await waitFor('.gu-main .setting.choice');
   await choice(1).locator('button').first().click(); // app language: same
   await page.click('.gu-nav-foot .btn.primary');
   await page.waitForSelector('.grid');
@@ -360,7 +364,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.fill('.modal input', 'backup-pass-9');
   await page.click('.modal-foot button:has-text("Unlock")');
   await page.click('.modal-foot button:has-text("Replace with backup")');
-  await page.waitForTimeout(600);
+  await modalGone();
   check(await page.isVisible('.gu-tab:has-text("Backup")'), 'encrypted backup restores with its passcode');
   await page.click('.setting:has-text("Lock backups with a passcode") .switch');
 }
@@ -458,6 +462,117 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await toolsMenu();
   check(!(await page.isVisible('.tool-tile[aria-label="Draw"]')) && (await page.isVisible('.tool-tile[aria-label="Timer"]')), 'a grown-up can hide one tool');
   await page.click('.nav-home');
+}
+
+// --- v0.5 platform ---
+{
+  // Content-Security-Policy: record every violation from here on (reload so the recorder runs first).
+  const cspRecorder = () => {
+    window.__csp = [];
+    document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.effectiveDirective} ${e.blockedURI}`));
+  };
+  const cspConsole = [];
+  page.on('console', (m) => { if (/Content.Security.Policy/i.test(m.text())) cspConsole.push(m.text()); });
+  await page.addInitScript(cspRecorder);
+  if (await page.isVisible('.grownup')) await page.click('.gu-nav-foot .btn.primary');
+  await page.reload();
+  await page.waitForSelector('.grid');
+  check(await page.$('meta[http-equiv="Content-Security-Policy"]') !== null, 'the built app has a Content-Security-Policy');
+  check((await cells()).includes('tablet'), 'data survives a page reload');
+  const swReady = await page.evaluate(() => Promise.race([
+    navigator.serviceWorker.ready.then(() => true),
+    new Promise((r) => setTimeout(() => r(false), 10000)),
+  ]));
+  check(swReady, 'service worker registers under the CSP (offline cache)');
+  const media = await page.evaluate(async () => {
+    const load = (el, src, ok, bad) => new Promise((r) => { el.addEventListener(ok, () => r(true)); el.addEventListener(bad, () => r(false)); el.src = src; setTimeout(() => r(false), 4000); });
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="4" height="4" fill="red"/></svg>';
+    const blobImg = await load(new Image(), URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' })), 'load', 'error');
+    const dataImg = await load(new Image(), 'data:image/svg+xml,' + encodeURIComponent(svg), 'load', 'error');
+    // 0.1 s of silence as a WAV (like a recorded voice clip from IndexedDB).
+    const n = 800, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+    const str = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    str(0, 'RIFF'); v.setUint32(4, 36 + n, true); str(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); str(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    const audio = new Audio();
+    audio.preload = 'auto';
+    const blobAudio = await load(audio, URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })), 'loadeddata', 'error');
+    const blobFetch = await fetch(URL.createObjectURL(new Blob(['x']))).then(() => true, () => false);
+    const dataFetch = await fetch('data:text/plain,x').then(() => true, () => false);
+    return { blobImg, dataImg, blobAudio, blobFetch, dataFetch };
+  });
+  check(media.blobImg && media.dataImg, 'photos from IndexedDB (blob:) and data: images load under the CSP');
+  check(media.blobAudio, 'recorded voice clips (blob: audio) play under the CSP');
+  check(media.blobFetch && media.dataFetch, 'backup photos can be decoded (fetch of data:/blob:) under the CSP');
+
+  // The grown-up lock is app-wide: a new profile can't get round the PIN (defect 29).
+  await unlock(); // PIN 1234 from the scanning checks
+  await page.click('.gu-tab:has-text("Lock")');
+  check(await page.isVisible('text=The lock covers every profile on this device.'), 'lock panel says it covers every profile');
+  check(await page.isChecked('.setting:has-text("Download missing pictures from ARASAAC") input'), 'downloading missing pictures from ARASAAC is on by default (and can be turned off)');
+  await page.click('.gu-tab:has-text("Profiles")');
+  const profileNames = await page.$$eval('.profile-list li b', (els) => els.map((e) => e.textContent));
+  await page.click('button:has-text("+ Add profile")');
+  await page.fill('.modal input', 'Kid');
+  await page.click('.modal-foot button:has-text("Create")');
+  await modalGone();
+  await page.click('.gu-nav-foot button:has-text("Lock")');
+  await page.waitForSelector('.grid');
+  {
+    const box = await page.locator('.lockbtn').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up();
+  }
+  await waitFor('.lockgate, .grownup');
+  check(await page.isVisible('.lockgate') && !(await page.isVisible('.grownup')), 'a newly added profile still needs the PIN');
+  for (const d of '1234') await page.click(`.pinpad .btn:text-is("${d}")`);
+  await page.waitForSelector('.grownup');
+  await page.click('.gu-tab:has-text("Profiles")');
+  await page.click(`.profile-list li:has-text("${profileNames[0]}") button:has-text("Switch")`);
+  await page.click('.profile-list li:has-text("Kid") button:has-text("Delete")');
+  await page.click('.modal-foot button.danger');
+  await modalGone();
+  check((await page.$$eval('.profile-list li', (els) => els.length)) === profileNames.length, 'the extra profile can be removed again');
+  await page.click('.gu-nav-foot button:has-text("Lock")');
+  await page.waitForSelector('.grid');
+
+  const violations = [...(await page.evaluate(() => window.__csp ?? [])), ...cspConsole];
+  if (violations.length) console.log('   CSP:', violations.join(' | '));
+  check(!violations.length, 'no Content-Security-Policy violations while using the app');
+
+  // MediaPipe head pointer with a fake camera: the WASM and model must load under the CSP.
+  const camBrowser = await chromium.launch({ args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] });
+  const camCtx = await camBrowser.newContext({ viewport: { width: 1180, height: 820 }, permissions: ['camera'] });
+  const cam = await camCtx.newPage();
+  const camConsole = [];
+  cam.on('console', (m) => { if (/Content.Security.Policy/i.test(m.text())) camConsole.push(m.text()); });
+  await cam.addInitScript(cspRecorder);
+  await cam.goto(url);
+  await cam.fill('.onboarding input', 'Cam');
+  await cam.click('text=Next');
+  await cam.click('.layout-card:has-text("Medium")');
+  await cam.click('text=Next'); await cam.click('text=Next');
+  await cam.click('text=Start talking');
+  await cam.waitForSelector('.grid');
+  {
+    const box = await cam.locator('.lockbtn').boundingBox();
+    await cam.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await cam.mouse.down(); await cam.waitForTimeout(2200); await cam.mouse.up();
+  }
+  await cam.waitForSelector('.grownup');
+  await cam.click('.gu-tab:has-text("Access")');
+  await cam.click('.setting.choice button:has-text("Head pointer (camera)")');
+  await cam.click('.gu-nav-foot button:has-text("Lock")');
+  await cam.waitForSelector('.grid');
+  await cam.waitForSelector('.pointer-status.tracking, .pointer-status.no-face, .pointer-status.error', { timeout: 60000 }).catch(() => null);
+  const status = await cam.$eval('.pointer-status', (e) => `${e.className} ${e.textContent}`).catch(() => 'none');
+  // 'no-face' means the face model is running on the camera frames (the fake camera shows no face).
+  check(/tracking|no-face/.test(status), `head pointer loads MediaPipe (WASM + face model) under the CSP (${status.trim()})`);
+  const camViolations = [...(await cam.evaluate(() => window.__csp ?? [])), ...camConsole];
+  if (camViolations.length) console.log('   CSP:', camViolations.join(' | '));
+  check(!camViolations.length, 'no CSP violations while the camera pointer runs');
+  await camBrowser.close();
 }
 
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
