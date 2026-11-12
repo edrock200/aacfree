@@ -22,7 +22,9 @@ description: Cut a new Caleb release — bump versions, run checks, build the we
 7. **GitHub Release:** after the change is on `main`, either push a tag (`git tag v<version> && git push origin v<version>`) or, where tag pushes are blocked (cloud sessions), run the **Android APK** workflow on `main` with `publish: true` (workflow_dispatch). It creates the `v<version>` tag itself. Either way, `.github/workflows/android.yml`
    publishes a Release named `Caleb v<version>` with the CHANGELOG section as notes and two assets: `caleb-v<version>.apk` and `caleb.apk`.
    The fixed name keeps one permanent link to the newest APK: `https://github.com/edrock200/caleb/releases/latest/download/caleb.apk`.
-   Never rename `caleb.apk`, since the README and families' bookmarks use that link.
+   Never rename `caleb.apk`, since the README, families' bookmarks and the Downloader short link use that link.
+   The AFTVnews Downloader code **5791841** (`http://aftv.news/5791841`) is listed in the release notes, README and website. It must keep
+   pointing at the `latest/download/caleb.apk` link above. It is managed on aftvnews.com, outside this repo.
    With the signing secrets set, CI builds and signs the APK itself. Without them, it publishes the committed `release/caleb-latest.apk`,
    but only if that file's versionName matches the tag and it is signed with the release key. Otherwise the run fails, so step 4 must come first.
 
