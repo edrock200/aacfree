@@ -85,6 +85,8 @@ const isConsonant = (c: string) => !!c && !VOWELS.includes(c);
 /** Double final consonant for CVC words (run → running), skipping w/x/y. */
 function doubles(w: string): boolean {
   if (w.length < 3 || w.length > 5) return false;
+  // Only one-syllable words (stop → stopping, but open → opening).
+  if ((w.match(/[aeiouy]+/g) ?? []).length !== 1) return false;
   const [a, b, c] = w.slice(-3);
   return isConsonant(a) && VOWELS.includes(b) && isConsonant(c) && !'wxy'.includes(c);
 }

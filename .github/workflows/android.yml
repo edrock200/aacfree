@@ -1,0 +1,61 @@
+name: Android APK
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npx tsc --noEmit -p . && npm test
+      - run: npm run build && npx cap sync android
+      # Optional signing: add repository secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
+      # ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD. Without them a debug-signed APK is produced.
+      - name: Build APK
+        working-directory: android
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          OUT: caleb-${{ github.ref_name }}.apk
+        run: |
+          OUT="${OUT//\//-}"
+          if [ -n "$KS_B64" ]; then
+            mkdir -p signing
+            echo "$KS_B64" | base64 -d > signing/release.jks
+            printf 'storeFile=signing/release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' "$KS_PASS" "$KEY_ALIAS" "$KEY_PASS" > keystore.properties
+            ./gradlew assembleRelease --no-daemon
+            cp app/build/outputs/apk/release/app-release.apk "../$OUT"
+          else
+            echo "::warning::No signing secrets set; building a debug-signed APK."
+            ./gradlew assembleDebug --no-daemon
+            cp app/build/outputs/apk/debug/app-debug.apk "../$OUT"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: caleb-apk
+          path: caleb-*.apk
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: caleb-*.apk
+          generate_release_notes: true

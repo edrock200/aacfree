@@ -260,8 +260,8 @@ export const HOME_LAYOUTS: Record<string, { cols: number; rows: number; cells: s
     cols: 4, rows: 3,
     cells: [
       'p:I', 'v:want', 'd:more', '>food',
-      'v:help', 'v:go', 'v:play', '>play',
-      'v:like', 'x:not', 'v:all done@finished', '>feelings',
+      'v:help', 'v:go', 'v:play', '>feelings',
+      'x:not', 'v:like', 'v:all done@finished', '>more',
     ],
   },
   // 6 × 5 — 30 cells

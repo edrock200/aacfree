@@ -7,8 +7,9 @@ android/build
 android/.gradle
 android/local.properties
 android/app/release
-android/keystore.properties
 *.keystore
 *.jks
-!release/
+android/keystore.properties
+android/signing/
 .idea
+dist-site

@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore, useSettings } from '../store';
 import { applyCase, joinWords } from '../lib/sentence';
 import { Symbol } from './Symbol';
-import { IconBack, IconBackspace, IconClose, IconExpand, IconHome, IconSpeak, IconStar } from './Icons';
+import { IconBack, IconBackspace, IconClose, IconExpand, IconHome, IconShare, IconSpeak, IconStar } from './Icons';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 import { usePress } from '../lib/usePress';
 import { uid } from '../lib/util';
 
@@ -41,6 +43,18 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
     showToast('Saved to Phrases ★');
   };
 
+  const share = async () => {
+    if (!text) return;
+    try {
+      if (Capacitor.isNativePlatform()) await Share.share({ text });
+      else if (navigator.share) await navigator.share({ text });
+      else {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied');
+      }
+    } catch { /* cancelled */ }
+  };
+
   const canBack = boardStack.length > 1 || screen !== 'talk';
 
   return (
@@ -69,6 +83,9 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
           <div className="msg-tools" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}>
             <button className="iconbtn small" aria-label="Save as phrase" onClick={(e) => { e.stopPropagation(); savePhrase(); }} data-scan-item>
               <IconStar size={20} filled={saved} />
+            </button>
+            <button className="iconbtn small" aria-label="Share or copy text" onClick={(e) => { e.stopPropagation(); share(); }} data-scan-item>
+              <IconShare size={20} />
             </button>
             <button className="iconbtn small" aria-label="Show in big text" onClick={(e) => { e.stopPropagation(); onShow(text); }} data-scan-item>
               <IconExpand size={20} />

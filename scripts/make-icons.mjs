@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /** Generates PWA + Android launcher icons from public/icon.svg. */
 import sharp from 'sharp';
-import { mkdir, readFile, access } from 'node:fs/promises';
+import { mkdir, readFile, access, writeFile, readdir, rename } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const svg = await readFile(join(root, 'public/icon.svg'));
+const fgSvg = await readFile(join(root, 'public/icon-foreground.svg'));
 const out = (p) => join(root, p);
 const png = (size, file, pad = 0, bg) => {
   const inner = Math.round(size * (1 - pad * 2));
@@ -32,8 +33,28 @@ try {
     await mkdir(out(dir), { recursive: true });
     await png(s, `${dir}/ic_launcher.png`);
     await png(s, `${dir}/ic_launcher_round.png`);
-    // Adaptive icon foreground: logo within the 66% safe zone on transparent background.
-    await png(fg[d], `${dir}/ic_launcher_foreground.png`, 0.17);
+    // Adaptive icon foreground: bubble within the 66% safe zone; background colour set in values.
+    const inner = Math.round(fg[d] * 0.78);
+    await sharp(fgSvg).resize(inner, inner).extend({
+      top: Math.round((fg[d] - inner) / 2), bottom: fg[d] - inner - Math.round((fg[d] - inner) / 2),
+      left: Math.round((fg[d] - inner) / 2), right: fg[d] - inner - Math.round((fg[d] - inner) / 2),
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    }).png().toFile(out(`${dir}/ic_launcher_foreground.png`));
+  }
+  await writeFile(out('android/app/src/main/res/values/ic_launcher_background.xml'),
+    '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#1F8A75</color>\n</resources>\n');
+  // Splash screens: logo centred on the app background colour, at each existing size.
+  const res = out('android/app/src/main/res');
+  for (const dir of await readdir(res)) {
+    if (!dir.startsWith('drawable')) continue;
+    const f = join(res, dir, 'splash.png');
+    try { await access(f); } catch { continue; }
+    const { width, height } = await sharp(f).metadata();
+    const logo = Math.round(Math.min(width, height) * 0.28);
+    const buf = await sharp(svg).resize(logo, logo).png().toBuffer();
+    await sharp({ create: { width, height, channels: 4, background: '#f6f3ee' } })
+      .composite([{ input: buf, gravity: 'center' }]).png().toFile(f + '.tmp');
+    await rename(f + '.tmp', f);
   }
   console.log('Android icons written');
 } catch { /* no android project yet */ }

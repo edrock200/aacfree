@@ -10,7 +10,7 @@ export function symbolSrc(ref?: string): string | undefined {
 }
 
 /** Renders a symbol reference (ARASAAC id, emoji, or user image asset). */
-export function Symbol({ value, className, alt = '' }: { value?: string; className?: string; alt?: string }) {
+export function Symbol({ value, className, alt = '', lazy }: { value?: string; className?: string; alt?: string; lazy?: boolean }) {
   const [url, setUrl] = useState<string | undefined>(() => symbolSrc(value));
   const [failed, setFailed] = useState(false);
 
@@ -36,7 +36,7 @@ export function Symbol({ value, className, alt = '' }: { value?: string; classNa
       src={failed && value.startsWith('a:') ? `https://static.arasaac.org/pictograms/${value.slice(2)}/${value.slice(2)}_300.png` : url}
       alt={alt}
       draggable={false}
-      loading="lazy"
+      loading={lazy ? 'lazy' : 'eager'}
       onError={() => !failed && setFailed(true)}
     />
   );

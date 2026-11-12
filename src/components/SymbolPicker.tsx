@@ -99,7 +99,7 @@ export function SymbolPicker({ initialQuery = '', onPick, onClose }: Props) {
           <div className="sym-grid">
             {bundled.map((r) => (
               <button key={r.symbol} className="sym-opt" onClick={() => onPick(r.symbol)} title={r.keyword}>
-                <Symbol value={r.symbol} />
+                <Symbol value={r.symbol} lazy />
                 <span>{r.keyword}</span>
               </button>
             ))}

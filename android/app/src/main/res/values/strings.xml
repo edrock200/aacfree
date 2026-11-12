@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Caleb</string>
+    <string name="title_activity_main">Caleb</string>
+    <string name="package_name">org.calebaac.app</string>
+    <string name="custom_url_scheme">org.calebaac.app</string>
+</resources>
