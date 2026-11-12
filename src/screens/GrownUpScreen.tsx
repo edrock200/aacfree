@@ -40,9 +40,13 @@ function BackupNudge({ onGo, hidden }: { onGo: () => void; hidden: boolean }) {
   );
 }
 
+let lastPanel: Panel = 'boards';
+
 export function GrownUpScreen() {
   const p = useProfile();
-  const [panel, setPanel] = useState<Panel>('boards');
+  // Remember the open panel across remounts (e.g. after changing language).
+  const [panel, setPanelState] = useState<Panel>(lastPanel);
+  const setPanel = (x: Panel) => { lastPanel = x; setPanelState(x); };
   const { setScreen, setEditMode } = useStore.getState();
 
   return (

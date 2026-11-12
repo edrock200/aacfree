@@ -313,6 +313,8 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
 
 // --- v0.4: language options and encrypted backups
 {
+  if (await page.isVisible('.grownup')) await page.click('.gu-nav-foot .btn.primary');
+  await page.waitForSelector('.grid');
   const before = await cells();
   await unlock();
   await page.click('.gu-tab:has-text("Display")');

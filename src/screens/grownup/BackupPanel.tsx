@@ -96,9 +96,9 @@ export function BackupPanel() {
     <>
       <Section title={t('Backup file')} intro={t('Saves everything — all profiles, boards, photos, recordings, phrases and settings — in one file. Keep a copy somewhere safe (cloud drive, email to yourself). Use it to move to a new device too.')}>
         <p className={last && Date.now() - last < 30 * 86400000 ? 'muted' : 'warn'}>
-          {last ? `Last backup file: ${formatDate(last)}` : 'You have not saved a backup file yet.'}
+          {last ? t('Last backup file: {date}', { date: formatDate(last) }) : t('You have not saved a backup file yet.')}
         </p>
-        {usage && <p className="muted small">Storage used on this device: {(usage.used / 1048576).toFixed(1)} MB of {(usage.quota / 1073741824).toFixed(1)} GB available.</p>}
+        {usage && <p className="muted small">{t('Storage used on this device: {used} MB of {quota} GB available.', { used: (usage.used / 1048576).toFixed(1), quota: (usage.quota / 1073741824).toFixed(1) })}</p>}
         <div className="row">
           <button className="btn primary" disabled={busy} onClick={exportAll}>{t('Save backup file')}</button>
           <button className="btn" disabled={busy} onClick={importAll}>{t('Restore from file…')}</button>

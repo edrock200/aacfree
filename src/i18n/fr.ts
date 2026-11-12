@@ -664,4 +664,8 @@ export const FR_UI: Record<string, string> = {
   "Switch to {lang}": "Passer en {lang}",
   "Board words, phrases and schedules will be translated. Every button stays in its place. Words you added yourself stay as they are. A snapshot is saved first.": "Les mots des tableaux, les phrases et les emplois du temps seront traduits. Chaque bouton reste à sa place. Les mots que tu as ajoutés toi-même ne changent pas. Une copie automatique est d'abord enregistrée.",
   "Could not update the cloud backup file — choose it again.": "Impossible de mettre à jour le fichier de sauvegarde dans le cloud — choisis-le à nouveau.",
+  // v0.4 additions
+  "Last backup file: {date}": "Dernière sauvegarde : {date}",
+  "You have not saved a backup file yet.": "Tu n'as encore enregistré aucune sauvegarde.",
+  "Storage used on this device: {used} MB of {quota} GB available.": "Espace utilisé sur cet appareil : {used} Mo sur {quota} Go disponibles.",
 };
