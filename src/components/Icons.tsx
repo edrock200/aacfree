@@ -122,3 +122,6 @@ export const IconTimer = (p: P) => (
 export const IconPerson = (p: P) => (
   <svg {...base(p)}><circle cx="12" cy="7" r="4" /><path d="M5 21a7 7 0 0 1 14 0" /></svg>
 );
+export const IconMore = (p: P) => (
+  <svg {...base(p)}><circle cx="5" cy="12" r="1.6" fill="currentColor" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /><circle cx="19" cy="12" r="1.6" fill="currentColor" /></svg>
+);

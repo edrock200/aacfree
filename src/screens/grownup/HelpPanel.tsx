@@ -23,6 +23,9 @@ export function HelpPanel() {
           <dt>Make a new folder</dt><dd>Edit an empty square → “Opens folder” → “New empty folder”. Then tap the folder and add words.</dd>
           <dt>Word forms</dt><dd>Long-press a word (or tap a word in the message bar) to choose go → went / going / goes. Plurals and “-er/-est” work too.</dd>
           <dt>Record a family voice</dt><dd>Edit a button or phrase → Record voice. That clip plays instead of the computer voice.</dd>
+          <dt>Start small</dt><dd>Boards &amp; words → “Starter words only” hides all but key words on Home (they keep their places). Reveal more over time by editing a hidden button and unticking “Hide”.</dd>
+          <dt>Print paper boards</dt><dd>Boards &amp; words → Print boards. Keep a laminated copy for the bath, the pool or a flat battery.</dd>
+          <dt>Share a message as text</dt><dd>Tap the share icon in the message bar to send what was typed by text or email, or to copy it.</dd>
           <dt>Undo a mistake</dt><dd>In edit mode press Undo. For bigger mistakes, use Backup → Automatic snapshots.</dd>
           <dt>Move to a new device</dt><dd>Backup → Save backup file, then on the new device: Backup → Restore from file.</dd>
           <dt>Use a switch</dt><dd>Access → Switch scanning. Bluetooth switches that send Space/Enter work. Hold the 🔒 button to leave.</dd>

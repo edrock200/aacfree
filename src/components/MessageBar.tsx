@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore, useSettings } from '../store';
 import { applyCase, joinWords } from '../lib/sentence';
 import { Symbol } from './Symbol';
-import { IconBack, IconBackspace, IconClose, IconExpand, IconHome, IconShare, IconSpeak, IconStar } from './Icons';
+import { IconBack, IconBackspace, IconClose, IconExpand, IconHome, IconMore, IconShare, IconSpeak, IconStar } from './Icons';
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { usePress } from '../lib/usePress';
@@ -17,10 +17,12 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
   const { speakMessage, backspace, clearMessage, home, back, setFormsFor, updateProfile, showToast, setScreen } = useStore.getState();
   const scroller = useRef<HTMLDivElement>(null);
   const [saved, setSaved] = useState(false);
+  const [menu, setMenu] = useState(false);
 
   useEffect(() => {
     scroller.current?.scrollTo({ left: scroller.current.scrollWidth, behavior: s.reduceMotion ? 'auto' : 'smooth' });
     setSaved(false);
+    if (!message.length) setMenu(false);
   }, [message.length, draft, s.reduceMotion]);
 
   const text = joinWords(draft ? [...message, { text: draft }] : message);
@@ -81,18 +83,31 @@ export function MessageBar({ onShow }: { onShow: (text: string) => void }) {
         </div>
         {(message.length > 0 || draft) && (
           <div className="msg-tools" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}>
-            <button className="iconbtn small" aria-label="Save as phrase" onClick={(e) => { e.stopPropagation(); savePhrase(); }} data-scan-item>
-              <IconStar size={20} filled={saved} />
+            <span className="msg-tools-full">
+              <button className="iconbtn small" aria-label="Save as phrase" onClick={(e) => { e.stopPropagation(); savePhrase(); }} data-scan-item>
+                <IconStar size={20} filled={saved} />
+              </button>
+              <button className="iconbtn small" aria-label="Share or copy text" onClick={(e) => { e.stopPropagation(); share(); }} data-scan-item>
+                <IconShare size={20} />
+              </button>
+              <button className="iconbtn small" aria-label="Show in big text" onClick={(e) => { e.stopPropagation(); onShow(text); }} data-scan-item>
+                <IconExpand size={20} />
+              </button>
+              <button className="iconbtn small" aria-label="Clear message" onClick={(e) => { e.stopPropagation(); clearMessage(); }} data-scan-item>
+                <IconClose size={20} />
+              </button>
+            </span>
+            <button className="iconbtn small msg-tools-more" aria-label="More message options" aria-expanded={menu} onClick={(e) => { e.stopPropagation(); setMenu(!menu); }} data-scan-item>
+              <IconMore size={22} />
             </button>
-            <button className="iconbtn small" aria-label="Share or copy text" onClick={(e) => { e.stopPropagation(); share(); }} data-scan-item>
-              <IconShare size={20} />
-            </button>
-            <button className="iconbtn small" aria-label="Show in big text" onClick={(e) => { e.stopPropagation(); onShow(text); }} data-scan-item>
-              <IconExpand size={20} />
-            </button>
-            <button className="iconbtn small" aria-label="Clear message" onClick={(e) => { e.stopPropagation(); clearMessage(); }} data-scan-item>
-              <IconClose size={20} />
-            </button>
+          </div>
+        )}
+        {menu && (message.length > 0 || !!draft) && (
+          <div className="msg-menu" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()} data-scan-group>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); savePhrase(); setMenu(false); }} data-scan-item><IconStar size={20} filled={saved} /> Save phrase</button>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); share(); setMenu(false); }} data-scan-item><IconShare size={20} /> Share / copy</button>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); onShow(text); setMenu(false); }} data-scan-item><IconExpand size={20} /> Big text</button>
+            <button className="btn" onClick={(e) => { e.stopPropagation(); clearMessage(); setMenu(false); }} data-scan-item><IconClose size={20} /> Clear</button>
           </div>
         )}
       </div>

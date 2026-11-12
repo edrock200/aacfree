@@ -167,7 +167,17 @@ small { font-size: 0.85em; }
 .msg-word.draft { color: var(--accent); flex-direction: row; }
 .caret { display: inline-block; width: 2px; height: 1.2em; background: var(--accent); margin-left: 2px; animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
+.msg { position: relative; }
 .msg-tools { display: flex; flex: none; }
+.msg-tools-full { display: flex; }
+.msg-tools-more { display: none; }
+.msg-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
+  display: flex; flex-direction: column; gap: 6px; padding: 8px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+.msg-menu .btn { justify-content: flex-start; }
 .speakbtn {
   flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   min-width: 84px; border: none; border-radius: var(--radius);
@@ -596,6 +606,9 @@ small { font-size: 0.85em; }
   .modal-root { padding: 6px; }
   .modal-body { padding: 8px 14px 12px; }
   .navbtn.nav-lock { display: none; }
+  .msg-tools-full { display: none; }
+  .msg-tools-more { display: inline-grid; }
+  .msg { padding-left: 6px; }
   .speakbtn span { display: none; }
   .msgbar .iconbtn { width: 42px; }
   .navbtn { min-width: 52px; padding: 2px 4px; font-size: 0.7rem; }
