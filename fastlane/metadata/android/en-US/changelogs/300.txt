@@ -1,0 +1,1 @@
+Now in Español: full Spanish interface and vocabulary with automatic verb conjugation, and boards keep their layout when switching. New eye-gaze and head-pointer access (dwell, camera head pointer, experimental eye gaze). Encrypted sync between devices without accounts. Weekly automatic backup file. Many reliability improvements.

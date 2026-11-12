@@ -14,7 +14,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 
 | Platform | How |
 |---|---|
-| **Android** (7.0+) | Download [`release/caleb-latest.apk`](release/caleb-latest.apk) (v0.2), open it, and allow "install unknown apps". |
+| **Android** (7.0+) | Download [`release/caleb-latest.apk`](release/caleb-latest.apk) (v0.3), open it, and allow "install unknown apps". |
 | **Any browser / iPad / iPhone / Chromebook / PC** | Open the web app (GitHub Pages, see [Website](#website)) and choose **Install** / **Add to Home Screen**. It then works offline. |
 
 ## Features
@@ -36,6 +36,9 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **Access:** hold-to-select, ignore repeated taps, select on touch, 1-switch auto scanning and 2-switch step scanning (rows → buttons or one by one, with optional auditory cues), Bluetooth switch keys (Space/Enter), large text, light, dark and high-contrast themes, a calmer "Clean" style for teens and adults, reduced motion, and keep screen awake.
 - **Babble mode** shows every hidden word so the person can explore.
 
+- **English and Español:** a full Spanish interface and vocabulary, with automatic verb conjugation. Switching language keeps every button in place.
+- **Eye gaze & head pointer:** dwell selection with a mouse, head-mouse or eye tracker, or the front camera (on-device).
+
 ### For parents, teachers and therapists
 - **Grown-up area** behind a 2-second hold (default), a PIN or a math question. Talking itself is never locked.
 - **Symbol library:** every picture is organised into category folders, each with its own icon. Create your own categories (family, school, favourite shows…) and your own symbols from photos, online ARASAAC symbols or emoji. They appear whenever you choose a picture.
@@ -44,6 +47,8 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - Create folders and boards, resize boards (positions are preserved), and edit the quick bar.
 - **Quick editing:** Show/Hide mode reveals words one tap at a time, and "+ Word" adds a word with a suggested picture. A full board gets a new row, and nothing moves.
 - **Paper boards:** print any boards, with the quick bar on every page, as a low-tech backup.
+- **Encrypted sync** between a parent's phone and the user's tablet, with no account or server.
+- **Weekly automatic backup file** that survives uninstalling (Android: Documents/Caleb).
 - **Data safety:** every change is saved instantly, plus automatic daily snapshots (the last 15) and snapshots before any restore, import or layout change. A one-file backup (including photos and recordings) works for moving devices, and the app asks the browser to keep storage persistently.
 - **Open Board Format** `.obz` export and import, to share boards with CoughDrop, Cboard and others.
 - **Private usage insights** (opt-in): words per day, most-used words, new words, average message length and recent messages, with CSV export for your SLP. Nothing leaves the device.
@@ -82,10 +87,9 @@ keyPassword=…
 For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Without them, CI builds a debug-signed APK. **Always sign updates with the same key.** Android refuses to install an update signed with a different key, and uninstalling first erases the app's data. Save a backup file first (Grown-ups → Backup).
 
 ## Roadmap / ideas
-- More languages. Bilingual families often need Spanish first. The symbols don't depend on language; only the labels and voices change.
-- Optional encrypted sync between a parent's phone and the user's device
-- Eye-gaze and head-tracking access
-- Google Play listing (needs a developer account and a private upload key)
+- More languages after Spanish (the translation system is ready: add `src/i18n/<lang>.ts` and `src/data/i18n/<lang>-vocab.ts`)
+- Bilingual mode: show two languages on each button
+- Publish on Google Play (everything is prepared; it needs the owner's developer account; see docs/play-store.md)
 
 Suggestions are welcome. Open an issue.
 

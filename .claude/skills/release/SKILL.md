@@ -5,9 +5,9 @@ description: Cut a new Caleb release — bump versions, run checks, build the we
 
 # Releasing Caleb
 
-1. **Version bump** (keep them in sync):
-   - `package.json` → `"version"`
-   - `android/app/build.gradle` → `versionCode` (+1 every release) and `versionName`
+1. **Version bump:** only `package.json` → `"version"`. Android `versionName`/`versionCode` are derived from it (versionCode = major·10000 + minor·100 + patch).
+   Add a Play changelog at `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` (≤500 chars).
+   Check translations: every `t('…')` string needs a Spanish entry in `src/i18n/es.ts`.
 2. **Checks**
    ```bash
    npx tsc --noEmit -p . && npm test && npm run build
@@ -15,8 +15,9 @@ description: Cut a new Caleb release — bump versions, run checks, build the we
    node scripts/e2e/screens.mjs http://localhost:4173/ /tmp/shots   # expects "No page errors"
    ```
    Look at a few screenshots (home, food board, grown-ups) before shipping.
-3. **APK:** follow the `build-android` skill. Copy the result to `release/caleb-<version>.apk` and `release/caleb-latest.apk`. Both are committed so families can download them straight from GitHub.
-4. **Website:** `npm run build:site` builds the landing page (`site/`) plus the web app under `app/` into `dist-site/`. The GitHub Pages workflow (`.github/workflows/pages.yml`) deploys it automatically on pushes to `main`.
-5. Update `CHANGELOG.md`, commit, and push. Tagging `v<version>` triggers `.github/workflows/android.yml`, which builds the APK and attaches it to a GitHub Release.
+3. **AAB for Google Play:** `cd android && ./gradlew bundleRelease` → `android/app/build/outputs/bundle/release/app-release.aab` (see docs/play-store.md).
+4. **APK:** follow the `build-android` skill. Copy the result to `release/caleb-latest.apk` (committed so families can download it straight from GitHub).
+5. **Website:** `npm run build:site` builds the landing page (`site/`) plus the web app under `app/` into `dist-site/`. The GitHub Pages workflow (`.github/workflows/pages.yml`) deploys it automatically on pushes to `main`.
+6. Update `CHANGELOG.md`, commit, and push. Tagging `v<version>` triggers `.github/workflows/android.yml`, which builds the APK and attaches it to a GitHub Release.
 
 Don't break existing users' data. Any change to the data shape needs `migrate()` in `src/store.ts`.

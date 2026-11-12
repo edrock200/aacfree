@@ -606,4 +606,12 @@ export const ES_UI: Record<string, string> = {
   "Editing": "Editando",
   "Modelling": "Modelando",
   "Model": "Modelar",
+  "Change language": "Cambiar el idioma",
+  "Display → Language. Switches the app, the board words, word forms, the keyboard and the voice to Spanish (or back). Every button stays in its place.": "Vista → Idioma. Cambia la aplicación, las palabras de los tableros, las formas de las palabras, el teclado y la voz al inglés o al español. Cada botón se queda en su lugar.",
+  "Use eye gaze or a head pointer": "Usar la mirada o un puntero con la cabeza",
+  "Access → Eye gaze & head pointer. Use “Dwell” with a mouse, head-mouse or hardware eye tracker, or let Caleb use the front camera. Rest the pointer on a button to select it.": "Acceso → Control con la mirada y puntero con la cabeza. Usa “Permanencia” con un mouse, un mouse de cabeza o un rastreador ocular, o deja que Caleb use la cámara frontal. Deja el puntero sobre un botón para seleccionarlo.",
+  "Keep two devices in step": "Mantener dos dispositivos iguales",
+  "Backup → Sync between devices. Send makes a passcode-locked file; Receive it on the other device. The newest version of each profile wins.": "Copia de seguridad → Sincronizar entre dispositivos. “Enviar” crea un archivo protegido con clave; “Recibir” lo abre en el otro dispositivo. Se queda la versión más nueva de cada perfil.",
+  "Never lose the boards": "No perder nunca los tableros",
+  "Backup → Automatic backup saves a file every week (Android: Documents/Caleb). Copy it somewhere safe from time to time.": "Copia de seguridad → La copia automática guarda un archivo cada semana (Android: Documentos/Caleb). Cópialo a un lugar seguro de vez en cuando.",
 };

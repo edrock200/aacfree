@@ -31,6 +31,10 @@ export function HelpPanel() {
           <dt>{t('Start small')}</dt><dd>Boards &amp; words → “Starter words only” hides all but key words on Home (they keep their places). Reveal more over time by editing a hidden button and unticking “Hide”.</dd>
           <dt>{t('Print paper boards')}</dt><dd>{t('Boards & words → Print boards. Keep a laminated copy for the bath, the pool or a flat battery.')}</dd>
           <dt>{t('Share a message as text')}</dt><dd>{t('Tap the share icon in the message bar to send what was typed by text or email, or to copy it.')}</dd>
+          <dt>{t("Change language")}</dt><dd>{t("Display \u2192 Language. Switches the app, the board words, word forms, the keyboard and the voice to Spanish (or back). Every button stays in its place.")}</dd>
+          <dt>{t("Use eye gaze or a head pointer")}</dt><dd>{t("Access \u2192 Eye gaze & head pointer. Use \u201cDwell\u201d with a mouse, head-mouse or hardware eye tracker, or let Caleb use the front camera. Rest the pointer on a button to select it.")}</dd>
+          <dt>{t("Keep two devices in step")}</dt><dd>{t("Backup \u2192 Sync between devices. Send makes a passcode-locked file; Receive it on the other device. The newest version of each profile wins.")}</dd>
+          <dt>{t("Never lose the boards")}</dt><dd>{t("Backup \u2192 Automatic backup saves a file every week (Android: Documents/Caleb). Copy it somewhere safe from time to time.")}</dd>
           <dt>{t('Undo a mistake')}</dt><dd>{t('In edit mode press Undo. For bigger mistakes, use Backup → Automatic snapshots.')}</dd>
           <dt>{t('Move to a new device')}</dt><dd>{t('Backup → Save backup file, then on the new device: Backup → Restore from file.')}</dd>
           <dt>{t('Use a switch')}</dt><dd>{t('Access → Switch scanning. Bluetooth switches that send Space/Enter work. Hold the 🔒 button to leave.')}</dd>

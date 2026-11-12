@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 — 2026-11-12
+Roadmap release.
+- **Español:** full Spanish interface, about 785 translated board words, phrases and schedules, Spanish word forms
+  (plurals, gender, verb conjugation), automatic conjugation after a subject pronoun (yo + querer → quiero, yo + gustar → me gusta),
+  a Spanish keyboard (ñ, accents, ¿ ¡), and Spanish prediction. Switching language translates boards **in place**, so every button keeps its position, and switching back is exact.
+- **Eye gaze & head pointer:** dwell selection for mouse, head-mice and hardware eye trackers; a camera head pointer;
+  experimental camera eye gaze with 9-point calibration; optional long-blink select. Everything runs on the device and nothing is recorded.
+- **Encrypted sync between devices** with no account or server: a passcode-locked file (AES-256-GCM), where the newest profile wins and libraries are combined.
+- **Weekly automatic backup file:** Documents/Caleb on Android (survives uninstalling); a chosen folder on desktop Chrome.
+- **Google Play ready:** store listing (English and Spanish), screenshots, feature graphic, privacy policy, checklist (docs/play-store.md), and the AAB build.
+
 ## 0.2.0 — 2026-11-12
 Built from two parallel reviews of v0.1 (see docs/reviews/v0.1-review.md).
 - **Phone core layout** (5×6) and **paged folders** with fixed Previous/Next buttons instead of scrolling

@@ -35,6 +35,9 @@ npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Androi
 - Saves are revision-checked (`saveDataChecked`) and broadcast to other tabs. Don't bypass `persist()`.
 - `BoardGrid` pages boards that don't fit (fixed Previous/Next). Don't reintroduce free scrolling.
 - Tool state (timer, first/then, choices) lives in the store, so it survives leaving the Tools screen.
+- **i18n:** `t('English text')` from `src/i18n` (keys are the English strings; missing → English). Spanish UI is in `src/i18n/es.ts`, and Spanish vocabulary in `src/data/i18n/es-vocab.ts` + `es-words.ts`. Wrap every new user-visible string in `t()` and add its Spanish to `es.ts`; the check script is in the release skill. Switching language calls `translateProfile()` (`src/lib/translate.ts`), which relabels in place and keeps the original English in `key` for exact round-trips. Spanish grammar is in `src/lib/morphology-es.ts`.
+- **Pointer access:** `src/lib/pointer.ts` (dwell, head, eyes) + `PointerLayer`/`GazeCalibration`. The MediaPipe model is committed in `public/vision/`; the WASM is copied from node_modules by `scripts/copy-vision.mjs` (runs in `npm run build`).
+- **Sync/backup:** `src/lib/sync.ts` (AES-GCM passcode files + merge), `src/lib/autobackup.ts` (weekly file).
 - `src/lib/`: tts, morphology (word forms), prediction, scanning (`useScanner`), touch accommodations (`usePress`), backup, OBF import/export, files (web download vs Android share)
 - `src/components/`: grid/cell/message bar/quick bar/nav bar/editors/pickers
 - `src/screens/`: Talk, Keyboard, Phrases, Tools (+ `tools/*`), GrownUp (+ `grownup/*`), Onboarding

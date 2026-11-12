@@ -2,6 +2,11 @@ Caleb is a free, open-source AAC (augmentative and alternative communication) ap
 
 Caleb is built from what autistic AAC users, parents and speech-language pathologists say they need: words that never move, "no" and "stop" always within reach, fast typing, and privacy by default.
 
+NEW IN 0.3
+• Español: full Spanish interface and vocabulary with automatic verb conjugation. Buttons keep their places when you switch.
+• Eye gaze & head pointer: dwell selection with a mouse, head-mouse or eye tracker, or the front camera (processed on the device).
+• Encrypted sync between devices, with no account.
+
 FREE, PRIVATE AND OFFLINE
 • Free forever. No ads, no subscriptions, no in-app purchases.
 • No accounts, no sign-in, no analytics, no tracking.
