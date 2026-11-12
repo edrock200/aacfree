@@ -45,7 +45,6 @@ export function useEscapeToClose(onClose: () => void, root?: RefObject<HTMLEleme
       const i = stack.indexOf(me);
       if (i >= 0) stack.splice(i, 1);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 
@@ -92,7 +91,6 @@ export function useDialog(root: RefObject<HTMLElement | null>, onClose: () => vo
         try { before.focus({ preventScroll: true }); } catch { /* ignore */ }
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 

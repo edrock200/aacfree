@@ -227,6 +227,5 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
   // The page changed (board, screen, dialog): start from the top, keeping the lockout.
   useEffect(() => {
     if (enabled) ctlRef.current?.refresh();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rescanKey, s.scanPattern]);
 }
