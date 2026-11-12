@@ -94,9 +94,11 @@ describe('default vocabulary', () => {
     const withSym = cells.filter((c) => c!.symbol);
     expect(withSym.length / cells.length).toBeGreaterThan(0.95);
   });
-  it('category ids are unique', () => {
+  it('category ids are unique and do not clash with built-in boards', () => {
     const ids = CATEGORIES.map((c) => c.id);
     expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).not.toContain('home');
+    expect(ids).not.toContain('more');
   });
   it('parses specs', () => {
     expect(parseSpec('v:all done@finished')).toMatchObject({ label: 'all done', type: 'verb', keyword: 'finished' });

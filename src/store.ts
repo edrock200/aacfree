@@ -344,6 +344,16 @@ export const useStore = create<Store>((set, get) => ({
   },
 }));
 
+// Never lose the last edit when the app is backgrounded or closed.
+if (typeof document !== 'undefined') {
+  const flush = () => {
+    const st = useStore.getState();
+    if (st.loaded) persist.flush(st.data);
+  };
+  document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flush());
+  window.addEventListener('pagehide', flush);
+}
+
 /** Upgrades older saved data to the current shape. */
 export function migrate(data: AppData): AppData {
   const fresh = buildProfile('', 'medium');

@@ -21,7 +21,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 
 ### For the person communicating
 - **Motor-planning friendly core vocabulary.** Three home layouts: Big 4×3, Medium 6×5, and Full 8×6 with the Universal Core words. Words never move. Hidden words keep their place.
-- **20 topic folders, about 700 words**, with 650+ bundled [ARASAAC](https://arasaac.org) pictograms. Includes food, drinks, feelings, people, places, play, actions, describing words, little words, social, questions, body, clothes, animals, colours, numbers, time, school, routines, calm & sensory, and weather.
+- **25 topic folders, about 770 different words**, with 740 bundled [ARASAAC](https://arasaac.org) pictograms. Includes food, drinks, feelings, people, places, play, actions, describing words, little words, social, questions, body, clothes, animals, colours, numbers, time, school, routines, calm & sensory, weather, at home, tech & media, shopping, and health.
 - **Modified Fitzgerald Key colour coding.** It can be filled, border-only, or turned off.
 - **Always-on quick bar:** yes · no · stop · help · wait · break · I don't know · Hey! Protest words are always reachable.
 - **Message bar:** speak, delete a word (hold to clear), save as a phrase ★, show in big text (with a flip for the person across from you), share or copy.
@@ -38,6 +38,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **Grown-up area** behind a 2-second hold (default), a PIN or a math question. Talking itself is never locked.
 - **Edit in place:** tap a button to change its label, spoken text, picture (built-in symbols, online ARASAAC search, emoji, camera or gallery photo), word type and colour, recorded voice, word forms, or folder link. Tap Move, then a target, to swap two buttons. **Hide instead of delete.** Undo is always available.
 - Create folders and boards, resize boards (positions are preserved), and edit the quick bar.
+- **Paper boards:** print any boards, with the quick bar on every page, as a low-tech backup.
 - **Data safety:** every change is saved instantly, plus automatic daily snapshots (the last 15) and snapshots before any restore, import or layout change. A one-file backup (including photos and recordings) works for moving devices, and the app asks the browser to keep storage persistently.
 - **Open Board Format** `.obz` export and import, to share boards with CoughDrop, Cboard and others.
 - **Private usage insights** (opt-in): words per day, most-used words, new words, average message length and recent messages, with CSV export for your SLP. Nothing leaves the device.

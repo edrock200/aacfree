@@ -242,12 +242,50 @@ export const CATEGORIES: CategoryDef[] = [
       'cold', 'warm', 'n:rainbow', 'n:umbrella', 'n:sun', 'n:moon', 'n:stars@star', 'n:thunder',
     ],
   },
+  {
+    id: 'house', name: 'At home', icon: 'house', type: 'noun',
+    items: [
+      'v:open', 'v:close', 'v:turn on@switch on', 'v:turn off@switch off', 'v:sit', 'v:clean', 'v:help', 'r:in',
+      'bed', 'chair', 'table', 'couch@sofa', 'door', 'window', 'lights@lamp', 'stairs',
+      'kitchen', 'fridge@refrigerator', 'oven', 'microwave', 'sink', 'bathroom', 'bath', 'shower',
+      'toilet', 'towel', 'pillow', 'blanket', 'keys@key', 'trash@rubbish bin', 'washing machine', 'garden',
+      'my room@bedroom', 'TV@television', 'closet@wardrobe', 'mirror', 'toothbrush', 'soap', 'shampoo', 'clock',
+    ],
+  },
+  {
+    id: 'tech', name: 'Tech & media', icon: 'tablet', type: 'noun',
+    items: [
+      'v:watch', 'v:play', 'v:charge@charge', 'v:turn on@switch on', 'v:turn off@switch off', 'd:louder@loud', 'd:quieter@quiet', 'd:broken',
+      'phone@mobile phone', 'tablet', 'computer', 'laptop', 'TV@television', 'video game', 'controller@game controller', 'headphones',
+      'charger', 'battery', 'wifi@internet', 'video', 'music', 'song', 'movie@film', 'photo@photograph',
+      'camera', 'text message@message', 'call@telephone', 'email', 'app@application', 'password', 'volume', 'screen',
+    ],
+  },
+  {
+    id: 'shopping', name: 'Shopping', icon: 'shopping', type: 'noun',
+    items: [
+      'v:buy', 'v:pay', 'v:want', 'v:look', 'v:find', 'v:need', 'd:expensive', 'd:cheap',
+      'money', 'card@credit card', 'store@shop', 'supermarket', 'cart#5948', 'bag', 'receipt', 'cashier',
+      'price', 'coins@coin', 'wallet', 'list@shopping list', 'clothes', 'toys@toy', 'food', 'present@gift',
+      'q:how much?|how much is it?@how much', 'd:sale', 'v:try on@try', 'n:size', 'v:wait in line@queue', 'n:change@coin', 's:thank you', 'n:mall@shopping centre',
+    ],
+  },
+  {
+    id: 'health', name: 'Health', icon: 'health', type: 'noun',
+    items: [
+      'd:sick', 'v:hurts|hurts@pain', 'd:better', 'd:worse@bad', 'd:tired', 'd:dizzy', 'v:throw up@vomit', 'd:hot@fever',
+      'doctor', 'nurse', 'dentist', 'hospital', 'medicine', 'pill', 'shot@injection', 'band-aid@plaster',
+      'thermometer', 'fever', 'cough', 'cold@flu', 'allergy', 'appointment', 'therapist', 'check up@medical examination',
+      'glasses', 'hearing aid', 'wheelchair', 'crutches', 'blood', 'x-ray', 'v:rest', 'v:breathe',
+    ],
+  },
 ];
 
 /** Folders shown on the "More" board, which lists every category. */
 export const MORE_BOARD = ['>actions', '>describe', '>little', '>social', '>questions', '>people',
   '>food', '>drinks', '>feelings', '>places', '>play', '>body', '>clothes', '>animals', '>colors',
-  '>numbers', '>time', '>school', '>routines', '>sensory', '>weather', '!keyboard', '!phrases', '!tools'];
+  '>numbers', '>time', '>school', '>routines', '>sensory', '>weather', '>house', '>tech', '>shopping', '>health',
+  '!keyboard', '!phrases', '!tools'];
 
 /**
  * Home boards. Each layout is designed for a different device size and
@@ -321,6 +359,9 @@ export const DEFAULT_PHRASES: { category: string; text: string; icon?: string }[
   { category: 'Boundaries', text: 'I need quiet.', icon: 'silence' },
   { category: 'Boundaries', text: 'I need more time to answer.', icon: 'wait' },
   { category: 'Boundaries', text: 'I am done talking for now.', icon: 'finished' },
+  { category: 'Boundaries', text: 'Please give me a minute.', icon: 'wait' },
+  { category: 'Boundaries', text: 'Please talk slower.', icon: 'slow' },
+  { category: 'Boundaries', text: 'Can you show me or write it down?', icon: 'write' },
   { category: 'Chat', text: 'Hi! How are you?', icon: 'hello' },
   { category: 'Chat', text: 'I am doing well, thanks.', icon: 'fine' },
   { category: 'Chat', text: 'What did you do today?', icon: 'today' },
@@ -329,6 +370,9 @@ export const DEFAULT_PHRASES: { category: string; text: string; icon?: string }[
   { category: 'Chat', text: 'Tell me more.', icon: 'tell' },
   { category: 'Chat', text: 'Wait, I am still talking.', icon: 'wait' },
   { category: 'Chat', text: 'See you later!', icon: 'goodbye' },
+  { category: 'Chat', text: 'I am typing. Please wait for me to finish.', icon: 'keyboard' },
+  { category: 'Chat', text: 'Yes, that is what I mean.', icon: 'yes' },
+  { category: 'Chat', text: 'No, that is not what I mean.', icon: 'no' },
   { category: 'Questions', text: 'What are we doing next?', icon: 'next' },
   { category: 'Questions', text: 'When are we going home?', icon: 'home' },
   { category: 'Questions', text: 'Can you help me?', icon: 'help' },
