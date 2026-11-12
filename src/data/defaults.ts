@@ -63,7 +63,7 @@ export const DEFAULT_SETTINGS: Settings = {
   learnWords: false,
   lock: 'hold',
   logging: false,
-  autoBackup: true,
+  keepRecent: 'on',
 };
 
 const ACTIONS: Record<string, Partial<AACButton>> = {

@@ -89,7 +89,7 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
       )}
       <div className="row">
         {canAuto && <button className="btn primary" disabled={busy} onClick={now}>{t('Back up now')}</button>}
-        {canAuto && <button className="btn" onClick={async () => setSaved(await listSavedBackups())}>{t('Restore an automatic backup…')}</button>}
+        {canAuto && <button className="btn" onClick={async () => setSaved(await listSavedBackups({ interactive: true }))}>{t('Restore an automatic backup…')}</button>}
         {native && <button className="btn" onClick={async () => { const text = await openCloudBackup().catch(() => null); if (text) onRestore(text, t('Backup file')); }}>{t('Open a backup from Drive or another app…')}</button>}
       </div>
       {saved && (
@@ -103,6 +103,12 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
             ))}
             {saved.length === 0 && <li className="muted">{t('No automatic backups found.')}</li>}
           </ul>
+          {native && !saved.some((b) => b.source === 'device') && (
+            <>
+              <p className="muted small">{t('After Caleb is reinstalled, Android may hide the backups the old app saved. They are still in Documents/Caleb: choose one with the file picker.')}</p>
+              <button className="btn" onClick={async () => { const text = await openCloudBackup().catch(() => null); if (text) { setSaved(null); onRestore(text, t('Backup file')); } }}>{t('Choose a backup file…')}</button>
+            </>
+          )}
         </Modal>
       )}
     </Section>

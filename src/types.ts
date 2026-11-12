@@ -181,8 +181,16 @@ export interface Settings {
   pin?: string;
   // Data
   logging: boolean;
-  /** Weekly automatic backup file (Android: Documents/Caleb; web: a chosen folder). */
-  autoBackup: boolean;
+  /** Recent sentences: kept ('on'), kept until Caleb closes ('session'), or not kept ('off'). */
+  keepRecent: 'on' | 'session' | 'off';
+}
+
+/** A recently spoken sentence (Phrases → Recent). */
+export interface HistoryEntry {
+  /** Stable id (filled in on load for older saves). */
+  id?: string;
+  text: string;
+  t: number;
 }
 
 export interface Profile {
@@ -199,7 +207,7 @@ export interface Profile {
   settings: Settings;
   /** Learned words for keyboard prediction (word → count). */
   lexicon: Record<string, number>;
-  history: { text: string; t: number }[];
+  history: HistoryEntry[];
   createdAt: number;
   /** Last change (used to merge profiles when syncing between devices). */
   updatedAt?: number;

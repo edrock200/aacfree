@@ -141,17 +141,78 @@ export async function exportOBZ(p: Profile): Promise<Blob> {
   return new Blob([zipped.buffer as ArrayBuffer], { type: 'application/zip' });
 }
 
+/** Import limits: a crafted archive must not freeze or kill the app. */
+export const OBZ_LIMITS = {
+  /** Inflated size of one board (.obf) or the manifest. */
+  boardBytes: 5 * 1024 * 1024,
+  /** Inflated size of one image. */
+  imageBytes: 8 * 1024 * 1024,
+  /** Inflated size of everything taken from the archive. */
+  totalBytes: 200 * 1024 * 1024,
+  /** Entries looked at in the archive. */
+  entries: 20000,
+  boards: 500,
+  images: 5000,
+};
+
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg|bmp)$/i;
+
+/** Unzips only boards, images and the manifest, within the size caps (sizes come from the zip directory, and inflation never writes past them). */
+function readArchive(buf: Uint8Array): Record<string, Uint8Array> {
+  let total = 0;
+  let count = 0;
+  let boards = 0;
+  let images = 0;
+  let tooBig = false;
+  let entries: Record<string, Uint8Array>;
+  try {
+    entries = unzipSync(buf, {
+      filter: (f) => {
+        if (++count > OBZ_LIMITS.entries) { tooBig = true; return false; }
+        const name = f.name;
+        const isBoard = name.endsWith('.obf') || name === 'manifest.json';
+        const isImage = IMAGE_EXT.test(name);
+        if (!isBoard && !isImage) return false;
+        if (isBoard && (f.originalSize > OBZ_LIMITS.boardBytes || (name !== 'manifest.json' && ++boards > OBZ_LIMITS.boards))) { tooBig = true; return false; }
+        if (isImage && (f.originalSize > OBZ_LIMITS.imageBytes || ++images > OBZ_LIMITS.images)) return false; // skip just that picture
+        total += f.originalSize;
+        if (total > OBZ_LIMITS.totalBytes) { tooBig = true; return false; }
+        return true;
+      },
+    });
+  } catch {
+    throw new Error('This file is damaged or is not a board file.');
+  }
+  if (tooBig) throw new Error('This file is too large to import.');
+  return entries;
+}
+
+function parseJSON(bytes: Uint8Array | undefined): unknown {
+  if (!bytes) return undefined;
+  try { return JSON.parse(strFromU8(bytes)); } catch { return undefined; }
+}
+
+const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+
 /** Import an .obz package (or a single .obf board) into a new profile's boards. */
 export async function importOBF(file: File): Promise<{ boards: Record<string, Board>; rootId: string; name: string }> {
   if (file.size > MAX_FILE) throw new Error('This file is too large to import.');
   const buf = new Uint8Array(await file.arrayBuffer());
   let entries: Record<string, Uint8Array>;
-  let rootPath: string;
+  let rootPath: string | undefined;
   if (buf[0] === 0x50 && buf[1] === 0x4b) {
-    entries = unzipSync(buf);
-    const manifest = JSON.parse(strFromU8(entries['manifest.json']));
-    rootPath = manifest.root;
+    entries = readArchive(buf);
+    const manifest = parseJSON(entries['manifest.json']);
+    if (isObj(manifest) && typeof manifest.root === 'string' && entries[manifest.root]) rootPath = manifest.root;
+    else {
+      // No usable manifest: fine when there is just one board.
+      const obfPaths = Object.keys(entries).filter((p) => p.endsWith('.obf'));
+      if (obfPaths.length === 1) rootPath = obfPaths[0];
+      else if (!entries['manifest.json']) throw new Error('This .obz file has no manifest, so Caleb can’t tell which board comes first.');
+      else throw new Error('No root board found in this file.');
+    }
   } else {
+    if (file.size > OBZ_LIMITS.boardBytes) throw new Error('This file is too large to import.');
     rootPath = 'board.obf';
     entries = { 'board.obf': buf };
   }
@@ -161,16 +222,17 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
   const obfs: Record<string, OBFBoard> = {};
   for (const [path, bytes] of Object.entries(entries)) {
     if (!path.endsWith('.obf')) continue;
-    let obf: OBFBoard;
-    try { obf = JSON.parse(strFromU8(bytes)) as OBFBoard; } catch { continue; }
-    if (!obf || typeof obf !== 'object') continue;
-    if (!Array.isArray(obf.buttons)) obf.buttons = [];
-    if (!obf.grid || !Array.isArray(obf.grid.order)) obf.grid = { rows: 1, columns: 1, order: [] };
+    const obf = parseJSON(bytes) as OBFBoard | undefined;
+    if (!isObj(obf)) continue;
+    obf.buttons = Array.isArray(obf.buttons) ? obf.buttons.filter(isObj) as unknown as OBFButton[] : [];
+    if (!isObj(obf.grid) || !Array.isArray(obf.grid.order)) obf.grid = { rows: 1, columns: 1, order: [] };
+    obf.images = Array.isArray(obf.images) ? obf.images.filter(isObj) as unknown as OBFImage[] : [];
     obfs[path] = obf;
     pathToId[path] = uid('obf-');
   }
-  if (!obfs[rootPath]) throw new Error('No root board found in this file.');
+  if (!rootPath || !obfs[rootPath]) throw new Error('No root board found in this file.');
 
+  const text = (v: unknown, max = 500) => (typeof v === 'string' ? v.slice(0, max) : typeof v === 'number' ? String(v) : undefined);
   // One stored copy per image (keyed by file path when shared across boards).
   const imageCache = new Map<string, Promise<string | undefined>>();
   for (const [path, obf] of Object.entries(obfs)) {
@@ -180,35 +242,41 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
     const imgs = new Map((obf.images ?? []).map((i) => [String(i.id), i]));
     const cells: Cell[] = Array(rows * cols).fill(null);
     for (let r = 0; r < rows; r++) {
+      const row = obf.grid.order[r];
+      if (!Array.isArray(row)) continue;
       for (let c = 0; c < cols; c++) {
-        const bid = obf.grid.order?.[r]?.[c];
-        if (bid == null) continue;
+        const bid = row[c];
+        if (bid == null || typeof bid === 'object') continue;
         const ob = byId.get(String(bid));
         if (!ob) continue;
+        const label = text(ob.label, 200);
+        const vocal = text(ob.vocalization, 1000);
         const b: AACButton = {
           id: uid('b'),
-          label: ob.label ?? ob.vocalization ?? '',
-          type: (ob.ext_caleb_type as WordType) ?? 'misc',
+          label: label ?? vocal ?? '',
+          type: (typeof ob.ext_caleb_type === 'string' ? ob.ext_caleb_type : 'misc') as WordType,
         };
-        if (ob.vocalization && ob.vocalization !== ob.label) b.speak = ob.vocalization;
-        if (ob.hidden) b.hidden = true;
+        if (vocal && vocal !== label) b.speak = vocal;
+        if (ob.hidden === true) b.hidden = true;
         if (ob.ext_caleb_color) b.color = safeColor(ob.ext_caleb_color);
-        else if (!ob.ext_caleb_type) b.color = safeColor(rgbToHex(ob.background_color));
+        else if (!ob.ext_caleb_type) b.color = safeColor(rgbToHex(typeof ob.background_color === 'string' ? ob.background_color : undefined));
         if (!b.color) delete b.color;
-        if (ob.ext_caleb_speak_only) b.speakOnly = true;
-        const action = (ob.ext_caleb_action as ButtonAction | undefined) ?? (ob.action ? FROM_OBF_ACTION[ob.action] : undefined);
+        if (ob.ext_caleb_speak_only === true) b.speakOnly = true;
+        const action = (typeof ob.ext_caleb_action === 'string' ? ob.ext_caleb_action as ButtonAction : undefined)
+          ?? (typeof ob.action === 'string' ? FROM_OBF_ACTION[ob.action] : undefined);
         if (action) b.action = action;
-        if (ob.load_board) {
-          const target = ob.load_board.path && pathToId[ob.load_board.path]
-            ? pathToId[ob.load_board.path]
-            : Object.entries(obfs).find(([, o]) => o.id === ob.load_board!.id)?.[0];
-          const tid = target && (pathToId[target] ?? target);
+        const lb = isObj(ob.load_board) ? ob.load_board : undefined;
+        if (lb) {
+          const target = typeof lb.path === 'string' && pathToId[lb.path]
+            ? lb.path
+            : Object.entries(obfs).find(([, o]) => lb.id != null && String(o.id) === String(lb.id))?.[0];
+          const tid = target && pathToId[target];
           if (tid) { b.link = tid; b.type = 'folder'; delete b.color; }
         }
-        if (ob.image_id && imgs.has(String(ob.image_id))) {
+        if (ob.image_id != null && imgs.has(String(ob.image_id))) {
           const im = imgs.get(String(ob.image_id))!;
-          const key = im.url ?? im.path ?? `${path}#${ob.image_id}`;
-          if (!imageCache.has(key)) imageCache.set(key, importImage(imgs.get(String(ob.image_id))!, entries));
+          const key = (typeof im.url === 'string' && im.url) || (typeof im.path === 'string' && im.path) || `${path}#${ob.image_id}`;
+          if (!imageCache.has(key)) imageCache.set(key, importImage(im, entries));
           const sym = await imageCache.get(key)!;
           if (sym) b.symbol = sym;
         }
@@ -216,26 +284,26 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
       }
     }
     const id = pathToId[path];
-    boards[id] = cleanBoard({ id, name: obf.name ?? 'Board', cols, rows, cells }, id)!;
+    boards[id] = cleanBoard({ id, name: text(obf.name, 100) ?? 'Board', cols, rows, cells }, id)!;
   }
-  // Fix links that pointed at obf paths.
-  for (const b of Object.values(boards)) for (const c of b.cells) if (c?.link && pathToId[c.link]) c.link = pathToId[c.link];
   const rootId = pathToId[rootPath];
-  return { boards, rootId, name: obfs[rootPath].name ?? 'Imported board' };
+  return { boards, rootId, name: text(obfs[rootPath].name, 100) || 'Imported board' };
 }
 
 async function importImage(img: OBFImage, entries: Record<string, Uint8Array>): Promise<string | undefined> {
   try {
+    const url = typeof img.url === 'string' ? img.url : undefined;
     // ARASAAC pictograms we already bundle need no stored copy.
-    const arasaac = img.url ? /^https:\/\/(static|api)\.arasaac\.org\/.*?(\d+)/.exec(img.url) : null;
+    const arasaac = url ? /^https:\/\/(static|api)\.arasaac\.org\/.*?(\d+)/.exec(url) : null;
     if (arasaac && BUNDLED.has(Number(arasaac[2]))) return `a:${arasaac[2]}`;
     let blob: Blob | undefined;
-    const type = /^image\/[\w.+-]+$/.test(img.content_type ?? '') ? img.content_type! : 'image/png';
-    if (img.path && entries[img.path]) blob = new Blob([entries[img.path].slice().buffer as ArrayBuffer], { type });
-    else if (img.data && /^data:image\//.test(img.data)) blob = await (await fetch(img.data)).blob();
+    const type = typeof img.content_type === 'string' && /^image\/[\w.+-]+$/.test(img.content_type) ? img.content_type : 'image/png';
+    const path = typeof img.path === 'string' ? img.path : undefined;
+    if (path && entries[path]) blob = new Blob([entries[path].slice().buffer as ArrayBuffer], { type });
+    else if (typeof img.data === 'string' && img.data.length < OBZ_LIMITS.imageBytes * 1.4 && /^data:image\//.test(img.data)) blob = await (await fetch(img.data)).blob();
     else if (arasaac) return `a:${arasaac[2]}`; // shown from arasaac.org when online
     // Never fetch other remote URLs named in an imported file (privacy).
-    if (!blob) return undefined;
+    if (!blob || blob.size > OBZ_LIMITS.imageBytes) return undefined;
     const id = uid('obf-img-');
     await putAsset(id, blob);
     return `img:${id}`;

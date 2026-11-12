@@ -1,9 +1,126 @@
 /** v0.5 UI strings for the "data" work area (English source → translation). Merged into each pack's ui table. */
 export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   es: {
+    // Start-up problems
+    'Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.': 'Tus tableros se guardaron con una versión más nueva de Caleb. Actualiza Caleb. Mientras tanto, los cambios no se guardan.',
+    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.': 'No se pudieron abrir tus tableros guardados. Se guardó una copia en este dispositivo. Restaura una copia de seguridad en Adultos → Copia de seguridad. Mientras tanto, los cambios no se guardan.',
+    'Caleb cannot save right now. Please restart Caleb and try again.': 'Caleb no puede guardar en este momento. Reinicia Caleb e inténtalo de nuevo.',
+    'Hide': 'Ocultar',
+    // Profiles and recent sentences
+    'Could not save a safety copy, so nothing was deleted. Try again, or save a backup file first.': 'No se pudo guardar una copia de seguridad, así que no se borró nada. Inténtalo de nuevo o guarda antes un archivo de copia de seguridad.',
+    'Recent sentences cleared': 'Frases recientes borradas',
+    'Sentence removed': 'Frase quitada',
+    // Crash screen
+    'Go back to the version from {date} ({reason})? The current version is saved as a snapshot first.': '¿Volver a la versión del {date} ({reason})? Primero se guarda la versión actual como copia automática.',
+    'No automatic backup was found on this device.': 'No se encontró ninguna copia automática en este dispositivo.',
+    'No older automatic backup was found on this device.': 'No se encontró ninguna copia automática más antigua en este dispositivo.',
+    'Could not restore. Try “Save my data” and ask for help.': 'No se pudo restaurar. Prueba “Guardar mis datos” y pide ayuda.',
+    'Could not read the saved data.': 'No se pudieron leer los datos guardados.',
+    // Backups
+    'Your saved boards could not be opened, so nothing was backed up.': 'No se pudieron abrir tus tableros guardados, así que no se hizo ninguna copia.',
+    'The backup file could not be checked, so it was not kept. Try again.': 'No se pudo comprobar el archivo de copia de seguridad, así que no se conservó. Inténtalo de nuevo.',
+    'After Caleb is reinstalled, Android may hide the backups the old app saved. They are still in Documents/Caleb: choose one with the file picker.': 'Después de reinstalar Caleb, Android puede ocultar las copias que guardó la aplicación anterior. Siguen en Documentos/Caleb: elige una con el selector de archivos.',
+    'Choose a backup file…': 'Elegir un archivo de copia de seguridad…',
+    // Snapshots
+    'Caleb keeps earlier versions on this device: one a day for the last {daily} days, the last {action} taken before a restore, import, deletion or other big change, and your last {manual} manual snapshots.': 'Caleb guarda versiones anteriores en este dispositivo: una por día de los últimos {daily} días, las últimas {action} creadas antes de restaurar, importar, borrar u otro cambio grande, y tus últimas {manual} copias manuales.',
+    'Automatic daily backup': 'Copia automática diaria',
+    'Manual snapshot': 'Copia manual',
+    'Before restore': 'Antes de restaurar',
+    'Before restoring a snapshot': 'Antes de restaurar una copia automática',
+    'Before importing a backup': 'Antes de importar una copia de seguridad',
+    'Before importing boards': 'Antes de importar tableros',
+    'Before deleting a profile': 'Antes de borrar un perfil',
+    'Before deleting from the symbol library': 'Antes de borrar de la biblioteca de símbolos',
+    'Before changing language': 'Antes de cambiar de idioma',
+    'Before syncing from another device': 'Antes de sincronizar desde otro dispositivo',
+    'Before restoring after a problem': 'Antes de restaurar después de un problema',
+    // Imports
+    'This file is damaged or is not a board file.': 'Este archivo está dañado o no es un archivo de tableros.',
+    'This file is too large to import.': 'Este archivo es demasiado grande para importarlo.',
+    'This .obz file has no manifest, so Caleb can’t tell which board comes first.': 'Este archivo .obz no tiene manifiesto, así que Caleb no puede saber cuál es el primer tablero.',
+    'No root board found in this file.': 'No se encontró el tablero principal en este archivo.',
+    'This file has no Caleb profiles.': 'Este archivo no tiene perfiles de Caleb.',
   },
   fr: {
+    // Start-up problems
+    'Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.': 'Tes tableaux ont été enregistrés par une version plus récente de Caleb. Mets Caleb à jour. En attendant, les modifications ne sont pas enregistrées.',
+    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.': 'Impossible d’ouvrir tes tableaux enregistrés. Une copie a été gardée sur cet appareil. Restaure une sauvegarde dans Adultes → Sauvegarde. En attendant, les modifications ne sont pas enregistrées.',
+    'Caleb cannot save right now. Please restart Caleb and try again.': 'Caleb ne peut pas enregistrer pour le moment. Redémarre Caleb et réessaie.',
+    'Hide': 'Masquer',
+    // Profiles and recent sentences
+    'Could not save a safety copy, so nothing was deleted. Try again, or save a backup file first.': 'Impossible d’enregistrer une copie de sécurité, donc rien n’a été supprimé. Réessaie, ou enregistre d’abord un fichier de sauvegarde.',
+    'Recent sentences cleared': 'Phrases récentes effacées',
+    'Sentence removed': 'Phrase retirée',
+    // Crash screen
+    'Go back to the version from {date} ({reason})? The current version is saved as a snapshot first.': 'Revenir à la version du {date} ({reason}) ? La version actuelle est d’abord enregistrée comme copie automatique.',
+    'No automatic backup was found on this device.': 'Aucune sauvegarde automatique n’a été trouvée sur cet appareil.',
+    'No older automatic backup was found on this device.': 'Aucune sauvegarde automatique plus ancienne n’a été trouvée sur cet appareil.',
+    'Could not restore. Try “Save my data” and ask for help.': 'Impossible de restaurer. Essaie « Enregistrer mes données » et demande de l’aide.',
+    'Could not read the saved data.': 'Impossible de lire les données enregistrées.',
+    // Backups
+    'Your saved boards could not be opened, so nothing was backed up.': 'Impossible d’ouvrir tes tableaux enregistrés, donc rien n’a été sauvegardé.',
+    'The backup file could not be checked, so it was not kept. Try again.': 'Le fichier de sauvegarde n’a pas pu être vérifié, il n’a donc pas été gardé. Réessaie.',
+    'After Caleb is reinstalled, Android may hide the backups the old app saved. They are still in Documents/Caleb: choose one with the file picker.': 'Après une réinstallation de Caleb, Android peut cacher les sauvegardes faites par l’ancienne application. Elles sont toujours dans Documents/Caleb : choisis-en une avec le sélecteur de fichiers.',
+    'Choose a backup file…': 'Choisir un fichier de sauvegarde…',
+    // Snapshots
+    'Caleb keeps earlier versions on this device: one a day for the last {daily} days, the last {action} taken before a restore, import, deletion or other big change, and your last {manual} manual snapshots.': 'Caleb garde des versions précédentes sur cet appareil : une par jour pendant les {daily} derniers jours, les {action} dernières faites avant une restauration, une importation, une suppression ou un autre gros changement, et tes {manual} dernières copies manuelles.',
+    'Automatic daily backup': 'Copie automatique du jour',
+    'Manual snapshot': 'Copie manuelle',
+    'Before restore': 'Avant la restauration',
+    'Before restoring a snapshot': 'Avant de restaurer une copie automatique',
+    'Before importing a backup': 'Avant d’importer une sauvegarde',
+    'Before importing boards': 'Avant d’importer des tableaux',
+    'Before deleting a profile': 'Avant de supprimer un profil',
+    'Before deleting from the symbol library': 'Avant de supprimer de la bibliothèque de pictogrammes',
+    'Before changing language': 'Avant de changer de langue',
+    'Before syncing from another device': 'Avant de synchroniser depuis un autre appareil',
+    'Before restoring after a problem': 'Avant de restaurer après un problème',
+    // Imports
+    'This file is damaged or is not a board file.': 'Ce fichier est abîmé ou n’est pas un fichier de tableaux.',
+    'This file is too large to import.': 'Ce fichier est trop volumineux pour être importé.',
+    'This .obz file has no manifest, so Caleb can’t tell which board comes first.': 'Ce fichier .obz n’a pas de manifeste, donc Caleb ne peut pas savoir quel tableau vient en premier.',
+    'No root board found in this file.': 'Aucun tableau principal trouvé dans ce fichier.',
+    'This file has no Caleb profiles.': 'Ce fichier ne contient aucun profil Caleb.',
   },
   pt: {
+    // Start-up problems
+    'Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.': 'Suas pranchas foram salvas por uma versão mais nova do Caleb. Atualize o Caleb. Até lá, as mudanças não são salvas.',
+    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.': 'Não foi possível abrir suas pranchas salvas. Uma cópia foi guardada neste aparelho. Restaure um backup em Adultos → Backup. Até lá, as mudanças não são salvas.',
+    'Caleb cannot save right now. Please restart Caleb and try again.': 'O Caleb não consegue salvar agora. Reinicie o Caleb e tente de novo.',
+    'Hide': 'Ocultar',
+    // Profiles and recent sentences
+    'Could not save a safety copy, so nothing was deleted. Try again, or save a backup file first.': 'Não foi possível salvar uma cópia de segurança, então nada foi apagado. Tente de novo ou salve antes um arquivo de backup.',
+    'Recent sentences cleared': 'Frases recentes apagadas',
+    'Sentence removed': 'Frase removida',
+    // Crash screen
+    'Go back to the version from {date} ({reason})? The current version is saved as a snapshot first.': 'Voltar para a versão de {date} ({reason})? A versão atual é salva antes como cópia automática.',
+    'No automatic backup was found on this device.': 'Nenhum backup automático foi encontrado neste aparelho.',
+    'No older automatic backup was found on this device.': 'Nenhum backup automático mais antigo foi encontrado neste aparelho.',
+    'Could not restore. Try “Save my data” and ask for help.': 'Não foi possível restaurar. Tente “Salvar meus dados” e peça ajuda.',
+    'Could not read the saved data.': 'Não foi possível ler os dados salvos.',
+    // Backups
+    'Your saved boards could not be opened, so nothing was backed up.': 'Não foi possível abrir suas pranchas salvas, então nenhum backup foi feito.',
+    'The backup file could not be checked, so it was not kept. Try again.': 'Não foi possível conferir o arquivo de backup, então ele não foi mantido. Tente de novo.',
+    'After Caleb is reinstalled, Android may hide the backups the old app saved. They are still in Documents/Caleb: choose one with the file picker.': 'Depois de reinstalar o Caleb, o Android pode esconder os backups que o app antigo salvou. Eles continuam em Documentos/Caleb: escolha um pelo seletor de arquivos.',
+    'Choose a backup file…': 'Escolher um arquivo de backup…',
+    // Snapshots
+    'Caleb keeps earlier versions on this device: one a day for the last {daily} days, the last {action} taken before a restore, import, deletion or other big change, and your last {manual} manual snapshots.': 'O Caleb guarda versões anteriores neste aparelho: uma por dia dos últimos {daily} dias, as últimas {action} feitas antes de restaurar, importar, apagar ou outra mudança grande, e suas últimas {manual} cópias manuais.',
+    'Automatic daily backup': 'Cópia automática diária',
+    'Manual snapshot': 'Cópia manual',
+    'Before restore': 'Antes de restaurar',
+    'Before restoring a snapshot': 'Antes de restaurar uma cópia automática',
+    'Before importing a backup': 'Antes de importar um backup',
+    'Before importing boards': 'Antes de importar pranchas',
+    'Before deleting a profile': 'Antes de apagar um perfil',
+    'Before deleting from the symbol library': 'Antes de apagar da biblioteca de símbolos',
+    'Before changing language': 'Antes de mudar de idioma',
+    'Before syncing from another device': 'Antes de sincronizar com outro aparelho',
+    'Before restoring after a problem': 'Antes de restaurar depois de um problema',
+    // Imports
+    'This file is damaged or is not a board file.': 'Este arquivo está danificado ou não é um arquivo de pranchas.',
+    'This file is too large to import.': 'Este arquivo é grande demais para importar.',
+    'This .obz file has no manifest, so Caleb can’t tell which board comes first.': 'Este arquivo .obz não tem manifesto, então o Caleb não consegue saber qual prancha vem primeiro.',
+    'No root board found in this file.': 'Nenhuma prancha principal foi encontrada neste arquivo.',
+    'This file has no Caleb profiles.': 'Este arquivo não tem perfis do Caleb.',
   },
 };
