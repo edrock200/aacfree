@@ -1,9 +1,16 @@
 import type { MessageWord } from '../types';
+import { getLang } from '../i18n';
 
 const NO_SPACE_BEFORE = /^[.,!?;:'’)]|^n't$|^'s$/;
 
-/** Joins message words into a natural sentence string for speech / display. */
-export function joinWords(words: Pick<MessageWord, 'text'>[]): string {
+/** English "i" on its own (not inside a word such as "dói" or "aí"). */
+const LONE_I = /(?<![\p{L}\p{N}'’])i(?![\p{L}\p{N}])/gu;
+
+/**
+ * Joins message words into a natural sentence string for speech / display.
+ * In English a lone "i" becomes "I"; other languages are left as written.
+ */
+export function joinWords(words: Pick<MessageWord, 'text'>[], lang: string = getLang()): string {
   let out = '';
   for (const w of words) {
     const t = w.text.trim();
@@ -11,7 +18,7 @@ export function joinWords(words: Pick<MessageWord, 'text'>[]): string {
     if (!out || NO_SPACE_BEFORE.test(t) || out.endsWith(' ')) out += t;
     else out += ' ' + t;
   }
-  return out.replace(/\bi\b/g, 'I');
+  return lang === 'en' ? out.replace(LONE_I, 'I') : out;
 }
 
 /** Capitalises the first letter and ensures terminal punctuation for display. */

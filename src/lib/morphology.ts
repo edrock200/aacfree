@@ -84,7 +84,9 @@ const VOWELS = 'aeiou';
 const isConsonant = (c: string) => !!c && !VOWELS.includes(c);
 
 /** Double final consonant for CVC words (run → running), skipping w/x/y. */
-function doubles(w: string): boolean {
+function doubles(word: string): boolean {
+  // "qu" works as one consonant (quit → quitting, quiz → quizzing).
+  const w = word.replace(/qu(?=[aeiou])/g, 'q');
   if (w.length < 3 || w.length > 5) return false;
   // Only one-syllable words (stop → stopping, but open → opening).
   if ((w.match(/[aeiouy]+/g) ?? []).length !== 1) return false;
@@ -140,6 +142,8 @@ function matchCase(src: string, out: string) {
 const NO_FORMS = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them',
   'a', 'the', 'and', 'or', 'but', 'not', 'no', 'yes', 'to', 'of', 'in', 'on', 'up', 'at', 'for', 'with']);
 
+const FUNCTION_TYPES = new Set(['pronoun', 'question', 'preposition', 'determiner', 'conjunction', 'negation', 'social']);
+
 /** Returns sensible alternative forms for a word, given its type (in the current language). */
 export function formsFor(word: string, type?: string): string[] {
   const f = pack().forms;
@@ -151,6 +155,8 @@ function formsForEn(word: string, type?: string): string[] {
   if (!base || base.includes(' ') && type !== 'verb') return [];
   const lower = base.toLowerCase();
   if (NO_FORMS.has(lower)) return [];
+  // Function words have no useful forms ("what" → "whats", "my" → "mies").
+  if (type && FUNCTION_TYPES.has(type)) return [];
   const uniq = (xs: string[]) => [...new Set(xs.filter((x) => x && x.toLowerCase() !== lower))];
   if (type === 'verb') {
     // Multi-word verbs: inflect the first word ("wake up" → "woke up").

@@ -1,6 +1,6 @@
 import type { AACButton, Board, Cell, LayoutId, LibraryCategory, Profile, Settings, WordType } from '../types';
 import { uid } from '../lib/util';
-import { translateProfile } from '../lib/translate';
+import { aboutMeText, translateProfile } from '../lib/translate';
 import { PACKS, type Lang } from '../i18n/packs';
 import symbolMap from './symbols.json';
 import {
@@ -165,7 +165,7 @@ function buildProfileEn(name: string, layout: LayoutId): Profile {
     })),
     aboutMe: {
       enabled: true,
-      text: `Hi! My name is ${name || '…'}. I am autistic and I use this app to communicate. Please be patient and give me extra time to answer. I understand more than I can say.`,
+      text: aboutMeText('en', name),
       contacts: '',
     },
     settings: { ...DEFAULT_SETTINGS },
