@@ -3,7 +3,8 @@ import { migrate } from '../store';
 import { allAssetIds, getAsset, putAsset } from './db';
 import { blobToDataURL, dataURLToBlob } from './util';
 import { seal, unseal } from './crypto';
-import { stripLock, withoutTransient } from './validate';
+import { withoutTransient } from './validate';
+import { withoutPin } from './lock';
 
 export interface BackupFile {
   app: 'caleb';
@@ -28,18 +29,13 @@ export interface BackupOptions {
   includeMedia?: boolean;
   /** Include spoken-message history and learned words (default true). */
   includeHistory?: boolean;
-  /** Encrypt the whole file with this passcode. */
+  /** Encrypt the whole file with this passcode (plain files never carry the grown-up PIN). */
   passcode?: string;
-  /**
-   * Keep the grown-up lock and PIN even without a passcode (only for files the
-   * caller encrypts itself, such as sync files). Plain files never carry them.
-   */
-  keepLock?: boolean;
 }
 
 export async function createBackup(input: AppData, opts: BackupOptions = {}): Promise<Blob> {
   let data = withoutTransient(input);
-  if (!opts.passcode && !opts.keepLock) data = stripLock(data);
+  if (!opts.passcode) data = withoutPin(data);
   if (opts.includeHistory === false) {
     data = { ...data, profiles: data.profiles.map((p) => ({ ...p, history: [], lexicon: {} })) };
   }

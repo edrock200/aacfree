@@ -6,7 +6,7 @@ import { buildProfile, DEFAULT_SETTINGS } from '../../data/defaults';
 import { WORD_COLORS } from '../colors';
 import { translateProfile } from '../translate';
 import {
-  cleanData, cleanHistory, cleanSettings, hasUserContent, keepLocalLock, stripLock, withoutTransient,
+  cleanData, cleanHistory, cleanSettings, hasUserContent, withoutTransient,
 } from '../validate';
 import { SaveQueue } from '../savequeue';
 import {
@@ -41,6 +41,8 @@ function assertUsable(d: AppData, deep = true) {
   expect(d.profiles.some((p) => p.id === d.activeProfileId)).toBe(true);
   expect(new Set(d.profiles.map((p) => p.id)).size).toBe(d.profiles.length);
   expect(Array.isArray(d.library.categories)).toBe(true);
+  expect(['hold', 'pin', 'math', 'none']).toContain(d.grownUpLock?.lock);
+  if (d.grownUpLock?.lock === 'pin') expect(d.grownUpLock.pin).toMatch(/^\d{4,6}$/);
   for (const p of d.profiles) {
     expect(typeof p.id).toBe('string');
     expect(typeof p.name).toBe('string');
@@ -67,8 +69,7 @@ function assertUsable(d: AppData, deep = true) {
     expect(p.settings.holdMs).toBeLessThanOrEqual(3000);
     expect(p.settings.debounceMs).toBeLessThanOrEqual(3000);
     expect(['en', 'es', 'fr', 'pt']).toContain(p.settings.language);
-    expect(['hold', 'pin', 'math', 'none']).toContain(p.settings.lock);
-    if (p.settings.lock === 'pin') expect(p.settings.pin).toMatch(/^\d{4,6}$/);
+    expect('lock' in p.settings || 'pin' in p.settings).toBe(false); // app-wide since v0.5
     // The app can work with it: clone, serialise and translate without throwing.
     structuredClone(p);
     JSON.parse(JSON.stringify(p));
@@ -162,19 +163,17 @@ describe('migrate: the single gate for untrusted data', () => {
 
   it('cleans settings: clamps, enums, optional fields and the PIN', () => {
     const s = cleanSettings({
-      rate: 50, volume: 0, pointerSmoothing: 5, lock: 'pin', pin: '12', pronunciations: { __proto__: 'x', AAC: 'A A C', n: 5 },
+      rate: 50, volume: 0, pointerSmoothing: 5, lock: 'pin', pin: '1234', pronunciations: { __proto__: 'x', AAC: 'A A C', n: 5 },
       voiceIndex: -3, gazeCalibration: [[1, 2], ['x']], keepRecent: 'forever',
     });
     expect(s.rate).toBe(2.5);
     expect(s.volume).toBe(0.1);
     expect(s.pointerSmoothing).toBe(0.95);
-    expect(s.lock).toBe('hold');
-    expect(s.pin).toBeUndefined();
+    expect('lock' in s || 'pin' in s).toBe(false); // the lock lives in AppData.grownUpLock
     expect(s.pronunciations).toEqual({ AAC: 'A A C' });
     expect(s.voiceIndex).toBeUndefined();
     expect(s.gazeCalibration).toBeUndefined();
     expect(s.keepRecent).toBe('on');
-    expect(cleanSettings({ lock: 'pin', pin: '1234' }).lock).toBe('pin');
     expect(cleanSettings(null)).toEqual({ ...DEFAULT_SETTINGS });
   });
 
@@ -237,34 +236,31 @@ describe('migrate: the single gate for untrusted data', () => {
 });
 
 describe('locks and privacy in files', () => {
-  it('plain backups carry no PIN or lock; encrypted ones do', async () => {
+  it('plain backups carry no PIN; encrypted ones do', async () => {
     const d = good();
-    d.profiles[0].settings.lock = 'pin';
-    d.profiles[0].settings.pin = '4321';
-    const plain = await (await createBackup(d)).text();
-    expect(plain).not.toContain('4321');
-    expect(plain).not.toContain('"lock"');
-    expect(stripLock(d).profiles[0].settings.pin).toBeUndefined();
-    expect(d.profiles[0].settings.pin).toBe('4321'); // the original is untouched
-    const kept = await (await createBackup(d, { keepLock: true })).text();
-    expect(kept).toContain('4321');
+    d.grownUpLock = { lock: 'pin', pin: '4321' };
+    expect(await (await createBackup(d)).text()).not.toContain('4321');
+    expect(d.grownUpLock.pin).toBe('4321'); // the original is untouched
   });
 
-  it('restoring keeps the device lock; a fresh device takes the file’s lock', () => {
-    const local = good();
-    local.profiles[0].settings.lock = 'pin';
-    local.profiles[0].settings.pin = '1111';
-    const incoming = good('Other');
-    incoming.profiles[0].settings.lock = 'none';
-    keepLocalLock(incoming, local);
-    expect(incoming.profiles[0].settings.lock).toBe('pin');
-    expect(incoming.profiles[0].settings.pin).toBe('1111');
+  it('migrates a per-profile PIN from a hand-edited file into the app-wide lock', () => {
+    const d = good() as unknown as Record<string, unknown>;
+    Object.assign((d.profiles as Profile[])[0].settings, { lock: 'pin', pin: '2468' });
+    const m = migrate(d as unknown as AppData);
+    expect(m.grownUpLock).toEqual({ lock: 'pin', pin: '2468' });
+    expect('pin' in m.profiles[0].settings).toBe(false);
+    expect(migrate({ ...good(), grownUpLock: { lock: 'pin', pin: 'x' } } as unknown as AppData).grownUpLock?.lock).toBe('hold');
+  });
 
-    const fresh = good('');
-    const enc = good('Sam');
-    enc.profiles[0].settings.lock = 'math';
-    keepLocalLock(enc, fresh);
-    expect(enc.profiles[0].settings.lock).toBe('math');
+  it('a restore keeps the device lock (and a placeholder never imposes its own)', async () => {
+    const st = useStore.getState();
+    const local = good();
+    local.grownUpLock = { lock: 'pin', pin: '1111' };
+    useStore.setState({ data: local, loadProblem: null });
+    const incoming = good('Other');
+    incoming.grownUpLock = { lock: 'none' };
+    await st.replaceData(incoming, 'Before a lock test');
+    expect(useStore.getState().data.grownUpLock).toEqual({ lock: 'pin', pin: '1111' });
   });
 
   it('session-only recent sentences never reach storage or files', async () => {

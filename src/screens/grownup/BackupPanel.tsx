@@ -4,7 +4,6 @@ import { Section } from './controls';
 import { backupFilename, createBackup, decryptBackup, isEncryptedBackup, readBackup } from '../../lib/backup';
 import { addSnapshot, getSnapshot, listSnapshots, MANUAL_SNAPSHOT_REASON, SNAPSHOT_KEEP, type Snapshot } from '../../lib/db';
 import { pickFile, saveFile } from '../../lib/files';
-import { exportOBZ, importOBF } from '../../lib/obf';
 import { buildProfile } from '../../data/defaults';
 import { formatDate } from '../../lib/util';
 import { Modal } from '../../components/Modal';
@@ -66,6 +65,7 @@ export function BackupPanel() {
   });
 
   const exportObz = () => run(async () => {
+    const { exportOBZ } = await import('../../lib/obf'); // loads OBF/zip code only when needed
     const blob = await exportOBZ(p);
     showToast(await saveFile(`${(p.name || 'caleb').toLowerCase().replace(/\W+/g, '-')}-boards.obz`, blob));
   });
@@ -73,8 +73,10 @@ export function BackupPanel() {
   const importObz = () => run(async () => {
     const f = await pickFile('.obz,.obf,application/zip,application/json');
     if (!f) return;
+    const { importOBF } = await import('../../lib/obf');
     const { boards, rootId, name } = await importOBF(f);
-    const np = buildProfile(name, 'medium');
+    const np = buildProfile(name, 'medium', p.settings.language);
+    np.settings = { ...p.settings }; // keep this device's access and voice settings (scanning, pointer, voice…)
     np.boards = boards;
     np.rootId = rootId;
     np.name = name;

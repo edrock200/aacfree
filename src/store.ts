@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import type { AACButton, AppData, LayoutId, MessageWord, Profile, Settings, SymbolLibrary } from './types';
+import type { AACButton, AppData, GrownUpLock, LayoutId, MessageWord, Profile, Settings, SymbolLibrary } from './types';
 import { buildProfile } from './data/defaults';
 import {
   addSnapshot, blockStoredWrites, clearLog, DAILY_SNAPSHOT_REASON, gcAssets, getMeta, loadDataWithRev, logUsage, requestPersistence,
   saveDataChecked, setMeta, setUsageLogPaused,
 } from './lib/db';
-import { cleanData, cleanLibrary, keepLocalLock, withoutTransient } from './lib/validate';
+import { cleanData, cleanLibrary, withoutTransient } from './lib/validate';
 import { SaveQueue } from './lib/savequeue';
 import { debounce, uid } from './lib/util';
 import { joinWords } from './lib/sentence';
@@ -13,7 +13,9 @@ import { speak, stopSpeaking } from './lib/tts';
 import { applyEnding } from './lib/morphology';
 import { getLang, pack, setLangs, type Lang } from './i18n';
 import { translateProfile } from './lib/translate';
+import { alarm } from './lib/feedback';
 import { t, ts } from './i18n';
+import { DEFAULT_LOCK, keepDeviceLock, migrateLock } from './lib/lock';
 
 export const DATA_VERSION = 1;
 
@@ -51,6 +53,10 @@ interface UIState {
    * 'newer' (made by a newer Caleb), 'unreadable' (damaged; a copy was kept), 'storage' (storage could not be read).
    */
   loadProblem: LoadProblem | null;
+  /** Open tool on the Tools screen. */
+  tool: string | null;
+  /** A partner is modelling: taps are tagged in the log and don't train prediction. */
+  modeling: boolean;
 }
 
 export type LoadProblem = 'newer' | 'unreadable' | 'storage';
@@ -101,17 +107,13 @@ interface Actions {
   setUnlocked: (v: boolean) => void;
   /** Lock grown-up mode and return the person to their Home board. */
   lock: () => void;
-  tool: string | null;
+  /** Change the app-wide grown-up lock (method, PIN, notice). */
+  setLock: (patch: Partial<GrownUpLock>) => void;
   setTool: (t: string | null) => void;
-  /** A partner is modelling: taps are tagged in the log and don't train prediction. */
-  modeling: boolean;
   setModeling: (v: boolean) => void;
-  /** Visual timer keeps running when you leave the Timer tool. */
-  timer: { total: number; left: number; endAt: number | null };
+  /** The visual timer keeps running when you leave the Timer tool. */
   setTimer: (t: Partial<UIState['timer']>) => void;
-  firstThen: { first: PickedItem | null; then: PickedItem | null; firstDone: boolean };
   setFirstThen: (p: Partial<UIState['firstThen']>) => void;
-  choices: { items: PickedItem[]; offering: boolean; chosen: number | null };
   setChoices: (p: Partial<UIState['choices']>) => void;
   setEditMode: (v: boolean) => void;
   showToast: (msg: string, action?: { label: string; run: () => void }) => void;
@@ -146,7 +148,7 @@ export const emptyLibrary = (): SymbolLibrary => ({ categories: [], additions: {
 
 function emptyData(): AppData {
   const p = buildProfile('', 'medium');
-  return { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: false, library: emptyLibrary() };
+  return { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: false, library: emptyLibrary(), grownUpLock: { ...DEFAULT_LOCK } };
 }
 
 let saveBlocked = false;
@@ -417,6 +419,8 @@ export const useStore = create<Store>((set, get) => ({
     const d = migrate(structuredClone(newData)); // validates first: throws on a bad file
     d.onboarded = true;
     const problem = get().loadProblem;
+    // The grown-up lock belongs to this device, not to the file (a placeholder's lock means nothing).
+    if (!problem) keepDeviceLock(d, get().data);
     if (saveBlocked) {
       // Data in memory is only a placeholder: never snapshot it. A deliberate restore may replace
       // stored data that couldn't be used (a copy was kept aside), but not storage that can't be read.
@@ -427,8 +431,6 @@ export const useStore = create<Store>((set, get) => ({
     } else {
       await addSnapshot(get().data, reason); // throws → nothing is replaced
     }
-    // Restores and merges never change how this device is locked.
-    keepLocalLock(d, problem ? null : get().data);
     const p = d.profiles.find((x) => x.id === d.activeProfileId) ?? d.profiles[0];
     d.activeProfileId = p.id;
     queue.clear();
@@ -452,7 +454,7 @@ export const useStore = create<Store>((set, get) => ({
   completeOnboarding(name, layout, patch = {}) {
     const p = buildProfile(name, layout, patch.language ?? 'en');
     p.settings = { ...p.settings, ...patch };
-    const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary() };
+    const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary(), grownUpLock: get().data.grownUpLock ?? { ...DEFAULT_LOCK } };
     set({ data, boardStack: [p.rootId], message: [] });
     persist.flush(data);
   },
@@ -659,12 +661,30 @@ export const useStore = create<Store>((set, get) => ({
     if (opts.log && s.logging) logUsage({ profileId: get().profile().id, kind: opts.log, text, modeled: get().modeling || undefined });
   },
 
+  // ---- Grown-up lock (app-wide, v0.5) ----
   setUnlocked(v) {
     set({ unlocked: v, editMode: v ? get().editMode : false });
+    // Tell the grown-up once that profiles' different PINs became one.
+    const from = get().data.grownUpLock?.pinNotice;
+    if (v && from !== undefined) {
+      get().showToast(t('Profiles had different PINs. Caleb now uses one PIN for the whole app: the one from {v0}.', { v0: from }),
+        { label: t('OK'), run: () => get().setLock({ pinNotice: undefined }) });
+    }
   },
   lock() {
     set({ unlocked: false, editMode: false, screen: 'talk', boardStack: [get().profile().rootId], formsFor: null });
   },
+  setLock(patch) {
+    const { data } = get();
+    const grownUpLock: GrownUpLock = { ...(data.grownUpLock ?? DEFAULT_LOCK), ...patch };
+    if (grownUpLock.pin === undefined) delete grownUpLock.pin;
+    if (grownUpLock.pinNotice === undefined) delete grownUpLock.pinNotice;
+    if (grownUpLock.lock === 'pin' && !grownUpLock.pin) grownUpLock.lock = 'hold';
+    const newData = { ...data, grownUpLock };
+    set({ data: newData });
+    persist(newData);
+  },
+  // ---- end grown-up lock ----
   tool: null,
   setTool(tool) {
     set({ tool });
@@ -710,7 +730,7 @@ if (typeof window !== 'undefined') {
     if (left !== timer.left) useStore.setState({ timer: { ...timer, left } });
     if (left === 0) {
       useStore.setState({ timer: { ...timer, left: 0, endAt: null } });
-      import('./lib/feedback').then(({ alarm }) => alarm());
+      alarm();
       setTimeout(() => useStore.getState().speakText(ts('Time is up! All done.')), 1800);
     }
   }, 250);
@@ -732,6 +752,10 @@ if (typeof document !== 'undefined') {
  * Throws only a friendly Error when nothing usable is left.
  */
 export function migrate(data: AppData): AppData {
+  // Per-profile lock → app-wide, before profiles are repaired (newer files are refused by cleanData unchanged).
+  if (data && typeof data === 'object' && Array.isArray(data.profiles) && !(typeof data.version === 'number' && data.version > DATA_VERSION)) {
+    migrateLock(data);
+  }
   return cleanData(data, DATA_VERSION);
 }
 
@@ -754,3 +778,5 @@ function mergeHistory(cur: Profile['history'], back: Profile['history']): Profil
 
 export const useProfile = () => useStore((s) => s.data.profiles.find((p) => p.id === s.data.activeProfileId) ?? s.data.profiles[0]);
 export const useSettings = () => useProfile().settings;
+/** The app-wide grown-up lock. */
+export const useLock = () => useStore((s) => s.data.grownUpLock ?? DEFAULT_LOCK);

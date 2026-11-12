@@ -1,11 +1,11 @@
 import { useMemo, useRef, useState } from 'react';
 import { Modal } from './Modal';
-import { useSettings, useStore } from '../store';
+import { useLock, useStore } from '../store';
 import { t } from '../i18n';
 
 /** PIN or math-question gate for the grown-up area. */
 export function LockGate({ onUnlock, onClose }: { onUnlock: () => void; onClose: () => void }) {
-  const s = useSettings();
+  const s = useLock(); // app-wide lock and PIN
   const [entry, setEntry] = useState('');
   const [error, setError] = useState(false);
   const q = useMemo(() => {
@@ -37,7 +37,7 @@ export function LockGate({ onUnlock, onClose }: { onUnlock: () => void; onClose:
             <input value={phrase} onChange={(e) => setPhrase(e.target.value)} autoComplete="off" />
           </label>
           <button className="btn primary" disabled={!ok} onClick={() => {
-            useStore.getState().updateSettings({ lock: 'hold', pin: undefined });
+            useStore.getState().setLock({ lock: 'hold', pin: undefined });
             useStore.getState().showToast(t('PIN removed. Set a new one in Grown-ups → Lock.'));
             onUnlock();
           }}>{t('Remove PIN and open Grown-ups')}</button>

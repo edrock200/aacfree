@@ -1,7 +1,7 @@
 import { Component, type ReactNode } from 'react';
 import { addSnapshot, getRev, getSnapshot, listSnapshots, loadData, saveDataChecked } from '../lib/db';
 import { downloadBlob, formatDate } from '../lib/util';
-import { keepLocalLock, stripLock } from '../lib/validate';
+import { keepDeviceLock, migrateLock, withoutPin } from '../lib/lock';
 import { blockSaves, isSaveBlocked, migrate, useStore } from '../store';
 import { t } from '../i18n';
 import type { AppData } from '../types';
@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
         const current = isSaveBlocked() ? null : st.loaded ? st.data : await loadData().catch(() => undefined);
         if (current?.profiles?.length) {
           await addSnapshot(current, CRASH_SNAPSHOT_REASON);
-          keepLocalLock(data, current); // going back never changes the grown-up lock
+          if (current.grownUpLock) keepDeviceLock(data, current); // going back never changes the grown-up lock
         }
         // Nothing still in memory may overwrite the restore before the reload.
         blockSaves();
@@ -73,7 +73,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
     try {
       let data: unknown = await loadData();
       // Plain files never carry the grown-up PIN.
-      try { if (Array.isArray((data as AppData)?.profiles)) data = stripLock(data as AppData); } catch { /* keep as is */ }
+      try { if (Array.isArray((data as AppData)?.profiles)) data = withoutPin(migrateLock(structuredClone(data as AppData))); } catch { /* keep as is */ }
       downloadBlob(new Blob([JSON.stringify({ app: 'caleb', kind: 'raw', data })], { type: 'application/json' }), 'caleb-raw-data.json');
     } catch {
       alert(t('Could not read the saved data.'));

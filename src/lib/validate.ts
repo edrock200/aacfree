@@ -3,6 +3,7 @@ import type {
 } from '../types';
 import { WORD_COLORS } from './colors';
 import { buildProfile, DEFAULT_SETTINGS } from '../data/defaults';
+import { cleanLock, DEFAULT_LOCK } from './lock';
 
 /**
  * Defensive validation for anything that comes from storage, backup files,
@@ -89,7 +90,6 @@ const ENUMS: Partial<Record<keyof Settings, readonly string[]>> = {
   scanPattern: ['row-col', 'linear'],
   pointer: ['off', 'dwell', 'head', 'eyes'],
   keyboardLayout: ['qwerty', 'abc', 'azerty'],
-  lock: ['hold', 'pin', 'math', 'none'],
   keepRecent: ['on', 'session', 'off'],
 };
 
@@ -108,10 +108,8 @@ const RANGES: Partial<Record<keyof Settings, [number, number]>> = {
   pointerSmoothing: [0, 0.95],
 };
 
-/** Settings that no longer exist (dropped on load). */
-const REMOVED_SETTINGS = new Set(['autoBackup']);
-
-const PIN_RE = /^\d{4,6}$/;
+/** Settings that no longer exist (dropped on load). The lock moved to AppData.grownUpLock (see lock.ts). */
+const REMOVED_SETTINGS = new Set(['autoBackup', 'lock', 'pin']);
 
 function cleanPronunciations(raw: unknown): Record<string, string> | undefined {
   if (!isObj(raw)) return undefined;
@@ -196,11 +194,7 @@ export function cleanSettings(raw: unknown): Settings {
   else delete out.voiceIndex;
   const pron = cleanPronunciations(src.pronunciations); if (pron) out.pronunciations = pron; else delete out.pronunciations;
   const cal = cleanCalibration(src.gazeCalibration); if (cal) out.gazeCalibration = cal; else delete out.gazeCalibration;
-  if (typeof src.pin === 'string' && PIN_RE.test(src.pin)) out.pin = src.pin; else delete out.pin;
-  const s = out as unknown as Settings;
-  // A PIN lock without a PIN would lock grown-ups out for good.
-  if (s.lock === 'pin' && !s.pin) s.lock = 'hold';
-  return s;
+  return out as unknown as Settings;
 }
 
 // ---------- phrases, schedules, history, about me ----------
@@ -395,6 +389,7 @@ export function cleanData(input: unknown, version: number): AppData {
     activeProfileId: active,
     onboarded: data.onboarded !== false,
     library: cleanLibrary(data.library),
+    grownUpLock: cleanLock(data.grownUpLock) ?? { ...DEFAULT_LOCK },
   };
 }
 
@@ -431,43 +426,6 @@ export function cleanLibrary(raw: unknown): AppData['library'] {
 }
 
 // ---------- privacy helpers ----------
-
-const LOCK_RANK: Record<string, number> = { none: 0, hold: 1, math: 2, pin: 3 };
-
-/**
- * Restores and merges never change how this device is locked: each incoming
- * profile takes the local lock and PIN (from the same profile if it exists
- * here, otherwise the strictest lock on the device). Only a fresh install
- * (nothing made yet) takes the lock from the file, e.g. from an encrypted backup.
- */
-export function keepLocalLock(incoming: AppData, local: AppData | null | undefined): AppData {
-  if (!local || !hasUserContent(local)) return incoming;
-  const strictest = local.profiles.reduce<Profile | undefined>(
-    (best, p) => (!best || (LOCK_RANK[p.settings?.lock] ?? 0) > (LOCK_RANK[best.settings?.lock] ?? 0) ? p : best), undefined,
-  );
-  for (const p of incoming.profiles) {
-    const mine = local.profiles.find((x) => x.id === p.id) ?? strictest;
-    if (!mine?.settings || !p.settings) continue;
-    p.settings = { ...p.settings, lock: mine.settings.lock };
-    if (mine.settings.pin) p.settings.pin = mine.settings.pin; else delete p.settings.pin;
-    if (p.settings.lock === 'pin' && !p.settings.pin) p.settings.lock = 'hold';
-  }
-  return incoming;
-}
-
-/** Removes the grown-up PIN and lock (for files that are not encrypted). */
-export function stripLock(data: AppData): AppData {
-  return {
-    ...data,
-    profiles: data.profiles.map((p) => {
-      if (!p.settings) return p;
-      const settings = { ...p.settings } as Partial<Settings>;
-      delete settings.pin;
-      delete settings.lock;
-      return { ...p, settings: settings as Settings };
-    }),
-  };
-}
 
 /**
  * Data as it may be written to storage, snapshots or files: recent sentences
