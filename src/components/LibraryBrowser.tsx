@@ -181,10 +181,10 @@ export function CategoryEditor({ cat, onClose, onSaved, onDeleted }: {
       </Modal>
       {picking && <SymbolPicker initialQuery={name} noLibrarySave onClose={() => setPicking(false)} onPick={(s) => { setIcon(s); setPicking(false); }} />}
       {confirm && cat && (
-        <Modal title={`Delete “${cat.name}”?`} onClose={() => setConfirm(false)}
+        <Modal title={t('Delete “{name}”?', { name: cat.name })} onClose={() => setConfirm(false)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirm(false)}>{t('Cancel')}</button>
-            <button className="btn danger" onClick={() => { updateLibrary((lib) => { lib.categories = lib.categories.filter((c) => c.id !== cat.id); }, { undo: `Deleted “${cat.name}”` }); onDeleted(); }}>{t('Delete')}</button></>}>
-          <p>This removes the category and its {cat.symbols.length} symbol(s) from the library. Buttons already on boards keep their pictures.</p>
+            <button className="btn danger" onClick={() => { updateLibrary((lib) => { lib.categories = lib.categories.filter((c) => c.id !== cat.id); }, { undo: t('Deleted “{name}”', { name: cat.name }) }); onDeleted(); }}>{t('Delete')}</button></>}>
+          <p>{t('This removes the category and its {n} symbol(s) from the library. Buttons already on boards keep their pictures.', { n: cat.symbols.length })}</p>
         </Modal>
       )}
     </>

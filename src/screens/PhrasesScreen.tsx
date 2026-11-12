@@ -134,7 +134,7 @@ export function PhrasesScreen() {
           <button className="btn danger-outline" onClick={() => {
             updateProfile((pp) => { pp.phraseCategories = pp.phraseCategories.filter((c) => c !== cat); });
             setCat('Recent');
-          }}><IconTrash /> Remove empty group “{cat}”</button>
+          }}><IconTrash /> {t('Remove empty group “{name}”', { name: cat })}</button>
         </div>
       )}
     </div>

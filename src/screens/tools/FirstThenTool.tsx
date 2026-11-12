@@ -38,7 +38,7 @@ export function FirstThenTool() {
         <PressButton className="btn" onPress={() => setPicking('then')} data-scan-item>{t('Change then')}</PressButton>
       </div>
       {picking && (
-        <VocabPicker title={picking === 'first' ? 'First…' : 'Then…'} onClose={() => setPicking(null)}
+        <VocabPicker title={picking === 'first' ? t('First…') : t('Then…')} onClose={() => setPicking(null)}
           onPick={(it) => { setFirstThen(picking === 'first' ? { first: it, firstDone: false } : { then: it, firstDone: false }); setPicking(null); }} />
       )}
     </div>

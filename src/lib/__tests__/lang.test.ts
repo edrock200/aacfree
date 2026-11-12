@@ -802,7 +802,6 @@ describe('symbol search', () => {
 });
 
 /** Files other work streams own (they wrap their own strings). */
-const OTHER_STREAMS = /LockGate|ErrorBoundary|MessageBar|NavBar|BoardGrid|Modal|BigText|FindWord|KeyboardScreen|PointerLayer|GazeCalibration|BackupPanel|SyncSection|PhrasesScreen|TalkScreen|ToolsScreen|\/tools\/|ProfilesPanel|DataPanel|LibraryBrowser|SettingsPanels/;
 const TSX = import.meta.glob(['../../components/**/*.tsx', '../../screens/**/*.tsx', '../../App.tsx'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 /** Visible text that is the same in every language. */
 const SAME_EVERYWHERE = new Set(['Caleb', 'A', 'QWERTY', 'AZERTY', 'ABC', 'Language / Idioma']);
@@ -811,7 +810,7 @@ describe('visible text is wrapped in t() (defect 27)', () => {
   it('has no raw JSX text or literal placeholder/title/aria-label/alt', () => {
     const found: string[] = [];
     for (const [file, src0] of Object.entries(TSX)) {
-      if (OTHER_STREAMS.test(file)) continue;
+      if (/SyncSection/.test(file)) continue; // the sync stream is still rewriting this file
       // Drop comments so they are not mistaken for text.
       const src = src0.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
       const at = (i: number) => `${file.replace(/^(\.\.\/)+/, 'src/')}:${src.slice(0, i).split('\n').length}`;

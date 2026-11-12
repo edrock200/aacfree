@@ -159,7 +159,7 @@ export function BackupPanel() {
               showToast(t('Backup restored'));
               refresh();
             })}>{t('Replace with backup')}</button></>}>
-          <p><b>{pendingFile.name}</b> contains {pendingFile.data.profiles.length} profile(s): {pendingFile.data.profiles.map((x) => x.name || 'Unnamed').join(', ')}.</p>
+          <p><b>{pendingFile.name}</b>: {t('{n} profile(s): {names}.', { n: pendingFile.data.profiles.length, names: pendingFile.data.profiles.map((x) => x.name || t('Unnamed')).join(', ') })}</p>
           <p>{t('Everything on this device is replaced by the backup. Your current version is saved as a snapshot first, so you can go back.')}</p>
         </Modal>
       )}
