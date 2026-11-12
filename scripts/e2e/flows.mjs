@@ -94,6 +94,34 @@ check((await cells()).length === before.length - 1 || true, 'grid keeps its size
 const emptyCount = await page.$$eval('.grid .cell-empty', (e) => e.length);
 check(emptyCount >= 1, 'masked button leaves an empty gap (motor plan kept)');
 
+// --- symbol library: custom category + symbol, then a board category made from it
+await page.click('.navbtn[aria-label="Grown-up settings"]');
+await page.click('.gu-tab:has-text("Symbols")');
+check(await page.isVisible('.lib-folder[aria-label="Food folder"]'), 'library shows category folders with icons');
+await page.click('.lib-folder.add');
+await page.fill('.modal input', 'Soccer');
+await page.click('.lib-folder.preview');
+await page.click('.modal .tab:has-text("Emoji")');
+await page.click('.emoji-opt:text-is("⚽")');
+await page.click('.modal-foot button:has-text("Save")');
+check(await page.isVisible('.lib-head:has-text("Soccer")'), 'create a custom symbol category');
+await page.click('.lib-head button:has-text("Add symbol")');
+await page.click('.modal .tab:has-text("Emoji")');   // picker opens automatically
+await page.click('.emoji-opt:text-is("🥅")').catch(async () => { await page.click('.emoji-opt >> nth=5'); });
+await page.fill('.modal input[placeholder*="Grandma"]', 'goal');
+await page.click('.modal-foot button:has-text("Save")');
+check(await page.isVisible('.sym-opt:has-text("goal")'), 'add a custom symbol to the category');
+await page.click('.gu-tab:has-text("Boards")');
+await page.click('button:has-text("New category")');
+await page.selectOption('.modal select', { label: 'Soccer (1) (yours)' });
+await page.click('.modal-foot button:has-text("Create category")');
+await page.waitForTimeout(400);
+check((await cells()).includes('goal'), 'board category created from library category');
+await page.click('.edit-tools button:has-text("Done")');
+await page.click('.nav-home');
+check((await cells()).includes('Soccer folder') || (await (async () => { await page.click('.grid .cell[aria-label="More folder"]'); return (await cells()).includes('Soccer folder'); })()), 'new category folder appears on a board');
+await page.click('.nav-home');
+
 // --- backup round trip
 await page.click('.navbtn[aria-label="Grown-up settings"]');
 await page.click('.gu-tab:has-text("Backup")');

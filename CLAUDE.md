@@ -1,6 +1,6 @@
 # CLAUDE.md — Caleb AAC
 
-Caleb is a free, open-source **AAC (augmentative & alternative communication)** app for autistic
+Caleb (AGPL-3.0-or-later) is a free, open-source **AAC (augmentative & alternative communication)** app for autistic
 people and their families. It ships as a **web app / PWA** and an **Android APK** (Capacitor).
 Everything is offline-first and stored on the device. There is no server and no accounts.
 
@@ -29,6 +29,8 @@ npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Androi
 - `src/data/vocab.ts`: **all default vocabulary** in a compact spec notation (see the header comment). It must stay dependency-free because the symbol script imports it with Node type stripping.
 - `src/data/defaults.ts`: builds a Profile from the vocab (`buildProfile`), plus `DEFAULT_SETTINGS`
 - `src/store.ts`: app state and actions (message bar, navigation, edits with undo, persistence, snapshots)
+- `src/lib/library.ts` + `src/components/LibraryBrowser.tsx`: the symbol library. Built-in categories come from the vocab (`builtInLibrary()` in defaults.ts); family categories and additions live in `AppData.library`, shared across profiles. Each category is shown as a folder with an icon.
+- `src/components/NewCategoryDialog.tsx`: creates a board category (folder button + board), optionally from a library category
 - `src/lib/`: tts, morphology (word forms), prediction, scanning (`useScanner`), touch accommodations (`usePress`), backup, OBF import/export, files (web download vs Android share)
 - `src/components/`: grid/cell/message bar/quick bar/nav bar/editors/pickers
 - `src/screens/`: Talk, Keyboard, Phrases, Tools (+ `tools/*`), GrownUp (+ `grownup/*`), Onboarding

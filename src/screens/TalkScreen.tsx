@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { BoardGrid } from '../components/BoardGrid';
+import { NewCategoryDialog } from '../components/NewCategoryDialog';
 import { ButtonEditor } from '../components/ButtonEditor';
 import { FormsPopover } from '../components/FormsPopover';
 import { Modal } from '../components/Modal';
 import { Symbol } from '../components/Symbol';
 import { resizeBoard, orphanBoards } from '../lib/boards';
 import type { AACButton, Board } from '../types';
-import { IconCheck, IconEye, IconEyeOff, IconSettings, IconUndo } from '../components/Icons';
+import { IconCheck, IconEye, IconEyeOff, IconPlus, IconSettings, IconUndo } from '../components/Icons';
 
 export function TalkScreen() {
   const p = useProfile();
@@ -24,6 +25,7 @@ export function TalkScreen() {
   const [moveFrom, setMoveFrom] = useState<number | null>(null);
   const [formsButton, setFormsButton] = useState<AACButton | null>(null);
   const [boardSettings, setBoardSettings] = useState(false);
+  const [newCat, setNewCat] = useState(false);
 
   // A pending Move belongs to the board it started on.
   useEffect(() => { setMoveFrom(null); }, [board.id, editMode]);
@@ -77,6 +79,7 @@ export function TalkScreen() {
               <button className="btn small" onClick={() => updateSettings({ babble: !s.babble })}>
                 {s.babble ? <IconEye size={18} /> : <IconEyeOff size={18} />} {s.babble ? 'Showing hidden' : 'Hidden masked'}
               </button>
+              <button className="btn small" onClick={() => setNewCat(true)}><IconPlus size={18} /> Category</button>
               <button className="btn small" onClick={() => setBoardSettings(true)}><IconSettings size={18} /> Board</button>
               <button className="btn small primary" onClick={() => { setEditMode(false); setMoveFrom(null); }}><IconCheck size={18} /> Done</button>
             </div>
@@ -119,6 +122,7 @@ export function TalkScreen() {
           }}
         />
       )}
+      {newCat && <NewCategoryDialog parentBoardId={board.id} onClose={() => setNewCat(false)} />}
       {boardSettings && <BoardSettings board={board} isRoot={board.id === p.rootId} onClose={() => setBoardSettings(false)} />}
       {editMode && boardStack.length === 1 && orphanBoards(p).length > 0 && (
         <p className="orphans muted">{orphanBoards(p).length} folder(s) are not linked from any board. Find them in Grown-ups → Boards.</p>

@@ -14,7 +14,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 
 | Platform | How |
 |---|---|
-| **Android** (7.0+) | Download [`release/caleb-latest.apk`](release/caleb-latest.apk), open it, and allow "install unknown apps". |
+| **Android** (7.0+) | Download [`release/caleb-latest.apk`](release/caleb-latest.apk) (v0.1), open it, and allow "install unknown apps". |
 | **Any browser / iPad / iPhone / Chromebook / PC** | Open the web app (GitHub Pages, see [Website](#website)) and choose **Install** / **Add to Home Screen**. It then works offline. |
 
 ## Features
@@ -36,6 +36,8 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 
 ### For parents, teachers and therapists
 - **Grown-up area** behind a 2-second hold (default), a PIN or a math question. Talking itself is never locked.
+- **Symbol library:** every picture is organised into category folders, each with its own icon. Create your own categories (family, school, favourite shows…) and your own symbols from photos, online ARASAAC symbols or emoji. They appear whenever you choose a picture.
+- **New categories on boards:** add a folder button with an icon in one tap. It can start empty or be filled from any library category.
 - **Edit in place:** tap a button to change its label, spoken text, picture (built-in symbols, online ARASAAC search, emoji, camera or gallery photo), word type and colour, recorded voice, word forms, or folder link. Tap Move, then a target, to swap two buttons. **Hide instead of delete.** Undo is always available.
 - Create folders and boards, resize boards (positions are preserved), and edit the quick bar.
 - **Paper boards:** print any boards, with the quick bar on every page, as a low-tech backup.
@@ -88,7 +90,7 @@ Suggestions are welcome. Open an issue.
 Caleb has no servers, analytics, ads or accounts. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, or when the device's text-to-speech engine uses an online voice.
 
 ## Credits and licence
-- App code: [MIT](LICENSE)
+- App code: [GNU AGPL-3.0-or-later](LICENSE). If you run a modified version for others, including as a website, you must share its source. See [NOTICE](NOTICE).
 - Pictograms: Sergio Palao. Origin: [ARASAAC](https://arasaac.org), Government of Aragón (Spain). Licence: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Because the pictograms are non-commercial, Caleb must stay free.
 - Font: [Atkinson Hyperlegible](https://brailleinstitute.org/freefont), Braille Institute (SIL OFL 1.1)
 

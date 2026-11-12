@@ -9,6 +9,7 @@ import { uid } from '../../lib/util';
 import type { LayoutId } from '../../types';
 import { IconEdit, IconPlus } from '../../components/Icons';
 import { printBoards } from '../../lib/print';
+import { NewCategoryDialog } from '../../components/NewCategoryDialog';
 
 /** Highest-value first words for beginners (Project Core / common first core words). */
 export const STARTER_WORDS = ['i', 'you', 'want', 'more', 'help', 'stop', 'go', 'like', 'not', 'all done', 'eat', 'drink', 'play', 'what', 'look', 'open', 'turn', 'different', 'get', 'it'];
@@ -25,6 +26,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
   const { updateSettings, updateProfile, openBoard, setEditMode, home, showToast } = useStore.getState();
   const [confirmLayout, setConfirmLayout] = useState<LayoutId | null>(null);
   const [printSel, setPrintSel] = useState<string[] | null>(null);
+  const [newCat, setNewCat] = useState(false);
   const [printing, setPrinting] = useState(false);
   const paths = boardPaths(p);
   const boards = Object.values(p.boards).sort((a, b) => (paths[a.id]?.length ?? 99) - (paths[b.id]?.length ?? 99) || a.name.localeCompare(b.name));
@@ -71,7 +73,8 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
       <Section title="Edit boards" intro="Tap “Edit” on any board, then tap a button to change it. Tap an empty square to add a word. Hide words (instead of deleting) to keep the motor plan stable.">
         <div className="row">
           <button className="btn primary" onClick={() => editBoard(p.rootId)}><IconEdit /> Edit Home board</button>
-          <button className="btn" onClick={newBoard}><IconPlus /> New board</button>
+          <button className="btn" onClick={() => setNewCat(true)}><IconPlus /> New category</button>
+          <button className="btn" onClick={newBoard}>Blank board</button>
         </div>
         <div className="board-list">
           {boards.map((b) => (
@@ -124,6 +127,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
           <button className="btn small" onClick={() => updateProfile((pp) => { pp.lexicon = {}; })}>Forget learned words ({Object.keys(p.lexicon).length})</button>
         )}
       </Section>
+      {newCat && <NewCategoryDialog parentBoardId={p.rootId} onClose={() => setNewCat(false)} onCreated={(id) => editBoard(id)} />}
       {printSel && (
         <Modal title="Print boards" onClose={() => setPrintSel(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setPrintSel(null)}>Cancel</button>

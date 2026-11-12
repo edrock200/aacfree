@@ -1,4 +1,4 @@
-import type { AACButton, Board, Cell, LayoutId, Profile, Settings, WordType } from '../types';
+import type { AACButton, Board, Cell, LayoutId, LibraryCategory, Profile, Settings, WordType } from '../types';
 import { uid } from '../lib/util';
 import symbolMap from './symbols.json';
 import {
@@ -171,4 +171,31 @@ export function searchBundled(query: string, limit = 60): { keyword: string; sym
     else if (k.includes(q)) { contains.push(item); seen.add(id); }
   }
   return [...exact, ...starts, ...contains].slice(0, limit);
+}
+
+let builtIn: LibraryCategory[] | null = null;
+
+/** Built-in symbol categories, generated from the default vocabulary (read-only). */
+export function builtInLibrary(): LibraryCategory[] {
+  if (builtIn) return builtIn;
+  const core: LibraryCategory = { id: 'lib-core', name: 'Core words', icon: symbolFor('communication'), symbols: [] };
+  const seenCore = new Set<string>();
+  for (const spec of HOME_LAYOUTS.full.cells) {
+    if (!spec || spec.startsWith('>') || spec.startsWith('!')) continue;
+    const p = parseSpec(spec);
+    const sym = p.emoji ? `e:${p.emoji}` : p.id ? `a:${p.id}` : symbolFor(p.keyword);
+    if (sym && !seenCore.has(p.label)) { seenCore.add(p.label); core.symbols.push({ id: `core-${p.label}`, label: p.label, symbol: sym, type: p.type as WordType }); }
+  }
+  builtIn = [core, ...CATEGORIES.map((c) => {
+    const seen = new Set<string>();
+    const symbols = c.items.flatMap((spec) => {
+      const p = parseSpec(spec, c.type);
+      const sym = p.emoji ? `e:${p.emoji}` : p.id ? `a:${p.id}` : symbolFor(p.keyword);
+      if (!sym || seen.has(p.label)) return [];
+      seen.add(p.label);
+      return [{ id: `${c.id}-${p.label}`, label: p.label, symbol: sym, type: p.type as WordType }];
+    });
+    return { id: `lib-${c.id}`, name: c.name, icon: symbolFor(c.icon), symbols };
+  })];
+  return builtIn;
 }

@@ -141,3 +141,30 @@ describe('backup', () => {
     expect([...ids].sort()).toEqual(['audio-2', 'photo-1']);
   });
 });
+
+import { allCategories, searchLibrary } from '../library';
+
+describe('symbol library', () => {
+  const lib = {
+    categories: [{ id: 'cat-x', name: 'Soccer', icon: 'e:⚽', symbols: [{ id: 's1', label: 'goal', symbol: 'e:🥅' }] }],
+    additions: { 'lib-food': [{ id: 's2', label: 'grandma soup', symbol: 'img:abc' }] },
+  };
+  it('lists family categories first, then built-in categories with icons', () => {
+    const cats = allCategories(lib);
+    expect(cats[0].name).toBe('Soccer');
+    expect(cats[0].builtIn).toBe(false);
+    const food = cats.find((c) => c.id === 'lib-food')!;
+    expect(food.builtIn).toBe(true);
+    expect(food.icon).toMatch(/^a:\d+/);
+    expect(food.symbols[0].label).toBe('grandma soup');
+    expect(food.customIds.has('s2')).toBe(true);
+    expect(cats.every((c) => c.builtIn ? c.icon : true)).toBe(true);
+  });
+  it('searches family and built-in symbols', () => {
+    expect(searchLibrary(lib, 'goal')[0].symbol).toBe('e:🥅');
+    expect(searchLibrary(lib, 'soup').map((s) => s.label)).toContain('grandma soup');
+    expect(searchLibrary(lib, 'pizza').length).toBeGreaterThan(0);
+    // short queries don't match the middle of words
+    expect(searchLibrary(lib, 'i').map((s) => s.label)).not.toContain('pizza');
+  });
+});

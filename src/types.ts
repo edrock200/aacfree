@@ -178,11 +178,36 @@ export interface Profile {
 
 export type LayoutId = 'big' | 'medium' | 'full';
 
+/** A picture saved in the symbol library (built-in or created by the family). */
+export interface LibrarySymbol {
+  id: string;
+  label: string;
+  symbol: SymbolRef;
+  type?: WordType;
+}
+
+/** A symbol category (shown as a folder with an icon). */
+export interface LibraryCategory {
+  id: string;
+  name: string;
+  icon?: SymbolRef;
+  symbols: LibrarySymbol[];
+}
+
+/** The family's own symbol library, shared by all profiles on the device. */
+export interface SymbolLibrary {
+  /** Categories created by the family. */
+  categories: LibraryCategory[];
+  /** Extra symbols the family added to built-in categories (category id → symbols). */
+  additions: Record<string, LibrarySymbol[]>;
+}
+
 export interface AppData {
   version: number;
   profiles: Profile[];
   activeProfileId: string;
   onboarded: boolean;
+  library: SymbolLibrary;
 }
 
 export interface MessageWord {

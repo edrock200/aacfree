@@ -6,12 +6,15 @@ import { DataPanel } from './grownup/DataPanel';
 import { BackupPanel } from './grownup/BackupPanel';
 import { ProfilesPanel, SecurityPanel } from './grownup/ProfilesPanel';
 import { HelpPanel } from './grownup/HelpPanel';
-import { IconChart, IconEdit, IconGrid, IconHelp, IconLock, IconSave, IconSettings, IconSpeak, IconUsers, IconEye, IconPerson } from '../components/Icons';
+import { LibraryBrowser } from '../components/LibraryBrowser';
+import { Section } from './grownup/controls';
+import { IconImage, IconChart, IconEdit, IconGrid, IconHelp, IconLock, IconSave, IconSettings, IconSpeak, IconUsers, IconEye, IconPerson } from '../components/Icons';
 
-type Panel = 'boards' | 'speech' | 'display' | 'access' | 'data' | 'backup' | 'profiles' | 'security' | 'help';
+type Panel = 'boards' | 'symbols' | 'speech' | 'display' | 'access' | 'data' | 'backup' | 'profiles' | 'security' | 'help';
 
 const PANELS: { id: Panel; label: string; icon: React.ReactNode }[] = [
   { id: 'boards', label: 'Boards & words', icon: <IconGrid /> },
+  { id: 'symbols', label: 'Symbols', icon: <IconImage /> },
   { id: 'speech', label: 'Voice', icon: <IconSpeak /> },
   { id: 'display', label: 'Display', icon: <IconEye /> },
   { id: 'access', label: 'Access', icon: <IconSettings /> },
@@ -58,6 +61,11 @@ export function GrownUpScreen() {
       <div className="gu-main" key={panel}>
         <BackupNudge onGo={() => setPanel('backup')} hidden={panel === 'backup'} />
         {panel === 'boards' && <VocabPanel onDone={() => setScreen('talk')} />}
+        {panel === 'symbols' && (
+          <Section title="Symbol library" intro="Pictures are organised into category folders. Add your own categories, such as family, school or favourite things, and your own symbols using photos, online symbols or emoji. Library symbols show up whenever you choose a picture for a button, and you can make a whole board category from a library category.">
+            <LibraryBrowser mode="manage" />
+          </Section>
+        )}
         {panel === 'speech' && <SpeechPanel />}
         {panel === 'display' && <DisplayPanel />}
         {panel === 'access' && <AccessPanel />}

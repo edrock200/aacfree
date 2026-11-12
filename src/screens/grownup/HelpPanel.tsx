@@ -35,7 +35,7 @@ export function HelpPanel() {
         <p>Caleb is a free, open-source AAC app made for autistic people and their families. No ads, no subscriptions, no accounts. Everything stays on this device.</p>
         <p className="muted small">
           Pictograms: ARASAAC (arasaac.org). Author: Sergio Palao. Origin: ARASAAC, Government of Aragón (Spain). License: CC BY-NC-SA 4.0.
-          Font: Atkinson Hyperlegible, Braille Institute (SIL OFL). App code: MIT License.
+          Font: Atkinson Hyperlegible, Braille Institute (SIL OFL). App code: GNU AGPL-3.0-or-later. Source code: github.com/edrock200/caleb
         </p>
         <p className="muted small">Version {__APP_VERSION__}</p>
       </Section>

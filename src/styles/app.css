@@ -552,6 +552,34 @@ small { font-size: 0.85em; }
 .pinpad { display: grid; grid-template-columns: repeat(3, 72px); gap: 10px; }
 .pinpad .btn { height: 64px; font-size: 1.5rem; border-radius: 16px; }
 
+/* ===== Symbol library ===== */
+.lib-folders { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 8px 0; }
+.lib-folder {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 16px 8px 10px; border-radius: var(--radius); border: 1.5px solid var(--cell-border);
+  background: #efe3cf; color: #1d1d1f; box-shadow: var(--shadow); text-align: center;
+}
+.lib-folder::before { content: ''; position: absolute; top: 0; left: 0; width: 42%; height: 9px; background: rgba(0,0,0,.13); border-bottom-right-radius: 7px; border-top-left-radius: var(--radius); }
+.lib-folder.custom { background: #d9efe9; }
+.lib-folder.add { background: transparent; border: 2px dashed var(--border); color: var(--muted); box-shadow: none; justify-content: center; }
+.lib-folder.preview { width: 150px; flex: none; }
+.lib-folder-icon { width: 72px; height: 72px; display: grid; place-items: center; }
+.lib-folder-icon .sym { width: 72px; height: 72px; object-fit: contain; }
+.lib-folder-icon .sym-emoji { font-size: 52px; }
+.lib-folder-blank { width: 64px; height: 64px; border-radius: 14px; background: rgba(0,0,0,.08); display: grid; place-items: center; font-size: 2rem; font-weight: 700; }
+.lib-folder small { color: #5f5b55; }
+.lib-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 8px; font-size: 1.1rem; }
+.lib-head-icon { width: 36px; height: 36px; object-fit: contain; }
+.sym-opt { position: relative; }
+.sym-opt.custom { border-color: var(--accent); }
+.sym-opt.add { border-style: dashed; color: var(--muted); justify-content: center; }
+.sym-opt.preview { width: 150px; flex: none; min-height: 150px; justify-content: center; }
+.sym-opt.preview .sym { width: 96px; height: 96px; }
+.sym-opt-edit { position: absolute; top: 6px; right: 6px; color: var(--accent); }
+.cat-editor { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.cat-editor .cell.preview { width: 150px; height: 150px; flex: none; background: #efe3cf; }
+.save-to-lib { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 10px; margin: 4px 0; background: var(--accent-soft); border-radius: 12px; font-weight: 700; }
+.save-to-lib select, .save-to-lib input { font: inherit; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); min-height: 40px; }
 .copy-list { display: flex; flex-direction: column; gap: 6px; }
 .print-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0 12px; }
 .print-pick .check { margin: 6px 0; }

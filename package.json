@@ -1,10 +1,10 @@
 {
   "name": "caleb-aac",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Caleb \u2014 a free, open-source AAC (augmentative & alternative communication) app for autistic people and their families.",
   "type": "module",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

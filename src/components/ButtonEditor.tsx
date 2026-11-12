@@ -194,7 +194,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
         <SymbolPicker
           initialQuery={b.label}
           onClose={() => setPicking(false)}
-          onPick={(symbol) => { set({ symbol }); setPicking(false); }}
+          onPick={(symbol, label) => { set(b.label.trim() || !label ? { symbol } : { symbol, label }); setPicking(false); }}
         />
       )}
       {copying && (

@@ -1,7 +1,10 @@
 # Changelog
 
-## 1.0.0 — 2026-11-12
-First release.
+## 0.1.0 — 2026-11-12
+First public build.
+- **Symbol library:** pictures organised into category folders, each with an icon. Families can create their own categories and symbols (photos, online ARASAAC, emoji) and save online pictures and photos to the library while editing.
+- **New category** on boards: a folder button with an icon that opens a new board, optionally pre-filled from a library category
+- Licensed under the GNU AGPL-3.0-or-later
 - Core vocabulary boards in three layouts (12 / 30 / 48 buttons), 25 topic folders, about 770 words, and 740 bundled ARASAAC symbols
 - Printable paper boards; undo after clearing a message; backup reminders
 - Starter vocabulary mode; copy a button to another board; open folders while editing

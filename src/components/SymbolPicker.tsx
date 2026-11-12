@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Modal } from './Modal';
-import { Symbol } from './Symbol';
-import { searchBundled } from '../data/defaults';
 import { putAsset } from '../lib/db';
+import { LibraryBrowser } from './LibraryBrowser';
+import { useStore } from '../store';
+import { allCategories } from '../lib/library';
 import { resizeImage, uid } from '../lib/util';
 import { IconCamera, IconSearch } from './Icons';
 
@@ -10,16 +11,37 @@ const EMOJI = '😀 😃 😄 😁 😆 😅 😂 🙂 😉 😊 😍 🥰 😘 
 
 interface Props {
   initialQuery?: string;
-  onPick: (ref: string | undefined) => void;
+  /** `label` is the library word when a library symbol was chosen. */
+  onPick: (ref: string | undefined, label?: string) => void;
   onClose: () => void;
+  /** Hide the "save to my library" option (used inside the library editors). */
+  noLibrarySave?: boolean;
 }
 
-type Tab = 'symbols' | 'online' | 'emoji' | 'photo';
+type Tab = 'library' | 'online' | 'emoji' | 'photo';
 
 interface ArasaacResult { _id: number; keywords: { keyword: string }[] }
 
-export function SymbolPicker({ initialQuery = '', onPick, onClose }: Props) {
-  const [tab, setTab] = useState<Tab>('symbols');
+export function SymbolPicker({ initialQuery = '', onPick: onPickRaw, onClose, noLibrarySave }: Props) {
+  const [tab, setTab] = useState<Tab>('library');
+  const library = useStore((st) => st.data.library);
+  const cats = allCategories(library);
+  const [saveCat, setSaveCat] = useState('');
+  const [saveLabel, setSaveLabel] = useState(initialQuery);
+
+  /** Optionally keep downloaded pictures and photos in the family's library for reuse. */
+  const onPick = (ref: string | undefined, label?: string) => {
+    if (ref && saveCat && !noLibrarySave && (tab === 'online' || tab === 'photo')) {
+      const target = cats.find((c) => c.id === saveCat);
+      const entry = { id: uid('sym-'), label: (saveLabel || label || 'picture').trim(), symbol: ref };
+      useStore.getState().updateLibrary((lib) => {
+        if (target?.builtIn) (lib.additions[saveCat] ??= []).unshift(entry);
+        else lib.categories.find((c) => c.id === saveCat)?.symbols.unshift(entry);
+      });
+      useStore.getState().showToast(`Saved to “${target?.name}” in your symbols`);
+    }
+    onPickRaw(ref, label);
+  };
   const [q, setQ] = useState(initialQuery);
   const [online, setOnline] = useState<ArasaacResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +49,6 @@ export function SymbolPicker({ initialQuery = '', onPick, onClose }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
 
-  const bundled = searchBundled(q);
 
   useEffect(() => {
     if (tab !== 'online' || !q.trim()) return;
@@ -49,14 +70,14 @@ export function SymbolPicker({ initialQuery = '', onPick, onClose }: Props) {
     return () => { clearTimeout(t); ctrl.abort(); };
   }, [q, tab]);
 
-  const pickOnline = async (id: number) => {
+  const pickOnline = async (id: number, label?: string) => {
     setLoading(true);
     try {
       const r = await fetch(`https://static.arasaac.org/pictograms/${id}/${id}_300.png`);
       const blob = await resizeImage(await r.blob(), 256);
       const assetId = uid('arasaac-');
       await putAsset(assetId, blob);
-      onPick(`img:${assetId}`);
+      onPick(`img:${assetId}`, label);
     } catch {
       setError('Download failed. Try again when online.');
       setLoading(false);
@@ -80,13 +101,23 @@ export function SymbolPicker({ initialQuery = '', onPick, onClose }: Props) {
   return (
     <Modal title="Choose a picture" onClose={onClose} wide>
       <div className="tabs">
-        {(['symbols', 'online', 'emoji', 'photo'] as Tab[]).map((t) => (
+        {(['library', 'online', 'emoji', 'photo'] as Tab[]).map((t) => (
           <button key={t} className={`tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
-            {{ symbols: 'Symbols', online: 'More symbols (online)', emoji: 'Emoji', photo: 'Photo' }[t]}
+            {{ library: 'Symbols', online: 'More (online)', emoji: 'Emoji', photo: 'Photo' }[t]}
           </button>
         ))}
       </div>
-      {(tab === 'symbols' || tab === 'online') && (
+      {!noLibrarySave && (tab === 'online' || tab === 'photo') && (
+        <div className="save-to-lib">
+          <span>Also save to my symbols:</span>
+          <select value={saveCat} onChange={(e) => setSaveCat(e.target.value)} aria-label="Save to category">
+            <option value="">Don't save</option>
+            {cats.map((c) => <option key={c.id} value={c.id}>{c.name}{c.builtIn ? '' : ' (yours)'}</option>)}
+          </select>
+          {saveCat && <input value={saveLabel} onChange={(e) => setSaveLabel(e.target.value)} placeholder="Word for this picture" aria-label="Word for this picture" />}
+        </div>
+      )}
+      {tab === 'online' && (
         <label className="search">
           <IconSearch size={20} />
           <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search pictures…" />
@@ -94,23 +125,11 @@ export function SymbolPicker({ initialQuery = '', onPick, onClose }: Props) {
       )}
       {error && <p className="error">{error}</p>}
       {loading && <p className="muted">Loading…</p>}
-      {tab === 'symbols' && (
-        <>
-          <div className="sym-grid">
-            {bundled.map((r) => (
-              <button key={r.symbol} className="sym-opt" onClick={() => onPick(r.symbol)} title={r.keyword}>
-                <Symbol value={r.symbol} lazy />
-                <span>{r.keyword}</span>
-              </button>
-            ))}
-          </div>
-          {q && !bundled.length && <p className="muted">Nothing in the built-in set. Try “More symbols (online)”.</p>}
-        </>
-      )}
+      {tab === 'library' && <LibraryBrowser mode="pick" initialQuery={initialQuery} onPick={(sym) => onPick(sym.symbol, sym.label)} />}
       {tab === 'online' && (
         <div className="sym-grid">
           {online.map((r) => (
-            <button key={r._id} className="sym-opt" onClick={() => pickOnline(r._id)} title={r.keywords[0]?.keyword}>
+            <button key={r._id} className="sym-opt" onClick={() => pickOnline(r._id, r.keywords[0]?.keyword)} title={r.keywords[0]?.keyword}>
               <img className="sym" src={`https://static.arasaac.org/pictograms/${r._id}/${r._id}_300.png`} alt="" loading="lazy" />
               <span>{r.keywords[0]?.keyword}</span>
             </button>

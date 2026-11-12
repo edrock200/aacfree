@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AACButton, AppData, LayoutId, MessageWord, Profile, Settings } from './types';
+import type { AACButton, AppData, LayoutId, MessageWord, Profile, Settings, SymbolLibrary } from './types';
 import { buildProfile } from './data/defaults';
 import { addSnapshot, getMeta, loadData, logUsage, requestPersistence, saveData, setMeta } from './lib/db';
 import { debounce, uid } from './lib/util';
@@ -38,6 +38,7 @@ interface Actions {
   setScreen: (s: Screen) => void;
   updateProfile: (fn: (p: Profile) => void, opts?: { undoable?: boolean }) => void;
   updateSettings: (patch: Partial<Settings>) => void;
+  updateLibrary: (fn: (lib: SymbolLibrary) => void) => void;
   undoEdit: () => void;
   replaceData: (data: AppData, reason?: string) => Promise<void>;
   completeOnboarding: (name: string, layout: LayoutId, patch?: Partial<Settings>) => void;
@@ -79,9 +80,11 @@ interface UndoEntry {
   layout: Profile['layout'];
 }
 
+export const emptyLibrary = (): SymbolLibrary => ({ categories: [], additions: {} });
+
 function emptyData(): AppData {
   const p = buildProfile('', 'medium');
-  return { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: false };
+  return { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: false, library: emptyLibrary() };
 }
 
 let saveBlocked = false;
@@ -173,6 +176,15 @@ export const useStore = create<Store>((set, get) => ({
     });
   },
 
+  updateLibrary(fn) {
+    const { data } = get();
+    const library = structuredClone(data.library ?? emptyLibrary());
+    fn(library);
+    const newData = { ...data, library };
+    set({ data: newData });
+    persist(newData);
+  },
+
   undoEdit() {
     const { undo, data } = get();
     const prev = undo[undo.length - 1];
@@ -200,7 +212,7 @@ export const useStore = create<Store>((set, get) => ({
   completeOnboarding(name, layout, patch = {}) {
     const p = buildProfile(name, layout);
     p.settings = { ...p.settings, ...patch };
-    const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true };
+    const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary() };
     set({ data, boardStack: [p.rootId], message: [] });
     persist.flush(data);
   },
@@ -399,6 +411,9 @@ export function migrate(data: AppData): AppData {
     p.quickBar ??= fresh.quickBar;
     p.aboutMe ??= fresh.aboutMe;
   }
+  data.library ??= emptyLibrary();
+  data.library.categories ??= [];
+  data.library.additions ??= {};
   data.version = DATA_VERSION;
   return data;
 }
