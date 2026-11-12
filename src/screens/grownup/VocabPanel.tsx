@@ -151,7 +151,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
       {confirmLayout && (
         <Modal title={t('Change layout?')} onClose={() => setConfirmLayout(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirmLayout(null)}>{t('Cancel')}</button><button className="btn primary" onClick={() => applyLayout(confirmLayout)}>{t('Change layout')}</button></>}>
-          <p>{t('This replaces the boards with the built-in')} <b>{LAYOUTS.find((l) => l.id === confirmLayout)!.name}</b> {t('vocabulary. Any buttons you added or changed on boards will be replaced.')}</p>
+          <p>{t('This replaces the boards with the built-in “{layout}” vocabulary. Any buttons you added or changed on boards will be replaced.', { layout: t(LAYOUTS.find((l) => l.id === confirmLayout)!.name) })}</p>
           <p className="muted">{t('Changing layouts changes where words are, which means relearning motor plans. Try to pick one and grow into it by un-hiding words over time.')}</p>
         </Modal>
       )}

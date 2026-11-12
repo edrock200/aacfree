@@ -97,7 +97,7 @@ export const TalkScreen = memo(function TalkScreen() {
             <div className="edit-tools">
               {moveFrom !== null && <span className="hint">{t('Now tap where it should go')}</span>}
               {hideMode && <span className="hint">{t('Tap words to hide or show them')}</span>}
-              <button className={`btn small ${hideMode ? 'primary' : ''}`} onClick={() => setHideMode(!hideMode)}><IconEyeOff size={18} /> {hideMode ? 'Done hiding' : 'Show/Hide'}</button>
+              <button className={`btn small ${hideMode ? 'primary' : ''}`} onClick={() => setHideMode(!hideMode)}><IconEyeOff size={18} /> {hideMode ? t('Done hiding') : t('Show/Hide')}</button>
               {hideMode && board.cells.some((c) => c?.hidden) && (
                 <button className="btn small" onClick={() => updateProfile((pp) => {
                   pp.boards[board.id].cells.filter((c) => c?.hidden).slice(0, 5).forEach((c) => { delete c!.hidden; });

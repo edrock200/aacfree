@@ -30,7 +30,7 @@ export function BackupPanel() {
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
-    try { await fn(); } catch (e) { showToast((e as Error).message || 'Something went wrong'); } finally { setBusy(false); }
+    try { await fn(); } catch (e) { showToast(t((e as Error).message || 'Something went wrong')); } finally { setBusy(false); }
   };
 
   const exportAll = () => run(async () => {
@@ -129,7 +129,7 @@ export function BackupPanel() {
       {restore && (
         <Modal title={t('Restore this snapshot?')} onClose={() => setRestore(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setRestore(null)}>{t('Cancel')}</button><button className="btn primary" onClick={() => doRestore(restore.id!)}>{t('Restore')}</button></>}>
-          <p>{t('Go back to the version from')} <b>{formatDate(restore.t)}</b>{t('? Your current version is saved as a snapshot first, so you can undo this.')}</p>
+          <p>{t('Go back to the version from {date}? Your current version is saved as a snapshot first, so you can undo this.', { date: formatDate(restore.t) })}</p>
         </Modal>
       )}
     </>

@@ -65,7 +65,7 @@ const IRREGULAR: Record<string, { pres?: string[]; pret?: [string, string]; ger?
 const strip = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 export function isInfinitive(w: string) {
-  return /^[a-záéíóúñü]+(ar|er|ir|ír)(se)?$/i.test(w.split(' ')[0]);
+  return /^[a-záéíóúñü]*(ar|er|ir|ír)(se)?$/i.test(w.split(' ')[0]);
 }
 
 /** Conjugate an infinitive (first word only for multi-word verbs like "lavar manos"). */

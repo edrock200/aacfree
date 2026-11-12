@@ -73,12 +73,12 @@ export function NavBar({ onFind }: { onFind: () => void }) {
       {(s.logging || s.learnWords) && (
         <button className={`navbtn ${modeling ? 'on modeling' : ''}`} onClick={() => setModeling(!modeling)} aria-pressed={modeling}
           aria-label={t('Modelling mode: partner taps are not counted')} title={t("Modelling: your taps aren't counted as the user's")}>
-          <IconPerson /><span>{modeling ? 'Modelling' : 'Model'}</span>
+          <IconPerson /><span>{t(modeling ? 'Modelling' : 'Model')}</span>
         </button>
       )}
       <span className="spacer" />
       {unlocked && (
-        <button className={`navbtn ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label={t('Edit boards')}><IconEdit /><span>{editMode ? 'Editing' : 'Edit'}</span></button>
+        <button className={`navbtn ${editMode ? 'on' : ''}`} onClick={() => setEditMode(!editMode)} aria-label={t('Edit boards')}><IconEdit /><span>{t(editMode ? 'Editing' : 'Edit')}</span></button>
       )}
       {unlocked && (
         <button className="navbtn nav-lock" onClick={lock} aria-label={t('Lock')}><IconLock /><span>{t('Lock')}</span></button>
@@ -95,7 +95,7 @@ export function NavBar({ onFind }: { onFind: () => void }) {
         onContextMenu={(e) => e.preventDefault()}
       >
         {unlocked ? <IconSettings /> : <IconUnlock />}
-        <span>{unlocked ? 'Grown-ups' : holding ? 'Keep holding…' : 'Grown-ups'}</span>
+        <span>{t(unlocked ? 'Grown-ups' : holding ? 'Keep holding…' : 'Grown-ups')}</span>
       </button>
       {gate && <LockGate onClose={() => setGate(false)} onUnlock={() => { setGate(false); openGrownUps(); }} />}
     </nav>

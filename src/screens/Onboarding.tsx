@@ -111,7 +111,7 @@ export function Onboarding() {
         {step === 3 && (
           <>
             <h2>{t('Grown-up area')}</h2>
-            <p>{t('Editing and settings are behind the')} <b>{t('Grown-ups')}</b> button (bottom right). By default you <b>{t('hold it for 2 seconds')}</b>{t(', which is easy for adults and hard to do by accident. You can switch to a PIN later.')}</p>
+            <p>{t('Editing and settings are behind the Grown-ups button (bottom right). By default you hold it for 2 seconds, which is easy for adults and hard to do by accident. You can switch to a PIN later.')}</p>
             <ul className="ob-tips">
               <li>🗣️ <b>{t('Model it:')}</b> {t("tap words yourself as you talk. That's how AAC is learned.")}</li>
               <li>🔒 <b>{t('Talking is never locked.')}</b> {t('“No”, “stop”, “help” and “break” are always in the top bar.')}</li>

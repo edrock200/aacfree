@@ -17,7 +17,8 @@ function maps(): { toEs: Map<string, Pair>; toEn: Map<string, Pair> } {
   const toEn = new Map<string, Pair>();
   for (const [en, v] of Object.entries(ES_LABELS)) {
     const [label, speak] = Array.isArray(v) ? v : [v, v];
-    toEs.set(lower(en), [label, speak]);
+    // Exact lower-case entries win over capitalised ones ("more" → "más", not the folder name "Más").
+    if (!toEs.has(lower(en)) || en === lower(en)) toEs.set(lower(en), [label, speak]);
     if (!toEn.has(lower(label))) toEn.set(lower(label), [en, en]);
   }
   return { toEs, toEn };
@@ -45,12 +46,19 @@ export function translateProfile(p: Profile, to: Lang): Profile {
 
   const out = structuredClone(p);
   for (const b of Object.values(out.boards)) {
-    b.name = nameById(b.id, b.name);
+    if (to === 'en' && b.key) { b.name = b.key; delete b.key; } else {
+      const n = nameById(b.id, b.name);
+      if (to === 'es' && n !== b.name && !b.key) b.key = b.name;
+      b.name = n;
+    }
     for (const c of b.cells) {
       if (!c) continue;
       if (c.link) {
+        if (to === 'en' && c.key) { c.label = c.key; delete c.key; continue; }
         const target = out.boards[c.link];
-        c.label = target ? nameById(c.link, c.label) : c.label;
+        const n = target ? nameById(c.link, c.label) : c.label;
+        if (to === 'es' && n !== c.label && !c.key) c.key = c.label;
+        c.label = n;
         continue;
       }
       // Going back to English: use the remembered original word when there is one.
@@ -89,5 +97,6 @@ export function localLabel(en: string, lang: Lang): string {
 }
 export function localCategory(id: string, name: string, lang: Lang): string {
   if (lang === 'en') return name;
+  if (id === 'lib-core') return 'Palabras básicas';
   return ES_CATEGORY_NAMES[id.replace(/^lib-/, '')] ?? name;
 }

@@ -50,7 +50,8 @@ export function cleanBoard(raw: unknown, id: string): Board | null {
   const cellsIn = Array.isArray(b.cells) ? b.cells : [];
   const rows = int(b.rows, 1, MAX_ROWS, Math.max(1, Math.ceil(cellsIn.length / cols)));
   const cells: Cell[] = Array.from({ length: cols * rows }, (_, i) => cleanButton(cellsIn[i]));
-  return { id, name: str(b.name, 100) || 'Board', cols, rows, cells, symbol: safeSymbol(b.symbol) };
+  const key = str(b.key, 100);
+  return { id, name: str(b.name, 100) || 'Board', cols, rows, cells, symbol: safeSymbol(b.symbol), ...(key ? { key } : {}) };
 }
 
 /** Repairs a profile in place-ish; returns null if it is beyond repair (no usable boards). */

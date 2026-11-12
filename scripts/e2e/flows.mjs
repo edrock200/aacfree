@@ -262,6 +262,55 @@ await page.click('.edit-tools button:has-text("Done hiding")');
 await page.click('.edit-tools button:has-text("Done")');
 check(!(await cells()).includes('want'), 'show/hide mode hides a word with one tap');
 
+// --- v0.3: language switch in place, and encrypted sync round trip
+{
+  const before = await cells();
+  await unlock();
+  await page.click('.gu-tab:has-text("Display")');
+  await page.click('.seg button:has-text("Español")');
+  await page.click('.modal-foot button:has-text("Cambiar")');
+  await page.waitForTimeout(500);
+  check(await page.isVisible('.gu-tab:has-text("Vista")'), 'switching to Spanish translates the interface');
+  await page.click('.gu-nav-foot .btn.primary'); // Bloquear y volver
+  await page.waitForSelector('.grid');
+  const es = await cells();
+  check(es.length === before.length && es.includes('yo') && es.includes('ir'), 'boards are translated in place (same number of buttons)');
+  await page.click('.grid .cell[aria-label="yo"]');
+  await page.click('.grid .cell[aria-label="ir"]');
+  check((await msgText()).endsWith('yo voy'), 'Spanish auto-conjugation (yo + ir → voy)');
+  await page.click('.nav-bs'); await page.click('.nav-bs');
+  await unlock();
+  await page.click('.gu-tab:has-text("Vista")');
+  await page.click('.seg button:has-text("English")');
+  await page.click('.modal-foot button:has-text("Switch")');
+  await page.waitForTimeout(500);
+  await page.click('.gu-nav-foot .btn.primary');
+  await page.waitForSelector('.grid');
+  { const after = await cells(); const diff = before.map((x, i) => x !== after[i] ? `${x}→${after[i]}` : null).filter(Boolean); if (diff.length) console.log('   diff:', diff.join(', ')); }
+  check(JSON.stringify(await cells()) === JSON.stringify(before), 'switching back to English restores every word in place');
+  // sync
+  await unlock();
+  await page.click('.gu-tab:has-text("Backup")');
+  await page.click('button:has-text("Send to another device")');
+  await page.fill('.modal input:not([type="checkbox"])', 'test-pass-123');
+  const [sf] = await Promise.all([page.waitForEvent('download'), page.click('.modal-foot button:has-text("Create sync file")')]);
+  const syncPath = await sf.path();
+  const raw = (await import('node:fs')).readFileSync(syncPath, 'utf8');
+  check(raw.includes('"kind":"sync"') && !raw.includes('tablet'), 'sync file is encrypted');
+  const [ch] = await Promise.all([page.waitForEvent('filechooser'), page.click('button:has-text("Receive from another device")')]);
+  await ch.setFiles(syncPath);
+  await page.fill('.modal input', 'wrong-pass');
+  await page.click('.modal-foot button:has-text("Unlock")');
+  await page.waitForSelector('.modal .error');
+  check(await page.isVisible('.modal .error'), 'wrong sync passcode is rejected');
+  await page.fill('.modal input', 'test-pass-123');
+  await page.click('.modal-foot button:has-text("Unlock")');
+  await page.waitForSelector('.modal-foot button:has-text("Sync now")');
+  check(await page.isVisible('text=Kept (this device is newer)'), 'sync preview shows what will happen');
+  await page.click('.modal-foot button:has-text("Sync now")');
+  await page.waitForTimeout(500);
+}
+
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();
 process.exit(failures || errors.length ? 1 : 0);

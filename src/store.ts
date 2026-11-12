@@ -415,12 +415,14 @@ export const useStore = create<Store>((set, get) => ({
       default: break;
     }
     let text = b.speak ?? b.label;
+    let base: string | undefined;
     // Spanish: conjugate a verb after a subject pronoun (yo + querer → quiero; yo + gustar → me gusta).
     if (getLang() === 'es' && s.autoConjugate && b.type === 'verb' && !b.speakOnly) {
       const prev = get().message.map((w) => w.text);
       const c = autoConjugate(prev, text);
       if (c) {
         if (c.dropPrevious) set((st) => ({ message: st.message.slice(0, -c.dropPrevious) }));
+        base = text;
         text = c.text;
       }
     }
@@ -428,7 +430,7 @@ export const useStore = create<Store>((set, get) => ({
       get().speakText(text, { audio: b.audio, log: 'word' });
       return;
     }
-    get().addWord({ text, symbol: b.symbol, type: b.type, audio: b.audio });
+    get().addWord({ text, base, symbol: b.symbol, type: b.type, audio: base ? undefined : b.audio });
     if (s.speakOnTap) get().speakText(text, { audio: b.audio });
     if (s.logging) logUsage({ profileId: get().profile().id, kind: 'word', text, modeled: get().modeling || undefined });
     // Auto-return to the home board after choosing a word inside a folder.

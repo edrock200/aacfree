@@ -73,14 +73,14 @@ export function SyncSection() {
       const stamp = new Date().toISOString().slice(0, 10);
       showToast(await saveFile(`caleb-sync-${stamp}.calebsync.json`, blob));
       setSending(false);
-    } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    } catch (e) { setError(t((e as Error).message)); } finally { setBusy(false); }
   };
 
   const receive = async () => {
     setError('');
     const f = await pickFile('.json,application/json');
     if (!f) return;
-    try { setIncoming(peekSyncFile(await f.text())); setRcode(''); } catch (e) { showToast((e as Error).message); }
+    try { setIncoming(peekSyncFile(await f.text())); setRcode(''); } catch (e) { showToast(t((e as Error).message)); }
   };
 
   const unlock = async () => {
@@ -90,7 +90,7 @@ export function SyncSection() {
       const d = await openSyncFile(incoming, rcode);
       const r = mergeData(useStore.getState().data, d);
       setPreview({ merged: r.data, summary: r.summary });
-    } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    } catch (e) { setError(t((e as Error).message)); } finally { setBusy(false); }
   };
 
   const apply = async () => {

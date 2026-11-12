@@ -140,7 +140,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
                     else { setNewFolder(false); set({ link: e.target.value }); }
                   }}
                 >
-                  <option value="__new">+ New empty folder called “{b.label || '…'}”</option>
+                  <option value="__new">{t('+ New empty folder called “{name}”', { name: b.label || '…' })}</option>
                   {otherBoards.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
                 </select>
               </label>
@@ -174,7 +174,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
             </div>
             {kind !== 'folder' && (
               <div className="field">
-                <span>{t('Recorded voice')} <small>(plays instead of the computer voice)</small></span>
+                <span>{t('Recorded voice')} <small>{t('(plays instead of the computer voice)')}</small></span>
                 <AudioRecorder value={b.audio} onChange={(audio) => set({ audio })} />
               </div>
             )}
@@ -220,7 +220,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
               <button className="btn danger" onClick={onDelete}>{t('Delete')}</button>
             </>
           }>
-          <p>{t('AAC tip:')} <b>{t('hiding')}</b> a word keeps its spot, so the person's muscle memory still works when it comes back. Deleting removes it for good (you can still undo).</p>
+          <p>{t("AAC tip: hiding a word keeps its spot, so the person's muscle memory still works when it comes back. Deleting removes it for good (you can still undo).")}</p>
         </Modal>
       )}
     </>

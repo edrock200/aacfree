@@ -74,3 +74,23 @@ describe('language switching', () => {
     setLang('en');
   });
 });
+
+describe('language switching edge cases', () => {
+  it('conjugates the two-letter verb ir', () => {
+    expect(autoConjugate(['yo'], 'ir')).toEqual({ text: 'voy', dropPrevious: 0 });
+  });
+  it('round-trips folders on boards with non-standard ids (e.g. imported)', () => {
+    const en = buildProfile('', 'medium');
+    // simulate an imported profile: re-key every board id
+    const map: Record<string, string> = {};
+    for (const id of Object.keys(en.boards)) map[id] = 'obf-' + id;
+    const boards: typeof en.boards = {};
+    for (const [id, b] of Object.entries(en.boards)) {
+      boards[map[id]] = { ...b, id: map[id], cells: b.cells.map((c) => (c?.link ? { ...c, link: map[c.link] } : c)) };
+    }
+    const p = { ...en, boards, rootId: map[en.rootId] };
+    const back = translateProfile(translateProfile(p, 'es'), 'en');
+    expect(back.boards[p.rootId].cells.map((c) => c?.label)).toEqual(p.boards[p.rootId].cells.map((c) => c?.label));
+    expect(back.boards[map.food].name).toBe('Food');
+  });
+});

@@ -6,7 +6,7 @@ export function HelpPanel() {
     <>
       <Section title={t('Getting started')}>
         <ol className="help-list">
-          <li><b>{t('Model, model, model.')}</b> {t("Use the app yourself while you talk: tap “want” and “more” as you say them. People learn AAC the way babies learn speech, by seeing it used for months before they're expected to use it. Use")} <b>{t('Find word')}</b> (🔍) to show where words live.</li>
+          <li><b>{t('Model, model, model.')}</b> {t("Use the app yourself while you talk: tap “want” and “more” as you say them. People learn AAC the way babies learn speech, by seeing it used for months before they're expected to use it. Use Find word (🔍) to show where words live.")}</li>
           <li><b>{t("Don't test, don't require.")}</b> {t('Avoid “show me ___” drills or making the person “use their words” to get things. Offer the device, wait, and respond to any attempt.')}</li>
           <li><b>{t('Always available.')}</b> {t('Keep the device within reach all day, at meals, in the car and outside. It is their voice, so never take it away as a punishment.')}</li>
           <li><b>{t('Babbling is learning.')}</b> {t('Tapping lots of buttons, repeating words or “stimming” on the device is exploration. Respond to it.')}</li>

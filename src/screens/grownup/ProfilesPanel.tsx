@@ -47,7 +47,7 @@ export function ProfilesPanel() {
         <Modal title={t('Delete profile?')} onClose={() => setConfirmDel(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setConfirmDel(null)}>{t('Cancel')}</button>
             <button className="btn danger" onClick={() => { deleteProfile(confirmDel); setConfirmDel(null); }}>{t('Delete')}</button></>}>
-          <p>{t('This removes all of')} <b>{data.profiles.find((x) => x.id === confirmDel)?.name || 'this profile'}</b>'s boards and phrases. A snapshot is saved first (Backup → Automatic snapshots).</p>
+          <p>{t("This removes all of {name}'s boards and phrases. A snapshot is saved first (Backup → Automatic snapshots).", { name: data.profiles.find((x) => x.id === confirmDel)?.name || t('this profile') })}</p>
         </Modal>
       )}
     </>

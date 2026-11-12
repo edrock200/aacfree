@@ -44,7 +44,7 @@ export function PointerLayer({ s, active }: { s: Settings; active: boolean }) {
       )}
       {(mode === 'head' || mode === 'eyes') && (
         <div className={`pointer-status pointer-exempt ${st.status}`} role="status">
-          {st.message ?? (mode === 'head' ? 'Head pointer on' : 'Eye gaze on')}
+          {t(st.message ?? (mode === 'head' ? 'Head pointer on' : 'Eye gaze on'))}
           {mode === 'head' && st.status === 'tracking' && (
             <button className="btn small" onClick={() => engineRef.current?.recenter()}>{t('Centre')}</button>
           )}

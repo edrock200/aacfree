@@ -49,7 +49,7 @@ export function AudioRecorder({ value, onChange }: { value?: string; onChange: (
   return (
     <div className="recorder">
       {!recording ? (
-        <button className="btn" onClick={start}><IconMic /> {value ? 'Re-record' : 'Record voice'}</button>
+        <button className="btn" onClick={start}><IconMic /> {value ? t('Re-record') : t('Record voice')}</button>
       ) : (
         <button className="btn danger pulse" onClick={stop}><IconStop /> {t('Stop')}</button>
       )}

@@ -191,7 +191,7 @@ function MessageWordForms() {
   if (!formsFor || !fw) return null;
   return (
     <FormsPopover
-      word={fw.text}
+      word={fw.base ?? fw.text}
       type={fw.type}
       symbol={fw.symbol}
       onClose={() => setFormsFor(null)}

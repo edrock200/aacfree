@@ -71,6 +71,8 @@ export interface Board {
   /** Row-major, length === cols * rows. Positions are stable. */
   cells: Cell[];
   symbol?: SymbolRef;
+  /** Original English name of a built-in board (language round-trips). */
+  key?: string;
 }
 
 export interface Phrase {
@@ -236,6 +238,8 @@ export interface AppData {
 export interface MessageWord {
   id: string;
   text: string;
+  /** Dictionary form when the text was inflected automatically (querer → quiero). */
+  base?: string;
   symbol?: SymbolRef;
   type?: WordType;
   audio?: string;
