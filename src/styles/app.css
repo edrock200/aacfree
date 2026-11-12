@@ -617,6 +617,8 @@ small { font-size: 0.85em; }
 .ob-dots i { width: 28px; height: 6px; border-radius: 4px; background: var(--border); }
 .ob-dots i.on { background: var(--accent); }
 .ob-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+.ob-restore { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); text-align: center; }
+.ob-restore .row { align-items: flex-end; flex-wrap: wrap; text-align: start; }
 .ob-tips { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; line-height: 1.4; }
 
 /* ================= Responsive ================= */

@@ -66,7 +66,9 @@ export function BackupPanel() {
     const f = await pickFile('.obz,.obf,application/zip,application/json');
     if (!f) return;
     const { boards, rootId, name } = await importOBF(f);
-    const np = buildProfile(name, 'medium');
+    // Keep the current profile's languages: an import must not flip the app to English.
+    const np = buildProfile(name, 'medium', p.settings.language ?? 'en');
+    np.settings = { ...np.settings, uiLanguage: p.settings.uiLanguage ?? 'auto' };
     np.boards = boards;
     np.rootId = rootId;
     np.name = name;

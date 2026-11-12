@@ -70,6 +70,10 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
     if (!b.label.trim()) return;
     const out: AACButton = { ...b, label: b.label.trim() };
     if (!out.speak?.trim() || out.speak.trim() === out.label) delete out.speak;
+    // A relabelled built-in word becomes the family's own word: without its English original (`key`),
+    // a language switch keeps the new label (and spoken text and forms) instead of resetting it,
+    // and the second-language caption no longer shows the old word.
+    if (button?.key && out.label !== button.label.trim()) delete out.key;
     out.speakOnly = kind === 'speak' || undefined;
     const forms = formsText.split(',').map((x) => x.trim()).filter(Boolean);
     out.forms = forms.length ? forms : undefined;
@@ -94,7 +98,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
   return (
     <>
       <Modal
-        title={button ? 'Edit button' : 'New button'}
+        title={button ? t('Edit button') : t('New button')}
         onClose={onClose}
         wide
         footer={
@@ -113,7 +117,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
           <div className="editor-preview">
             <button className="cell preview" style={{ background: b.color ?? WORD_COLORS[kind === 'folder' ? 'folder' : b.type].light }} onClick={() => setPicking(true)}>
               {b.symbol ? <Symbol value={b.symbol} /> : <span className="muted">{t('Tap to add picture')}</span>}
-              <span className="cell-label">{b.label || 'Label'}</span>
+              <span className="cell-label">{b.label || t('Label')}</span>
             </button>
             <button className="btn small" onClick={() => setPicking(true)}>{t('Change picture')}</button>
           </div>
@@ -147,8 +151,8 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
             )}
             {kind !== 'folder' && (
               <label className="field">
-                <span>{t('Say something different')} <small>(optional)</small></span>
-                <input value={b.speak ?? ''} onChange={(e) => set({ speak: e.target.value })} placeholder={b.label ? `Says “${b.label}”` : 'Spoken text'} />
+                <span>{t('Say something different')} <small>{t('(optional)')}</small></span>
+                <input value={b.speak ?? ''} onChange={(e) => set({ speak: e.target.value })} placeholder={b.label ? t('Says “{label}”', { label: b.label }) : t('Spoken text')} />
               </label>
             )}
             {kind !== 'folder' && (
@@ -164,7 +168,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
               </div>
             )}
             <div className="field">
-              <span>{t('Custom colour')} <small>(optional)</small></span>
+              <span>{t('Custom colour')} <small>{t('(optional)')}</small></span>
               <div className="swatches">
                 <button className={`swatch none ${!b.color ? 'on' : ''}`} onClick={() => set({ color: undefined })} aria-label={t('Automatic colour')}>A</button>
                 {COLOR_SWATCHES.map((c) => (
@@ -180,13 +184,13 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
             )}
             {kind === 'word' && (
               <label className="field">
-                <span>{t('Word forms')} <small>(comma separated, optional)</small></span>
-                <input value={formsText} onChange={(e) => setFormsText(e.target.value)} placeholder={autoForms.slice(0, 4).join(', ') || 'e.g. went, going'} />
+                <span>{t('Word forms')} <small>{t('(comma separated, optional)')}</small></span>
+                <input value={formsText} onChange={(e) => setFormsText(e.target.value)} placeholder={autoForms.slice(0, 4).join(', ') || t('e.g. went, going')} />
               </label>
             )}
             <label className="check">
               <input type="checkbox" checked={!!b.hidden} onChange={(e) => set({ hidden: e.target.checked || undefined })} />
-              <span><IconEyeOff size={18} /> {t('Hide from the user for now')} <small>(keeps its place, so the motor plan stays the same)</small></span>
+              <span><IconEyeOff size={18} /> {t('Hide from the user for now')} <small>{t('(keeps its place, so the motor plan stays the same)')}</small></span>
             </label>
           </div>
         </div>
@@ -204,7 +208,7 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
             {otherBoards.map((x) => (
               <button key={x.id} className="find-row" onClick={() => copyTo(x.id)}>
                 {x.symbol ? <Symbol value={x.symbol} /> : <span className="sym" />}
-                <span className="grow"><b>{x.name}</b><small>{x.cells.filter((c) => !c).length} free squares</small></span>
+                <span className="grow"><b>{x.name}</b><small>{t('{n} free squares', { n: x.cells.filter((c) => !c).length })}</small></span>
               </button>
             ))}
           </div>

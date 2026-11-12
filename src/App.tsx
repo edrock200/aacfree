@@ -131,7 +131,7 @@ function Main() {
     <div className={`app screen-${screen} ${editMode ? 'editing' : ''}`}>
       {saveError && (
         <div className="save-error" role="alert">
-          ⚠ Changes aren't being saved (device storage may be full).
+          ⚠ {t("Changes aren't being saved (device storage may be full).")}
           <button className="btn small" onClick={async () => {
             const { createBackup, backupFilename } = await import('./lib/backup');
             const { saveFile } = await import('./lib/files');
@@ -177,7 +177,7 @@ function Main() {
         <div className="toast" role="status">
           {toast}
           {toastAction && (
-            <button className="toast-action" onClick={() => { toastAction.run(); useStore.setState({ toast: null, toastAction: null }); }}>{toastAction.label}</button>
+            <button className="toast-action" onClick={() => { toastAction.run(); useStore.setState({ toast: null, toastAction: null }); }}>{t(toastAction.label)}</button>
           )}
         </div>
       )}
@@ -212,7 +212,7 @@ function TimerChip() {
   const ss = String(timer.left % 60).padStart(2, '0');
   const frac = timer.total ? timer.left / timer.total : 0;
   return (
-    <button className="timer-chip" aria-label={`Timer: ${mm} minutes ${ss} seconds left`}
+    <button className="timer-chip" aria-label={t('Timer: {mm} minutes {ss} seconds left', { mm, ss })}
       onClick={() => { useStore.getState().setScreen('tools'); useStore.getState().setTool('timer'); }}>
       <span className="timer-chip-dial" style={{ background: `conic-gradient(var(--timer) ${frac * 360}deg, var(--timer-bg) 0)` }} />
       {mm}:{ss}

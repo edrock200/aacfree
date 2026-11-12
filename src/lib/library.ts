@@ -1,7 +1,7 @@
 import type { LibraryCategory, LibrarySymbol, SymbolLibrary } from '../types';
-import { builtInLibrary, searchBundled } from '../data/defaults';
+import { builtInLibrary, searchBundled, symbolFor } from '../data/defaults';
 import { getLang } from '../i18n';
-import { localCategory, localLabel } from './translate';
+import { englishMatches, fold, localCategory, localLabel } from './translate';
 
 export interface ViewCategory extends LibraryCategory {
   /** Built-in categories can't be renamed or deleted (but the family can add symbols to them). */
@@ -33,9 +33,9 @@ export function allCategories(lib: SymbolLibrary | undefined): ViewCategory[] {
 
 const ORPHANS_ID = 'lib-extra';
 
-/** Search every category plus the whole bundled symbol index. */
+/** Search every category plus the whole bundled symbol index (accent-insensitive: "cafe" finds "café"). */
 export function searchLibrary(lib: SymbolLibrary | undefined, query: string, limit = 80): LibrarySymbol[] {
-  const q = query.trim().toLowerCase();
+  const q = fold(query.trim());
   if (!q) return [];
   const out: LibrarySymbol[] = [];
   const seen = new Set<string>();
@@ -50,12 +50,20 @@ export function searchLibrary(lib: SymbolLibrary | undefined, query: string, lim
   // Very short queries ("I", "go") only match whole words or word starts.
   for (const pass of q.length >= 3 ? [0, 1, 2] : [0, 1]) {
     for (const c of cats) for (const s of c.symbols) {
-      const label = s.label.toLowerCase();
+      const label = fold(s.label);
       const hit = pass === 0 ? label === q : pass === 1 ? label.startsWith(q) : label.includes(q);
       if (hit) add(s);
     }
   }
-  if (getLang() !== 'en') return out.slice(0, limit); // bundled keywords are English
+  const lang = getLang();
+  if (lang !== 'en') {
+    // The bundled index is keyed by English words: reach it through the language pack's words.
+    for (const m of englishMatches(query, lang, limit)) {
+      const symbol = symbolFor(m.en);
+      if (symbol) add({ id: symbol, label: m.label, symbol });
+    }
+    return out.slice(0, limit);
+  }
   for (const r of searchBundled(q, limit)) {
     if (q.length < 3 && !r.keyword.startsWith(q)) continue;
     add({ id: r.symbol, label: r.keyword, symbol: r.symbol });

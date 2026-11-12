@@ -9,6 +9,7 @@ import { speak, stopSpeaking } from './lib/tts';
 import { applyEnding } from './lib/morphology';
 import { getLang, pack, setLangs, type Lang } from './i18n';
 import { translateProfile } from './lib/translate';
+import { applyStarterWords, isUntouchedDefault } from './lib/starter';
 import { t, ts } from './i18n';
 
 export const DATA_VERSION = 1;
@@ -54,7 +55,8 @@ interface Actions {
   updateLibrary: (fn: (lib: SymbolLibrary) => void, opts?: { undo?: string }) => void;
   undoEdit: () => void;
   replaceData: (data: AppData, reason?: string) => Promise<void>;
-  completeOnboarding: (name: string, layout: LayoutId, patch?: Partial<Settings>) => void;
+  /** `starter`: start with only the starter words showing (others hidden in place). */
+  completeOnboarding: (name: string, layout: LayoutId, patch?: Partial<Settings>, opts?: { starter?: boolean }) => void;
   /** Switch language: translates the boards in place (positions never change). */
   setLanguage: (lang: Lang) => void;
   addProfile: (name: string, layout: LayoutId) => void;
@@ -236,7 +238,8 @@ export const useStore = create<Store>((set, get) => ({
           }
           // Weekly automatic backup file (if enabled and a destination exists).
           const { runAutoBackup } = await import('./lib/autobackup');
-          await runAutoBackup(useStore.getState().data); // checks the family's backup settings
+          // Never back up untouched default boards: that could rotate out a family's real backups.
+          if (!isUntouchedDefault(useStore.getState().data)) await runAutoBackup(useStore.getState().data); // checks the family's backup settings
         } catch (e) {
           console.warn('Snapshot failed', e);
         }
@@ -331,14 +334,18 @@ export const useStore = create<Store>((set, get) => ({
     get().updateProfile((p) => {
       const tr = translateProfile(p, lang);
       Object.assign(p, tr);
-    }, { undoable: true });
+    });
+    // Undo restores boards only, so an older entry would bring back words in the old language
+    // under the new voice and settings. The "Before changing language" snapshot is the way back.
+    set({ undo: [] });
     const ui = get().settings().uiLanguage;
     setLangs(ui && ui !== 'auto' ? ui : lang, lang);
   },
 
-  completeOnboarding(name, layout, patch = {}) {
+  completeOnboarding(name, layout, patch = {}, opts = {}) {
     const p = buildProfile(name, layout, patch.language ?? 'en');
     p.settings = { ...p.settings, ...patch };
+    if (opts.starter && layout !== 'big') applyStarterWords(p.boards[p.rootId]);
     const data: AppData = { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: true, library: get().data.library ?? emptyLibrary() };
     set({ data, boardStack: [p.rootId], message: [] });
     persist.flush(data);

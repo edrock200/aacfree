@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
-import { LAYOUTS, LayoutThumb, STARTER_WORDS } from './grownup/VocabPanel';
+import { LAYOUTS, LayoutThumb } from './grownup/VocabPanel';
 import { listVoices, speak, type VoiceInfo } from '../lib/tts';
 import { DEFAULT_SETTINGS } from '../data/defaults';
 import { Capacitor } from '@capacitor/core';
 import type { LayoutId, Settings } from '../types';
-import { LANGUAGES, PACKS, isLang, setLang, t, type Lang } from '../i18n';
+import { LANGUAGES, PACKS, isLang, setLang, t, ts, type Lang } from '../i18n';
+import { decryptBackup, isEncryptedBackup, readBackup } from '../lib/backup';
+import { pickFile } from '../lib/files';
 
-/** First-run setup: name, layout, voice, lock. Every step can be skipped. */
+/** First-run setup: name, layout, voice, lock. Every step can be skipped, or a backup restored instead. */
 export function Onboarding() {
   const { completeOnboarding } = useStore.getState();
   const [step, setStep] = useState(0);
@@ -18,18 +20,55 @@ export function Onboarding() {
   const [style, setStyle] = useState<'playful' | 'clean'>('playful');
   const [starter, setStarter] = useState(false);
   const [lang, setLangState] = useState<Lang>(() => { const n = (navigator.language || 'en').slice(0, 2).toLowerCase(); return isLang(n) ? n : 'en'; });
+  // Restoring a backup instead of setting up.
+  const [restoring, setRestoring] = useState(false);
+  const [locked, setLocked] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [restoreError, setRestoreError] = useState('');
   setLang(lang);
   const native = Capacitor.isNativePlatform();
 
   useEffect(() => { listVoices().then((v) => setVoices(v.filter((x) => x.lang.toLowerCase().startsWith(lang)).slice(0, 12))); }, [lang]);
 
   const finish = () => {
-    completeOnboarding(name.trim(), layout, { ...patch, style, language: lang, lang: patch.lang ?? PACKS[lang].voice });
-    if (starter && layout !== 'big') {
-      useStore.getState().updateProfile((pp) => {
-        pp.boards[pp.rootId].cells.forEach((c) => { if (c && !c.link && !c.action && !STARTER_WORDS.includes(c.label.toLowerCase())) c.hidden = true; });
-      });
+    completeOnboarding(name.trim(), layout, { ...patch, style, language: lang, lang: patch.lang ?? PACKS[lang].voice }, { starter });
+  };
+
+  /** The voice that will be used if no voice is picked: the device default for this language. */
+  const defaultVoice = { ...DEFAULT_SETTINGS, lang: PACKS[lang].voice };
+  const sample = () => ts('Hello! This is my voice.');
+
+  /** Restore through the same pipeline as Grown-ups → Backup (validated by readBackup). */
+  const restore = async (text: string) => {
+    setRestoring(true);
+    setRestoreError('');
+    try {
+      const data = await readBackup(text);
+      await useStore.getState().replaceData(data, 'Before restore');
+      useStore.getState().showToast(t('Backup restored'));
+    } catch (e) {
+      setRestoreError(t((e as Error).message || 'Something went wrong'));
+    } finally {
+      setRestoring(false);
     }
+  };
+  const pickBackup = async () => {
+    setRestoreError('');
+    const f = await pickFile('.json,application/json');
+    if (!f) return;
+    const text = await f.text();
+    if (isEncryptedBackup(text)) { setLocked(text); setCode(''); return; }
+    await restore(text);
+  };
+  const unlock = async () => {
+    if (!locked) return;
+    let text: string;
+    try { text = await decryptBackup(locked, code); } catch {
+      setRestoreError(t('That passcode did not open the backup. Please try again.'));
+      return;
+    }
+    setLocked(null);
+    await restore(text);
   };
 
   return (
@@ -45,13 +84,29 @@ export function Onboarding() {
               ))}
             </div>
             <h1>{t('Welcome to Caleb')}</h1>
-            <p>A free communication app (AAC) for autistic people and the people who love them. No ads, no accounts, and it works offline. Everything stays on this device.</p>
-            <label className="field"><span>{t('Who will use Caleb?')} <small>(optional)</small></span>
+            <p>{t('A free communication app (AAC) for autistic people and the people who love them. No ads, no accounts, and it works offline. Everything stays on this device.')}</p>
+            <label className="field"><span>{t('Who will use Caleb?')} <small>{t('(optional)')}</small></span>
               <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('Name')} />
             </label>
             <div className="ob-actions">
               <button className="btn" onClick={finish}>{t('Skip setup')}</button>
               <button className="btn primary" onClick={() => setStep(1)}>{t('Next')}</button>
+            </div>
+            <div className="ob-restore">
+              {locked === null ? (
+                <button className="btn small" disabled={restoring} onClick={pickBackup} data-testid="ob-restore">
+                  {restoring ? t('Restoring…') : t('I have a backup')}
+                </button>
+              ) : (
+                <div className="row">
+                  <label className="field grow"><span>{t('This backup is protected. Enter its passcode.')}</span>
+                    <input type="password" autoFocus value={code} onChange={(e) => setCode(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && unlock()} />
+                  </label>
+                  <button className="btn" onClick={() => { setLocked(null); setRestoreError(''); }}>{t('Cancel')}</button>
+                  <button className="btn primary" disabled={!code || restoring} onClick={unlock}>{t('Open backup')}</button>
+                </div>
+              )}
+              {restoreError && <p className="error small" role="alert">{restoreError}</p>}
             </div>
           </>
         )}
@@ -71,7 +126,7 @@ export function Onboarding() {
             {layout !== 'big' && (
               <label className="check">
                 <input type="checkbox" checked={starter} onChange={(e) => setStarter(e.target.checked)} />
-                <span><b>{t('Start with fewer words')}</b> <small>(recommended for beginners: shows key words first, and the rest keep their places for later)</small></span>
+                <span><b>{t('Start with fewer words')}</b> <small>{t('(recommended for beginners: shows key words first, and the rest keep their places for later)')}</small></span>
               </label>
             )}
             <div className="seg">
@@ -87,16 +142,18 @@ export function Onboarding() {
         {step === 2 && (
           <>
             <h2>{t('Pick a voice')}</h2>
-            <p className="muted">Tap to hear each voice. If possible, let {name || 'the person'} choose. You can change this later.</p>
+            <p className="muted">{name.trim()
+              ? t('Tap to hear each voice. If possible, let {name} choose. You can change this later.', { name: name.trim() })
+              : t('Tap to hear each voice. If possible, let the person choose. You can change this later.')}</p>
             <div className="voice-list">
-              <button className={`voice ${patch.voiceURI === undefined && patch.voiceIndex === undefined ? 'on' : ''}`} onClick={() => { setPatch({ ...patch, voiceURI: undefined, voiceIndex: undefined, voiceName: undefined }); speak('Hello! This is my voice.', DEFAULT_SETTINGS); }}>
-                <b>{t('Device default')}</b>
+              <button className={`voice ${patch.voiceURI === undefined && patch.voiceIndex === undefined ? 'on' : ''}`} onClick={() => { setPatch({ ...patch, voiceURI: undefined, voiceIndex: undefined, voiceName: undefined, lang: undefined }); speak(sample(), defaultVoice); }}>
+                <b>{t('Device default')}</b><small>{PACKS[lang].voice}</small>
               </button>
               {voices.map((v) => {
                 const vp = native ? { voiceIndex: Number(v.id), voiceName: v.name, lang: v.lang } : { voiceURI: v.id, lang: v.lang };
                 const on = native ? patch.voiceIndex === Number(v.id) : patch.voiceURI === v.id;
                 return (
-                  <button key={v.id} className={`voice ${on ? 'on' : ''}`} onClick={() => { setPatch({ ...patch, ...vp }); speak('Hello! This is my voice.', { ...DEFAULT_SETTINGS, ...vp }); }}>
+                  <button key={v.id} className={`voice ${on ? 'on' : ''}`} onClick={() => { setPatch({ ...patch, ...vp }); speak(sample(), { ...defaultVoice, ...vp }); }}>
                     <b>{v.name}</b><small>{v.lang}</small>
                   </button>
                 );

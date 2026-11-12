@@ -84,7 +84,8 @@ const vowelStart = (w: string) => /^[aeiouyhàâéèêëîïôûü]/i.test(w) &&
 
 export function isInfinitiveFr(w: string) {
   const head = w.trim().replace(/^se\s+|^s'/, '').split(' ')[0];
-  return /(er|ir|re|oir)$/.test(head) && !/oire$/.test(head) && head.length > 2;
+  // Nouns in -oire (balançoire, histoire) are not verbs; boire and croire are.
+  return /(er|ir|re|oir)$/.test(head) && (!/oire$/.test(head) || /^(re)?(boire|croire)$/.test(head)) && head.length > 2;
 }
 
 interface Parsed { head: string; reflexive: boolean; tail: string }

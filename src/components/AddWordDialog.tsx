@@ -57,7 +57,7 @@ export function AddWordDialog({ initialWord = '', boardId, onClose }: { initialW
         <div className="cat-editor">
           <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label={t('Choose picture')}>
             {pic?.symbol ? <Symbol value={pic.symbol} /> : <span className="muted">{t('No picture yet')}</span>}
-            <span>{pic?.symbol ? 'Change picture' : 'Add picture'}</span>
+            <span>{pic?.symbol ? t('Change picture') : t('Add picture')}</span>
           </button>
           <div className="grow">
             <label className="field"><span>{t('Word')}</span>
@@ -65,10 +65,10 @@ export function AddWordDialog({ initialWord = '', boardId, onClose }: { initialW
             </label>
             <label className="field"><span>{t('Put it on')}</span>
               <select value={target} onChange={(e) => setTarget(e.target.value)}>
-                {boards.map((b) => <option key={b.id} value={b.id}>{b.name} ({b.cells.filter((c) => !c).length} free)</option>)}
+                {boards.map((b) => <option key={b.id} value={b.id}>{b.name} ({t('{n} free', { n: b.cells.filter((c) => !c).length })})</option>)}
               </select>
             </label>
-            <p className="muted small">{free > 0 ? 'It goes in the first empty square.' : 'This board is full, so a new row is added at the bottom. Nothing else moves.'}</p>
+            <p className="muted small">{free > 0 ? t('It goes in the first empty square.') : t('This board is full, so a new row is added at the bottom. Nothing else moves.')}</p>
           </div>
         </div>
       </Modal>

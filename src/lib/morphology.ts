@@ -65,7 +65,66 @@ const IRREGULAR_VERBS: Record<string, [string, string, string, string]> = {
   hear: ['hears', 'hearing', 'heard', 'heard'],
   spin: ['spins', 'spinning', 'spun', 'spun'],
   stim: ['stims', 'stimming', 'stimmed', 'stimmed'],
+  feed: ['feeds', 'feeding', 'fed', 'fed'],
+  bleed: ['bleeds', 'bleeding', 'bled', 'bled'],
+  lead: ['leads', 'leading', 'led', 'led'],
+  send: ['sends', 'sending', 'sent', 'sent'],
+  spend: ['spends', 'spending', 'spent', 'spent'],
+  bend: ['bends', 'bending', 'bent', 'bent'],
+  lend: ['lends', 'lending', 'lent', 'lent'],
+  bite: ['bites', 'biting', 'bit', 'bitten'],
+  blow: ['blows', 'blowing', 'blew', 'blown'],
+  grow: ['grows', 'growing', 'grew', 'grown'],
+  shake: ['shakes', 'shaking', 'shook', 'shaken'],
+  steal: ['steals', 'stealing', 'stole', 'stolen'],
+  teach: ['teaches', 'teaching', 'taught', 'taught'],
+  fight: ['fights', 'fighting', 'fought', 'fought'],
+  forget: ['forgets', 'forgetting', 'forgot', 'forgotten'],
+  shoot: ['shoots', 'shooting', 'shot', 'shot'],
+  shut: ['shuts', 'shutting', 'shut', 'shut'],
+  hit: ['hits', 'hitting', 'hit', 'hit'],
+  let: ['lets', 'letting', 'let', 'let'],
+  set: ['sets', 'setting', 'set', 'set'],
+  quit: ['quits', 'quitting', 'quit', 'quit'],
+  dig: ['digs', 'digging', 'dug', 'dug'],
+  hang: ['hangs', 'hanging', 'hung', 'hung'],
+  light: ['lights', 'lighting', 'lit', 'lit'],
+  mean: ['means', 'meaning', 'meant', 'meant'],
+  ring: ['rings', 'ringing', 'rang', 'rung'],
+  rise: ['rises', 'rising', 'rose', 'risen'],
+  sink: ['sinks', 'sinking', 'sank', 'sunk'],
+  slide: ['slides', 'sliding', 'slid', 'slid'],
+  speak: ['speaks', 'speaking', 'spoke', 'spoken'],
+  stick: ['sticks', 'sticking', 'stuck', 'stuck'],
+  sting: ['stings', 'stinging', 'stung', 'stung'],
+  swing: ['swings', 'swinging', 'swung', 'swung'],
+  tear: ['tears', 'tearing', 'tore', 'torn'],
+  understand: ['understands', 'understanding', 'understood', 'understood'],
+  sell: ['sells', 'selling', 'sold', 'sold'],
+  sweep: ['sweeps', 'sweeping', 'swept', 'swept'],
+  choose: ['chooses', 'choosing', 'chose', 'chosen'],
+  drive: ['drives', 'driving', 'drove', 'driven'],
+  freeze: ['freezes', 'freezing', 'froze', 'frozen'],
+  beat: ['beats', 'beating', 'beat', 'beaten'],
+  become: ['becomes', 'becoming', 'became', 'become'],
+  show: ['shows', 'showing', 'showed', 'shown'],
+  spit: ['spits', 'spitting', 'spat', 'spat'],
+  spread: ['spreads', 'spreading', 'spread', 'spread'],
+  weep: ['weeps', 'weeping', 'wept', 'wept'],
+  kneel: ['kneels', 'kneeling', 'knelt', 'knelt'],
+  lay: ['lays', 'laying', 'laid', 'laid'],
+  shine: ['shines', 'shining', 'shone', 'shone'],
+  swear: ['swears', 'swearing', 'swore', 'sworn'],
+  strike: ['strikes', 'striking', 'struck', 'struck'],
+  cost: ['costs', 'costing', 'cost', 'cost'],
 };
+
+/** Inflected words that sit on verb buttons ("hurts", "was"): forms come from their dictionary form. */
+const LEMMAS: Record<string, string> = { did: 'do', does: 'do', hurts: 'hurt', bleeding: 'bleed', finished: 'finish' };
+const BE_FORMS = ['be', 'am', 'is', 'are', 'was', 'were', 'being', 'been'];
+const MODALS: Record<string, string> = { can: 'could', will: 'would', could: 'can', would: 'will', shall: 'should', may: 'might' };
+/** Set expressions on verb buttons that have no forms ("all done", "hide and seek"). */
+const FIXED = new Set(['all done', 'hide and seek', 'deep breath', 'no more']);
 
 const IRREGULAR_PLURALS: Record<string, string> = {
   child: 'children', person: 'people', man: 'men', woman: 'women', mouse: 'mice',
@@ -159,11 +218,15 @@ function formsForEn(word: string, type?: string): string[] {
   if (type && FUNCTION_TYPES.has(type)) return [];
   const uniq = (xs: string[]) => [...new Set(xs.filter((x) => x && x.toLowerCase() !== lower))];
   if (type === 'verb') {
+    if (FIXED.has(lower)) return [];
+    if (BE_FORMS.includes(lower)) return uniq([...BE_FORMS.slice(1), 'to be']);
+    if (MODALS[lower]) return uniq([MODALS[lower]]);
     // Multi-word verbs: inflect the first word ("wake up" → "woke up").
-    const [head, ...rest] = base.split(' ');
+    const [head0, ...rest] = base.split(' ');
     const tail = rest.length ? ' ' + rest.join(' ') : '';
+    const head = LEMMAS[head0.toLowerCase()] ?? head0;
     const f = verbForms(head);
-    return uniq([f.s + tail, f.ing + tail, f.ed + tail, f.en + tail, 'to ' + base]);
+    return uniq([head + tail, f.s + tail, f.ing + tail, f.ed + tail, f.en + tail, 'to ' + head + tail]);
   }
   if (type === 'noun' || type === 'folder') return uniq([plural(base), base + "'s"]);
   if (type === 'descriptor') {

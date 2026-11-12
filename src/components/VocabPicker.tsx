@@ -31,7 +31,7 @@ export function VocabPicker({ title = 'Choose', onPick, onClose }: { title?: str
       .filter((r) => !results.some((x) => x.label === r.label))];
   }
   return (
-    <Modal title={title} onClose={onClose} wide>
+    <Modal title={t(title)} onClose={onClose} wide>
       <label className="search">
         <IconSearch size={20} />
         <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Search words…')} />

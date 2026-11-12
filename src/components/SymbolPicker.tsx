@@ -163,7 +163,7 @@ export function SymbolPicker({ initialQuery = '', onPick: onPickRaw, onClose, no
       <div className="row-end">
         <button className="btn" onClick={() => onPick(undefined)}>{t('No picture')}</button>
       </div>
-      <p className="credit">Symbols: ARASAAC (Sergio Palao, Gov. of Aragón), CC BY-NC-SA.</p>
+      <p className="credit">{t('Symbols: ARASAAC (Sergio Palao, Gov. of Aragón), CC BY-NC-SA.')}</p>
     </Modal>
   );
 }
