@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { putAsset, deleteAsset, assetURL } from '../lib/db';
+import { putAsset, assetURL } from '../lib/db';
 import { uid } from '../lib/util';
 import { IconMic, IconPlay, IconStop, IconTrash } from './Icons';
 
@@ -18,10 +18,11 @@ export function AudioRecorder({ value, onChange }: { value?: string; onChange: (
       mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
       mr.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
+        setRecording(false); // also covers the 15-second auto-stop
         const blob = new Blob(chunks, { type: mr.mimeType || 'audio/webm' });
         const id = uid('audio-');
         await putAsset(id, blob);
-        if (value) deleteAsset(value);
+        // The old clip is kept: the editor may still be cancelled, and undo/snapshots may refer to it.
         onChange(id);
       };
       mr.start();
@@ -54,7 +55,7 @@ export function AudioRecorder({ value, onChange }: { value?: string; onChange: (
       {value && !recording && (
         <>
           <button className="btn" onClick={play}><IconPlay /> Play</button>
-          <button className="btn" onClick={() => { deleteAsset(value); onChange(undefined); }}><IconTrash /> Remove</button>
+          <button className="btn" onClick={() => onChange(undefined)}><IconTrash /> Remove</button>
         </>
       )}
       {error && <span className="error">{error}</span>}

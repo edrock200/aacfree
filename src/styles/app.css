@@ -552,6 +552,7 @@ small { font-size: 0.85em; }
 .pinpad { display: grid; grid-template-columns: repeat(3, 72px); gap: 10px; }
 .pinpad .btn { height: 64px; font-size: 1.5rem; border-radius: 16px; }
 
+.copy-list { display: flex; flex-direction: column; gap: 6px; }
 .print-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0 12px; }
 .print-pick .check { margin: 6px 0; }
 

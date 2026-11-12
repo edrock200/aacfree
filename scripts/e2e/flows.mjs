@@ -65,6 +65,16 @@ await page.fill('.editor input >> nth=0', 'tablet');
 await page.click('.modal-foot button:has-text("Save")');
 check((await cells()).includes('tablet'), 'edit a button label');
 check(await page.isVisible('.grid .cell[aria-label="tablet"] img'), 'symbol auto-suggested for new label');
+// copy to another board
+await page.click('.grid .cell[aria-label="tablet"]');
+await page.click('.modal-foot button:has-text("Copy to")');
+await page.click('.copy-list .find-row:has-text("Play")');
+await page.click('.modal-foot button:has-text("Cancel")');
+await page.click('.grid .cell[aria-label="Play folder"]');
+await page.click('.modal-foot button:has-text("Open folder")');
+await page.waitForSelector('.board-title:has-text("Play")');
+check((await cells()).includes('tablet'), 'copy a button to another board (and open a folder while editing)');
+await page.click('.nav-home');
 // hide
 await page.click('.grid .cell[aria-label="look"]');
 await page.check('.check input');
@@ -126,10 +136,17 @@ await page.waitForSelector('.grid');
 check((await cells()).includes('tablet'), 'imported OBZ board has the edited word');
 await page.click('.grid .cell[aria-label="Food folder"]');
 check((await cells()).includes('pizza'), 'imported OBZ folder links work');
+await page.click('.nav-home');
+await page.click('.grid .cell[aria-label="More folder"]');
+await page.click('.grid .cell[aria-label="Keyboard"]');
+check(await page.isVisible('.keyboard'), 'action buttons survive OBZ round trip');
 
 // --- scanning (1-switch auto)
 await page.click('.nav-home');
 await unlock();
+await page.click('.gu-tab:has-text("Lock")');
+await page.fill('input[inputmode="numeric"]', '1234');
+await page.click('button:has-text("Save PIN")');
 await page.click('.gu-tab:has-text("Access")');
 await page.click('.setting:has-text("Turn on scanning") .switch');
 await page.click('.gu-nav-foot button:has-text("Lock")');
@@ -149,6 +166,29 @@ await page.waitForTimeout(300);
 await page.keyboard.press('Space');
 await page.waitForTimeout(600);
 check((await msgText()) !== initialMsg, 'switch selection adds a word');
+
+// Find word must not trap a switch user in its text box.
+await page.evaluate(() => document.querySelector('.navbtn[aria-label="Find a word"]').dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 })));
+await page.waitForSelector('.modal input');
+await page.waitForTimeout(300);
+await page.keyboard.press('Space'); // the switch selects the highlighted Close button…
+await page.waitForTimeout(300);
+check(!(await page.$('.modal input')), 'switch keys drive scanning inside Find word (not typed into the box)');
+
+// A grown-up can still get in (PIN lock) while scanning, and turn scanning off.
+{
+  const box = await page.locator('.lockbtn').boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up();
+  await page.waitForTimeout(600);
+  check(await page.isVisible('.lockgate'), 'PIN gate stays open while scanning');
+  for (const d of '1234') await page.click(`.pinpad .btn:text-is("${d}")`);
+  await page.waitForSelector('.grownup', { timeout: 3000 }).catch(() => {});
+  check(await page.isVisible('.grownup'), 'PIN unlocks Grown-ups while scanning');
+  await page.click('.gu-tab:has-text("Access")');
+  await page.click('.setting:has-text("Turn on scanning") .switch');
+  check(!(await page.isChecked('.setting:has-text("Turn on scanning") input')), 'scanning can be turned off');
+}
 
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();

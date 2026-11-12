@@ -27,7 +27,7 @@ export function LockGate({ onUnlock, onClose }: { onUnlock: () => void; onClose:
   };
 
   return (
-    <Modal title="Grown-ups only" onClose={onClose}>
+    <Modal title="Grown-ups only" onClose={onClose} rootClassName="scan-exempt">
       <div className="lockgate">
         <p className="center">{s.lock === 'pin' ? 'Enter your PIN' : <>What is <b>{q.text}</b>?</>}</p>
         <div className={`pin-dots ${error ? 'shake' : ''}`}>

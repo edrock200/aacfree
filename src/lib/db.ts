@@ -41,13 +41,9 @@ function db() {
   return dbp;
 }
 
+/** Throws if storage can't be read (so callers never mistake an error for "no data"). */
 export async function loadData(): Promise<AppData | undefined> {
-  try {
-    return (await (await db()).get('kv', 'data')) as AppData | undefined;
-  } catch (e) {
-    console.error('loadData failed', e);
-    return undefined;
-  }
+  return (await (await db()).get('kv', 'data')) as AppData | undefined;
 }
 
 export async function saveData(data: AppData) {

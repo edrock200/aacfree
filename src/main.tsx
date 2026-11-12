@@ -12,7 +12,11 @@ if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
   registerSW({ immediate: true });
 }
 
-useStore.getState().init();
+useStore.getState().init().catch((e) => {
+  // Talking must never be blocked: fall through to a usable app.
+  console.error('init failed', e);
+  useStore.setState({ loaded: true });
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -76,6 +76,14 @@ keyPassword=…
 ```
 For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Without them, CI builds a debug-signed APK. **Always sign updates with the same key.** Android refuses to install an update signed with a different key, and uninstalling first erases the app's data. Save a backup file first (Grown-ups → Backup).
 
+## Roadmap / ideas
+- More languages. Bilingual families often need Spanish first. The symbols don't depend on language; only the labels and voices change.
+- Optional encrypted sync between a parent's phone and the user's device
+- Eye-gaze and head-tracking access
+- Google Play listing (needs a developer account and a private upload key)
+
+Suggestions are welcome. Open an issue.
+
 ## Privacy
 Caleb has no servers, analytics, ads or accounts. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, or when the device's text-to-speech engine uses an online voice.
 

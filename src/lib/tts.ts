@@ -17,6 +17,10 @@ export interface VoiceInfo {
 
 const native = Capacitor.isNativePlatform();
 let currentAudio: HTMLAudioElement | null = null;
+/** True while the person's own message is being spoken (scan prompts must not cut it off). */
+let userSpeaking = false;
+let speechToken = 0;
+export const isUserSpeaking = () => userSpeaking;
 
 export async function listVoices(): Promise<VoiceInfo[]> {
   if (native) {
@@ -41,6 +45,7 @@ export async function listVoices(): Promise<VoiceInfo[]> {
 }
 
 export function stopSpeaking() {
+  userSpeaking = false;
   if (currentAudio) {
     currentAudio.pause();
     currentAudio = null;
@@ -54,22 +59,29 @@ export function stopSpeaking() {
 
 type VoiceSettings = Pick<Settings, 'rate' | 'pitch' | 'volume' | 'lang' | 'voiceURI' | 'voiceIndex'>;
 
-export async function speak(text: string, s: VoiceSettings, opts: { audio?: string; interrupt?: boolean } = {}) {
+export async function speak(text: string, s: VoiceSettings, opts: { audio?: string; interrupt?: boolean; prompt?: boolean } = {}) {
   const clean = text.trim();
+  // Scanning prompts never interrupt the person's own speech.
+  if (opts.prompt && userSpeaking) return;
   if (opts.interrupt !== false) stopSpeaking();
+  const token = ++speechToken;
+  const done = () => { if (token === speechToken) userSpeaking = false; };
+  userSpeaking = !opts.prompt;
   if (opts.audio) {
     const url = await assetURL(opts.audio);
     if (url) {
       const a = new Audio(url);
       a.volume = s.volume;
       currentAudio = a;
+      a.onended = done;
+      a.onerror = done;
       try {
         await a.play();
         return;
       } catch { /* fall back to TTS */ }
     }
   }
-  if (!clean) return;
+  if (!clean) return done();
   if (native) {
     try {
       await TextToSpeech.speak({
@@ -85,9 +97,10 @@ export async function speak(text: string, s: VoiceSettings, opts: { audio?: stri
     } catch (e) {
       console.warn('TTS failed', e);
     }
+    done();
     return;
   }
-  if (!('speechSynthesis' in window)) return;
+  if (!('speechSynthesis' in window)) return done();
   const u = new SpeechSynthesisUtterance(clean);
   u.rate = s.rate;
   u.pitch = s.pitch;
@@ -100,6 +113,10 @@ export async function speak(text: string, s: VoiceSettings, opts: { audio?: stri
       u.lang = v.lang;
     }
   }
+  u.onend = done;
+  u.onerror = done;
+  // Safety net in case the engine never fires onend.
+  setTimeout(done, 2000 + clean.length * 120);
   // Chrome sometimes stays paused after a cancel(); resume defensively.
   speechSynthesis.resume();
   speechSynthesis.speak(u);

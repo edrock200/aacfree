@@ -1,5 +1,5 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
-import type { AACButton, Board, Cell, Profile, WordType } from '../types';
+import type { AACButton, Board, ButtonAction, Cell, Profile, WordType } from '../types';
 import { buttonColor } from './colors';
 import { getAsset, putAsset } from './db';
 import { uid } from './util';
@@ -20,7 +20,14 @@ interface OBFButton {
   action?: string;
   hidden?: boolean;
   ext_caleb_type?: string;
+  ext_caleb_action?: string;
+  ext_caleb_color?: string;
+  ext_caleb_speak_only?: boolean;
 }
+
+// Caleb actions ↔ OBF spec actions (others round-trip via ext_caleb_action).
+const TO_OBF_ACTION: Partial<Record<string, string>> = { home: ':home', speak: ':speak', clear: ':clear', backspace: ':backspace', back: ':back' };
+const FROM_OBF_ACTION: Record<string, ButtonAction> = { ':home': 'home', ':speak': 'speak', ':clear': 'clear', ':backspace': 'backspace', ':back': 'back' };
 interface OBFImage { id: string; url?: string; data?: string; path?: string; content_type?: string; width?: number; height?: number }
 interface OBFBoard {
   format: string;
@@ -84,6 +91,12 @@ export async function exportOBZ(p: Profile): Promise<Blob> {
         };
         if (b.speak) ob.vocalization = b.speak;
         if (b.hidden) ob.hidden = true;
+        if (b.color) ob.ext_caleb_color = b.color;
+        if (b.speakOnly) ob.ext_caleb_speak_only = true;
+        if (b.action) {
+          ob.ext_caleb_action = b.action;
+          if (TO_OBF_ACTION[b.action]) ob.action = TO_OBF_ACTION[b.action];
+        }
         if (b.link && boardPaths[b.link]) ob.load_board = { id: b.link, path: boardPaths[b.link] };
         if (b.symbol && !b.symbol.startsWith('e:')) {
           const imgId = b.symbol.replace(/[^a-z0-9]/gi, '_');
@@ -148,6 +161,8 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
   }
   if (!obfs[rootPath]) throw new Error('No root board found in this file.');
 
+  // One stored copy per image (keyed by file path when shared across boards).
+  const imageCache = new Map<string, Promise<string | undefined>>();
   for (const [path, obf] of Object.entries(obfs)) {
     const rows = Math.max(1, obf.grid?.rows ?? 1);
     const cols = Math.max(1, obf.grid?.columns ?? 1);
@@ -167,7 +182,11 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
         };
         if (ob.vocalization && ob.vocalization !== ob.label) b.speak = ob.vocalization;
         if (ob.hidden) b.hidden = true;
-        if (!ob.ext_caleb_type) b.color = rgbToHex(ob.background_color);
+        if (ob.ext_caleb_color) b.color = ob.ext_caleb_color;
+        else if (!ob.ext_caleb_type) b.color = rgbToHex(ob.background_color);
+        if (ob.ext_caleb_speak_only) b.speakOnly = true;
+        const action = (ob.ext_caleb_action as ButtonAction | undefined) ?? (ob.action ? FROM_OBF_ACTION[ob.action] : undefined);
+        if (action) b.action = action;
         if (ob.load_board) {
           const target = ob.load_board.path && pathToId[ob.load_board.path]
             ? pathToId[ob.load_board.path]
@@ -176,8 +195,10 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
           if (tid) { b.link = tid; b.type = 'folder'; delete b.color; }
         }
         if (ob.image_id && imgs.has(String(ob.image_id))) {
-          const img = imgs.get(String(ob.image_id))!;
-          const sym = await importImage(img, entries);
+          const im = imgs.get(String(ob.image_id))!;
+          const key = im.url ?? im.path ?? `${path}#${ob.image_id}`;
+          if (!imageCache.has(key)) imageCache.set(key, importImage(imgs.get(String(ob.image_id))!, entries));
+          const sym = await imageCache.get(key)!;
           if (sym) b.symbol = sym;
         }
         cells[r * cols + c] = b;
@@ -194,6 +215,9 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
 
 async function importImage(img: OBFImage, entries: Record<string, Uint8Array>): Promise<string | undefined> {
   try {
+    // ARASAAC pictograms we already bundle (or can fetch) don't need a stored copy.
+    const arasaac = img.url && /arasaac\.org\/pictograms\/(\d+)\//.exec(img.url);
+    if (arasaac) return `a:${arasaac[1]}`;
     let blob: Blob | undefined;
     if (img.path && entries[img.path]) blob = new Blob([entries[img.path].slice().buffer as ArrayBuffer], { type: img.content_type ?? 'image/png' });
     else if (img.data) blob = await (await fetch(img.data)).blob();

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { BoardGrid } from '../components/BoardGrid';
 import { ButtonEditor } from '../components/ButtonEditor';
@@ -16,7 +16,7 @@ export function TalkScreen() {
   const editMode = useStore((st) => st.editMode);
   const highlight = useStore((st) => st.highlight);
   const undo = useStore((st) => st.undo);
-  const { pressButton, updateProfile, undoEdit, setEditMode, addWord, speakText, showToast, updateSettings } = useStore.getState();
+  const { pressButton, updateProfile, undoEdit, setEditMode, addWord, speakText, showToast, updateSettings, openBoard } = useStore.getState();
 
   const boardId = boardStack[boardStack.length - 1];
   const board = p.boards[boardId] ?? p.boards[p.rootId];
@@ -24,6 +24,9 @@ export function TalkScreen() {
   const [moveFrom, setMoveFrom] = useState<number | null>(null);
   const [formsButton, setFormsButton] = useState<AACButton | null>(null);
   const [boardSettings, setBoardSettings] = useState(false);
+
+  // A pending Move belongs to the board it started on.
+  useEffect(() => { setMoveFrom(null); }, [board.id, editMode]);
 
   const onCell = (index: number, b: AACButton | null) => {
     if (editMode) {
@@ -98,6 +101,7 @@ export function TalkScreen() {
           onSave={saveButton}
           onDelete={deleteButton}
           onMove={() => { setMoveFrom(editing.index); setEditing(null); }}
+          onOpenFolder={editing.button?.link ? () => { const l = editing.button!.link!; setEditing(null); openBoard(l); } : undefined}
           onClose={() => setEditing(null)}
         />
       )}

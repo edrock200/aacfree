@@ -14,6 +14,7 @@ import { speak } from './tts';
 export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
   const state = useRef({ level: 'group' as 'group' | 'item', gi: -1, ii: -1, cycles: 0 });
   const timer = useRef<ReturnType<typeof setInterval>>(undefined);
+  const resume = useRef<ReturnType<typeof setTimeout>>(undefined);
   const settingsRef = useRef(s);
   settingsRef.current = s;
 
@@ -25,8 +26,9 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
 
     const groups = (): HTMLElement[][] => {
       const out: HTMLElement[][] = [];
-      // Modal dialogs take over scanning.
-      const modal = document.querySelector('.modal-root [data-scan-group]') ? document.querySelector('.modal-root')! : document;
+      // The top-most modal dialog takes over scanning.
+      const modals = [...document.querySelectorAll('.modal-root')].filter((m) => m.querySelector('[data-scan-group]'));
+      const modal = modals[modals.length - 1] ?? document;
       modal.querySelectorAll<HTMLElement>('[data-scan-group]').forEach((g) => {
         if (!visible(g)) return;
         const items = [...g.querySelectorAll<HTMLElement>('[data-scan-item]')].filter((i) => visible(i) && !(i as HTMLButtonElement).disabled);
@@ -59,18 +61,19 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
         g[0]?.scrollIntoView({ block: 'nearest' });
         if (settingsRef.current.scanSpeak) {
           const label = g.map((e) => e.getAttribute('aria-label') || e.textContent).slice(0, 3).join(', ');
-          speak(label, settingsRef.current);
+          speak(label, settingsRef.current, { prompt: true });
         }
       } else {
         const g = gs[(linear ? 0 : st.gi) % gs.length];
         const el = g[st.ii % g.length];
         el?.classList.add('scan-hl');
         el?.scrollIntoView({ block: 'nearest' });
-        if (settingsRef.current.scanSpeak && el) speak(el.getAttribute('aria-label') || el.textContent || '', settingsRef.current);
+        if (settingsRef.current.scanSpeak && el) speak(el.getAttribute('aria-label') || el.textContent || '', settingsRef.current, { prompt: true });
       }
     };
 
     const next = () => {
+      if (paused()) return;
       const st = state.current;
       const gs = groups();
       if (!gs.length) return;
@@ -116,13 +119,14 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
 
     const activate = (el: HTMLElement) => {
       el.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }));
-      if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.focus();
+      // Never focus text inputs: the switch's Space/Enter would be typed into them.
       const st = state.current;
       st.level = 'group';
       st.gi = -1;
       st.ii = -1;
       st.cycles = 0;
-      setTimeout(() => { next(); restart(); }, 400);
+      if (resume.current) clearTimeout(resume.current);
+      resume.current = setTimeout(() => { next(); restart(); }, 400);
     };
 
     const restart = () => {
@@ -130,8 +134,17 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
       if (settingsRef.current.scanMode === 'auto') timer.current = setInterval(next, settingsRef.current.scanMs);
     };
 
+    // A grown-up dialog marked scan-exempt (e.g. the PIN gate) pauses scanning entirely.
+    const paused = () => !!document.querySelector('.modal-root.scan-exempt');
+
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === 'INPUT' || (e.target as HTMLElement)?.tagName === 'TEXTAREA') return;
+      if (paused()) return;
+      const t = e.target as HTMLElement;
+      if (t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA') {
+        // A switch can't type; treat its keys as switch presses instead of text.
+        if (e.key !== ' ' && e.key !== 'Enter' && e.key !== 'Tab') return;
+        t.blur();
+      }
       const mode = settingsRef.current.scanMode;
       if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'Tab') {
         e.preventDefault();
@@ -144,13 +157,13 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
 
     let downAt = 0;
     const onPointerDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement).closest('.scan-exempt')) return;
+      if ((e.target as HTMLElement).closest('.scan-exempt') || paused()) return;
       e.preventDefault();
       e.stopPropagation();
       downAt = Date.now();
     };
     const onPointerUp = (e: PointerEvent) => {
-      if ((e.target as HTMLElement).closest('.scan-exempt')) return;
+      if ((e.target as HTMLElement).closest('.scan-exempt') || paused()) return;
       e.preventDefault();
       e.stopPropagation();
       const long = Date.now() - downAt > 600;
@@ -158,7 +171,7 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
       else next();
     };
     const swallow = (e: Event) => {
-      if ((e as MouseEvent).detail !== 0 && !(e.target as HTMLElement).closest('.scan-exempt')) {
+      if ((e as MouseEvent).detail !== 0 && !(e.target as HTMLElement).closest('.scan-exempt') && !paused()) {
         e.preventDefault();
         e.stopPropagation();
       }
@@ -177,6 +190,7 @@ export function useScanner(s: Settings, enabled: boolean, rescanKey: unknown) {
       window.removeEventListener('pointerup', onPointerUp, true);
       window.removeEventListener('click', swallow, true);
       if (timer.current) clearInterval(timer.current);
+      if (resume.current) clearTimeout(resume.current);
       clearHl();
     };
   }, [enabled, s.scanMode, s.scanMs, s.scanPattern, rescanKey]);

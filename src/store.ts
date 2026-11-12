@@ -22,7 +22,7 @@ interface UIState {
   unlocked: boolean;
   editMode: boolean;
   /** Undo stack of previous profile states (edit mode). */
-  undo: Profile[];
+  undo: UndoEntry[];
   toast: string | null;
   toastAction: { label: string; run: () => void } | null;
   /** Word id whose forms popover is open. */
@@ -70,12 +70,23 @@ interface Actions {
 
 export type Store = UIState & Actions;
 
+/** Undo restores vocabulary only — never settings, PINs, phrases or history. */
+interface UndoEntry {
+  profileId: string;
+  boards: Profile['boards'];
+  quickBar: Profile['quickBar'];
+  rootId: string;
+  layout: Profile['layout'];
+}
+
 function emptyData(): AppData {
   const p = buildProfile('', 'medium');
   return { version: DATA_VERSION, profiles: [p], activeProfileId: p.id, onboarded: false };
 }
 
+let saveBlocked = false;
 const persist = debounce((data: AppData) => {
+  if (saveBlocked) return;
   saveData(data).catch((e) => console.error('save failed', e));
 }, 400);
 
@@ -98,17 +109,33 @@ export const useStore = create<Store>((set, get) => ({
 
   async init() {
     requestPersistence();
-    let data = await loadData();
+    let data: AppData | undefined;
+    try {
+      data = await loadData();
+    } catch {
+      // Retry once; if storage still can't be read, run from memory WITHOUT overwriting saved data.
+      try { data = await loadData(); } catch (e) {
+        console.error('Could not read saved data', e);
+        saveBlocked = true;
+        data = emptyData();
+        data.onboarded = true;
+        setTimeout(() => get().showToast('Could not open saved boards. Changes will not be saved. Please restart Caleb.'), 500);
+      }
+    }
     if (!data || !data.profiles?.length) {
       data = emptyData();
-      await saveData(data);
+      saveData(data).catch(() => {});
     } else {
       data = migrate(data);
-      // Automatic daily snapshot (versioned backup).
-      const last = (await getMeta<number>('lastSnapshot')) ?? 0;
-      if (Date.now() - last > 20 * 3600 * 1000) {
-        await addSnapshot(data, 'Automatic daily backup');
-        await setMeta('lastSnapshot', Date.now());
+      // Automatic daily snapshot (versioned backup). Never blocks talking.
+      try {
+        const last = (await getMeta<number>('lastSnapshot')) ?? 0;
+        if (Date.now() - last > 20 * 3600 * 1000) {
+          await addSnapshot(data, 'Automatic daily backup');
+          await setMeta('lastSnapshot', Date.now());
+        }
+      } catch (e) {
+        console.warn('Snapshot failed', e);
       }
     }
     const p = data.profiles.find((x) => x.id === data!.activeProfileId) ?? data.profiles[0];
@@ -134,7 +161,8 @@ export const useStore = create<Store>((set, get) => ({
     fn(next);
     const profiles = data.profiles.map((p) => (p.id === current.id ? next : p));
     const newData = { ...data, profiles };
-    const undo = opts.undoable ? [...get().undo.slice(-29), current] : get().undo;
+    const entry: UndoEntry = { profileId: current.id, boards: current.boards, quickBar: current.quickBar, rootId: current.rootId, layout: current.layout };
+    const undo = opts.undoable ? [...get().undo.slice(-29), entry] : get().undo;
     set({ data: newData, undo });
     persist(newData);
   },
@@ -149,9 +177,13 @@ export const useStore = create<Store>((set, get) => ({
     const { undo, data } = get();
     const prev = undo[undo.length - 1];
     if (!prev) return;
-    const profiles = data.profiles.map((p) => (p.id === prev.id ? prev : p));
+    const profiles = data.profiles.map((p) => (p.id === prev.profileId
+      ? { ...p, boards: prev.boards, quickBar: prev.quickBar, rootId: prev.rootId, layout: prev.layout }
+      : p));
     const newData = { ...data, profiles };
-    set({ data: newData, undo: undo.slice(0, -1) });
+    const root = profiles.find((p) => p.id === prev.profileId)!.rootId;
+    const boardStack = get().boardStack.filter((id) => newData.profiles.find((p) => p.id === prev.profileId)!.boards[id]);
+    set({ data: newData, undo: undo.slice(0, -1), boardStack: boardStack.length ? boardStack : [root] });
     persist(newData);
     get().showToast('Undone');
   },

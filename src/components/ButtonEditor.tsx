@@ -9,6 +9,7 @@ import { searchBundled } from '../data/defaults';
 import { uid } from '../lib/util';
 import { IconEyeOff, IconMove, IconTrash } from './Icons';
 import { formsFor } from '../lib/morphology';
+import { useStore } from '../store';
 
 interface Props {
   button: AACButton | null;
@@ -18,19 +19,39 @@ interface Props {
   onSave: (b: AACButton, newBoard?: Board) => void;
   onDelete?: () => void;
   onMove?: () => void;
+  onOpenFolder?: () => void;
   onClose: () => void;
   defaultCols?: number;
 }
 
 type Kind = 'word' | 'folder' | 'speak';
 
-export function ButtonEditor({ button, boards, currentBoardId, allowFolder = true, onSave, onDelete, onMove, onClose, defaultCols = 6 }: Props) {
+export function ButtonEditor({ button, boards, currentBoardId, allowFolder = true, onSave, onDelete, onMove, onOpenFolder, onClose, defaultCols = 6 }: Props) {
   const [b, setB] = useState<AACButton>(() => button ? { ...button } : { id: uid('b'), label: '', type: 'noun' });
   const [kind, setKind] = useState<Kind>(button?.link ? 'folder' : button?.speakOnly ? 'speak' : 'word');
   const [picking, setPicking] = useState(false);
   const [newFolder, setNewFolder] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [formsText, setFormsText] = useState(button?.forms?.join(', ') ?? '');
+  const [copying, setCopying] = useState(false);
+
+  /** Put a copy of this button in the first free square of another board (adds a row if full). */
+  const copyTo = (boardId: string) => {
+    const { updateProfile, showToast } = useStore.getState();
+    updateProfile((pp) => {
+      const target = pp.boards[boardId];
+      if (!target) return;
+      const clone: AACButton = { ...b, id: uid('b'), hidden: undefined };
+      const idx = target.cells.findIndex((c) => !c);
+      if (idx >= 0) target.cells[idx] = clone;
+      else {
+        target.rows += 1;
+        target.cells.push(clone, ...Array(target.cols - 1).fill(null));
+      }
+    }, { undoable: true });
+    setCopying(false);
+    showToast(`Copied to “${boards.find((x) => x.id === boardId)?.name}”`);
+  };
 
   const set = (patch: Partial<AACButton>) => setB((x) => ({ ...x, ...patch }));
 
@@ -77,7 +98,9 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
         wide
         footer={
           <>
+            {onOpenFolder && <button className="btn primary" onClick={onOpenFolder}>Open folder →</button>}
             {button && onMove && <button className="btn" onClick={onMove}><IconMove /> Move</button>}
+            {button && boards.length > 1 && <button className="btn" onClick={() => setCopying(true)}>Copy to…</button>}
             {button && onDelete && <button className="btn danger-outline" onClick={() => setConfirmDelete(true)}><IconTrash /> Delete</button>}
             <span className="spacer" />
             <button className="btn" onClick={onClose}>Cancel</button>
@@ -173,6 +196,18 @@ export function ButtonEditor({ button, boards, currentBoardId, allowFolder = tru
           onClose={() => setPicking(false)}
           onPick={(symbol) => { set({ symbol }); setPicking(false); }}
         />
+      )}
+      {copying && (
+        <Modal title="Copy to which board?" onClose={() => setCopying(false)}>
+          <div className="copy-list">
+            {otherBoards.map((x) => (
+              <button key={x.id} className="find-row" onClick={() => copyTo(x.id)}>
+                {x.symbol ? <Symbol value={x.symbol} /> : <span className="sym" />}
+                <span className="grow"><b>{x.name}</b><small>{x.cells.filter((c) => !c).length} free squares</small></span>
+              </button>
+            ))}
+          </div>
+        </Modal>
       )}
       {confirmDelete && (
         <Modal title="Delete this button?" onClose={() => setConfirmDelete(false)}
