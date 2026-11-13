@@ -918,7 +918,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await ph.waitForSelector('.quickbar-grid .cell');
   const inDialog = await ph.$$eval('.quickbar-grid .cell', (els) => els.map((e) => e.getAttribute('aria-label')).filter(Boolean));
   check(inDialog.length === quick.length && quick.every((w, i) => inDialog[i] === w), `phone: the dialog lists every quick word in the same order (${inDialog.join(', ')})`);
-  await ph.click(`.quickbar-grid .cell[aria-label="${inDialog[inDialog.length - 1]}"]`);
+  await ph.click(`.quickbar-grid .cell[aria-label="${inDialog[0]}"]`); // "Hey!" only speaks; use a word that goes in the message
   check(!(await ph.isVisible('.quickbar-grid')) && (await ph.$$('.msg-word')).length === 1, 'phone: choosing a word from the dialog adds it and closes the dialog');
   const clipped = await ph.$$eval('.grid .cell-label', (els) => els.filter((l) => l.scrollWidth > l.clientWidth + 1).length);
   check(clipped === 0, `phone: no board label is cut off sideways (${clipped})`);
