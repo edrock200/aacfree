@@ -783,3 +783,38 @@ small { font-size: 0.85em; }
 .sym-detail { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
 .sym-detail .preview-sym { width: 140px; height: 140px; font-size: 110px; }
 .quick-edits { flex-wrap: wrap; gap: 8px; }
+
+/* Quick words retain their order; the full list is reachable without a swipe. */
+.quickbar-wrap { flex: none; display: flex; align-items: stretch; }
+.quickbar-wrap > .quickbar { flex: 1; min-width: 0; }
+.quickbar-access { flex: none; display: flex; padding: 0 8px 6px 0; }
+.quickbar-all {
+  width: 64px; height: auto; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-radius: var(--radius); border: 2px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 700; font-size: 0.85rem;
+}
+.quickbar-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.quickbar-grid .cell { height: 104px; }
+@media (max-width: 720px) {
+  /* Wrap at word boundaries (hyphenating long words in the board's language), never mid-letter, at most 2 lines. */
+  .grid .cell-label, .quickbar-grid .cell-label {
+    white-space: normal; overflow-wrap: break-word; word-break: normal; hyphens: auto; text-overflow: ellipsis;
+    line-height: 1.1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+  }
+  .grid .cell .sym { height: 58cqh; max-height: 58cqh; }
+}
+
+@media (max-width: 720px) {
+  .speakbtn span { display: inline; font-size: 0.8rem; }
+}
+@container (max-width: 60px) {
+  .grid .cell-label { font-size: calc(clamp(9px, 22cqw, 12px) * var(--font-scale)); letter-spacing: -0.03em; hyphens: auto; max-width: calc(100% + 6px); margin-inline: -3px; }
+}
+
+/* Feelings intensity: neutral tint + a meter that fills with the level (no colour meaning good/bad). */
+.scale-btn.intensity { color: var(--text); background: color-mix(in srgb, var(--accent) calc(var(--level) * 9%), var(--surface)); border-color: var(--border); }
+.scale-btn.intensity.on { border-color: var(--text); }
+.scale-meter { margin-left: auto; display: flex; align-items: flex-end; gap: 4px; height: 40px; }
+.scale-meter i { display: block; width: 10px; border-radius: 3px; background: var(--border); }
+.scale-meter i:nth-child(1) { height: 20%; } .scale-meter i:nth-child(2) { height: 40%; } .scale-meter i:nth-child(3) { height: 60%; }
+.scale-meter i:nth-child(4) { height: 80%; } .scale-meter i:nth-child(5) { height: 100%; }
+.scale-meter i.full { background: var(--text); }

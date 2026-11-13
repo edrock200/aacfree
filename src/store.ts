@@ -127,13 +127,13 @@ interface Actions {
   /** Puts the message emptied by clear-after-speak back in the bar. */
   restoreLastSpoken: () => boolean;
   setContentEdit: (on: boolean) => void;
-  /** Grown-ups shortcut: go to phrases, a schedule or About me with editing on (staying unlocked). */
+  /** Settings shortcut: go to phrases, a schedule or About me with editing on (staying unlocked). */
   openContentEditor: (target: ContentTarget) => void;
   setBigText: (text: string | null) => void;
   setUnlocked: (v: boolean) => void;
   /** Lock grown-up mode and return the person to their Home board. */
   lock: () => void;
-  /** Change the app-wide grown-up lock (method, PIN, notice). */
+  /** Change the app-wide settings lock (method, PIN, notice). */
   setLock: (patch: Partial<GrownUpLock>) => void;
   setTool: (t: string | null) => void;
   setModeling: (v: boolean) => void;
@@ -200,7 +200,7 @@ export function withForm(w: MessageWord, text: string): MessageWord {
 
 /**
  * May a waiting app update reload the page now? Never mid-sentence, while a timer runs,
- * while Grown-ups is unlocked, or while something is being edited (edit mode or an open dialog).
+ * while Settings are unlocked, or while something is being edited (edit mode or an open dialog).
  */
 export function updateCanReload(st: Pick<Store, 'message' | 'draft' | 'editMode' | 'unlocked' | 'contentEdit' | 'timer'>, dialogOpen = false): boolean {
   return !st.message.length && !st.draft && !st.editMode && !st.unlocked && !st.contentEdit && !st.timer.endAt && !dialogOpen;
@@ -443,7 +443,7 @@ export const useStore = create<Store>((set, get) => ({
       const msg = problem === 'newer'
         ? t('Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.')
         : problem === 'unreadable'
-          ? t('Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.')
+          ? t('Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Settings → Backup. Until then, changes are not saved.')
           : t('Could not open saved boards. Changes will not be saved. Please restart Caleb.');
       setTimeout(() => get().showToast(msg), 500);
     }
@@ -533,7 +533,7 @@ export const useStore = create<Store>((set, get) => ({
     let d = migrate(structuredClone(newData)); // validates first: throws on a bad file
     d.onboarded = true;
     const problem = get().loadProblem;
-    // The grown-up lock belongs to this device, not to the file (a placeholder's lock means nothing).
+    // The settings lock belongs to this device, not to the file (a placeholder's lock means nothing).
     if (!problem) keepDeviceLock(d, get().data);
     if (saveBlocked) {
       // Data in memory is only a placeholder: never snapshot it. A deliberate restore may replace
@@ -838,7 +838,7 @@ export const useStore = create<Store>((set, get) => ({
     set({ bigText });
   },
 
-  // ---- Grown-up lock (app-wide, v0.5) ----
+  // ---- Settings lock (app-wide, v0.5) ----
   setUnlocked(v) {
     set({ unlocked: v, editMode: v ? get().editMode : false, contentEdit: v ? get().contentEdit : false });
     // Tell the grown-up once that profiles' different PINs became one.
@@ -861,7 +861,7 @@ export const useStore = create<Store>((set, get) => ({
     set({ data: newData });
     persist(newData);
   },
-  // ---- end grown-up lock ----
+  // ---- end settings lock ----
   tool: null,
   setTool(tool) {
     set({ tool, contentEdit: false });
@@ -963,5 +963,5 @@ function mergeHistory(cur: Profile['history'], back: Profile['history']): Profil
 
 export const useProfile = () => useStore((s) => s.data.profiles.find((p) => p.id === s.data.activeProfileId) ?? s.data.profiles[0]);
 export const useSettings = () => useProfile().settings;
-/** The app-wide grown-up lock. */
+/** The app-wide settings lock. */
 export const useLock = () => useStore((s) => s.data.grownUpLock ?? DEFAULT_LOCK);

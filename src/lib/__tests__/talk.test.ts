@@ -241,7 +241,7 @@ describe('UX 2: clearing can always be undone until the next word', () => {
 });
 
 describe('defect 2: phrases always speak; editing needs an explicit switch', () => {
-  it('content editing needs Grown-ups unlocked and ends when leaving the screen', () => {
+  it('content editing needs Settings unlocked and ends when leaving the screen', () => {
     st().openContentEditor('phrases');
     expect(st().screen).toBe('talk');
     useStore.setState({ unlocked: true });

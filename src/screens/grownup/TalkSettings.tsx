@@ -6,12 +6,12 @@ import { IconChat, IconEdit, IconPerson, IconTimer, IconTrash } from '../../comp
 import type { Settings } from '../../types';
 import { t } from '../../i18n';
 
-/** Grown-ups → Boards: jump straight to editing phrases, schedules or About me (stays unlocked). */
+/** Settings → Boards: jump straight to editing phrases, schedules or About me (stays unlocked). */
 export function QuickEdits() {
   const { openContentEditor } = useStore.getState();
   const go = (target: ContentTarget) => openContentEditor(target);
   return (
-    <Section title={t('Edit other things')} intro={t('Phrases, schedules and About me are edited where they are used. These buttons take you there with editing switched on. Grown-ups stays unlocked until you lock it.')}>
+    <Section title={t('Edit other things')} intro={t('Phrases, schedules and About me are edited where they are used. These buttons take you there with editing switched on. Settings stay unlocked until you lock it.')}>
       <div className="row quick-edits">
         <button className="btn" onClick={() => go('phrases')}><IconChat /> {t('Edit phrases')}</button>
         <button className="btn" onClick={() => go('schedule')}><IconTimer /> {t('Edit schedules')}</button>
@@ -21,7 +21,7 @@ export function QuickEdits() {
   );
 }
 
-/** Grown-ups → Display: choose which tools appear in the Tools menu. */
+/** Settings → Display: choose which tools appear in the Tools menu. */
 export function ToolsShownSection() {
   const p = useProfile();
   const { updateSettings, updateProfile } = useStore.getState();
@@ -44,7 +44,7 @@ export function ToolsShownSection() {
   );
 }
 
-/** Grown-ups → Insights: how long Recent sentences are kept. */
+/** Settings → Insights: how long Recent sentences are kept. */
 export function RecentSection() {
   const p = useProfile();
   const s = p.settings;
@@ -55,7 +55,7 @@ export function RecentSection() {
     if (keepRecent === 'off') clearRecent();
   };
   return (
-    <Section title={t('Recent sentences')} intro={t('Phrases → Recent lists the last sentences spoken, so they can be said again quickly. The person can delete them, clear them or turn on “Private for now” without the grown-up lock.')}>
+    <Section title={t('Recent sentences')} intro={t('Phrases → Recent lists the last sentences spoken, so they can be said again quickly. The person can delete them, clear them or turn on “Private for now” without the settings lock.')}>
       <Choice label={t('Keep recent sentences')} value={s.keepRecent ?? 'on'} onChange={setKeep}
         options={[
           { value: 'on', label: t('Always') },
@@ -69,7 +69,7 @@ export function RecentSection() {
   );
 }
 
-/** Grown-ups → Voice: the person's own "My voice" controls. */
+/** Settings → Voice: the person's own "My voice" controls. */
 export function MyVoiceSettings() {
   const p = useProfile();
   const { updateSettings, setScreen, setTool } = useStore.getState();

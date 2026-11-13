@@ -28,8 +28,8 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **Message bar:** speak (Speak turns into **Stop** while talking; on an empty bar it brings back the last message), delete a word (hold to clear, always with Undo), save as a phrase ★, show in big text (with a flip for the person across from you), share or copy.
 - **Word forms on demand:** long-press a word, or tap it in the message bar, for go → went/going/goes, plurals, and bigger/biggest. A Word forms button is also on the Full layout.
 - **Keyboard with private word prediction.** Uses the built-in dictionary plus the person's own vocabulary, and can optionally learn from their sentences. Next-word suggestions come from their history.
-- **Phrases:** ready-made Needs, Feelings, **Boundaries** ("Please stop", "I need space"), Chat, Questions and Emergency groups. Save favourites and scripts (gestalt language support), and record a custom voice for any phrase. **Recent sentences belong to the person:** they can delete one, clear them all, or turn on "Private for now", without the grown-up lock.
-- **Tools:** visual schedule (Now/Next, check-off), first/then board, visual countdown timer, choice board, "How big is my feeling" scale, pain scale 0–10, body "where does it hurt", About-me card for new people and emergencies, drawing pad, a get-attention chime, and **My voice** (Quiet/Normal/Loud, speed, and "Show, don't speak"). Schedules reset each day. Grown-ups can hide tools the person doesn't use.
+- **Phrases:** ready-made Needs, Feelings, **Boundaries** ("Please stop", "I need space"), Chat, Questions and Emergency groups. Save favourites and scripts (gestalt language support), and record a custom voice for any phrase. **Recent sentences belong to the person:** they can delete one, clear them all, or turn on "Private for now", without the settings lock.
+- **Tools:** visual schedule (Now/Next, check-off), first/then board, visual countdown timer, choice board, "How big is my feeling" scale, pain scale 0–10, body "where does it hurt", About-me card for new people and emergencies, drawing pad, a get-attention chime, and **My voice** (Quiet/Normal/Loud, speed, and "Show, don't speak"). Schedules reset each day. Tools the person doesn't use can be hidden in Settings.
 - **Find word** shows the path to any word, even a hidden one, and walks through it button by button. If a word isn't on any board you can say it, put it in the message, or add it.
 - **Modelling mode:** partners can demonstrate without their taps counting as the user's.
 - **Pronunciations:** fix how the voice says names and unusual words.
@@ -37,11 +37,11 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **Access:** hold-to-select, ignore repeated taps, select on touch, 1-switch auto scanning and 2-switch step scanning (rows → buttons or one by one, with optional auditory cues), any switch key (assign your own), switch acceptance time, a lockout after each selection, first-item delay, scan loops and a Leave-row step, two-tone highlights with your choice of colour and thickness, app-wide large text, light, dark and high-contrast themes, a calmer "Clean" style for teens and adults, reduced motion, and keep screen awake.
 - **Babble mode** shows every hidden word so the person can explore.
 
-- **English, Español, Français, Português:** full interface and vocabulary in each, with automatic verb conjugation. Use a different app language for grown-ups, or show a second language on every button. Switching language keeps every button in place.
+- **English, Español, Français, Português:** full interface and vocabulary in each, with automatic verb conjugation. Use a different app language for settings, or show a second language on every button. Switching language keeps every button in place.
 - **Eye gaze & head pointer:** dwell selection with a mouse, head-mouse or eye tracker, or the front camera (on-device). Dwell only starts after a real movement, pauses when the face is lost, and has Rest, Centre and Restart-camera controls.
 
 ### For parents, teachers and therapists
-- **Grown-up area** behind a 2-second hold (default), a PIN or a math question. One lock for the whole device, whichever profile is open. Talking itself is never locked; phrases always speak, and editing them needs the Edit pencil.
+- **Settings** behind a 2-second hold (default), a PIN or a math question. One lock for the whole device, whichever profile is open. Talking itself is never locked; phrases always speak, and editing them needs the Edit pencil.
 - **Symbol library:** every picture is organised into category folders, each with its own icon. Create your own categories (family, school, favourite shows…) and your own symbols from photos, online ARASAAC symbols or emoji. They appear whenever you choose a picture.
 - **New categories on boards:** add a folder button with an icon in one tap. It can start empty or be filled from any library category.
 - **Edit in place:** tap a button to change its label, spoken text, picture (built-in symbols, online ARASAAC search, emoji, camera or gallery photo), word type and colour, recorded voice, word forms, or folder link. Tap Move, then a target, to swap two buttons. **Hide instead of delete.** Undo is always available.
@@ -85,7 +85,7 @@ storePassword=…
 keyAlias=caleb
 keyPassword=…
 ```
-For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Without them, CI builds a debug-signed APK. **Always sign updates with the same key.** Android refuses to install an update signed with a different key, and uninstalling first erases the app's data. Save a backup file first (Grown-ups → Backup).
+For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Without them, CI builds a debug-signed APK. **Always sign updates with the same key.** Android refuses to install an update signed with a different key, and uninstalling first erases the app's data. Save a backup file first (Settings → Backup).
 
 ## Roadmap / ideas
 - More languages (each is a pack in `src/i18n/packs.ts`: UI strings, vocabulary, words, grammar, keyboard)
@@ -112,11 +112,11 @@ For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 releas
 Suggestions are welcome. Open an issue.
 
 ## Privacy
-Caleb has no servers, analytics, ads or accounts. On Android, the system's own Auto Backup may include the app's data in the family's Google account backup. That is a safety net Android provides, and you can turn it off in Android settings. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, when a picture that isn't bundled is downloaded from ARASAAC (you can turn this off in Grown-ups → Lock → Privacy), or when the device's text-to-speech engine uses an online voice.
+Caleb has no servers, analytics, ads or accounts. On Android, the system's own Auto Backup may include the app's data in the family's Google account backup. That is a safety net Android provides, and you can turn it off in Android settings. Boards, photos, recordings, settings and the optional usage log are stored only on the device, in IndexedDB. The app goes online only when you search for more symbols, when a picture that isn't bundled is downloaded from ARASAAC (you can turn this off in Settings → Lock → Privacy), or when the device's text-to-speech engine uses an online voice.
 
 - **Sync** writes only to a file the family chooses (for example in Google Drive), encrypted with the family's passcode. The passcode and this device's settings never leave the device.
 - **Recent sentences** can be deleted by the person, kept only until Caleb restarts, or turned off. "Private for now" pauses recent sentences, learned words and the usage log.
-- **Backups:** plain (unencrypted) backups never contain the grown-up PIN. New installs leave recent sentences out of backups unless you include them.
+- **Backups:** plain (unencrypted) backups never contain the settings PIN. New installs leave recent sentences out of backups unless you include them.
 
 ## Credits and licence
 - App code: [GNU AGPL-3.0-or-later](LICENSE). If you run a modified version for others, including as a website, you must share its source. See [NOTICE](NOTICE).

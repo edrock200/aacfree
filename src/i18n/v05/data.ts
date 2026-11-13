@@ -3,7 +3,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   es: {
     // Start-up problems
     'Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.': 'Tus tableros se guardaron con una versión más nueva de Caleb. Actualiza Caleb. Mientras tanto, los cambios no se guardan.',
-    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.': 'No se pudieron abrir tus tableros guardados. Se guardó una copia en este dispositivo. Restaura una copia de seguridad en Adultos → Copia de seguridad. Mientras tanto, los cambios no se guardan.',
+    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Settings → Backup. Until then, changes are not saved.': 'No se pudieron abrir tus tableros guardados. Se guardó una copia en este dispositivo. Restaura una copia de seguridad en Ajustes → Copia de seguridad. Mientras tanto, los cambios no se guardan.',
     'Caleb cannot save right now. Please restart Caleb and try again.': 'Caleb no puede guardar en este momento. Reinicia Caleb e inténtalo de nuevo.',
     'Hide': 'Ocultar',
     // Profiles and recent sentences
@@ -44,7 +44,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   fr: {
     // Start-up problems
     'Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.': 'Tes tableaux ont été enregistrés par une version plus récente de Caleb. Mets Caleb à jour. En attendant, les modifications ne sont pas enregistrées.',
-    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.': 'Impossible d’ouvrir tes tableaux enregistrés. Une copie a été gardée sur cet appareil. Restaure une sauvegarde dans Adultes → Sauvegarde. En attendant, les modifications ne sont pas enregistrées.',
+    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Settings → Backup. Until then, changes are not saved.': 'Impossible d’ouvrir tes tableaux enregistrés. Une copie a été gardée sur cet appareil. Restaure une sauvegarde dans Paramètres → Sauvegarde. En attendant, les modifications ne sont pas enregistrées.',
     'Caleb cannot save right now. Please restart Caleb and try again.': 'Caleb ne peut pas enregistrer pour le moment. Redémarre Caleb et réessaie.',
     'Hide': 'Masquer',
     // Profiles and recent sentences
@@ -85,7 +85,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   pt: {
     // Start-up problems
     'Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.': 'Suas pranchas foram salvas por uma versão mais nova do Caleb. Atualize o Caleb. Até lá, as mudanças não são salvas.',
-    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Grown-ups → Backup. Until then, changes are not saved.': 'Não foi possível abrir suas pranchas salvas. Uma cópia foi guardada neste aparelho. Restaure um backup em Adultos → Backup. Até lá, as mudanças não são salvas.',
+    'Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Settings → Backup. Until then, changes are not saved.': 'Não foi possível abrir suas pranchas salvas. Uma cópia foi guardada neste aparelho. Restaure um backup em Configurações → Backup. Até lá, as mudanças não são salvas.',
     'Caleb cannot save right now. Please restart Caleb and try again.': 'O Caleb não consegue salvar agora. Reinicie o Caleb e tente de novo.',
     'Hide': 'Ocultar',
     // Profiles and recent sentences

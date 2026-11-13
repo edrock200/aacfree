@@ -1,0 +1,1 @@
+Más fácil de leer en teléfonos: las etiquetas se ajustan en vez de cortarse, y un botón Todas muestra todas las palabras rápidas cuando no caben. La escala de emociones ahora solo dice qué tan grande es, con botones No lo sé, ayuda y descanso. "Adultos" ahora es "Ajustes".

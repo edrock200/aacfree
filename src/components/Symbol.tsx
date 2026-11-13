@@ -17,7 +17,7 @@ export function Symbol({ value, className, alt = '', lazy }: { value?: string; c
   const [url, setUrl] = useState<string | undefined>(() => symbolSrc(value));
   const [failed, setFailed] = useState(false);
   // A bundled pictogram that is missing (e.g. from an imported OBF board) can be fetched from
-  // arasaac.org, unless the family turned that off (Grown-ups → Lock).
+  // arasaac.org, unless the family turned that off (Settings → Lock).
   const online = useStore((s) => (s.data.profiles.find((p) => p.id === s.data.activeProfileId) ?? s.data.profiles[0])?.settings.downloadSymbols !== false);
 
   useEffect(() => {

@@ -161,7 +161,7 @@ export const TalkScreen = memo(function TalkScreen() {
       {newCat && <NewCategoryDialog parentBoardId={board.id} onClose={() => setNewCat(false)} />}
       {boardSettings && <BoardSettings board={board} isRoot={board.id === p.rootId} onClose={() => setBoardSettings(false)} />}
       {editMode && boardStack.length === 1 && orphanBoards(p).length > 0 && (
-        <p className="orphans muted">{orphanBoards(p).length} folder(s) are not linked from any board. Find them in Grown-ups → Boards.</p>
+        <p className="orphans muted">{t('{n} folder(s) are not linked from any board. Find them in Settings → Boards & words.', { n: orphanBoards(p).length })}</p>
       )}
     </div>
   );

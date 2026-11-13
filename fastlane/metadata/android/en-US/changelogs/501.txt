@@ -1,0 +1,1 @@
+Easier to read on phones: labels wrap instead of being cut off, and an All button shows every quick word when they don't fit. The feelings scale now says only how big a feeling is, with Not sure, help and break buttons. "Grown-ups" is now "Settings".

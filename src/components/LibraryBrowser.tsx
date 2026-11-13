@@ -108,7 +108,7 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
               </button>
             )}
           </div>
-          {open.symbols.length === 0 && mode === 'pick' && <p className="muted">{t('This category is empty. Add symbols in Grown-ups → Symbols.')}</p>}
+          {open.symbols.length === 0 && mode === 'pick' && <p className="muted">{t('This category is empty. Add symbols in Settings → Symbols.')}</p>}
         </>
       )}
 

@@ -3,12 +3,13 @@ import { useStore } from '../../store';
 import { PressButton } from '../../components/PressButton';
 import { t, ts } from '../../i18n';
 
+// Intensity never identifies the emotion or adds a request the person did not choose.
 const FEELINGS = [
-  { n: 1, face: '😌', label: 'Calm', say: 'I feel calm.', color: '#8fd19e' },
-  { n: 2, face: '🙂', label: 'A little', say: 'I feel a little upset.', color: '#c8e07a' },
-  { n: 3, face: '😕', label: 'Medium', say: 'I feel upset.', color: '#ffd166' },
-  { n: 4, face: '😣', label: 'Big', say: 'I feel very upset. I need help.', color: '#ff9f5a' },
-  { n: 5, face: '😫', label: 'Huge', say: 'My feeling is too big. I need a break right now.', color: '#ff6b6b' },
+  { n: 1, label: 'Very small', say: 'This feeling is very small.' },
+  { n: 2, label: 'Small', say: 'This feeling is small.' },
+  { n: 3, label: 'Medium', say: 'This feeling is medium.' },
+  { n: 4, label: 'Big', say: 'This feeling is big.' },
+  { n: 5, label: 'Very big', say: 'This feeling is very big.' },
 ];
 
 const PAIN = [
@@ -31,11 +32,18 @@ export function ScaleTool({ kind }: { kind: 'feelings' | 'pain' }) {
         <p className="center muted">{t('How big is the feeling?')}</p>
         <div className="scale-col" data-scan-group>
           {[...FEELINGS].reverse().map((f) => (
-            <PressButton key={f.n} className={`scale-btn ${sel === f.n ? 'on' : ''}`} style={{ background: f.color }} data-scan-item
+            // A neutral visual size cue: the tint deepens and the meter fills with the level, without implying a good or bad feeling.
+            <PressButton key={f.n} className={`scale-btn intensity ${sel === f.n ? 'on' : ''}`} style={{ ['--level' as string]: f.n }} aria-pressed={sel === f.n} data-scan-item
               onPress={() => { setSel(f.n); speakText(ts(f.say)); }}>
-              <span className="scale-n">{f.n}</span><span className="scale-face">{f.face}</span><b>{t(f.label)}</b>
+              <span className="scale-n">{f.n}</span><b>{t(f.label)}</b>
+              <span className="scale-meter" aria-hidden="true">{FEELINGS.map((x) => <i key={x.n} className={x.n <= f.n ? 'full' : ''} />)}</span>
             </PressButton>
           ))}
+        </div>
+        <div className="row-center" data-scan-group>
+          <PressButton className="btn" data-scan-item onPress={() => { setSel(null); speakText(ts("I don’t know how strong this feeling is.")); }}>{t('Not sure')}</PressButton>
+          <PressButton className="btn" data-scan-item onPress={() => speakText(ts('I need help.'))}>{t('I need help.')}</PressButton>
+          <PressButton className="btn" data-scan-item onPress={() => speakText(ts('I need a break.'))}>{t('I need a break.')}</PressButton>
         </div>
       </div>
     );

@@ -35,7 +35,7 @@ export function PhrasesScreen() {
   const [cat, setCat] = useState(() => (p.phraseCategories.includes('Favorites') ? 'Favorites' : p.phraseCategories[0] ?? 'Recent'));
   const [editing, setEditing] = useState<Phrase | null>(null);
   const [newCat, setNewCat] = useState(false);
-  // A plain tap always speaks. Editing needs Grown-ups unlocked AND the pencil switched on.
+  // A plain tap always speaks. Editing needs Settings unlocked AND the pencil switched on.
   const edit = unlocked && contentEdit;
 
   const list = p.phrases.filter((x) => x.category === cat);
@@ -88,7 +88,7 @@ export function PhrasesScreen() {
             )}
           </div>
           {isPrivate && <p className="muted small">{t("Private for now: new sentences aren't kept here and nothing is logged.")}</p>}
-          {s.keepRecent === 'off' && !isPrivate && <p className="muted small">{t('Recent sentences are switched off in Grown-ups.')}</p>}
+          {s.keepRecent === 'off' && !isPrivate && <p className="muted small">{t('Recent sentences are switched off in Settings.')}</p>}
           <div className="phrase-list" data-scan-group>
           {p.history.length === 0 && s.keepRecent !== 'off' && <p className="muted center">{t('Sentences you speak will show up here.')}</p>}
           {p.history.slice(0, 50).map((h) => (

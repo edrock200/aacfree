@@ -2,7 +2,7 @@ import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { AACButton, Board, Cell, Settings } from '../types';
 import { CellButton } from './CellButton';
 import { PressButton } from './PressButton';
-import { t } from '../i18n';
+import { getLang, t } from '../i18n';
 
 interface Props {
   board: Board;
@@ -67,6 +67,7 @@ export const BoardGrid = memo(function BoardGrid({ board, settings: s, editMode,
     <div className="board-wrap" ref={wrap}>
       <div
         className={`grid ${paged ? 'paged' : ''}`}
+        lang={getLang()}
         data-scan-group
         data-scan-grid
         style={{

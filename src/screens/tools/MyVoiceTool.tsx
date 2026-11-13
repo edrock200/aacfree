@@ -7,7 +7,7 @@ import type { Settings } from '../../types';
 import { t, ts } from '../../i18n';
 
 /**
- * "My voice": the person's own output controls, never behind the grown-up lock.
+ * "My voice": the person's own output controls, never behind the settings lock.
  * Three volume presets, a speed stepper and "Show, don't speak" (messages open in Big text).
  */
 export function MyVoiceTool() {

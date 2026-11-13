@@ -20,6 +20,7 @@ npx tsc --noEmit -p . # typecheck only
 npm run symbols      # resolve/download ARASAAC symbols for vocab keywords
 node scripts/make-icons.mjs        # regenerate PWA + Android icons/splash from public/icon.svg
 node scripts/e2e/screens.mjs <url> <outdir>   # Playwright smoke test + screenshots
+node scripts/e2e/phone-layouts.mjs <url> <outdir>   # every layout at 320/360/412 px: cut-off labels, picture size, quick bar
 npm run e2e          # functional e2e (editing, undo, backup/OBF round-trip, scanning); needs `npx vite preview --port 4173`
 npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Android SDK, see skill)
 ```
@@ -34,11 +35,11 @@ npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Androi
 - `src/lib/validate.ts`: **all** loaded or restored data passes through `migrate()` → `migrateLock` → `cleanData()` (settings typed and clamped against `DEFAULT_SETTINGS`, phrases, schedules, history, boards, library). Never trust stored or imported data, and allow hex-only colours. A new setting with a non-trivial shape needs a cleaner in `cleanSettings`.
 - Saves go through one coalescing queue (`src/lib/savequeue.ts`), are revision-checked (`saveDataChecked`) and broadcast to other tabs. Don't bypass `persist()`. While saved data couldn't be loaded (`loadProblem`), `blockSaves()` stops every write: snapshots, backups and sync included.
 - Maintenance (`runMaintenance()`: daily snapshot, asset GC, scheduled backup) runs after start, on return to the foreground and hourly. Snapshots are kept by kind (daily / before-action / manual).
-- **Sync:** every local change to profiles or the library goes through `stampChanges(prev, next)` in `store.ts`, which records per-item change stamps (`src/lib/stamps.ts`). `src/lib/merge.ts` merges item by item (newest stamp wins, tombstones for deletes, conflicts listed). Data arriving from sync goes through `applySyncedData()` and is not re-stamped. `src/lib/autosync.ts` runs automatic sync through one family-chosen file. Device-only data (device id, sync passcode and file, voice, calibration, the grown-up lock) never syncs.
-- The grown-up lock and PIN are app-wide: `AppData.grownUpLock` (`src/lib/lock.ts`). Plain backups strip it (`withoutPin`), and restores keep this device's lock.
+- **Sync:** every local change to profiles or the library goes through `stampChanges(prev, next)` in `store.ts`, which records per-item change stamps (`src/lib/stamps.ts`). `src/lib/merge.ts` merges item by item (newest stamp wins, tombstones for deletes, conflicts listed). Data arriving from sync goes through `applySyncedData()` and is not re-stamped. `src/lib/autosync.ts` runs automatic sync through one family-chosen file. Device-only data (device id, sync passcode and file, voice, calibration, the settings lock) never syncs.
+- The settings lock and PIN are app-wide (shown as **Settings** in the app; code names still say `grownup`): `AppData.grownUpLock` (`src/lib/lock.ts`). Plain backups strip it (`withoutPin`), and restores keep this device's lock.
 - `BoardGrid` pages boards that don't fit (fixed Previous/Next). Don't reintroduce free scrolling.
 - Tool state (timer, first/then, choices) lives in the store, so it survives leaving the Tools screen.
-- Editing that lives outside Grown-ups (phrases, schedules, About me) needs `unlocked && contentEdit` (an explicit Edit pencil), never `unlocked` alone, so a tap always speaks.
+- Editing that lives outside Settings (phrases, schedules, About me) needs `unlocked && contentEdit` (an explicit Edit pencil), never `unlocked` alone, so a tap always speaks.
 - **i18n / language packs:** `src/i18n/packs.ts` registers each language (en, es, fr, pt): UI strings (`src/i18n/<id>.ts`), vocabulary keyed by the English originals (`src/data/i18n/<id>-vocab.ts`), words/bigrams, grammar (`src/lib/morphology-<id>.ts`), keyboard and body-map phrasing. `t()` translates into the **app language**, and `ts()` into the **communication language**; use `ts()` for anything spoken. Wrap every new visible string in `t()` and add its translations to `src/i18n/v05/<area>.ts` (es, fr, pt). `i18n-coverage.test.ts` fails if any literal `t()`/`ts()` string lacks a translation, and `lang.test.ts` fails on raw JSX text. New verb buttons need a fixture in `lang.test.ts`. Switching language calls `translateProfile()`, which goes via English using each button's `key` (its English original), so positions never change and round trips are exact.
 - **Switch scanning:** the state machine is `src/lib/scanner.ts` (pure, tested); `useScanner` is the DOM layer. Scan items belong to their nearest `data-scan-group`. Overlays use `Modal` (or `data-scan-scope` plus `useDialog()`), which scopes scanning and traps focus.
 - **Pointer access:** `src/lib/pointer.ts` (dwell, head, eyes) + `PointerLayer`/`GazeCalibration`. The MediaPipe model is committed in `public/vision/`; the WASM is copied from node_modules by `scripts/copy-vision.mjs` (runs in `npm run build`).
@@ -50,8 +51,8 @@ npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Androi
 
 ## Product rules (from AAC research; don't break these)
 1. **Motor planning:** buttons never move on their own. Boards are fixed `cols × rows` arrays, and resizing keeps row/column positions. Prefer **hiding (masking)** over deleting.
-2. **Protest words are always reachable:** the quick bar (yes/no/stop/help/wait/break…) shows on every screen except Grown-ups.
-3. **Talking is never locked.** Only editing and settings sit behind the grown-up lock.
+2. **Protest words are always reachable:** the quick bar (yes/no/stop/help/wait/break…) shows on every screen except Settings.
+3. **Talking is never locked.** Only editing and settings sit behind the settings lock.
 4. **Privacy and autonomy:** usage logging and learned prediction are **opt-in** and stay on the device.
 5. **Never lose data:** persist every change (debounced), snapshot daily and before destructive actions, and keep undo in edit mode.
 6. Android back button navigates inside the app and must never exit it.

@@ -1,6 +1,8 @@
 /** v0.5 UI strings added while merging the work streams (English source → translation). */
 export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   es: {
+    'All': 'Todas',
+    '{n} folder(s) are not linked from any board. Find them in Settings → Boards & words.': '{n} carpeta(s) no están enlazadas desde ningún tablero. Las encuentras en Ajustes → Tableros y palabras.',
     'Delete “{name}”?': '¿Eliminar “{name}”?',
     'Deleted “{name}”': 'Se eliminó “{name}”',
     'This removes the category and its {n} symbol(s) from the library. Buttons already on boards keep their pictures.': 'Esto quita la categoría y sus {n} símbolo(s) de la biblioteca. Los botones que ya están en los tableros conservan sus imágenes.',
@@ -11,6 +13,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Then…': 'Después…',
   },
   fr: {
+    'All': 'Tous',
+    '{n} folder(s) are not linked from any board. Find them in Settings → Boards & words.': '{n} dossier(s) ne sont reliés à aucun tableau. Tu les trouveras dans Paramètres → Tableaux et mots.',
     'Delete “{name}”?': 'Supprimer « {name} » ?',
     'Deleted “{name}”': '« {name} » supprimé',
     'This removes the category and its {n} symbol(s) from the library. Buttons already on boards keep their pictures.': 'Cela retire la catégorie et ses {n} symbole(s) de la bibliothèque. Les boutons déjà placés sur les tableaux gardent leurs images.',
@@ -21,6 +25,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Then…': 'Ensuite…',
   },
   pt: {
+    'All': 'Todas',
+    '{n} folder(s) are not linked from any board. Find them in Settings → Boards & words.': '{n} pasta(s) não estão ligadas a nenhuma prancha. Encontre-as em Configurações → Pranchas e palavras.',
     'Delete “{name}”?': 'Apagar “{name}”?',
     'Deleted “{name}”': '“{name}” apagado',
     'This removes the category and its {n} symbol(s) from the library. Buttons already on boards keep their pictures.': 'Isso remove a categoria e seus {n} símbolo(s) da biblioteca. Os botões que já estão nas pranchas mantêm suas imagens.',
