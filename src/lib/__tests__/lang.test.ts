@@ -804,7 +804,7 @@ describe('symbol search', () => {
 /** Files other work streams own (they wrap their own strings). */
 const TSX = import.meta.glob(['../../components/**/*.tsx', '../../screens/**/*.tsx', '../../App.tsx'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 /** Visible text that is the same in every language. */
-const SAME_EVERYWHERE = new Set(['Caleb', 'A', 'QWERTY', 'AZERTY', 'ABC', 'Language / Idioma']);
+const SAME_EVERYWHERE = new Set(['Caleb', 'A', 'QWERTY', 'AZERTY', 'ABC', 'Language / Idioma', 'min']);
 
 describe('visible text is wrapped in t() (defect 27)', () => {
   it('has no raw JSX text or literal placeholder/title/aria-label/alt', () => {
@@ -818,6 +818,12 @@ describe('visible text is wrapped in t() (defect 27)', () => {
         const text = m[1].trim();
         // Skip code that the pattern catches (arrow bodies, calls, conditions).
         if (!/[A-Za-z]{2,}/.test(text) || /=>|===|!==|;|&&|\|\||[\w\])]\(|^\)|\)$|=$/.test(text) || SAME_EVERYWHERE.has(text)) continue;
+        found.push(`${at(m.index!)} ${text}`);
+      }
+      // Text after an expression and before a closing tag: "{n} folder(s) are not linked</p>".
+      for (const m of src.matchAll(/\}([^<>{}`'"]*[A-Za-z]{2,}[^<>{}`'"]*)(?=<\/)/g)) {
+        const text = m[1].trim();
+        if (!text || /=>|===|!==|;|&&|\|\||[\w\])]\(|^\)|\)$|=$/.test(text) || SAME_EVERYWHERE.has(text)) continue;
         found.push(`${at(m.index!)} ${text}`);
       }
       for (const m of src.matchAll(/\b(placeholder|title|aria-label|alt)=(["'])([^"']*)\2/g)) {

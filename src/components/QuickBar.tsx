@@ -4,6 +4,7 @@ import { PressButton } from './PressButton';
 import { t } from '../i18n';
 import { useStore, useProfile } from '../store';
 import { CellButton } from './CellButton';
+import { IconGrid } from './Icons';
 import type { AACButton } from '../types';
 
 /** Always-visible core / protest words ("no", "stop", "help", "break" …). */
@@ -38,8 +39,11 @@ export function QuickBar({ onEdit }: { onEdit: (index: number, b: AACButton | nu
           />
         ))}
       </div>
+      {/* Pinned at the end of the same row (no extra row), only when some quick words don't fit. */}
       {overflow && <div className="quickbar-access" data-scan-group>
-        <PressButton className="btn quickbar-all" onPress={() => setExpanded(true)} aria-haspopup="dialog" data-scan-item>{t('All quick words')}</PressButton>
+        <PressButton className="quickbar-all" onPress={() => setExpanded(true)} aria-haspopup="dialog" aria-label={t('All quick words')} data-scan-item>
+          <IconGrid /><span>{t('All')}</span>
+        </PressButton>
       </div>}
       {expanded && <Modal title={t('All quick words')} onClose={() => setExpanded(false)}>
         <div className="quickbar-grid" data-scan-group>

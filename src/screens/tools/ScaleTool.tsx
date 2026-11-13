@@ -32,9 +32,11 @@ export function ScaleTool({ kind }: { kind: 'feelings' | 'pain' }) {
         <p className="center muted">{t('How big is the feeling?')}</p>
         <div className="scale-col" data-scan-group>
           {[...FEELINGS].reverse().map((f) => (
-            <PressButton key={f.n} className={`scale-btn ${sel === f.n ? 'on' : ''}`} style={{ background: 'var(--accent-soft)', color: 'var(--text)' }} aria-pressed={sel === f.n} data-scan-item
+            // A neutral visual size cue: the tint deepens and the meter fills with the level, without implying a good or bad feeling.
+            <PressButton key={f.n} className={`scale-btn intensity ${sel === f.n ? 'on' : ''}`} style={{ ['--level' as string]: f.n }} aria-pressed={sel === f.n} data-scan-item
               onPress={() => { setSel(f.n); speakText(ts(f.say)); }}>
               <span className="scale-n">{f.n}</span><b>{t(f.label)}</b>
+              <span className="scale-meter" aria-hidden="true">{FEELINGS.map((x) => <i key={x.n} className={x.n <= f.n ? 'full' : ''} />)}</span>
             </PressButton>
           ))}
         </div>

@@ -27,7 +27,7 @@ FOR THE PERSON COMMUNICATING
 • Access options: hold-to-select, ignore repeated taps, 1- and 2-switch scanning, Bluetooth switches, large text, dark and high-contrast themes, and a calm "Clean" style for teens and adults.
 
 FOR PARENTS, TEACHERS AND THERAPISTS
-• A grown-up area behind a 2-second hold, a PIN or a math question keeps settings safe from accidental taps.
+• Settings sit behind a 2-second hold, a PIN or a math question keeps settings safe from accidental taps.
 • Edit in place: tap a button to change its word, picture, colour or voice. Use the built-in symbols, online ARASAAC search, emoji or your own photos. Undo any change.
 • A symbol library in category folders. Create your own categories, such as family, school or favourite shows.
 • Find word shows step by step where any word lives, which makes modelling easier. Modelling mode keeps your taps out of the insights.

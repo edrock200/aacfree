@@ -14,7 +14,7 @@ description: Cut a new Caleb release — bump versions, run checks, build the we
    npx vite preview --port 4173 &   # then:
    node scripts/e2e/screens.mjs http://localhost:4173/ /tmp/shots   # expects "No page errors"
    ```
-   Look at a few screenshots (home, food board, grown-ups) before shipping.
+   Look at a few screenshots (home, food board, settings) before shipping.
 3. **AAB for Google Play:** `cd android && ./gradlew bundleRelease` → `android/app/build/outputs/bundle/release/app-release.aab` (see docs/play-store.md).
 4. **APK:** follow the `build-android` skill. Copy the result to `release/caleb-latest.apk` (committed so families can download it straight from GitHub).
 5. **Website:** `npm run build:site` builds the landing page (`site/`) plus the web app under `app/` into `dist-site/`. The GitHub Pages workflow (`.github/workflows/pages.yml`) deploys it automatically on pushes to `main`.

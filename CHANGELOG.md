@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.1 — 2026-11-13
+Phone readability and more autonomy, adopted from pull request #8 with improvements.
+- **Labels wrap on phones** instead of being cut off. They break at word boundaries, hyphenate long words in the board's language, and show at most two lines, so pictures keep their room. The Speak button keeps its label on phones.
+- **All quick words:** when the quick bar is too wide for the screen, an **All** button appears at the end of the same row and opens every quick word in a dialog, in the same order. Protest words stay one tap away on any phone, including by scanning.
+- **The feelings scale only says how big the feeling is** ("This feeling is big."), instead of assuming the person is upset or adding requests. Separate **Not sure**, **I need help** and **I need a break** buttons. Levels have a neutral tint and a size meter that fills with the level, with no colour meaning good or bad.
+- **"Grown-ups" is now "Settings"** in the app, the help, the website and the store listing. The locked button shows a lock.
+- The "folders not linked" note in edit mode is translated, and the language test now catches that kind of untranslated text.
+- New `scripts/e2e/phone-layouts.mjs` checks every layout at 320, 360 and 412 px. New e2e checks cover the All button, the dialog and the feelings scale.
+
 ## 0.5.0 — 2026-11-12
 Built from the v0.4 review (nine reviewers plus adversarial checks; see docs/reviews/v0.4-review.md). Every defect it found is addressed.
 

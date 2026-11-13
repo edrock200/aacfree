@@ -49,7 +49,7 @@ There are two ways to set this up. Choose before the first upload, because it ca
 1. **Test and release → Setup → App signing**: keep the default, **"Use a Google-generated key"**.
 2. Build the AAB (step 4) signed with your existing `release.jks`. The first upload registers it as the upload key.
 
-Downside: the Play version is then signed by Google's key, and the APKs on GitHub/the website by yours. Android treats them as different apps for updates. A family that installed the GitHub APK can't update to the Play version in place. They would have to **save a backup (Grown-ups → Backup), uninstall, install from Play, and restore**. Uninstalling erases the app's data.
+Downside: the Play version is then signed by Google's key, and the APKs on GitHub/the website by yours. Android treats them as different apps for updates. A family that installed the GitHub APK can't update to the Play version in place. They would have to **save a backup (Settings → Backup), uninstall, install from Play, and restore**. Uninstalling erases the app's data.
 
 ### Option B (keeps existing installs upgradable): your existing key becomes the app signing key
 1. Create a **new** private upload key, and keep it outside git:
@@ -122,7 +122,7 @@ Work through every item. Suggested answers:
 
 - **Privacy policy:** `https://edrock200.github.io/caleb/privacy.html`. Make sure Pages has deployed it first.
 - **Ads:** No, the app does not contain ads.
-- **App access:** "All or some functionality is restricted". Instructions for the reviewer: *"No login. Settings and editing are behind the 'Grown-ups' button in the bottom bar: press and hold it for 2 seconds. No password or PIN is set by default."*
+- **App access:** "All or some functionality is restricted". Instructions for the reviewer: *"No login. Settings and editing are behind the 'Settings' button in the bottom bar: press and hold it for 2 seconds. No password or PIN is set by default."*
 - **Content rating:** see step 8.
 - **Target audience and content:** see step 9.
 - **News app:** No.

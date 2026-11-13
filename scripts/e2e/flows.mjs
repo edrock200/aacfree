@@ -102,7 +102,7 @@ const emptyCount = await page.$$eval('.grid .cell-empty', (e) => e.length);
 check(emptyCount >= 1, 'masked button leaves an empty gap (motor plan kept)');
 
 // --- symbol library: custom category + symbol, then a board category made from it
-await page.click('.navbtn[aria-label="Grown-up settings"]');
+await page.click('.navbtn[aria-label="Settings"]');
 await page.click('.gu-tab:has-text("Symbols")');
 check(await page.isVisible('.lib-folder[aria-label="Food folder"]'), 'library shows category folders with icons');
 await page.click('.lib-folder.add');
@@ -130,7 +130,7 @@ check((await cells()).includes('Soccer folder') || (await (async () => { await p
 await page.click('.nav-home');
 
 // --- backup round trip
-await page.click('.navbtn[aria-label="Grown-up settings"]');
+await page.click('.navbtn[aria-label="Settings"]');
 await page.click('.gu-tab:has-text("Backup")');
 const [dl] = await Promise.all([page.waitForEvent('download'), page.click('text=Save backup file')]);
 const backupPath = await dl.path();
@@ -143,7 +143,7 @@ check(dl2.suggestedFilename().endsWith('.obz'), 'OBZ export downloads');
 await page.click('.gu-tab:has-text("Boards")');
 await page.click('.layout-card:has-text("Big buttons")');
 await page.click('.modal-foot button:has-text("Change layout")');
-await page.click('.navbtn[aria-label="Grown-up settings"]').catch(() => {});
+await page.click('.navbtn[aria-label="Settings"]').catch(() => {});
 await page.click('.nav-home').catch(() => {});
 await page.click('.gu-nav-foot button:has-text("Lock")').catch(() => {});
 await page.waitForSelector('.grid');
@@ -899,6 +899,35 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   const again = await toastText(page);
   check(/Already up to date|Synced/.test(again), `syncing again changes nothing (${again})`);
   await ctxB.close();
+}
+
+// --- v0.5.1 phone ---
+{
+  const ctx = await browser.newContext({ viewport: { width: 360, height: 740 } });
+  const ph = await ctx.newPage();
+  ph.on('pageerror', (e) => errors.push(String(e)));
+  await ph.goto(url);
+  await ph.click('text=Next'); await ph.click('text=Next'); await ph.click('text=Next'); await ph.click('text=Start talking');
+  await ph.waitForSelector('.grid .cell');
+  const quick = await ph.$$eval('.quickbar .cell', (els) => els.map((e) => e.getAttribute('aria-label')).filter(Boolean));
+  check(await ph.isVisible('.quickbar-all'), 'phone: an "All quick words" button shows when the quick bar is too wide');
+  const allBox = await ph.locator('.quickbar-all').boundingBox();
+  const qbBox = await ph.locator('.quickbar').boundingBox();
+  check(allBox && qbBox && Math.abs(allBox.y - qbBox.y) < 4, 'phone: the All button sits in the quick bar row (no extra row)');
+  await ph.click('.quickbar-all');
+  await ph.waitForSelector('.quickbar-grid .cell');
+  const inDialog = await ph.$$eval('.quickbar-grid .cell', (els) => els.map((e) => e.getAttribute('aria-label')).filter(Boolean));
+  check(inDialog.length === quick.length && quick.every((w, i) => inDialog[i] === w), `phone: the dialog lists every quick word in the same order (${inDialog.join(', ')})`);
+  await ph.click(`.quickbar-grid .cell[aria-label="${inDialog[inDialog.length - 1]}"]`);
+  check(!(await ph.isVisible('.quickbar-grid')) && (await ph.$$('.msg-word')).length === 1, 'phone: choosing a word from the dialog adds it and closes the dialog');
+  const clipped = await ph.$$eval('.grid .cell-label', (els) => els.filter((l) => l.scrollWidth > l.clientWidth + 1).length);
+  check(clipped === 0, `phone: no board label is cut off sideways (${clipped})`);
+  // Feelings scale: speaks only the size the person chose.
+  await ph.click('.navbtn[aria-label="Tools"]');
+  await ph.click('.tool-tile[aria-label="How big?"]');
+  check((await ph.$$('.scale-btn.intensity')).length === 5 && (await ph.$$('.scale-meter')).length === 5, 'feelings scale: five levels, each with a size meter');
+  check(await ph.isVisible('text=Not sure'), 'feelings scale: "Not sure" is offered');
+  await ctx.close();
 }
 
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
