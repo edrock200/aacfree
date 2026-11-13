@@ -67,8 +67,8 @@ export function SecurityPanel() {
           <button className="btn small primary" onClick={() => setLock({ pinNotice: undefined })}>{t('OK')}</button>
         </div>
       )}
-      <Section title={t('Grown-up lock')} intro={<>{t('Stops accidental changes. Talking is never locked — every word stays available.')} {t('The lock covers every profile on this device.')}</>}>
-        <Choice<LockMethod> label={t('How to open Grown-ups')} value={s.lock} onChange={(lock) => {
+      <Section title={t('Settings lock')} intro={<>{t('Stops accidental changes. Talking is never locked — every word stays available.')} {t('The lock covers every profile on this device.')}</>}>
+        <Choice<LockMethod> label={t('How to open Settings')} value={s.lock} onChange={(lock) => {
           if (lock === 'pin' && !s.pin) { showToast(t('Set a PIN below first')); return; }
           setLock({ lock });
         }}

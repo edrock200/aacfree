@@ -783,3 +783,24 @@ small { font-size: 0.85em; }
 .sym-detail { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
 .sym-detail .preview-sym { width: 140px; height: 140px; font-size: 110px; }
 .quick-edits { flex-wrap: wrap; gap: 8px; }
+
+/* Quick words retain their order; the full list is reachable without a swipe. */
+.quickbar-wrap { flex: none; }
+.quickbar-access { display: flex; justify-content: flex-end; padding: 0 8px 6px; }
+.quickbar-all { min-height: 44px; padding: 6px 14px; }
+.quickbar-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.quickbar-grid .cell { height: 104px; }
+@media (max-width: 720px) {
+  .grid .cell-label, .quickbar-grid .cell-label {
+    white-space: normal; overflow-wrap: anywhere; text-overflow: clip;
+    line-height: 1.12; max-height: 3.4em;
+  }
+  .grid .cell .sym { height: 54cqh; max-height: 54cqh; }
+}
+
+@media (max-width: 720px) {
+  .speakbtn span { display: inline; font-size: 0.8rem; }
+}
+@container (max-width: 60px) {
+  .grid .cell-label { font-size: calc(12px * var(--font-scale)); hyphens: auto; max-width: calc(100% + 6px); margin-inline: -3px; }
+}

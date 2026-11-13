@@ -1,6 +1,6 @@
 import { useRef, useState, type MouseEvent } from 'react';
 import { useStore, useSettings, useLock, type Screen } from '../store';
-import { IconChat, IconEdit, IconKeyboard, IconLock, IconPerson, IconSearch, IconSettings, IconTools, IconUnlock } from './Icons';
+import { IconChat, IconEdit, IconKeyboard, IconLock, IconPerson, IconSearch, IconSettings, IconTools } from './Icons';
 import { LockGate } from './LockGate';
 import { usePress } from '../lib/usePress';
 import { t } from '../i18n';
@@ -90,7 +90,7 @@ export function NavBar({ onFind }: { onFind: () => void }) {
       <button
         className={`navbtn lockbtn scan-exempt ${holding ? 'holding' : ''} ${screen === 'grownup' ? 'on' : ''}`}
         style={{ ['--hold-ms' as string]: `${HOLD_MS}ms` }}
-        aria-label={unlocked ? t('Grown-up settings') : t('Grown-ups (hold)')}
+        aria-label={unlocked ? t('Settings') : t('Settings (hold)')}
         onPointerDown={lockDown}
         onPointerUp={lockUp}
         onPointerLeave={lockUp}
@@ -98,8 +98,8 @@ export function NavBar({ onFind }: { onFind: () => void }) {
         onClick={lockClick}
         onContextMenu={(e) => e.preventDefault()}
       >
-        {unlocked ? <IconSettings /> : <IconUnlock />}
-        <span>{t(unlocked ? 'Grown-ups' : holding ? 'Keep holding…' : 'Grown-ups')}</span>
+        {unlocked ? <IconSettings /> : <IconLock />}
+        <span>{t(unlocked ? 'Settings' : holding ? 'Keep holding…' : 'Settings')}</span>
       </button>
       {gate && <LockGate method={gate === 'math' ? 'math' : undefined} onClose={() => setGate(false)} onUnlock={() => { setGate(false); openGrownUps(); }} />}
     </nav>

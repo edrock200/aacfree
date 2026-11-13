@@ -33,7 +33,7 @@ export function ScheduleTool() {
   const s = p.settings;
   const unlocked = useStore((st) => st.unlocked);
   const contentEdit = useStore((st) => st.contentEdit);
-  // Editing needs Grown-ups unlocked AND the Edit pencil on; ticking and speaking work for everyone.
+  // Editing needs Settings unlocked AND the Edit pencil on; ticking and speaking work for everyone.
   const edit = unlocked && contentEdit;
   const { updateProfile, speakText, showToast } = useStore.getState();
   const [sid, setSid] = useState<string | undefined>(p.schedules[0]?.id);
@@ -160,7 +160,7 @@ export function ScheduleTool() {
         ))}
       </ol>
       {edit && <button className="btn primary" onClick={() => setAdding(true)}><IconPlus /> {t('Add step')}</button>}
-      {!edit && sched.steps.length === 0 && <p className="muted">{t('A grown-up can add steps: unlock Grown-ups, then tap Edit.')}</p>}
+      {!edit && sched.steps.length === 0 && <p className="muted">{t('To add steps, unlock Settings, then tap Edit.')}</p>}
       {editing !== null && sched.steps[editing] && (
         <StepEditor step={sched.steps[editing]} onClose={() => setEditing(null)}
           onSave={(st) => { mutate((steps) => { steps[editing] = st; }); setEditing(null); }} />

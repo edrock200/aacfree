@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
         const current = isSaveBlocked() ? null : st.loaded ? st.data : await loadData().catch(() => undefined);
         if (current?.profiles?.length) {
           await addSnapshot(current, CRASH_SNAPSHOT_REASON);
-          if (current.grownUpLock) keepDeviceLock(data, current); // going back never changes the grown-up lock
+          if (current.grownUpLock) keepDeviceLock(data, current); // going back never changes the settings lock
         }
         // Nothing still in memory may overwrite the restore before the reload.
         blockSaves();

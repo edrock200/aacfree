@@ -38,7 +38,7 @@ export function Onboarding() {
   const defaultVoice = { ...DEFAULT_SETTINGS, lang: PACKS[lang].voice };
   const sample = () => ts('Hello! This is my voice.');
 
-  /** Restore through the same pipeline as Grown-ups → Backup (validated by readBackup). */
+  /** Restore through the same pipeline as Settings → Backup (validated by readBackup). */
   const restore = async (text: string) => {
     setRestoring(true);
     setRestoreError('');
@@ -131,7 +131,7 @@ export function Onboarding() {
             )}
             <div className="seg">
               <button className={style === 'playful' ? 'on' : ''} onClick={() => setStyle('playful')}>{t('Playful look')}</button>
-              <button className={style === 'clean' ? 'on' : ''} onClick={() => setStyle('clean')}>{t('Clean / grown-up look')}</button>
+              <button className={style === 'clean' ? 'on' : ''} onClick={() => setStyle('clean')}>{t('Clean look')}</button>
             </div>
             <div className="ob-actions">
               <button className="btn" onClick={() => setStep(0)}>{t('Back')}</button>
@@ -167,12 +167,12 @@ export function Onboarding() {
         )}
         {step === 3 && (
           <>
-            <h2>{t('Grown-up area')}</h2>
-            <p>{t('Editing and settings are behind the Grown-ups button (bottom right). By default you hold it for 2 seconds, which is easy for adults and hard to do by accident. You can switch to a PIN later.')}</p>
+            <h2>{t('Settings')}</h2>
+            <p>{t('Open Settings (bottom right) to edit or change preferences. Hold it for 2 seconds to prevent accidental changes. You can choose a PIN or another lock method later.')}</p>
             <ul className="ob-tips">
               <li>🗣️ <b>{t('Model it:')}</b> {t("tap words yourself as you talk. That's how AAC is learned.")}</li>
               <li>🔒 <b>{t('Talking is never locked.')}</b> {t('“No”, “stop”, “help” and “break” are always in the top bar.')}</li>
-              <li>💾 <b>{t('Back up')}</b> {t('from Grown-ups → Backup. Caleb also keeps automatic snapshots.')}</li>
+              <li>💾 <b>{t('Back up')}</b> {t('from Settings → Backup. Caleb also keeps automatic snapshots.')}</li>
             </ul>
             <div className="ob-actions">
               <button className="btn" onClick={() => setStep(2)}>{t('Back')}</button>

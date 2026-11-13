@@ -97,7 +97,7 @@ function Main() {
     if (!unlocked) return;
     const relock = () => {
       const st = useStore.getState();
-      // Outside Grown-ups, just lock: never move the person off the board they are using.
+      // Outside Settings, just lock: never move the person off the board they are using.
       if (st.screen === 'grownup') st.lock();
       else st.setUnlocked(false);
     };

@@ -8,7 +8,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Sit about an arm’s length from the screen with your face well lit. Webcam eye gaze is approximate. Large buttons (Big or Phone core layouts) work best. A dedicated eye tracker that moves the mouse works with “Dwell (mouse/eye tracker)” mode.':
       'Siéntate a un brazo de distancia de la pantalla, con la cara bien iluminada. La mirada con la cámara es aproximada. Funciona mejor con botones grandes (diseños Grande o Teléfono). Un seguidor ocular que mueve el mouse funciona con el modo “Permanencia (mouse / seguidor ocular)”.',
     'Looking for your face…': 'Buscando tu cara…',
-    'I am a grown-up': 'Soy una persona adulta',
+    'Reset my settings lock': 'Restablecer mi bloqueo de ajustes',
     '✓ Held': '✓ Listo',
     '1. Press and hold here for 10 seconds': '1. Mantén pulsado aquí 10 segundos',
     'Enter your PIN': 'Escribe tu PIN',
@@ -19,8 +19,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Message: {text}': 'Mensaje: {text}',
     'Message bar, empty': 'Barra de mensaje, vacía',
     '{word}, change word': '{word}, cambiar palabra',
-    'Grown-up settings': 'Ajustes para adultos',
-    'Grown-ups (hold)': 'Adultos (mantén pulsado)',
+    "Settings": "Ajustes",
+    "Settings (hold)": "Ajustes (mantén pulsado)",
     'Look at the middle of the screen… {n}': 'Mira al centro de la pantalla… {n}',
     'Resting: dwell on Resume to carry on': 'En pausa: detente sobre Seguir para continuar',
     'Resume': 'Seguir',
@@ -58,8 +58,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Set key…': 'Elegir tecla…',
     'Use default': 'Usar la predeterminada',
     'Next switch': 'Pulsador de avanzar',
-    '2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Grown-ups button. While Grown-ups is unlocked, its Edit and Lock buttons can still be tapped.':
-      'Modo de 2 pulsadores: Espacio = avanzar, Intro = elegir. En pantalla táctil: toque = avanzar, toque largo = elegir. Para salir del barrido, mantén pulsado el botón Adultos. Con Adultos desbloqueado, sus botones Editar y Bloquear se pueden seguir tocando.',
+    '2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Settings button. While Settings are unlocked, its Edit and Lock buttons can still be tapped.':
+      'Modo de 2 pulsadores: Espacio = avanzar, Intro = elegir. En pantalla táctil: toque = avanzar, toque largo = elegir. Para salir del barrido, mantén pulsado el botón Ajustes. Con los ajustes desbloqueados, sus botones Editar y Bloquear se pueden seguir tocando.',
     'Set the select switch': 'Elegir el pulsador de elegir',
     'Set the next switch': 'Elegir el pulsador de avanzar',
     'Press the switch (or key) now.': 'Pulsa ahora el pulsador (o la tecla).',
@@ -79,8 +79,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'A “Rest” button the person can dwell on to pause selecting, and dwell on again to carry on.': 'Un botón “Pausa” sobre el que la persona puede detenerse para dejar de elegir, y otra vez para continuar.',
     'Re-calibrate eyes': 'Volver a calibrar la mirada',
     'Calibrate eyes': 'Calibrar la mirada',
-    'Tip: the pointer pauses in Grown-ups and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.':
-      'Consejo: el puntero se detiene en Adultos y en el modo de edición. Con el puntero de cabeza, elige “Centrar” (abajo a la izquierda, tocando o deteniéndote) y luego mira al centro de la pantalla mientras cuenta hacia atrás.',
+    'Tip: the pointer pauses in Settings and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.':
+      'Consejo: el puntero se detiene en Ajustes y en el modo de edición. Con el puntero de cabeza, elige “Centrar” (abajo a la izquierda, tocando o deteniéndote) y luego mira al centro de la pantalla mientras cuenta hacia atrás.',
   },
   fr: {
     'Timer: {m} minutes {s} seconds left': 'Minuteur : il reste {m} minutes et {s} secondes',
@@ -90,7 +90,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Sit about an arm’s length from the screen with your face well lit. Webcam eye gaze is approximate. Large buttons (Big or Phone core layouts) work best. A dedicated eye tracker that moves the mouse works with “Dwell (mouse/eye tracker)” mode.':
       'Installe-toi à environ une longueur de bras de l’écran, le visage bien éclairé. Le suivi du regard par la caméra est approximatif. Les grands boutons (dispositions Grand ou Téléphone) marchent le mieux. Un oculomètre qui déplace la souris fonctionne avec le mode « Sélection par maintien du regard/pointeur (souris / commande oculaire) ».',
     'Looking for your face…': 'Je cherche ton visage…',
-    'I am a grown-up': 'Je suis un adulte',
+    'Reset my settings lock': 'Réinitialiser le verrou des paramètres',
     '✓ Held': '✓ C’est bon',
     '1. Press and hold here for 10 seconds': '1. Appuie ici pendant 10 secondes',
     'Enter your PIN': 'Saisis ton code',
@@ -101,8 +101,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Message: {text}': 'Message : {text}',
     'Message bar, empty': 'Barre de message, vide',
     '{word}, change word': '{word}, changer le mot',
-    'Grown-up settings': 'Réglages adultes',
-    'Grown-ups (hold)': 'Adultes (maintenir)',
+    "Settings": "Paramètres",
+    "Settings (hold)": "Paramètres (maintenir)",
     'Look at the middle of the screen… {n}': 'Regarde le milieu de l’écran… {n}',
     'Resting: dwell on Resume to carry on': 'En pause : arrête-toi sur Reprendre pour continuer',
     'Resume': 'Reprendre',
@@ -140,8 +140,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Set key…': 'Choisir la touche…',
     'Use default': 'Par défaut',
     'Next switch': 'Contacteur pour avancer',
-    '2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Grown-ups button. While Grown-ups is unlocked, its Edit and Lock buttons can still be tapped.':
-      'Mode 2 contacteurs : Espace = avancer, Entrée = choisir. Sur écran tactile : toucher = avancer, toucher long = choisir. Pour quitter le défilement, maintiens le bouton Adultes. Quand l’espace Adultes est déverrouillé, ses boutons Modifier et Verrouiller restent utilisables au toucher.',
+    '2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Settings button. While Settings are unlocked, its Edit and Lock buttons can still be tapped.':
+      'Mode 2 contacteurs : Espace = avancer, Entrée = choisir. Sur écran tactile : toucher = avancer, toucher long = choisir. Pour quitter le défilement, maintiens le bouton Paramètres. Quand les paramètres sont déverrouillés, ses boutons Modifier et Verrouiller restent utilisables au toucher.',
     'Set the select switch': 'Choisir le contacteur de sélection',
     'Set the next switch': 'Choisir le contacteur pour avancer',
     'Press the switch (or key) now.': 'Appuie maintenant sur le contacteur (ou la touche).',
@@ -161,8 +161,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'A “Rest” button the person can dwell on to pause selecting, and dwell on again to carry on.': 'Un bouton « Pause » sur lequel la personne peut s’arrêter pour ne plus choisir, puis à nouveau pour continuer.',
     'Re-calibrate eyes': 'Recalibrer le regard',
     'Calibrate eyes': 'Calibrer le regard',
-    'Tip: the pointer pauses in Grown-ups and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.':
-      'Astuce : le pointeur s’arrête dans l’espace Adultes et en mode modification. Avec le pointeur de tête, choisis « Centrer » (en bas à gauche, au toucher ou en t’arrêtant dessus), puis regarde le milieu de l’écran pendant le compte à rebours.',
+    'Tip: the pointer pauses in Settings and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.':
+      'Astuce : le pointeur s’arrête dans les paramètres et en mode modification. Avec le pointeur de tête, choisis « Centrer » (en bas à gauche, au toucher ou en t’arrêtant dessus), puis regarde le milieu de l’écran pendant le compte à rebours.',
   },
   pt: {
     'Timer: {m} minutes {s} seconds left': 'Timer: faltam {m} minutos e {s} segundos',
@@ -172,7 +172,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Sit about an arm’s length from the screen with your face well lit. Webcam eye gaze is approximate. Large buttons (Big or Phone core layouts) work best. A dedicated eye tracker that moves the mouse works with “Dwell (mouse/eye tracker)” mode.':
       'Sente-se a mais ou menos um braço de distância da tela, com o rosto bem iluminado. O olhar pela câmera é aproximado. Botões grandes (layouts Grande ou Celular) funcionam melhor. Um rastreador ocular que move o mouse funciona no modo “Seleção por permanência (mouse / rastreador ocular)”.',
     'Looking for your face…': 'Procurando seu rosto…',
-    'I am a grown-up': 'Eu sou um adulto',
+    'Reset my settings lock': 'Redefinir meu bloqueio de configurações',
     '✓ Held': '✓ Pronto',
     '1. Press and hold here for 10 seconds': '1. Segure aqui por 10 segundos',
     'Enter your PIN': 'Digite seu PIN',
@@ -183,8 +183,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Message: {text}': 'Mensagem: {text}',
     'Message bar, empty': 'Barra de mensagem, vazia',
     '{word}, change word': '{word}, trocar palavra',
-    'Grown-up settings': 'Configurações dos adultos',
-    'Grown-ups (hold)': 'Adultos (segure)',
+    "Settings": "Configurações",
+    "Settings (hold)": "Configurações (segure)",
     'Look at the middle of the screen… {n}': 'Olhe para o meio da tela… {n}',
     'Resting: dwell on Resume to carry on': 'Em pausa: pare em Continuar para seguir',
     'Resume': 'Continuar',
@@ -222,8 +222,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Set key…': 'Escolher tecla…',
     'Use default': 'Usar o padrão',
     'Next switch': 'Acionador de avançar',
-    '2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Grown-ups button. While Grown-ups is unlocked, its Edit and Lock buttons can still be tapped.':
-      'Modo de 2 acionadores: Espaço = avançar, Enter = escolher. Na tela de toque: toque = avançar, toque longo = escolher. Para sair da varredura, segure o botão Adultos. Com a área dos adultos desbloqueada, os botões Editar e Bloquear continuam funcionando ao toque.',
+    '2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Settings button. While Settings are unlocked, its Edit and Lock buttons can still be tapped.':
+      'Modo de 2 acionadores: Espaço = avançar, Enter = escolher. Na tela de toque: toque = avançar, toque longo = escolher. Para sair da varredura, segure o botão Configurações. Com as configurações desbloqueadas, os botões Editar e Bloquear continuam funcionando ao toque.',
     'Set the select switch': 'Escolher o acionador de escolher',
     'Set the next switch': 'Escolher o acionador de avançar',
     'Press the switch (or key) now.': 'Aperte o acionador (ou a tecla) agora.',
@@ -243,7 +243,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'A “Rest” button the person can dwell on to pause selecting, and dwell on again to carry on.': 'Um botão “Pausa” em que a pessoa pode parar o ponteiro para deixar de escolher, e de novo para continuar.',
     'Re-calibrate eyes': 'Calibrar o olhar de novo',
     'Calibrate eyes': 'Calibrar o olhar',
-    'Tip: the pointer pauses in Grown-ups and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.':
-      'Dica: o ponteiro pausa na área dos adultos e no modo de edição. Com o ponteiro de cabeça, escolha “Centralizar” (embaixo à esquerda, tocando ou parando o ponteiro) e depois olhe para o meio da tela durante a contagem regressiva.',
+    'Tip: the pointer pauses in Settings and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.':
+      'Dica: o ponteiro pausa nas configurações e no modo de edição. Com o ponteiro de cabeça, escolha “Centralizar” (embaixo à esquerda, tocando ou parando o ponteiro) e depois olhe para o meio da tela durante a contagem regressiva.',
   },
 };

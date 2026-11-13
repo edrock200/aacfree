@@ -31,7 +31,7 @@ export function LockGate({ onUnlock, onClose, method }: { onUnlock: () => void; 
   const [held, setHeld] = useState(false);
   const [phrase, setPhrase] = useState('');
   const holdTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const PHRASE = t('I am a grown-up');
+  const PHRASE = t('Reset my settings lock');
 
   const waitMs = Math.max(0, tries.until - now);
   useEffect(() => {
@@ -57,10 +57,10 @@ export function LockGate({ onUnlock, onClose, method }: { onUnlock: () => void; 
           </label>
           <button className="btn primary" disabled={!ok} onClick={() => {
             useStore.getState().setLock({ lock: 'hold', pin: undefined });
-            useStore.getState().showToast(t('PIN removed. Set a new one in Grown-ups → Lock.'));
+            useStore.getState().showToast(t('PIN removed. Set a new one in Settings → Lock.'));
             resetLockBackoff();
             onUnlock();
-          }}>{t('Remove PIN and open Grown-ups')}</button>
+          }}>{t('Remove PIN and open Settings')}</button>
         </div>
       </Modal>
     );
@@ -90,7 +90,7 @@ export function LockGate({ onUnlock, onClose, method }: { onUnlock: () => void; 
 
   const waitSec = Math.ceil(waitMs / 1000);
   return (
-    <Modal title={t('Grown-ups only')} onClose={onClose} rootClassName="scan-exempt">
+    <Modal title={t('Unlock settings')} onClose={onClose} rootClassName="scan-exempt">
       <div className="lockgate">
         <p className="center">{usePin ? t('Enter your PIN') : t('What is {q}?', { q: q.text })}</p>
         <div className={`pin-dots ${error ? 'shake' : ''}`} aria-hidden>

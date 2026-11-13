@@ -93,7 +93,7 @@ export function DisplayPanel() {
       <Section title={t('Language')} intro={t('The communication language changes the words on the boards, word forms, the keyboard and the voice. Buttons keep their exact places.')}>
         <Choice label={t('Communication language')} value={comm} onChange={(l) => l !== comm && setConfirmLang(l)}
           options={LANGUAGES.map((l) => ({ value: l.id, label: l.name }))} />
-        <Choice label={t('App language')} hint={t('Menus and settings. Grown-ups can read the app in a different language from the one the person talks in.')} value={s.uiLanguage ?? 'auto'} onChange={(uiLanguage) => updateSettings({ uiLanguage })}
+        <Choice label={t('App language')} hint={t('Menus and settings. You can read the app in a different language from the one the person talks in.')} value={s.uiLanguage ?? 'auto'} onChange={(uiLanguage) => updateSettings({ uiLanguage })}
           options={[{ value: 'auto' as const, label: t('Same') }, ...LANGUAGES.map((l) => ({ value: l.id, label: l.name }))]} />
         <Choice label={t('Second language on buttons')} hint={t('Shows each built-in word in a second language under the main word. Helpful for bilingual families and classrooms.')} value={s.secondLabel ?? ''} onChange={(secondLabel) => updateSettings({ secondLabel })}
           options={[{ value: '' as const, label: t('None') }, ...LANGUAGES.filter((l) => l.id !== comm).map((l) => ({ value: l.id, label: l.name }))]} />
@@ -111,7 +111,7 @@ export function DisplayPanel() {
       <Section title={t('Look')}>
         <Choice label={t('Theme')} value={s.theme} onChange={(theme) => updateSettings({ theme })}
           options={[{ value: 'light', label: t('Light') }, { value: 'dark', label: t('Dark') }, { value: 'contrast', label: t('High contrast') }]} />
-        <Choice label={t('Style')} hint={t('“Clean” is calmer and more grown-up.')} value={s.style} onChange={(style) => updateSettings({ style })}
+        <Choice label={t('Style')} hint={t('“Clean” uses simpler button shapes.')} value={s.style} onChange={(style) => updateSettings({ style })}
           options={[{ value: 'playful', label: t('Playful') }, { value: 'clean', label: t('Clean') }]} />
         <Choice label={t('Colour coding')} hint={t('Modified Fitzgerald Key: colours by word type.')} value={s.colorMode} onChange={(colorMode) => updateSettings({ colorMode })}
           options={[{ value: 'fill', label: t('Filled') }, { value: 'border', label: t('Border only') }, { value: 'none', label: t('Off') }]} />
@@ -206,7 +206,7 @@ function ScanSection() {
           {s.scanKeyNext && <button className="btn small" onClick={() => updateSettings({ scanKeyNext: '' })}>{t('Use default')}</button>}
         </div>
       </div>
-      <p className="muted small">{t('2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Grown-ups button. While Grown-ups is unlocked, its Edit and Lock buttons can still be tapped.')}</p>
+      <p className="muted small">{t('2-switch mode: Space = next, Enter = select. On a touchscreen: tap = next, long tap = select. To leave scanning, hold the Settings button. While Settings are unlocked, its Edit and Lock buttons can still be tapped.')}</p>
       {capture && (
         <KeyCapture which={capture} onClose={() => setCapture(null)} onKey={(k) => {
           updateSettings(capture === 'select'
@@ -300,7 +300,7 @@ function PointerSection() {
   const { updateSettings } = useStore.getState();
   const [calibrating, setCalibrating] = useState(false);
   return (
-    <Section title={t('Eye gaze & head pointer')} intro={t('Select by resting a pointer on a button (dwell). Use it with a mouse, a head-mouse or a hardware eye tracker, or let Caleb use the front camera. Camera images are processed on this device only and are never saved or sent. Touch always keeps working, so a grown-up can still tap.')}>
+    <Section title={t('Eye gaze & head pointer')} intro={t('Select by resting a pointer on a button (dwell). Use it with a mouse, a head-mouse or a hardware eye tracker, or let Caleb use the front camera. Camera images are processed on this device only and are never saved or sent. Touch always keeps working, so you or a support person can still tap.')}>
       <Choice label={t('Pointer')} value={s.pointer} onChange={(pointer) => updateSettings({ pointer })}
         options={[
           { value: 'off', label: t('Off') },
@@ -325,7 +325,7 @@ function PointerSection() {
           {!s.gazeCalibration && <span className="warn">{t('Calibrate for best results.')}</span>}
         </div>
       )}
-      <p className="muted small">{t('Tip: the pointer pauses in Grown-ups and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.')}</p>
+      <p className="muted small">{t('Tip: the pointer pauses in Settings and in edit mode. With the head pointer, choose “Centre” (bottom left, by tapping or dwelling) and then look at the middle of the screen while it counts down.')}</p>
       {calibrating && <GazeCalibration onClose={() => setCalibrating(false)} />}
     </Section>
   );

@@ -42,7 +42,7 @@ function data(profiles: Profile[], active = 0): AppData {
 
 const settingsOf = (p: Profile) => p.settings as unknown as Record<string, unknown>;
 
-describe('app-wide grown-up lock (defect 29)', () => {
+describe('app-wide settings lock (defect 29)', () => {
   it('defaults to hold-to-open when nothing was stored', () => {
     const d = migrateLock(data([buildProfile('A', 'medium')]));
     expect(d.grownUpLock).toEqual(DEFAULT_LOCK);
