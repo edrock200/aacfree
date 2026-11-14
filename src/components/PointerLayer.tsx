@@ -36,7 +36,8 @@ export function PointerLayer({ s, active }: { s: Settings; active: boolean }) {
   const camera = mode === 'head' || mode === 'eyes';
   const showChip = camera || s.dwellRest !== false;
   const message = st.countdown ? t('Look at the middle of the screen… {n}', { n: st.countdown })
-    : st.resting ? t('Resting: dwell on Resume to carry on')
+    : st.pausedByHand ? t('Paused. Tap Resume to carry on.')
+    : st.resting ? t('Resting: look at Resume for a few seconds to carry on')
       : st.message ? t(st.message)
         : camera ? t(mode === 'head' ? 'Head pointer on' : 'Eye gaze on') : '';
   return createPortal(
@@ -54,7 +55,8 @@ export function PointerLayer({ s, active }: { s: Settings; active: boolean }) {
           {s.dwellRest !== false && (
             // Dwellable even while resting, so the person can pause and resume hands-free.
             <button className={`btn small pointer-rest ${st.resting ? 'primary' : ''}`} data-dwell-ok data-dwell-rest
-              onClick={() => engineRef.current?.toggleRest()} aria-pressed={!!st.resting}>
+              // A real tap or click (detail > 0) pauses everything, camera included; a dwell, switch or key rests hands-free.
+              onClick={(e) => engineRef.current?.toggleRest(e.detail > 0)} aria-pressed={!!st.resting}>
               {st.resting ? t('Resume') : t('Rest')}
             </button>
           )}

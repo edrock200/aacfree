@@ -1,6 +1,11 @@
 /** v0.5 UI strings for the "access" work area (English source → translation). Merged into each pack's ui table. */
 export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   es: {
+    "Paused. Tap Resume to carry on.": "En pausa. Toca Seguir para continuar.",
+    "Resting: look at Resume for a few seconds to carry on": "En pausa: mira Seguir unos segundos para continuar",
+    "Calibration didn't work: your face wasn't seen at enough dots. Face the camera with your face well lit, then try again.": "La calibración no funcionó: no se vio tu cara en suficientes puntos. Mira hacia la cámara con la cara bien iluminada y vuelve a intentarlo.",
+    "Calibration didn't work: the dots couldn't be told apart. Keep your head still, move only your eyes, and look right at each dot.": "La calibración no funcionó: no se pudieron distinguir los puntos. Mantén la cabeza quieta, mueve solo los ojos y mira directamente cada punto.",
+    "Eye gaze calibrated. It is approximate, so larger buttons work best.": "Mirada calibrada. Es aproximada, así que los botones más grandes funcionan mejor.",
     'Timer: {m} minutes {s} seconds left': 'Temporizador: quedan {m} minutos y {s} segundos',
     'Page {n} of {total}': 'Página {n} de {total}',
     'hidden for now': 'oculta por ahora',
@@ -83,6 +88,11 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
       'Consejo: el puntero se detiene en Ajustes y en el modo de edición. Con el puntero de cabeza, elige “Centrar” (abajo a la izquierda, tocando o deteniéndote) y luego mira al centro de la pantalla mientras cuenta hacia atrás.',
   },
   fr: {
+    "Paused. Tap Resume to carry on.": "En pause. Touche Reprendre pour continuer.",
+    "Resting: look at Resume for a few seconds to carry on": "En repos : regarde Reprendre quelques secondes pour continuer",
+    "Calibration didn't work: your face wasn't seen at enough dots. Face the camera with your face well lit, then try again.": "Le calibrage n’a pas marché : ton visage n’a pas été vu sur assez de points. Mets-toi face à la caméra, le visage bien éclairé, puis réessaie.",
+    "Calibration didn't work: the dots couldn't be told apart. Keep your head still, move only your eyes, and look right at each dot.": "Le calibrage n’a pas marché : les points n’ont pas pu être distingués. Garde la tête immobile, bouge seulement les yeux et regarde bien chaque point.",
+    "Eye gaze calibrated. It is approximate, so larger buttons work best.": "Regard calibré. Il reste approximatif : les grands boutons marchent mieux.",
     'Timer: {m} minutes {s} seconds left': 'Minuteur : il reste {m} minutes et {s} secondes',
     'Page {n} of {total}': 'Page {n} sur {total}',
     'hidden for now': 'masqué pour l’instant',
@@ -165,6 +175,11 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
       'Astuce : le pointeur s’arrête dans les paramètres et en mode modification. Avec le pointeur de tête, choisis « Centrer » (en bas à gauche, au toucher ou en t’arrêtant dessus), puis regarde le milieu de l’écran pendant le compte à rebours.',
   },
   pt: {
+    "Paused. Tap Resume to carry on.": "Em pausa. Toque em Continuar para seguir.",
+    "Resting: look at Resume for a few seconds to carry on": "Em descanso: olhe para Continuar por alguns segundos para seguir",
+    "Calibration didn't work: your face wasn't seen at enough dots. Face the camera with your face well lit, then try again.": "A calibração não deu certo: seu rosto não foi visto em pontos suficientes. Fique de frente para a câmera com o rosto bem iluminado e tente de novo.",
+    "Calibration didn't work: the dots couldn't be told apart. Keep your head still, move only your eyes, and look right at each dot.": "A calibração não deu certo: não deu para distinguir os pontos. Mantenha a cabeça parada, mova só os olhos e olhe bem para cada ponto.",
+    "Eye gaze calibrated. It is approximate, so larger buttons work best.": "Olhar calibrado. Ele é aproximado, então botões maiores funcionam melhor.",
     'Timer: {m} minutes {s} seconds left': 'Timer: faltam {m} minutos e {s} segundos',
     'Page {n} of {total}': 'Página {n} de {total}',
     'hidden for now': 'escondida por enquanto',

@@ -7,7 +7,9 @@ import { t } from '../i18n';
 
 const POINTS = [[0.1, 0.1], [0.5, 0.1], [0.9, 0.1], [0.1, 0.5], [0.5, 0.5], [0.9, 0.5], [0.1, 0.9], [0.5, 0.9], [0.9, 0.9]];
 const SETTLE_MS = 500;
-const SAMPLE_MS = 1200;
+const SAMPLE_MS = 1500;
+/** A dot whose face can't be seen for this long is skipped, so calibration never hangs. */
+const GIVE_UP_MS = 8000;
 
 /**
  * 9-point eye-gaze calibration: look at each dot until it fills.
@@ -45,17 +47,20 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
     const y = py * innerHeight;
     // Let the eyes settle, then sample for ~1.2 s of frames with a face.
     let start = performance.now();
+    const shown = start;
     let lastFrame = -1;
     let mine: { f: number[]; x: number; y: number }[] = [];
+    const next = () => { if (i + 1 < POINTS.length) setI(i + 1); else finish(); };
     const timer = setInterval(() => {
       const e = engine.current;
       if (!e) return;
       if (status.current !== 'tracking' || !e.lastFeatures) {
-        // Face lost: drop this dot's samples and wait for the face to come back.
+        // Face lost: drop this dot's samples and wait for the face to come back (or skip the dot).
         setLost(true);
         start = performance.now();
         mine = [];
         setFill(0);
+        if (performance.now() - shown > GIVE_UP_MS) { clearInterval(timer); next(); }
         return;
       }
       setLost(false);
@@ -68,8 +73,7 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
       if (el > SETTLE_MS + SAMPLE_MS) {
         clearInterval(timer);
         samples.current.push(...mine);
-        if (i + 1 < POINTS.length) setI(i + 1);
-        else finish();
+        next();
       }
     }, 50);
     return () => clearInterval(timer);
@@ -79,13 +83,17 @@ export function GazeCalibration({ onClose }: { onClose: () => void }) {
     const cal = fitCalibration(samples.current);
     const check = checkCalibration(samples.current, cal, innerWidth, innerHeight);
     if (!cal || !check.ok) {
-      setMsg(t('Calibration failed — make sure your face is well lit and visible, then try again.'));
+      setMsg(check.reason === 'few-points'
+        ? t("Calibration didn't work: your face wasn't seen at enough dots. Face the camera with your face well lit, then try again.")
+        : t("Calibration didn't work: the dots couldn't be told apart. Keep your head still, move only your eyes, and look right at each dot."));
       setI(-1);
       samples.current = [];
       return;
     }
     useStore.getState().updateSettings({ gazeCalibration: cal, pointer: 'eyes' });
-    useStore.getState().showToast(t('Eye gaze calibrated'));
+    useStore.getState().showToast(check.quality === 'rough'
+      ? t('Eye gaze calibrated. It is approximate, so larger buttons work best.')
+      : t('Eye gaze calibrated'));
     onClose();
   };
 

@@ -1,0 +1,1 @@
+Eye gaze: camera calibration now works with ordinary webcams and phones, and tells you what to change if it doesn't. Rest: tapping Rest now pauses everything and switches the camera off until you tap Resume; resting hands-free needs a long look at Resume to carry on.
