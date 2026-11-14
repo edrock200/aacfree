@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.2 — 2026-11-14
+Eye-gaze fixes.
+- **Camera calibration works again.** The quality check added in 0.5 rejected almost every real webcam calibration, especially on phones held upright. Calibration now:
+  - averages each dot's samples before fitting, so noise no longer pulls every prediction toward the middle;
+  - uses more of the face model's information (eye openness and its eye-look scores) for up/down gaze;
+  - judges quality by whether the dots can be told apart, not by a fixed pixel error.
+
+  It still rejects calibrations from a face that was mostly lost. A dot whose face can't be seen for 8 seconds is skipped instead of hanging. A failed calibration says what to change, and an approximate one is accepted with a hint that larger buttons work best.
+- **Rest really stops.** Tapping Rest now pauses everything: the camera switches off, the cursor hides, and only a tap on Resume carries on. Resting hands-free (by dwell or switch) still lets the person resume by looking at Resume, but it now takes a long, deliberate look (at least 2.5 s), so a wandering cursor can't resume by itself. A long blink no longer resumes.
+
 ## 0.5.1 — 2026-11-13
 Phone readability and more autonomy, adopted from pull request #8 with improvements.
 - **Labels wrap on phones** instead of being cut off. They break at word boundaries, hyphenate long words in the board's language, and show at most two lines, so pictures keep their room. The Speak button keeps its label on phones.

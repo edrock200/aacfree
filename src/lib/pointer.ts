@@ -42,6 +42,8 @@ export interface PointerState {
   lost?: boolean;
   /** The person dwelled on Rest: only the Rest button responds until they dwell on it again. */
   resting?: boolean;
+  /** Rest was chosen by hand (tap/click): the camera is off and only a tap on Resume carries on. */
+  pausedByHand?: boolean;
   /** Offer a "Restart camera" button. */
   canRestart?: boolean;
   /** Seconds left before re-centring (head pointer). */
@@ -56,6 +58,8 @@ export const REARM_PX = { dwell: 8, camera: 24 };
 /** Head/eye cursors also wait this long after a selection (jitter alone must not re-arm). */
 export const REFRACTORY_MS = 400;
 const STALL_MS = 2000;
+/** Resuming from a hands-free rest needs a long, deliberate dwell (a wandering cursor must not resume). */
+export const restDwellMs = (dwellMs: number) => Math.max(2500, dwellMs * 2);
 const MAX_AUTO_RESTARTS = 3;
 
 /** Landmark indices (MediaPipe face mesh with iris refinement). */
@@ -120,6 +124,8 @@ export class PointerEngine {
   private retryTimer?: ReturnType<typeof setTimeout>;
   private hiddenStop = false;
   private recenterTimer?: ReturnType<typeof setInterval>;
+  /** Rest chosen by hand: camera released, nothing dwells until Resume is tapped. */
+  private handRest = false;
   /** Latest raw gaze features (for calibration); null while no face is seen. */
   lastFeatures: number[] | null = null;
   /** Increments with every new camera frame that produced features. */
@@ -230,13 +236,14 @@ export class PointerEngine {
     try { this.landmarker?.close(); } catch { /* ignore */ }
     this.landmarker = null;
     this.center = null;
+    this.handRest = false;
     this.setTarget(null);
-    this.emit({ status: 'idle', visible: false, progress: 0, message: undefined, lost: false, resting: false, canRestart: false, countdown: undefined });
+    this.emit({ status: 'idle', visible: false, progress: 0, message: undefined, lost: false, resting: false, pausedByHand: false, canRestart: false, countdown: undefined });
   }
 
   /** Manual "Restart camera". */
   restartCamera() {
-    if (!this.running || this.opts.mode === 'dwell' || this.opts.mode === 'off') return;
+    if (!this.running || this.handRest || this.opts.mode === 'dwell' || this.opts.mode === 'off') return;
     if (this.retryTimer) clearTimeout(this.retryTimer);
     this.releaseCamera();
     this.restarts = 0;
@@ -265,14 +272,14 @@ export class PointerEngine {
     if (document.visibilityState === 'hidden') {
       this.hasPointer = false;
       this.setTarget(null);
-      if (this.opts.mode === 'head' || this.opts.mode === 'eyes') {
+      if ((this.opts.mode === 'head' || this.opts.mode === 'eyes') && !this.handRest) {
         // Don't keep the camera on while Caleb is in the background.
         if (this.retryTimer) clearTimeout(this.retryTimer);
         this.releaseCamera();
         this.hiddenStop = true;
         this.emit({ status: 'loading', progress: 0, message: 'Paused' });
       }
-    } else if (this.hiddenStop && this.running) {
+    } else if (this.hiddenStop && this.running && !this.handRest) {
       this.hiddenStop = false;
       this.restarts = 0;
       void this.openCamera(this.gen);
@@ -301,12 +308,37 @@ export class PointerEngine {
     }, 1000);
   }
 
-  /** Rest: pause dwell selection (only the Rest button stays live). */
-  toggleRest() {
-    const resting = !this.state.resting;
+  /**
+   * Rest / Resume.
+   *  - By hand (a real tap or click): everything stops. The camera is switched off, the cursor hides,
+   *    and only a tap on Resume carries on.
+   *  - Hands-free (a dwell, switch or key): selection pauses but the camera keeps watching, so the
+   *    person can resume by dwelling on Resume for a long, deliberate time (restDwellMs).
+   */
+  toggleRest(byHand = false) {
+    const camera = this.opts.mode === 'head' || this.opts.mode === 'eyes';
     this.setTarget(null);
+    this.lastFired = null;
+    if (this.state.resting) {
+      // Resume.
+      const wasHand = this.handRest;
+      this.handRest = false;
+      this.arming.disarm(this.state.x, this.state.y, performance.now());
+      this.emit({ resting: false, pausedByHand: false, progress: 0, message: undefined });
+      if (wasHand && camera && this.running) { this.restarts = 0; void this.openCamera(this.gen); }
+      return;
+    }
     this.arming.disarm(this.state.x, this.state.y, performance.now());
-    this.emit({ resting, progress: 0 });
+    if (byHand) {
+      this.handRest = true;
+      if (this.retryTimer) clearTimeout(this.retryTimer);
+      if (this.recenterTimer) { clearInterval(this.recenterTimer); this.recenterTimer = undefined; }
+      if (camera) this.releaseCamera();
+      this.emit({ resting: true, pausedByHand: true, visible: false, progress: 0, countdown: undefined,
+        ...(camera ? { status: 'idle' as const, lost: false, canRestart: false, message: undefined } : {}) });
+    } else {
+      this.emit({ resting: true, pausedByHand: false, progress: 0 });
+    }
   }
 
   private onMouse = (e: PointerEvent) => {
@@ -366,7 +398,7 @@ export class PointerEngine {
       tx = innerWidth / 2 - (n.x - this.center.x) * gain * innerWidth;
       ty = innerHeight / 2 + (n.y - this.center.y) * gain * innerHeight * 1.3;
     } else {
-      const f = gazeFeatures(lm);
+      const f = gazeFeatures(lm, res.faceBlendshapes?.[0]?.categories);
       this.lastFeatures = f;
       this.featureFrame++;
       const c = this.opts.calibration;
@@ -394,7 +426,7 @@ export class PointerEngine {
       const closed = score('eyeBlinkLeft') > 0.55 && score('eyeBlinkRight') > 0.55;
       if (closed) {
         if (!this.blinkSince) this.blinkSince = now;
-        else if (now - this.blinkSince > 500 && this.target) {
+        else if (now - this.blinkSince > 500 && this.target && !this.state.resting) {
           this.fire(this.target);
           this.blinkSince = Number.POSITIVE_INFINITY; // wait for eyes to open
         }
@@ -405,6 +437,12 @@ export class PointerEngine {
   private dwell() {
     const now = performance.now();
     const camera = this.opts.mode !== 'dwell';
+    // Paused by hand: nothing dwells at all until Resume is tapped.
+    if (this.handRest) {
+      this.setTarget(null);
+      if (this.state.progress || this.state.visible) this.emit({ progress: 0, visible: false });
+      return;
+    }
     // Face lost (or camera not running): nothing dwells, the cursor stays frozen where it was.
     if (camera && this.state.status !== 'tracking') {
       this.setTarget(null);
@@ -437,7 +475,8 @@ export class PointerEngine {
     const armedNow = this.arming.armed;
     if (this.target && this.target !== this.lastFired && this.arming.check(x, y, now)) {
       if (!armedNow) this.enteredAt = now; // the dwell starts once armed
-      progress = Math.min(1, (now - this.enteredAt) / Math.max(200, this.opts.dwellMs));
+      const need = resting ? restDwellMs(this.opts.dwellMs) : Math.max(200, this.opts.dwellMs);
+      progress = Math.min(1, (now - this.enteredAt) / need);
       if (progress >= 1) {
         this.fire(this.target);
         progress = 0;
@@ -478,79 +517,146 @@ async function createLandmarker() {
   return make('GPU').catch(() => make('CPU'));
 }
 
-/** Gaze features: [1, irisX, irisY, noseX, noseY] — iris relative to its eye box. */
-export function gazeFeatures(lm: { x: number; y: number }[]): number[] {
+type Blend = { categoryName: string; score: number }[] | undefined;
+
+/**
+ * Gaze features (index → meaning):
+ *  0: 1 (intercept), 1: iris x in its eye box, 2: iris y in its eye box, 3: nose x, 4: nose y,
+ *  5: eye openness (the upper lid follows the eyes down), 6: horizontal and 7: vertical gaze from the
+ *  face model's eye-look scores. Old 5-weight calibrations still work: `dot` uses only their weights.
+ */
+export function gazeFeatures(lm: { x: number; y: number }[], blend?: Blend): number[] {
   const rel = (iris: number, a: number, b: number, top: number, bottom: number) => {
     const minX = Math.min(lm[a].x, lm[b].x);
     const w = Math.abs(lm[a].x - lm[b].x) || 1e-6;
     const h = Math.abs(lm[bottom].y - lm[top].y) || 1e-6;
-    return [(lm[iris].x - minX) / w, (lm[iris].y - lm[top].y) / h];
+    return [(lm[iris].x - minX) / w, (lm[iris].y - lm[top].y) / h, h / w];
   };
   const r = rel(L.rIrisC, L.rOuter, L.rInner, L.rTop, L.rBottom);
   const l = rel(L.lIrisC, L.lInner, L.lOuter, L.lTop, L.lBottom);
-  return [1, (r[0] + l[0]) / 2, (r[1] + l[1]) / 2, lm[L.nose].x, lm[L.nose].y];
+  const b = (name: string) => blend?.find((c) => c.categoryName === name)?.score ?? 0;
+  // Right/up positive in the person's view; the regression learns the screen mapping either way.
+  const lookH = (b('eyeLookOutRight') + b('eyeLookInLeft') - b('eyeLookInRight') - b('eyeLookOutLeft')) / 2;
+  const lookV = (b('eyeLookUpLeft') + b('eyeLookUpRight') - b('eyeLookDownLeft') - b('eyeLookDownRight')) / 2;
+  return [1, (r[0] + l[0]) / 2, (r[1] + l[1]) / 2, lm[L.nose].x, lm[L.nose].y, (r[2] + l[2]) / 2, lookH, lookV];
 }
 
 const dot = (w: number[], f: number[]) => w.reduce((s, wi, i) => s + wi * (f[i] ?? 0), 0);
 
-/** Least-squares fit (ridge-regularised) of features → screen coordinate. */
-export function fitCalibration(samples: { f: number[]; x: number; y: number }[]): number[][] | null {
+/** Features each axis uses: few enough to fit nine dots without over-fitting. */
+const X_FEATURES = [1, 3, 6];
+const Y_FEATURES = [2, 4, 5, 7];
+
+type Sample = { f: number[]; x: number; y: number };
+
+/** Groups samples by the dot they were recorded at. */
+function byDot(samples: Sample[]) {
+  const dots = new Map<string, Sample[]>();
+  for (const s of samples) {
+    const k = `${Math.round(s.x)},${Math.round(s.y)}`;
+    dots.set(k, [...(dots.get(k) ?? []), s]);
+  }
+  return [...dots.values()];
+}
+
+/** Robust average of each feature over one dot's samples (trimmed mean: blinks and glitches drop out). */
+function dotMean(samples: Sample[]): Sample {
+  const n = Math.max(...samples.map((s) => s.f.length));
+  const f = Array.from({ length: n }, (_, i) => {
+    const v = samples.map((s) => s.f[i] ?? 0).sort((a, b) => a - b);
+    const cut = Math.floor(v.length * 0.2);
+    const kept = v.length > 4 ? v.slice(cut, v.length - cut) : v;
+    return kept.reduce((a, x) => a + x, 0) / kept.length;
+  });
+  return { f, x: samples[0].x, y: samples[0].y };
+}
+
+/**
+ * Fits features → screen coordinates. Each dot's samples are averaged first (webcam features are
+ * noisy, and fitting raw samples pulls every prediction toward the middle), then each axis gets a
+ * small ridge regression on standardised features.
+ */
+export function fitCalibration(samples: Sample[]): number[][] | null {
   if (samples.length < 6) return null;
-  const n = samples[0].f.length;
-  const solve = (key: 'x' | 'y') => {
-    // Normal equations: (XᵀX + λI) w = Xᵀy
-    const A = Array.from({ length: n }, () => Array(n).fill(0));
-    const b = Array(n).fill(0);
-    for (const s of samples) {
-      for (let i = 0; i < n; i++) {
-        b[i] += s.f[i] * s[key];
-        for (let j = 0; j < n; j++) A[i][j] += s.f[i] * s.f[j];
+  const pts = byDot(samples).map(dotMean);
+  if (pts.length < 5) return null;
+  const n = Math.max(...pts.map((p) => p.f.length));
+  const solve = (key: 'x' | 'y', want: number[]) => {
+    // Standardise the chosen features that actually vary.
+    const idx = want.filter((i) => i < n).filter((i) => {
+      const v = pts.map((p) => p.f[i] ?? 0);
+      return Math.max(...v) - Math.min(...v) > 1e-9;
+    });
+    const mean = idx.map((i) => pts.reduce((a, p) => a + (p.f[i] ?? 0), 0) / pts.length);
+    const sd = idx.map((i, j) => Math.sqrt(pts.reduce((a, p) => a + ((p.f[i] ?? 0) - mean[j]) ** 2, 0) / pts.length) || 1);
+    const ty = pts.map((p) => p[key]);
+    const my = ty.reduce((a, v) => a + v, 0) / ty.length;
+    const m = idx.length;
+    const A = Array.from({ length: m }, () => Array(m).fill(0));
+    const b = Array(m).fill(0);
+    pts.forEach((p, r) => {
+      const z = idx.map((i, j) => ((p.f[i] ?? 0) - mean[j]) / sd[j]);
+      for (let i = 0; i < m; i++) {
+        b[i] += z[i] * (ty[r] - my);
+        for (let j = 0; j < m; j++) A[i][j] += z[i] * z[j];
       }
-    }
-    for (let i = 1; i < n; i++) A[i][i] += 1e-4;
-    return gauss(A, b);
+    });
+    const lambda = 1e-4 * pts.length;
+    for (let i = 0; i < m; i++) A[i][i] += lambda;
+    const ws = m ? gauss(A, b) : [];
+    if (!ws) return null;
+    // Back to raw feature weights: w_i = ws_i / sd_i, intercept absorbs the means.
+    const w = Array(n).fill(0);
+    let c = my;
+    idx.forEach((i, j) => { w[i] = ws[j] / sd[j]; c -= w[i] * mean[j]; });
+    w[0] = c;
+    return w;
   };
-  const wx = solve('x');
-  const wy = solve('y');
+  const wx = solve('x', X_FEATURES);
+  const wy = solve('y', Y_FEATURES);
   return wx && wy && [...wx, ...wy].every(Number.isFinite) ? [wx, wy] : null;
 }
 
 /**
- * Is a calibration good enough to use? Rejects fits from too few dots, fits
- * whose error is a large part of the screen, and fits that squash every dot
- * into one area (a "garbage" fit from a face that was mostly lost).
+ * Is a calibration usable? It must have enough dots with a face seen, its dots must be told apart
+ * (the eyes must move between dots much more than they wobble at one dot), it must spread across
+ * the screen like the dots do, and its error must be a reasonable part of the screen.
+ * Webcam gaze is approximate, so "rough" calibrations are accepted with a hint.
  */
 export function checkCalibration(
-  samples: { f: number[]; x: number; y: number }[],
+  samples: Sample[],
   cal: number[][] | null,
   w: number,
   h: number,
-): { ok: boolean; error: number; reason?: 'few-points' | 'inaccurate' | 'collapsed' } {
+): { ok: boolean; error: number; quality?: 'good' | 'rough'; reason?: 'few-points' | 'inaccurate' | 'collapsed' | 'noisy' } {
   if (!cal) return { ok: false, error: Infinity, reason: 'few-points' };
-  const points = new Map<string, { f: number[]; x: number; y: number }[]>();
-  for (const s of samples) {
-    const k = `${Math.round(s.x)},${Math.round(s.y)}`;
-    points.set(k, [...(points.get(k) ?? []), s]);
-  }
-  const used = [...points.values()].filter((p) => p.length >= 3);
-  if (used.length < 6) return { ok: false, error: Infinity, reason: 'few-points' };
-  let se = 0;
-  for (const s of samples) {
-    const dx = dot(cal[0], s.f) - s.x;
-    const dy = dot(cal[1], s.f) - s.y;
-    se += dx * dx + dy * dy;
-  }
-  const error = Math.sqrt(se / samples.length);
-  if (!Number.isFinite(error) || error > 0.25 * Math.min(w, h)) return { ok: false, error, reason: 'inaccurate' };
-  // Each dot's average prediction must spread across the screen like the dots do.
+  const used = byDot(samples).filter((p) => p.length >= 3);
+  if (used.length < 5) return { ok: false, error: Infinity, reason: 'few-points' };
+  const pred = (s: Sample) => ({ x: dot(cal[0], s.f), y: dot(cal[1], s.f) });
+  // Between-dot spread vs within-dot wobble of the predictions (an F-like ratio, per axis).
   const means = used.map((p) => {
-    const mx = p.reduce((a, s) => a + dot(cal[0], s.f), 0) / p.length;
-    const my = p.reduce((a, s) => a + dot(cal[1], s.f), 0) / p.length;
-    return { mx, my };
+    const ps = p.map(pred);
+    const mx = ps.reduce((a, q) => a + q.x, 0) / ps.length;
+    const my = ps.reduce((a, q) => a + q.y, 0) / ps.length;
+    const wx = ps.reduce((a, q) => a + (q.x - mx) ** 2, 0) / Math.max(1, ps.length - 1);
+    const wy = ps.reduce((a, q) => a + (q.y - my) ** 2, 0) / Math.max(1, ps.length - 1);
+    return { mx, my, wx, wy, k: ps.length, tx: p[0].x, ty: p[0].y };
   });
+  const varOf = (v: number[]) => { const m = v.reduce((a, x) => a + x, 0) / v.length; return v.reduce((a, x) => a + (x - m) ** 2, 0) / Math.max(1, v.length - 1); };
+  const ratio = (between: number[], within: number[], ks: number[]) => {
+    const noise = within.reduce((a, v, i) => a + v / ks[i], 0) / within.length; // variance of a dot's mean
+    return varOf(between) / Math.max(noise, 1e-9);
+  };
+  const fx = ratio(means.map((m) => m.mx), means.map((m) => m.wx), means.map((m) => m.k));
+  const fy = ratio(means.map((m) => m.my), means.map((m) => m.wy), means.map((m) => m.k));
+  const error = Math.sqrt(means.reduce((a, m) => a + (m.mx - m.tx) ** 2 + (m.my - m.ty) ** 2, 0) / means.length);
+  if (!Number.isFinite(error)) return { ok: false, error, reason: 'inaccurate' };
+  if (fx < 8 || fy < 8) return { ok: false, error, reason: 'noisy' };
   const spread = (v: number[]) => Math.max(...v) - Math.min(...v);
-  if (spread(means.map((m) => m.mx)) < 0.35 * w || spread(means.map((m) => m.my)) < 0.35 * h) return { ok: false, error, reason: 'collapsed' };
-  return { ok: true, error };
+  if (spread(means.map((m) => m.mx)) < 0.25 * w || spread(means.map((m) => m.my)) < 0.25 * h) return { ok: false, error, reason: 'collapsed' };
+  const diag = Math.hypot(w, h);
+  if (error > 0.2 * diag) return { ok: false, error, reason: 'inaccurate' };
+  return { ok: true, error, quality: error > 0.1 * diag ? 'rough' : 'good' };
 }
 
 function gauss(A: number[][], b: number[]): number[] | null {

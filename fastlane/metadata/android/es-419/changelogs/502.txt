@@ -1,0 +1,1 @@
+Mirada: la calibración con la cámara ahora funciona con cámaras y teléfonos comunes, y te dice qué cambiar si no funciona. Pausa: tocar Pausa ahora detiene todo y apaga la cámara hasta que tocas Seguir; para salir de la pausa sin manos hay que mirar Seguir unos segundos.
