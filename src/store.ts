@@ -66,6 +66,8 @@ interface UIState {
   loadProblem: LoadProblem | null;
   /** Open tool on the Tools screen. */
   tool: string | null;
+  /** Open phrase group on the Phrases screen (null: the folder cards). */
+  phraseGroup: string | null;
   /** A partner is modelling: taps are tagged in the log and don't train prediction. */
   modeling: boolean;
 }
@@ -136,6 +138,7 @@ interface Actions {
   /** Change the app-wide settings lock (method, PIN, notice). */
   setLock: (patch: Partial<GrownUpLock>) => void;
   setTool: (t: string | null) => void;
+  setPhraseGroup: (g: string | null) => void;
   setModeling: (v: boolean) => void;
   /** The visual timer keeps running when you leave the Timer tool. */
   setTimer: (t: Partial<UIState['timer']>) => void;
@@ -467,7 +470,8 @@ export const useStore = create<Store>((set, get) => ({
 
   setScreen(screen) {
     // Phrase/schedule/About-me editing is switched on per visit, so a plain tap speaks again after leaving.
-    set({ screen, formsFor: null, contentEdit: false });
+    // Phrases always opens on its folder cards (a predictable starting point).
+    set({ screen, formsFor: null, contentEdit: false, phraseGroup: null });
   },
 
   updateProfile(fn, opts = {}) {
@@ -865,6 +869,10 @@ export const useStore = create<Store>((set, get) => ({
   tool: null,
   setTool(tool) {
     set({ tool, contentEdit: false });
+  },
+  phraseGroup: null,
+  setPhraseGroup(phraseGroup) {
+    set({ phraseGroup });
   },
   modeling: false,
   setModeling(modeling) {

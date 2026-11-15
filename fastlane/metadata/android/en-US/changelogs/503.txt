@@ -1,0 +1,1 @@
+Phrases now open on folder cards with pictures (Recent, Needs, Feelings, Boundaries, Chat, Questions, Emergency and your own groups). Tap a folder to see its phrases; Back returns to the folders.

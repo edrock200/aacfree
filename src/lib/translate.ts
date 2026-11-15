@@ -248,3 +248,13 @@ export function secondWord(b: AACButton, comm: Lang, second: Lang): string | und
     : wordIn(en, second);
   return out && out.toLowerCase() !== b.label.toLowerCase() ? out : undefined;
 }
+
+/** English name of a phrase group in any language ("Necesidades" → "Needs"); custom groups keep their own name. */
+export function phraseGroupKey(name: string): string {
+  for (const id of Object.keys(PACKS) as Lang[]) {
+    const m = PACKS[id].vocab?.phraseCategories;
+    if (!m) continue;
+    for (const [en, local] of Object.entries(m)) if (local === name) return en;
+  }
+  return name;
+}
