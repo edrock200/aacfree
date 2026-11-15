@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.3 — 2026-11-15
+- **Phrases open on folder cards.** Recent, Needs, Feelings, Boundaries, Chat, Questions, Emergency and the family's own groups are shown as folder cards with a picture and the number of phrases inside, in a fixed order. Tapping a card opens its phrases, and a Back button (or Android Back) returns to the folders.
+  - Built-in groups keep their pictures in every language. A family's own group shows the picture of its first phrase that has one, or a folder.
+  - Phrases always opens on the folders, so it starts from the same place every time. Editing (the Edit phrases pencil, + Group, add or delete phrases) works as before, inside the folders.
+  - The cards work with scanning, dwell, and hold and debounce settings.
+
 ## 0.5.2 — 2026-11-14
 Eye-gaze fixes.
 - **Camera calibration works again.** The quality check added in 0.5 rejected almost every real webcam calibration, especially on phones held upright. Calibration now:

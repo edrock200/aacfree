@@ -46,7 +46,16 @@ await page.click('.quickbar .cell[aria-label="stop"]');
 check((await msgText()).endsWith('stop'), 'quick bar adds word');
 await page.click('.speakbtn');
 await page.click('.navbtn[aria-label="Phrases"]');
-await page.click('.tab:has-text("Recent")');
+{
+  const folders = await page.$$eval('.phrase-folder', (els) => els.map((e) => ({ name: e.querySelector('b')?.textContent, pic: !!e.querySelector('.sym') })));
+  check(folders.length >= 7 && folders[0].name === 'Recent' && folders.some((f) => f.name === 'Needs') && folders.every((f) => f.pic),
+    `Phrases opens on folder cards with pictures (${folders.map((f) => f.name).join(', ')})`);
+  await page.click('.phrase-folder:has-text("Needs")');
+  check((await page.$$('.phrase-grid .phrase')).length > 0 && (await page.textContent('.phrases-head h2')) === 'Needs', 'a folder card opens the phrases inside it');
+  await page.click('.phrases-head button:has-text("Phrases")');
+  check((await page.$$('.phrase-folder')).length === folders.length, 'Back returns to the folder cards');
+}
+await page.click('.phrase-folder:has-text("Recent")');
 check(await page.isVisible('.phrase:has-text("I want stop")'), 'spoken sentence appears in Recent');
 await page.click('.nav-home');
 
@@ -385,12 +394,13 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.click('.quick-edits button:has-text("Edit phrases")');
   await page.waitForSelector('.phrases-screen');
   check(await page.isVisible('.unlocked-banner'), 'an "Editing unlocked" bar shows outside Grown-ups');
+  await page.locator('.phrase-folder').nth(1).click(); // the first group after Recent
   check(await page.isVisible('.phrase-grid .phrase-edit'), 'the Grown-ups shortcut opens Phrases with editing on');
-  await page.click('.tab:has-text("Done editing")');
+  await page.click('.phrases-head button:has-text("Done editing")');
   await page.locator('.phrase-grid .phrase').first().click();
   await page.waitForTimeout(300);
   check(!(await page.isVisible('.modal')), 'a phrase tap speaks (no editor) while Grown-ups is unlocked');
-  await page.click('.tab:has-text("Edit phrases")');
+  await page.click('.phrases-head button:has-text("Edit phrases")');
   await page.locator('.phrase-grid .phrase').first().click();
   check(await page.isVisible('.modal textarea'), 'with the pencil on, a tap opens the phrase editor');
   await page.fill('.modal textarea', 'changed but not saved');
@@ -408,7 +418,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.locator('.quickbar .cell').nth(1).click();
   await speak();
   await page.click('.navbtn[aria-label="Phrases"]');
-  await page.click('.tab:has-text("Recent")');
+  await page.click('.phrase-folder:has-text("Recent")');
   const rows = () => page.locator('.recent-row').count();
   const n = await rows();
   await page.locator('.recent-row button[aria-label="Delete this sentence"]').first().click();
@@ -422,7 +432,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await page.locator('.quickbar .cell').nth(2).click();
   await speak();
   await page.click('.navbtn[aria-label="Phrases"]');
-  await page.click('.tab:has-text("Recent")');
+  await page.click('.phrase-folder:has-text("Recent")');
   check((await rows()) === 0, '"Private for now" keeps nothing in Recent');
   await page.click('.recent-tools button:has-text("Private for now")');
 
@@ -600,7 +610,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   check(afterReload.includes('zoom') && JSON.stringify(afterReload) === JSON.stringify(beforeReload), 'edits survive a page reload');
   check(!(await page.isVisible('.save-error')), 'no load or save problem after a reload');
   await page.click('.navbtn[aria-label="Phrases"]');
-  await page.click('.tab:has-text("Recent")');
+  await page.click('.phrase-folder:has-text("Recent")');
   check(await page.isVisible('.phrase:has-text("zoom")'), 'recent sentences survive a reload');
   await page.click('.nav-home');
   // A second window sees the same data.

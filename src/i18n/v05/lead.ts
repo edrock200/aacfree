@@ -1,6 +1,8 @@
 /** v0.5 UI strings added while merging the work streams (English source → translation). */
 export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   es: {
+    "Recent": "Recientes",
+    "{name} folder, {n} phrases": "Carpeta {name}, {n} frases",
     'All': 'Todas',
     '{n} folder(s) are not linked from any board. Find them in Settings → Boards & words.': '{n} carpeta(s) no están enlazadas desde ningún tablero. Las encuentras en Ajustes → Tableros y palabras.',
     'Delete “{name}”?': '¿Eliminar “{name}”?',
@@ -13,6 +15,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Then…': 'Después…',
   },
   fr: {
+    "Recent": "Récentes",
+    "{name} folder, {n} phrases": "Dossier {name}, {n} phrases",
     'All': 'Tous',
     '{n} folder(s) are not linked from any board. Find them in Settings → Boards & words.': '{n} dossier(s) ne sont reliés à aucun tableau. Tu les trouveras dans Paramètres → Tableaux et mots.',
     'Delete “{name}”?': 'Supprimer « {name} » ?',
@@ -25,6 +29,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Then…': 'Ensuite…',
   },
   pt: {
+    "Recent": "Recentes",
+    "{name} folder, {n} phrases": "Pasta {name}, {n} frases",
     'All': 'Todas',
     '{n} folder(s) are not linked from any board. Find them in Settings → Boards & words.': '{n} pasta(s) não estão ligadas a nenhuma prancha. Encontre-as em Configurações → Pranchas e palavras.',
     'Delete “{name}”?': 'Apagar “{name}”?',

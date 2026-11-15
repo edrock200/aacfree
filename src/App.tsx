@@ -65,6 +65,7 @@ function Main() {
   const boardStack = useStore((st) => st.boardStack);
   const editMode = useStore((st) => st.editMode);
   const bigText = useStore((st) => st.bigText);
+  const phraseGroup = useStore((st) => st.phraseGroup);
   const { back, setScreen, updateProfile, setBigText } = useStore.getState();
   const [finding, setFinding] = useState(false);
   const [qbEdit, setQbEdit] = useState<{ index: number; button: AACButton | null } | null>(null);
@@ -168,13 +169,15 @@ function Main() {
       if (st.formsFor) return st.setFormsFor(null);
       // Inside a tool, Back returns to the Tools menu first.
       if (st.screen === 'tools' && st.tool) return st.setTool(null);
+      // Inside a phrase group, Back returns to the phrase folders first.
+      if (st.screen === 'phrases' && st.phraseGroup) return st.setPhraseGroup(null);
       if (st.screen !== 'talk') return setScreen('talk');
       if (st.boardStack.length > 1) return back();
     });
     return () => { h.then((x) => x.remove()); };
   }, [back, setScreen]);
 
-  useScanner(s, s.scanning && screen !== 'grownup' && !editMode, `${screen}-${boardStack.join('/')}-${!!formsFor}-${finding}-${!!bigText}`);
+  useScanner(s, s.scanning && screen !== 'grownup' && !editMode, `${screen}-${boardStack.join('/')}-${!!formsFor}-${finding}-${!!bigText}-${phraseGroup ?? ''}`);
 
 
   return (

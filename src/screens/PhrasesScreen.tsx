@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStore, useProfile, recentId } from '../store';
 import { Symbol } from '../components/Symbol';
 import { usePress } from '../lib/usePress';
-import { IconPlus, IconStar, IconTrash, IconEdit, IconCheck, IconEyeOff } from '../components/Icons';
+import { IconPlus, IconStar, IconTrash, IconEdit, IconCheck, IconEyeOff, IconBack } from '../components/Icons';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SymbolPicker } from '../components/SymbolPicker';
@@ -10,6 +10,8 @@ import { AudioRecorder } from '../components/AudioRecorder';
 import { PersonButton } from './talkControls';
 import { addSnapshot } from '../lib/db';
 import { uid } from '../lib/util';
+import { symbolFor } from '../data/defaults';
+import { phraseGroupKey } from '../lib/translate';
 import type { Phrase, Settings } from '../types';
 import { t } from '../i18n';
 
@@ -24,6 +26,29 @@ function PhraseButton({ phrase, s, onPress, onEdit, edit }: { phrase: Phrase; s:
   );
 }
 
+/** Pictures for the built-in groups (by English name). Custom groups use their first phrase picture. */
+const GROUP_ICONS: Record<string, string> = {
+  Recent: 'clock', Favorites: 'favourite', Needs: 'need', Feelings: 'feelings', Boundaries: 'stop',
+  Chat: 'hello', Questions: 'question', Emergency: 'help',
+};
+
+function groupIcon(group: string, phrases: Phrase[]): string {
+  const kw = GROUP_ICONS[phraseGroupKey(group)];
+  return (kw && symbolFor(kw)) || phrases.find((x) => x.category === group && x.symbol)?.symbol || 'e:📁';
+}
+
+/** A phrase group shown as a folder card with its picture; opening it shows the phrases inside. */
+function GroupFolder({ label, icon, count, s, onOpen }: { label: string; icon: string; count: number; s: Settings; onOpen: () => void }) {
+  return (
+    <PersonButton s={s} className="phrase-folder" label={t('{name} folder, {n} phrases', { name: label, n: count })} onPress={onOpen}>
+      <span className="phrase-folder-tab" aria-hidden />
+      <Symbol value={icon} />
+      <b>{label}</b>
+      <small>{count}</small>
+    </PersonButton>
+  );
+}
+
 export function PhrasesScreen() {
   const p = useProfile();
   const s = p.settings;
@@ -32,13 +57,17 @@ export function PhrasesScreen() {
   const isPrivate = useStore((st) => st.privateMode);
   const { speakText, updateProfile, addText, setContentEdit, clearRecent, deleteRecent, setPrivate, showToast } = useStore.getState();
   const cats = ['Recent', ...p.phraseCategories];
-  const [cat, setCat] = useState(() => (p.phraseCategories.includes('Favorites') ? 'Favorites' : p.phraseCategories[0] ?? 'Recent'));
+  // The open group lives in the store, so Android Back returns to the folder cards.
+  const openGroup = useStore((st) => st.phraseGroup);
+  const setCat = useStore.getState().setPhraseGroup;
+  const cat = openGroup && cats.includes(openGroup) ? openGroup : null;
   const [editing, setEditing] = useState<Phrase | null>(null);
   const [newCat, setNewCat] = useState(false);
   // A plain tap always speaks. Editing needs Settings unlocked AND the pencil switched on.
   const edit = unlocked && contentEdit;
 
-  const list = p.phrases.filter((x) => x.category === cat);
+  const list = cat ? p.phrases.filter((x) => x.category === cat) : [];
+  const label = (c: string) => (c === 'Recent' ? t('Recent') : c);
 
   const save = (ph: Phrase) => {
     updateProfile((pp) => {
@@ -66,18 +95,39 @@ export function PhrasesScreen() {
 
   return (
     <div className="phrases-screen">
-      <div className="tabs scroll" data-scan-group>
-        {cats.map((c) => (
-          <PersonButton key={c} s={s} className={`tab ${cat === c ? 'active' : ''}`} onPress={() => setCat(c)}>{c}</PersonButton>
-        ))}
-        {edit && <button className="tab add" onClick={() => setNewCat(true)}><IconPlus size={18} /> {t('Group')}</button>}
-        {unlocked && (
-          <button className={`tab ${edit ? 'active' : ''}`} aria-pressed={edit} onClick={() => setContentEdit(!edit)}>
-            {edit ? <><IconCheck size={18} /> {t('Done editing')}</> : <><IconEdit size={18} /> {t('Edit phrases')}</>}
-          </button>
-        )}
-      </div>
-      {cat === 'Recent' ? (
+      {cat === null ? (
+        <>
+          {unlocked && (
+            <div className="phrases-tools row" data-scan-group>
+              {edit && <button className="btn small" onClick={() => setNewCat(true)}><IconPlus size={18} /> {t('Group')}</button>}
+              <button className={`btn small ${edit ? 'primary' : ''}`} aria-pressed={edit} onClick={() => setContentEdit(!edit)}>
+                {edit ? <><IconCheck size={18} /> {t('Done editing')}</> : <><IconEdit size={18} /> {t('Edit phrases')}</>}
+              </button>
+            </div>
+          )}
+          {/* Folder cards keep a fixed order (Recent first, then the groups as arranged), so they can be learned by position. */}
+          <div className="phrase-folders" data-scan-group>
+            {cats.map((c) => (
+              <GroupFolder key={c} label={label(c)} s={s} onOpen={() => setCat(c)}
+                icon={groupIcon(c, p.phrases)}
+                count={c === 'Recent' ? Math.min(50, p.history.length) : p.phrases.filter((x) => x.category === c).length} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="phrases-head" data-scan-group>
+          <PersonButton s={s} className="btn" onPress={() => setCat(null)}><IconBack /> {t('Phrases')}</PersonButton>
+          <Symbol value={groupIcon(cat, p.phrases)} className="phrases-head-sym" />
+          <h2>{label(cat)}</h2>
+          <span className="spacer" />
+          {unlocked && (
+            <button className={`btn small ${edit ? 'primary' : ''}`} aria-pressed={edit} onClick={() => setContentEdit(!edit)}>
+              {edit ? <><IconCheck size={18} /> {t('Done editing')}</> : <><IconEdit size={18} /> {t('Edit phrases')}</>}
+            </button>
+          )}
+        </div>
+      )}
+      {cat === null ? null : cat === 'Recent' ? (
         <>
           <div className="recent-tools row" data-scan-group>
             <PersonButton s={s} className={`btn small ${isPrivate ? 'primary' : ''}`} pressed={isPrivate} onPress={() => setPrivate(!isPrivate)}>
@@ -115,7 +165,7 @@ export function PhrasesScreen() {
               onPress={() => speakText(ph.text, { audio: ph.audio, log: 'phrase', stoppable: true })} />
           ))}
           {edit && (
-            <button className="phrase add" onClick={() => setEditing({ id: uid('ph'), text: '', category: cat })}>
+            <button className="phrase add" onClick={() => setEditing({ id: uid('ph'), text: '', category: cat! })}>
               <IconPlus /> <span>{t('Add phrase')}</span>
             </button>
           )}
@@ -129,11 +179,11 @@ export function PhrasesScreen() {
         setCat(name);
         setNewCat(false);
       }} />}
-      {edit && cat !== 'Recent' && list.length === 0 && p.phraseCategories.includes(cat) && (
+      {edit && cat && cat !== 'Recent' && list.length === 0 && p.phraseCategories.includes(cat) && (
         <div className="row-center">
           <button className="btn danger-outline" onClick={() => {
             updateProfile((pp) => { pp.phraseCategories = pp.phraseCategories.filter((c) => c !== cat); });
-            setCat('Recent');
+            setCat(null);
           }}><IconTrash /> {t('Remove empty group “{name}”', { name: cat })}</button>
         </div>
       )}
