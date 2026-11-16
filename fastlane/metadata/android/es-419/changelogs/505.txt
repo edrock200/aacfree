@@ -1,0 +1,1 @@
+Deslizar en Ajustes ahora desplaza solo los ajustes, no toda la pantalla ni la barra de abajo. Los controles deslizantes de los ajustes solo cambian al tocar Guardar, así que no se modifican por accidente al desplazarte.

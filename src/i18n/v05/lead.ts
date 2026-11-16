@@ -2,6 +2,8 @@
 export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   es: {
     'More': 'Más',
+    'Unsaved change': 'Cambio sin guardar',
+    'Was {v}': 'Antes: {v}',
     "Recent": "Recientes",
     "{name} folder, {n} phrases": "Carpeta {name}, {n} frases",
     'All': 'Todas',
@@ -17,6 +19,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   },
   fr: {
     'More': 'Plus',
+    'Unsaved change': 'Modification non enregistrée',
+    'Was {v}': 'Avant : {v}',
     "Recent": "Récentes",
     "{name} folder, {n} phrases": "Dossier {name}, {n} phrases",
     'All': 'Tous',
@@ -32,6 +36,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   },
   pt: {
     'More': 'Mais',
+    'Unsaved change': 'Alteração não salva',
+    'Was {v}': 'Antes: {v}',
     "Recent": "Recentes",
     "{name} folder, {n} phrases": "Pasta {name}, {n} frases",
     'All': 'Todas',
