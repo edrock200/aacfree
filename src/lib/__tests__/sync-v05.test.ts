@@ -560,7 +560,9 @@ describe('passcodes (defect 31)', () => {
   it('gives a strength hint for typed passcodes', () => {
     expect(passcodeStrength('abc').level).toBe('short');
     expect(passcodeStrength('aaaaaaaa').level).toBe('weak');
-    expect(passcodeStrength(suggestPasscode()).level).toBe('strong');
+    // Every suggested passcode is rated strong (it used to fail now and then for all-letter codes).
+    for (let i = 0; i < 500; i++) expect(passcodeStrength(suggestPasscode()).level).toBe('strong');
+    expect(passcodeStrength('ABCD-EFGH-JKMN').level).toBe('strong');
     expect(passcodeStrength('Tiger lemon 41 piano!').level).toBe('strong');
   });
 });
