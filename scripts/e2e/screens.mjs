@@ -19,7 +19,7 @@ const shot = (page, n) => page.screenshot({ path: `${out}/${n}.png` });
 await run('tablet', { width: 1180, height: 820 }, async (page) => {
   await page.waitForSelector('.onboarding');
   await shot(page, '01-onboarding');
-  await page.fill('input', 'Caleb');
+  await page.fill('input', 'AACFree');
   await page.click('text=Next');
   await page.click('.layout-card:has-text("Full core")');
   await shot(page, '02-layouts');

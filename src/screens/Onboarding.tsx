@@ -83,9 +83,9 @@ export function Onboarding() {
                 <button key={l.id} className={lang === l.id ? 'on' : ''} onClick={() => { setLangState(l.id); setPatch({}); }}>{l.name}</button>
               ))}
             </div>
-            <h1>{t('Welcome to Caleb')}</h1>
+            <h1>{t('Welcome to AACFree')}</h1>
             <p>{t('A free communication app (AAC) for autistic people and the people who love them. No ads, no accounts, and it works offline. Everything stays on this device.')}</p>
-            <label className="field"><span>{t('Who will use Caleb?')} <small>{t('(optional)')}</small></span>
+            <label className="field"><span>{t('Who will use AACFree?')} <small>{t('(optional)')}</small></span>
               <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('Name')} />
             </label>
             <div className="ob-actions">
@@ -172,7 +172,7 @@ export function Onboarding() {
             <ul className="ob-tips">
               <li>🗣️ <b>{t('Model it:')}</b> {t("tap words yourself as you talk. That's how AAC is learned.")}</li>
               <li>🔒 <b>{t('Talking is never locked.')}</b> {t('“No”, “stop”, “help” and “break” are always in the top bar.')}</li>
-              <li>💾 <b>{t('Back up')}</b> {t('from Settings → Backup. Caleb also keeps automatic snapshots.')}</li>
+              <li>💾 <b>{t('Back up')}</b> {t('from Settings → Backup. AACFree also keeps automatic snapshots.')}</li>
             </ul>
             <div className="ob-actions">
               <button className="btn" onClick={() => setStep(2)}>{t('Back')}</button>

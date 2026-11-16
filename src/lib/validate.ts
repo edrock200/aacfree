@@ -365,10 +365,10 @@ export function cleanProfileContent(p: Profile): Profile {
  * data the app can run on.
  */
 export function cleanData(input: unknown, version: number): AppData {
-  if (!isObj(input) || !Array.isArray(input.profiles)) throw new Error('This file has no Caleb profiles.');
+  if (!isObj(input) || !Array.isArray(input.profiles)) throw new Error('This file has no AACFree profiles.');
   const data = input as unknown as AppData;
   if (typeof data.version === 'number' && data.version > version) {
-    throw new Error('This file was made by a newer version of Caleb. Please update the app first.');
+    throw new Error('This file was made by a newer version of AACFree. Please update the app first.');
   }
   const profiles: Profile[] = [];
   const ids = new Set<string>();

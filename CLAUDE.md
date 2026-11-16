@@ -1,8 +1,16 @@
-# CLAUDE.md — Caleb AAC
+# CLAUDE.md — AACFree
 
-Caleb (AGPL-3.0-or-later) is a free, open-source **AAC (augmentative & alternative communication)** app for autistic
+AACFree (AGPL-3.0-or-later) is a free, open-source **AAC (augmentative & alternative communication)** app for autistic
 people and their families. It ships as a **web app / PWA** and an **Android APK** (Capacitor).
 Everything is offline-first and stored on the device. There is no server and no accounts.
+
+**Name:** the app was called Caleb until v0.7. Everything users see says **AACFree** (website: https://aacappfree.com). Internal identifiers keep the old name **on purpose**, because changing them would lose families' data or break updates:
+- the Android package id `org.calebaac.app` (and its signing key), and the plugin names `CalebFiles`/`CalebScreen`;
+- the IndexedDB database `caleb` and the `caleb:` localStorage keys;
+- the `app: 'caleb'` marker inside backup and sync files;
+- `release/caleb-latest.apk` and the repo name.
+
+New backup and sync files are named `aacfree-…` and automatic backups go to `Documents/AACFree`. Old `caleb-…` files and `Documents/Caleb` are still read. Releases publish both `aacfree.apk` and the legacy `caleb.apk` (same file), so old links and the Downloader code keep working.
 
 ## Stack
 - React 19, TypeScript, Vite 8 (`src/`), zustand store (`src/store.ts`), IndexedDB via `idb` (`src/lib/db.ts`)

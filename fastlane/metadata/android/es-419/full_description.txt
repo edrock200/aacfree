@@ -1,8 +1,8 @@
-Caleb es una app de CAA (comunicación aumentativa y alternativa) gratuita y de código abierto para personas autistas y para las familias, docentes y terapeutas que las acompañan. Toca botones con pictogramas y palabras para armar una oración, y Caleb la dice en voz alta.
+AACFree es una app de CAA (comunicación aumentativa y alternativa) gratuita y de código abierto para personas autistas y para las familias, docentes y terapeutas que las acompañan. Toca botones con pictogramas y palabras para armar una oración, y AACFree la dice en voz alta.
 
 En español, inglés, francés y portugués, con teclado con ñ y acentos y conjugación automática (yo + querer → quiero).
 
-Caleb se diseñó con lo que piden las personas autistas que usan CAA, sus familias y sus terapeutas: palabras que no cambian de lugar, "no" y "basta" siempre a mano, y privacidad.
+AACFree se diseñó con lo que piden las personas autistas que usan CAA, sus familias y sus terapeutas: palabras que no cambian de lugar, "no" y "basta" siempre a mano, y privacidad.
 
 GRATIS, PRIVADA Y SIN INTERNET
 • Gratis para siempre. Sin anuncios, sin suscripciones, sin compras dentro de la app.
@@ -32,12 +32,12 @@ PARA FAMILIAS, DOCENTES Y TERAPEUTAS
 • Comparte tableros con otras apps de CAA mediante Open Board Format (.obz).
 • Estadísticas de uso privadas y opcionales. Están desactivadas salvo que las actives, y nunca salen del dispositivo.
 • Varios perfiles en un dispositivo.
-• El botón Atrás nunca cierra la app, y Caleb funciona bien con la fijación de pantalla de Android.
+• El botón Atrás nunca cierra la app, y AACFree funciona bien con la fijación de pantalla de Android.
 
 CRÉDITOS
-Pictogramas de Sergio Palao. Origen: ARASAAC (arasaac.org), Gobierno de Aragón (España). Licencia: CC BY-NC-SA 4.0. Como los pictogramas son de uso no comercial, Caleb siempre será gratis.
+Pictogramas de Sergio Palao. Origen: ARASAAC (arasaac.org), Gobierno de Aragón (España). Licencia: CC BY-NC-SA 4.0. Como los pictogramas son de uso no comercial, AACFree siempre será gratis.
 Tipografía: Atkinson Hyperlegible, del Braille Institute.
 
-Caleb es una herramienta de comunicación, no un dispositivo médico. Elige y configura la CAA junto con un fonoaudiólogo o terapeuta de lenguaje.
+AACFree es una herramienta de comunicación, no un dispositivo médico. Elige y configura la CAA junto con un fonoaudiólogo o terapeuta de lenguaje.
 
 Código fuente, preguntas y sugerencias: github.com/edrock200/caleb

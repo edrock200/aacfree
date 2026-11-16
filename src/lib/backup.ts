@@ -69,15 +69,15 @@ export function isEncryptedBackup(text: string): boolean {
 /** Decrypt an encrypted backup to the plain backup JSON text. */
 export async function decryptBackup(text: string, passcode: string): Promise<string> {
   let f: EncryptedBackupFile;
-  try { f = JSON.parse(text) as EncryptedBackupFile; } catch { throw new Error('This file is damaged or is not a Caleb backup.'); }
+  try { f = JSON.parse(text) as EncryptedBackupFile; } catch { throw new Error('This file is damaged or is not a AACFree backup.'); }
   return new TextDecoder().decode(await unseal(f, passcode));
 }
 
 export async function readBackup(text: string): Promise<AppData> {
   let file: Partial<BackupFile>;
-  try { file = JSON.parse(text) as Partial<BackupFile>; } catch { throw new Error('This file is damaged or is not a Caleb backup.'); }
+  try { file = JSON.parse(text) as Partial<BackupFile>; } catch { throw new Error('This file is damaged or is not a AACFree backup.'); }
   if (!file || typeof file !== 'object' || file.app !== 'caleb' || !Array.isArray(file.data?.profiles) || !file.data.profiles.length) {
-    throw new Error('This is not a Caleb backup file.');
+    throw new Error('This is not a AACFree backup file.');
   }
   // Validate everything BEFORE writing any assets (throws on a bad or newer file).
   const data = migrate(structuredClone(file.data));
@@ -89,8 +89,8 @@ export async function readBackup(text: string): Promise<AppData> {
   return data;
 }
 
-export function backupFilename(name = 'caleb') {
+export function backupFilename(name = 'aacfree') {
   const d = new Date();
   const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  return `${name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'caleb'}-backup-${stamp}.caleb.json`;
+  return `${name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'aacfree'}-backup-${stamp}.json`;
 }

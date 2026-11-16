@@ -59,7 +59,7 @@ export function RecentSection() {
       <Choice label={t('Keep recent sentences')} value={s.keepRecent ?? 'on'} onChange={setKeep}
         options={[
           { value: 'on', label: t('Always') },
-          { value: 'session', label: t('Until Caleb restarts') },
+          { value: 'session', label: t('Until AACFree restarts') },
           { value: 'off', label: t("Don't keep") },
         ]} />
       <div className="row">
@@ -74,7 +74,7 @@ export function MyVoiceSettings() {
   const p = useProfile();
   const { updateSettings, setScreen, setTool } = useStore.getState();
   return (
-    <Section title={t('My voice (for the person)')} intro={t('Tools → My voice lets the person choose how loud and how fast Caleb speaks, or show messages in big letters instead of speaking. It is never locked. While a message is being spoken, the Speak button becomes Stop.')}>
+    <Section title={t('My voice (for the person)')} intro={t('Tools → My voice lets the person choose how loud and how fast AACFree speaks, or show messages in big letters instead of speaking. It is never locked. While a message is being spoken, the Speak button becomes Stop.')}>
       <Toggle label={t("Show, don't speak")} hint={t('Messages open in Big text instead of being spoken.')} checked={p.settings.showNotSpeak} onChange={(showNotSpeak) => updateSettings({ showNotSpeak })} />
       <div className="row">
         <button className="btn" onClick={() => { setScreen('tools'); setTool('myvoice'); }}><IconEdit size={18} /> {t('Open My voice')}</button>

@@ -1,8 +1,8 @@
 {
-  "name": "caleb-aac",
+  "name": "aacfree",
   "private": true,
-  "version": "0.6.0",
-  "description": "Caleb — a free, open-source AAC (augmentative & alternative communication) app for autistic people and their families.",
+  "version": "0.7.0",
+  "description": "AACFree — a free, open-source AAC (augmentative & alternative communication) app for autistic people and their families.",
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "scripts": {

@@ -2,7 +2,7 @@
 /**
  * Assembles the public website into dist-site/:
  *   /            landing page (site/)
- *   /app/        the Caleb web app / PWA (dist/)
+ *   /app/        the AACFree web app / PWA (dist/)
  *   /download/   the latest Android APK (release/caleb-latest.apk)
  * Run `npm run build` first (npm run build:site does both).
  */
@@ -19,6 +19,8 @@ await cp(join(root, 'dist'), join(out, 'app'), { recursive: true });
 try {
   await access(join(root, 'release/caleb-latest.apk'));
   await mkdir(join(out, 'download'), { recursive: true });
+  await cp(join(root, 'release/caleb-latest.apk'), join(out, 'download/aacfree.apk'));
+  // The former name stays available so existing links keep working.
   await cp(join(root, 'release/caleb-latest.apk'), join(out, 'download/caleb-latest.apk'));
 } catch { console.warn('No APK in release/ — download link will be broken'); }
 await writeFile(join(out, '.nojekyll'), '');

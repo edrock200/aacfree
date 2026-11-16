@@ -22,7 +22,7 @@ import { t, type Lang } from '../i18n';
 
 /**
  * "Import a board from a picture": a photo or screenshot of a board in another AAC app (or on
- * paper) becomes a Caleb board with the same grid and the same word in every position, so the
+ * paper) becomes a AACFree board with the same grid and the same word in every position, so the
  * person's motor plan carries over. Everything happens on this device: the grid is found by
  * src/lib/boardimport.ts and the words are read by on-device OCR (src/lib/ocr.ts, loaded only here).
  */
@@ -47,7 +47,7 @@ interface ImportCell {
   word: string;
   ink: number;
   type: WordType;
-  /** Caleb's own picture for the word (bundled ARASAAC / library). */
+  /** AACFree's own picture for the word (bundled ARASAAC / library). */
   symbol?: string;
   /** The family chose this picture themselves (a new word then keeps it). */
   symbolChosen?: boolean;
@@ -360,7 +360,7 @@ export function BoardImport({ parentBoardId, onClose, onCreated }: {
         {error && <p className="error">{error}</p>}
         {step === 'pick' && (
           <div className="bi-pick" data-scan-group>
-            <p>{t('Take a photo or a screenshot of a board in another AAC app, or of a paper board. Caleb finds the grid, reads each word and puts every word in the same place, so the person can keep using the same moves.')}</p>
+            <p>{t('Take a photo or a screenshot of a board in another AAC app, or of a paper board. AACFree finds the grid, reads each word and puts every word in the same place, so the person can keep using the same moves.')}</p>
             <p className="muted small">{t('The picture stays on this device. The words are read on this device too, without the internet.')}</p>
             <div className="row">
               <button className="btn primary" data-scan-item disabled={busy} onClick={() => camRef.current?.click()}><IconCamera /> {t('Take photo')}</button>
@@ -389,7 +389,7 @@ export function BoardImport({ parentBoardId, onClose, onCreated }: {
             <div className="field">
               <span>{t('Pictures')}</span>
               <div className="seg" data-scan-group>
-                <button className={!allCrops ? 'on' : ''} data-scan-item onClick={() => setAllCrops(false)}>{t('Caleb symbols')}</button>
+                <button className={!allCrops ? 'on' : ''} data-scan-item onClick={() => setAllCrops(false)}>{t('AACFree symbols')}</button>
                 <button className={allCrops ? 'on' : ''} data-scan-item onClick={() => setAllCrops(true)}>{t('Pictures from my screenshot')}</button>
               </div>
               <small>{t("Pictures from other apps may belong to the people who made them. Use them only for your family's own boards.")}</small>
@@ -487,7 +487,7 @@ function GridStep({ pic, grid, setGrid, found }: { pic: Picture; grid: GridBox; 
     <div className="bi-gridstep">
       <p className="bi-found">{found
         ? t('Found {rows} rows and {cols} columns. Check that the lines sit between the buttons, then read the words.', { rows: grid.rows, cols: grid.cols })
-        : t('Caleb could not find the buttons by itself. Drag the edges onto the board and set the rows and columns.')}</p>
+        : t('AACFree could not find the buttons by itself. Drag the edges onto the board and set the rows and columns.')}</p>
       <div className="bi-stage" ref={stage} style={{ aspectRatio: `${pic.aspect}`, width: `min(100%, ${(52 * pic.aspect).toFixed(1)}vh)` }}>
         <img src={pic.url} alt={t('Your picture')} draggable={false} />
         <div className="bi-area" style={{ left: `${grid.x * 100}%`, top: `${grid.y * 100}%`, width: `${grid.w * 100}%`, height: `${grid.h * 100}%` }}>
@@ -556,7 +556,7 @@ function CellEditor({ cell, onChange, onClose }: { cell: ImportCell; onChange: (
           <div className="bi-pics" data-scan-group>
             <button className={`sym-opt ${!cell.useCrop ? 'on' : ''}`} data-scan-item onClick={() => onChange({ useCrop: false })}>
               {cell.symbol ? <Symbol value={cell.symbol} /> : <span className="sym" />}
-              <span>{t('Caleb symbol')}</span>
+              <span>{t('AACFree symbol')}</span>
             </button>
             {cell.crop && (
               <button className={`sym-opt ${cell.useCrop ? 'on' : ''}`} data-scan-item onClick={() => onChange({ useCrop: true })}>

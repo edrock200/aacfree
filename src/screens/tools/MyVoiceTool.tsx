@@ -49,7 +49,7 @@ export function MyVoiceTool() {
 
       <section className="myvoice-row">
         <h3>{t("Show, don't speak")}</h3>
-        <p className="muted small">{t('When this is on, Caleb shows your message in big letters instead of saying it out loud.')}</p>
+        <p className="muted small">{t('When this is on, AACFree shows your message in big letters instead of saying it out loud.')}</p>
         <div className="row" data-scan-group>
           <PersonButton s={s} className={`btn big ${s.showNotSpeak ? 'primary' : ''}`} pressed={s.showNotSpeak}
             onPress={() => updateSettings({ showNotSpeak: !s.showNotSpeak })}>
@@ -60,7 +60,7 @@ export function MyVoiceTool() {
 
       <section className="myvoice-row">
         <h3>{t('Private for now')}</h3>
-        <p className="muted small">{t("While this is on, what you say isn't kept in Recent and nothing is logged. It turns off when Caleb restarts.")}</p>
+        <p className="muted small">{t("While this is on, what you say isn't kept in Recent and nothing is logged. It turns off when AACFree restarts.")}</p>
         <div className="row" data-scan-group>
           <PersonButton s={s} className={`btn big ${isPrivate ? 'primary' : ''}`} pressed={isPrivate} onPress={() => setPrivate(!isPrivate)}>
             <IconEyeOff /> {isPrivate ? t('On: private') : t('Off')}

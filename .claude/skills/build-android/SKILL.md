@@ -1,9 +1,9 @@
 ---
 name: build-android
-description: Set up the Android SDK in a fresh container and build Caleb's signed release APK with Capacitor + Gradle. Use when asked to build/compile the APK, test the Android project, or after changing anything in android/ or capacitor.config.ts.
+description: Set up the Android SDK in a fresh container and build AACFree's signed release APK with Capacitor + Gradle. Use when asked to build/compile the APK, test the Android project, or after changing anything in android/ or capacitor.config.ts.
 ---
 
-# Build the Caleb Android APK
+# Build the AACFree Android APK
 
 ## 1. Android SDK (skip if `/opt/android-sdk/platforms/android-36` exists)
 ```bash

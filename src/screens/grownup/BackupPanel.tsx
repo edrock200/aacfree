@@ -67,7 +67,7 @@ export function BackupPanel() {
   const exportObz = () => run(async () => {
     const { exportOBZ } = await import('../../lib/obf'); // loads OBF/zip code only when needed
     const blob = await exportOBZ(p);
-    showToast(await saveFile(`${(p.name || 'caleb').toLowerCase().replace(/\W+/g, '-')}-boards.obz`, blob));
+    showToast(await saveFile(`${(p.name || 'aacfree').toLowerCase().replace(/\W+/g, '-')}-boards.obz`, blob));
   });
 
   const importObz = () => run(async () => {
@@ -117,7 +117,7 @@ export function BackupPanel() {
       </Section>
       <AutoBackupSection onRestore={(text, name) => run(() => beginRestore(text, name))} />
       <SyncSection />
-      <Section title={t('Automatic snapshots')} intro={t('Caleb keeps earlier versions on this device: one a day for the last {daily} days, the last {action} taken before a restore, import, deletion or other big change, and your last {manual} manual snapshots.', { daily: SNAPSHOT_KEEP.daily, action: SNAPSHOT_KEEP.action, manual: SNAPSHOT_KEEP.manual })}>
+      <Section title={t('Automatic snapshots')} intro={t('AACFree keeps earlier versions on this device: one a day for the last {daily} days, the last {action} taken before a restore, import, deletion or other big change, and your last {manual} manual snapshots.', { daily: SNAPSHOT_KEEP.daily, action: SNAPSHOT_KEEP.action, manual: SNAPSHOT_KEEP.manual })}>
         <button className="btn small" disabled={busy} onClick={snapshotNow}>{t('Take snapshot now')}</button>
         <ul className="snap-list">
           {snaps.map((s) => (

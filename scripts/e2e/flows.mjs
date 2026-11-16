@@ -143,7 +143,7 @@ await page.click('.navbtn[aria-label="Settings"]');
 await page.click('.gu-tab:has-text("Backup")');
 const [dl] = await Promise.all([page.waitForEvent('download'), page.click('text=Save backup file')]);
 const backupPath = await dl.path();
-check(dl.suggestedFilename().endsWith('.caleb.json'), 'backup file downloads');
+check(/-backup-\d{4}-\d{2}-\d{2}.*\.json$/.test(dl.suggestedFilename()), `backup file downloads (${dl.suggestedFilename()})`);
 const [dl2] = await Promise.all([page.waitForEvent('download'), page.click('text=Export boards (.obz)')]);
 const obzPath = await dl2.path();
 check(dl2.suggestedFilename().endsWith('.obz'), 'OBZ export downloads');
@@ -1062,7 +1062,7 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await im.click('.bi-preview .seg button:has-text("Pictures from my screenshot")');
   const crops = await im.$$eval('.bi-grid .bi-cell img', (els) => els.filter((e) => e.src.startsWith('blob:')).length);
   check(crops === 12, `picture import: "Pictures from my screenshot" uses the picture cut from each square (${crops})`);
-  await im.click('.bi-preview .seg button:has-text("Caleb symbols")');
+  await im.click('.bi-preview .seg button:has-text("AACFree symbols")');
   // Fix one square: the first one takes its picture from the screenshot.
   await im.click('.bi-grid .bi-cell >> nth=0');
   await im.click('.modal .bi-pics button:has-text("From my screenshot")');

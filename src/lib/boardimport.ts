@@ -427,7 +427,7 @@ const hexRGB = (h: string): RGB => [parseInt(h.slice(1, 3), 16), parseInt(h.slic
 /** Word types with a colour of their own in the Modified Fitzgerald Key (white, grey and folder beige say nothing). */
 const COLOURED: WordType[] = ['pronoun', 'verb', 'descriptor', 'noun', 'social', 'question', 'preposition', 'negation'];
 /**
- * Hue anchors: Caleb's own light and dark colours (src/lib/colors.ts), plus the strong versions
+ * Hue anchors: AACFree's own light and dark colours (src/lib/colors.ts), plus the strong versions
  * other AAC apps use for the same key (pure blue describes, violet asks, magenta is social).
  */
 const ANCHORS: { type: WordType; hue: number }[] = [

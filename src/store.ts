@@ -60,8 +60,8 @@ interface UIState {
   /** "Private for now": recent sentences, the usage log and learned words are paused (never saved; resets on restart). */
   privateMode: boolean;
   /**
-   * Saved data could not be used, so Caleb runs from memory and saves nothing:
-   * 'newer' (made by a newer Caleb), 'unreadable' (damaged; a copy was kept), 'storage' (storage could not be read).
+   * Saved data could not be used, so AACFree runs from memory and saves nothing:
+   * 'newer' (made by a newer AACFree), 'unreadable' (damaged; a copy was kept), 'storage' (storage could not be read).
    */
   loadProblem: LoadProblem | null;
   /** Open tool on the Tools screen. */
@@ -100,7 +100,7 @@ interface Actions {
   clearRecent: () => void;
   /** Delete one recent sentence by its id (with an Undo toast). */
   deleteRecent: (id: string) => void;
-  /** "Private for now": pause recent sentences, the usage log and learned words until switched off or Caleb restarts. */
+  /** "Private for now": pause recent sentences, the usage log and learned words until switched off or AACFree restarts. */
   setPrivate: (on: boolean) => void;
   // navigation
   openBoard: (id: string) => void;
@@ -241,7 +241,7 @@ export const queue = new SaveQueue<AppData>({
     // Another window saved newer data: never overwrite it. Load theirs instead.
     dirty = false;
     await reloadFromDisk();
-    useStore.getState().showToast(t('Caleb was changed in another window. Showing the latest version.'));
+    useStore.getState().showToast(t('AACFree was changed in another window. Showing the latest version.'));
   },
   onSaved(data, next) {
     if (useStore.getState().data === data) dirty = false;
@@ -260,7 +260,7 @@ async function reloadFromDisk() {
   try {
     d = migrate(fresh);
   } catch (e) {
-    // Another window wrote data this copy of Caleb can't use: stop saving rather than overwrite it.
+    // Another window wrote data this copy of AACFree can't use: stop saving rather than overwrite it.
     console.error('Data from another window could not be read', e);
     blockSaves();
     useStore.setState({ loadProblem: /newer version/.test((e as Error).message) ? 'newer' : 'unreadable' });
@@ -295,8 +295,8 @@ let lastMaintenance = 0;
 const HOUR = 3600 * 1000;
 
 /**
- * Background housekeeping. Runs after start-up, when Caleb comes back to the
- * foreground and every hour, so a tablet that keeps Caleb open still gets its
+ * Background housekeeping. Runs after start-up, when AACFree comes back to the
+ * foreground and every hour, so a tablet that keeps AACFree open still gets its
  * snapshots and backups. Never interactive, never while saving is blocked.
  */
 export async function runMaintenance(): Promise<void> {
@@ -444,10 +444,10 @@ export const useStore = create<Store>((set, get) => ({
     if (problem) {
       blockSaves();
       const msg = problem === 'newer'
-        ? t('Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.')
+        ? t('Your boards were saved by a newer version of AACFree. Please update AACFree. Until then, changes are not saved.')
         : problem === 'unreadable'
           ? t('Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Settings → Backup. Until then, changes are not saved.')
-          : t('Could not open saved boards. Changes will not be saved. Please restart Caleb.');
+          : t('Could not open saved boards. Changes will not be saved. Please restart AACFree.');
       setTimeout(() => get().showToast(msg), 500);
     }
     queue.rev = storedRev;
@@ -456,7 +456,7 @@ export const useStore = create<Store>((set, get) => ({
     if (!problem) scheduleMaintenance();
     observeData(data);
     if (!problem) setTimeout(() => { import('./lib/autosync').then((m) => m.startAutoSync()).catch(() => {}); }, 2500);
-    // A crash-screen restore steps back one snapshot per attempt; once Caleb runs fine, start again from the newest.
+    // A crash-screen restore steps back one snapshot per attempt; once AACFree runs fine, start again from the newest.
     setTimeout(() => { try { sessionStorage.removeItem('caleb:crashRestoreBefore'); } catch { /* ignore */ } }, 60000);
   },
 
@@ -542,7 +542,7 @@ export const useStore = create<Store>((set, get) => ({
     if (saveBlocked) {
       // Data in memory is only a placeholder: never snapshot it. A deliberate restore may replace
       // stored data that couldn't be used (a copy was kept aside), but not storage that can't be read.
-      if (problem !== 'newer' && problem !== 'unreadable') throw new Error('Caleb cannot save right now. Please restart Caleb and try again.');
+      if (problem !== 'newer' && problem !== 'unreadable') throw new Error('AACFree cannot save right now. Please restart AACFree and try again.');
       unblockSaves();
       set({ loadProblem: null });
       scheduleMaintenance();
@@ -848,7 +848,7 @@ export const useStore = create<Store>((set, get) => ({
     // Tell the grown-up once that profiles' different PINs became one.
     const from = get().data.grownUpLock?.pinNotice;
     if (v && from !== undefined) {
-      get().showToast(t('Profiles had different PINs. Caleb now uses one PIN for the whole app: the one from {v0}.', { v0: from }),
+      get().showToast(t('Profiles had different PINs. AACFree now uses one PIN for the whole app: the one from {v0}.', { v0: from }),
         { label: t('OK'), run: () => get().setLock({ pinNotice: undefined }) });
     }
   },

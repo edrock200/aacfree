@@ -4,7 +4,7 @@
  *
  * Every sealed object records its key derivation (`kdf`, `iter`, `salt`), so
  * the iteration count can be raised later without breaking old files. Files
- * written before that (Caleb 0.4) have no `iter` and used 250,000 iterations.
+ * written before that (AACFree 0.4) have no `iter` and used 250,000 iterations.
  * Callers can pass additional authenticated data (`aad`): plaintext header
  * fields that are not secret but must not be changed by anyone without the
  * passcode.
@@ -54,7 +54,7 @@ export interface Sealed {
   salt: string;
   iv: string;
   data: string;
-  /** Key derivation; missing in Caleb 0.4 files (PBKDF2-SHA256, 250k). */
+  /** Key derivation; missing in AACFree 0.4 files (PBKDF2-SHA256, 250k). */
   kdf?: string;
   iter?: number;
 }
@@ -79,12 +79,12 @@ export async function seal(plain: Uint8Array, passcode: string, opts: SealOption
 }
 
 export async function unseal(s: Sealed, passcode: string, opts: { aad?: Uint8Array } = {}): Promise<Uint8Array> {
-  if (s.kdf !== undefined && s.kdf !== KDF) throw new Error('This file was made by a newer version of Caleb. Please update the app first.');
+  if (s.kdf !== undefined && s.kdf !== KDF) throw new Error('This file was made by a newer version of AACFree. Please update the app first.');
   const iter = s.iter ?? LEGACY_ITER;
-  if (!Number.isInteger(iter) || iter < MIN_ITER || iter > MAX_ITER) throw new Error('This file is damaged or is not a Caleb sync file.');
-  if (typeof s.salt !== 'string' || typeof s.iv !== 'string' || typeof s.data !== 'string') throw new Error('This file is damaged or is not a Caleb sync file.');
+  if (!Number.isInteger(iter) || iter < MIN_ITER || iter > MAX_ITER) throw new Error('This file is damaged or is not a AACFree sync file.');
+  if (typeof s.salt !== 'string' || typeof s.iv !== 'string' || typeof s.data !== 'string') throw new Error('This file is damaged or is not a AACFree sync file.');
   let key: CryptoKey;
-  try { key = await keyFrom(passcode, s.salt, iter); } catch { throw new Error('This file is damaged or is not a Caleb sync file.'); }
+  try { key = await keyFrom(passcode, s.salt, iter); } catch { throw new Error('This file is damaged or is not a AACFree sync file.'); }
   try {
     const params: AesGcmParams = { name: 'AES-GCM', iv: unb64(s.iv) as BufferSource };
     if (opts.aad) params.additionalData = opts.aad as BufferSource;

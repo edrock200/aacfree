@@ -110,7 +110,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
           ))}
         </div>
       </Section>
-      <Section title={t('Import a board from a picture')} intro={t('Moving from another AAC app or a paper board? Take a photo or screenshot of a board. Caleb rebuilds it with the same grid and every word in the same place, so the person keeps their motor plan. The picture never leaves this device.')}>
+      <Section title={t('Import a board from a picture')} intro={t('Moving from another AAC app or a paper board? Take a photo or screenshot of a board. AACFree rebuilds it with the same grid and every word in the same place, so the person keeps their motor plan. The picture never leaves this device.')}>
         <button className="btn" onClick={() => setImporting(true)}><IconCamera /> {t('Import a board from a picture')}</button>
       </Section>
       <Section title={t('Grow vocabulary over time')} intro={t('AAC best practice: keep every word in its place and reveal more as the person is ready. Starter mode hides all but about 12 to 20 key words on Home, plus all folders. Nothing moves, and hidden words leave a gap. Reveal words one at a time in edit mode, or all at once here.')}>

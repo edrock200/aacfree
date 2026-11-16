@@ -1,11 +1,11 @@
 # AAC user & caregiver research (Nov 2026)
 
 What we found about existing AAC apps (Proloquo2Go, TD Snap, LAMP WFL, TouchChat,
-Avaz, Cboard, CoughDrop, Speak for Yourself, Grid …), and how it shapes Caleb.
+Avaz, Cboard, CoughDrop, Speak for Yourself, Grid …), and how it shapes AACFree.
 
 ## Biggest pain points with existing apps
 
-| Pain point | Strength | Caleb's answer |
+| Pain point | Strength | AACFree's answer |
 |---|---|---|
 | Cost: $200–300 one-time, or subscriptions just to make the app speak. Many apps are iOS-only. | Very high | Free and open source. Works as a web/PWA on any device and as an Android APK. |
 | Speed: symbol apps are slow, and their built-in typing is weak. | High (adult users) | Integrated keyboard with word prediction, saved phrases, recent sentences, and speaking each word on tap. |

@@ -28,8 +28,8 @@ import { setLangs, t } from './i18n';
 
 /** Web speech failures: what happened and how to fix it (translated at display time). */
 const TTS_FAILURE_MESSAGES: Record<Exclude<TtsFailure, 'native' | 'not-allowed'>, string> = {
-  'no-engine': "This browser can't speak. Try Chrome, Edge or Safari, or install the Caleb app on Android.",
-  'no-voices': "No voices are installed. Add a voice in your device's text-to-speech settings, then open Caleb again.",
+  'no-engine': "This browser can't speak. Try Chrome, Edge or Safari, or install the AACFree app on Android.",
+  'no-voices': "No voices are installed. Add a voice in your device's text-to-speech settings, then open AACFree again.",
   error: "The voice didn't work. Check the volume and the speech settings, then try again.",
 };
 
@@ -39,7 +39,7 @@ const GrownUpScreen = lazy(() => import('./screens/GrownUpScreen').then((m) => (
 export function App() {
   const loaded = useStore((s) => s.loaded);
   const onboarded = useStore((s) => s.data.onboarded);
-  if (!loaded) return <div className="splash"><img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" /><b>{t('Caleb')}</b></div>;
+  if (!loaded) return <div className="splash"><img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" /><b>{t('AACFree')}</b></div>;
   if (!onboarded) return <Onboarding />;
   return <LangMain />;
 }
@@ -156,7 +156,7 @@ function Main() {
     checkNativeLanguage(s.lang).then((fallback) => fallback && useStore.getState().updateSettings({ lang: fallback, voiceName: undefined, voiceIndex: undefined }));
   }, [s.lang]);
 
-  // Android back button: navigate inside Caleb, never exit by accident.
+  // Android back button: navigate inside AACFree, never exit by accident.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const h = CapApp.addListener('backButton', () => {

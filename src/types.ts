@@ -138,7 +138,7 @@ export interface Settings {
   returnHome: boolean;
   /** "Show, don't speak": messages open in Big text instead of being spoken (the person's own choice). */
   showNotSpeak: boolean;
-  /** Recent sentences: kept ('on'), kept until Caleb restarts ('session') or not kept ('off'). */
+  /** Recent sentences: kept ('on'), kept until AACFree restarts ('session') or not kept ('off'). */
   keepRecent: 'on' | 'session' | 'off';
   // Display
   theme: Theme;

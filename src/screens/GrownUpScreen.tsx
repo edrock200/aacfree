@@ -53,7 +53,7 @@ export function GrownUpScreen() {
   return (
     <div className="grownup">
       <aside className="gu-nav">
-        <div className="gu-who"><IconPerson /> <b>{p.name || 'Caleb'}</b></div>
+        <div className="gu-who"><IconPerson /> <b>{p.name || 'AACFree'}</b></div>
         {PANELS.map((x) => (
           <button key={x.id} className={`gu-tab ${panel === x.id ? 'on' : ''}`} onClick={() => setPanel(x.id)}>
             {x.icon}<span>{t(x.label)}</span>

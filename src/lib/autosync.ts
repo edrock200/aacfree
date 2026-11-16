@@ -14,7 +14,7 @@ import {
  * Automatic sync through ONE shared file the family picks (for example in
  * Google Drive, OneDrive or Dropbox). Every device reads it, merges change by
  * change (merge.ts), applies what is new, and writes the result back:
- *   - when Caleb opens and whenever it comes back to the screen,
+ *   - when AACFree opens and whenever it comes back to the screen,
  *   - about 45 seconds after an edit, and every 5 minutes while open,
  *   - from "Sync now".
  * Android keeps the file through the system file picker (CalebFilesPlugin);
@@ -67,7 +67,7 @@ type PickerWindow = {
   showOpenFilePicker?(o: object): Promise<FileHandle[]>;
 };
 
-const FILE_NAME = 'caleb-sync.calebsync.json';
+const FILE_NAME = 'aacfree-sync.json';
 const INTERVAL = 5 * 60 * 1000;
 const EDIT_DELAY = 45 * 1000;
 const IDLE_NEEDED = 8 * 1000;
@@ -173,7 +173,7 @@ async function fsHandle(interactive: boolean): Promise<FileHandle> {
   if (!h) throw new SyncError('Choose the sync file again.', 'reach');
   let perm: PermissionState = h.queryPermission ? await h.queryPermission({ mode: 'readwrite' }) : 'granted';
   if (perm !== 'granted' && interactive && h.requestPermission) perm = await h.requestPermission({ mode: 'readwrite' });
-  if (perm !== 'granted') throw new SyncError('Tap “Sync now” to let Caleb use the sync file again.', 'permission');
+  if (perm !== 'granted') throw new SyncError('Tap “Sync now” to let AACFree use the sync file again.', 'permission');
   return h;
 }
 
@@ -204,7 +204,7 @@ async function writeAndroid(uri: string, text: string) {
     await files().writeDocument({ uri, data: url.slice(url.indexOf(',') + 1), part: first ? 'begin' : 'append' });
   }
   const r = await files().writeDocument({ uri, data: '', part: 'commit' });
-  if (typeof r?.bytes === 'number' && r.bytes !== blob.size) throw new SyncError('Couldn’t save the sync file. Caleb will try again.', 'verify');
+  if (typeof r?.bytes === 'number' && r.bytes !== blob.size) throw new SyncError('Couldn’t save the sync file. AACFree will try again.', 'verify');
 }
 
 const reach = async <T>(p: Promise<T>): Promise<T> => {
@@ -221,7 +221,7 @@ async function openText(text: string, passcode: string): Promise<OpenedSync | nu
   try { f = peekSyncFile(text); } catch { throw new SyncError('The sync file couldn’t be read.', 'damaged'); }
   try { return await openSyncFile(f, passcode); } catch (e) {
     const m = (e as Error).message ?? '';
-    if (/newer version/.test(m)) throw new SyncError('Another device has a newer version of Caleb. Please update Caleb on this device.', 'newer');
+    if (/newer version/.test(m)) throw new SyncError('Another device has a newer version of AACFree. Please update AACFree on this device.', 'newer');
     if (/Wrong passcode/.test(m)) throw new SyncError('The passcode doesn’t match the sync file.', 'passcode');
     throw new SyncError('The sync file couldn’t be read.', 'damaged');
   }
@@ -236,7 +236,7 @@ export async function chooseNewSyncFile(): Promise<{ target: SyncTarget; handle?
     }
     const w = pickerWin();
     if (!w.showSaveFilePicker) return null;
-    const h = await w.showSaveFilePicker({ suggestedName: FILE_NAME, id: 'caleb-sync', types: [{ description: 'Caleb sync file', accept: { 'application/json': ['.json'] } }] });
+    const h = await w.showSaveFilePicker({ suggestedName: FILE_NAME, id: 'caleb-sync', types: [{ description: 'AACFree sync file', accept: { 'application/json': ['.json'] } }] });
     return { target: { kind: 'fs', name: h.name }, handle: h };
   } catch { return null; } // cancelled
 }
@@ -250,7 +250,7 @@ export async function chooseExistingSyncFile(): Promise<{ target: SyncTarget; ha
     }
     const w = pickerWin();
     if (!w.showOpenFilePicker) return null;
-    const [h] = await w.showOpenFilePicker({ id: 'caleb-sync', types: [{ description: 'Caleb sync file', accept: { 'application/json': ['.json'] } }] });
+    const [h] = await w.showOpenFilePicker({ id: 'caleb-sync', types: [{ description: 'AACFree sync file', accept: { 'application/json': ['.json'] } }] });
     if (h?.requestPermission) await h.requestPermission({ mode: 'readwrite' });
     return h ? { target: { kind: 'fs', name: h.name }, handle: h } : null;
   } catch { return null; }
@@ -263,7 +263,7 @@ export async function chooseExistingSyncFile(): Promise<{ target: SyncTarget; ha
 export async function setupAutoSync(choice: { target: SyncTarget; handle?: FileHandle }, passcode: string): Promise<SyncLogEntry | null> {
   if (choice.handle) {
     memHandle = choice.handle;
-    try { await setMeta('syncFileHandle', choice.handle); } catch { /* not storable here: works until Caleb restarts */ }
+    try { await setMeta('syncFileHandle', choice.handle); } catch { /* not storable here: works until AACFree restarts */ }
   }
   const io = ioFor(choice.target, true);
   const text = await reach(io.read());
@@ -350,7 +350,7 @@ async function doSync(interactive: boolean, source: SyncSource): Promise<SyncLog
         // A half-written or damaged file. Every device still has all its data, so rewriting is safe,
         // but give a writer in progress a few minutes first.
         if (!damagedSince) damagedSince = Date.now();
-        if (!interactive && Date.now() - damagedSince < 10 * 60 * 1000) throw new SyncError('The sync file couldn’t be read. Caleb will try again.', 'damaged');
+        if (!interactive && Date.now() - damagedSince < 10 * 60 * 1000) throw new SyncError('The sync file couldn’t be read. AACFree will try again.', 'damaged');
         await setMeta('syncPrevFile', text).catch(() => {});
         remote = null;
       }
@@ -392,9 +392,9 @@ async function doSync(interactive: boolean, source: SyncSource): Promise<SyncLog
       await setStatus({ running: false, lastOk: Date.now(), error: undefined });
       return entry;
     }
-    throw new SyncError('Another device kept writing the sync file. Caleb will try again.', 'other');
+    throw new SyncError('Another device kept writing the sync file. AACFree will try again.', 'other');
   } catch (e) {
-    const err = e instanceof SyncError ? e : new SyncError('Couldn’t sync. Caleb will try again.', 'other');
+    const err = e instanceof SyncError ? e : new SyncError('Couldn’t sync. AACFree will try again.', 'other');
     if (!(e instanceof SyncError)) console.warn('sync failed', e);
     dirty ||= wasDirty;
     await setStatus({ running: false, error: err.message });
@@ -410,7 +410,7 @@ async function writeVerified(io: FileIO, text: string) {
     try { back = await io.read(); } catch { /* fall through to retry */ }
     if (back.startsWith(text)) return;
   }
-  throw new SyncError('Couldn’t save the sync file. Caleb will try again.', 'verify');
+  throw new SyncError('Couldn’t save the sync file. AACFree will try again.', 'verify');
 }
 
 // ---------------------------------------------------------------- when to sync
@@ -427,7 +427,7 @@ function schedule(ms: number) {
 }
 
 let started = false;
-/** Wire up the triggers (called once after Caleb has loaded). */
+/** Wire up the triggers (called once after AACFree has loaded). */
 export function startAutoSync() {
   if (started || typeof document === 'undefined') return;
   started = true;

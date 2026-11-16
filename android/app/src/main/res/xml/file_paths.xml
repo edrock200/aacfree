@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Only the folders Caleb actually shares from (FileProvider):
+<!-- Only the folders AACFree actually shares from (FileProvider):
      - Documents: backup and board files saved by src/lib/files.ts, then sent with the share sheet
      - the app's own Pictures folder: photos taken with the camera for a button (WebView file chooser)
      - the app cache: fallback for saved files when Documents can't be written

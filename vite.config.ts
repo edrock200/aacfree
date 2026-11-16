@@ -31,8 +31,8 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Caleb AAC',
-        short_name: 'Caleb',
+        name: 'AACFree',
+        short_name: 'AACFree',
         description: 'Free, open-source AAC communication app for autistic people and their families.',
         theme_color: '#f6f3ee',
         background_color: '#f6f3ee',
