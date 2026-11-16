@@ -860,3 +860,30 @@ small { font-size: 0.85em; }
 .setting.slider.dirty { background: var(--accent-soft); border-radius: 12px; padding-inline: 10px; }
 .slider-save { flex-basis: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 .slider-save small { margin-right: auto; }
+
+/* Import a board from a picture. */
+.bi-stage { position: relative; margin: 20px auto; max-width: calc(100% - 36px); background: var(--surface-2); user-select: none; -webkit-user-select: none; }
+.bi-stage > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+.bi-area { position: absolute; outline: 3px solid var(--accent); background: rgba(29, 122, 106, 0.08); }
+.bi-area svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.bi-area line { stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-dasharray: 6 4; }
+.bi-handle {
+  position: absolute; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+  background: var(--accent); border: 3px solid #fff; box-shadow: var(--shadow); touch-action: none; cursor: grab; z-index: 1;
+}
+.bi-handle.bi-top { left: 50%; top: 0; cursor: ns-resize; }
+.bi-handle.bi-bottom { left: 50%; top: 100%; cursor: ns-resize; }
+.bi-handle.bi-left { left: 0; top: 50%; cursor: ew-resize; }
+.bi-handle.bi-right { left: 100%; top: 50%; cursor: ew-resize; }
+.bi-steppers { gap: 24px; }
+.bi-nudges { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; }
+.bi-nudge { display: flex; align-items: center; gap: 6px; }
+.bi-nudge span { min-width: 7em; }
+.bi-edges summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
+.bi-progress { width: 100%; height: 18px; accent-color: var(--accent); }
+.bi-grid { display: grid; gap: 6px; margin: 10px 0; }
+.bi-cell { aspect-ratio: 1 / 0.85; min-height: 54px; }
+.bi-cell.cell-add { min-height: 54px; }
+.bi-noword { outline: 3px dashed #c0392b; outline-offset: -4px; }
+.bi-pics { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bi-pics .sym-opt.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }

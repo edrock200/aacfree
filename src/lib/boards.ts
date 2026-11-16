@@ -13,6 +13,26 @@ export function resizeBoard(board: Board, cols: number, rows: number): { board: 
   return { board: { ...board, cols, rows, cells }, lost };
 }
 
+/**
+ * Put a folder button on a board without moving anything: in the first free square of `parentId`,
+ * else on "More", else in a new row added at the bottom (of "More" when there is one).
+ * Mutates the profile (call inside `updateProfile`); returns the board it went on.
+ */
+export function placeFolder(p: Profile, parentId: string, folder: AACButton): Board {
+  let target = p.boards[parentId] ?? p.boards[p.rootId];
+  let idx = target.cells.findIndex((c) => !c);
+  if (idx < 0 && p.boards.more && target.id !== 'more') {
+    target = p.boards.more;
+    idx = target.cells.findIndex((c) => !c);
+  }
+  if (idx >= 0) target.cells[idx] = folder;
+  else {
+    target.rows += 1;
+    target.cells.push(folder, ...Array(target.cols - 1).fill(null));
+  }
+  return target;
+}
+
 /** Breadth-first path of board ids from the root to every reachable board. */
 export function boardPaths(p: Profile): Record<string, string[]> {
   const paths: Record<string, string[]> = { [p.rootId]: [p.rootId] };

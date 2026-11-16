@@ -6,6 +6,8 @@
       Content-Security-Policy (defence in depth; there is no server to send headers):
       - scripts: only our own files. 'wasm-unsafe-eval' lets MediaPipe compile its WebAssembly
         (head/eye pointer). No inline scripts, no eval.
+      - workers: picture import's OCR runs in a same-origin worker (public/ocr/worker.min.js, not a
+        blob: URL) that loads its WASM core and language data from public/ocr, never from a CDN.
       - images/media: our files, data: and blob: (photos and recordings kept in IndexedDB), and
         ARASAAC for symbol search and missing pictograms.
       - connect: ARASAAC search and downloads, plus data:/blob: (backup photos are decoded with fetch).

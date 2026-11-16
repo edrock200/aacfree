@@ -1,4 +1,4 @@
-import type { LibraryCategory, LibrarySymbol, SymbolLibrary } from '../types';
+import type { LibraryCategory, LibrarySymbol, SymbolLibrary, WordType } from '../types';
 import { builtInLibrary, searchBundled, symbolFor } from '../data/defaults';
 import { getLang } from '../i18n';
 import { englishMatches, fold, localCategory, localLabel } from './translate';
@@ -69,4 +69,16 @@ export function searchLibrary(lib: SymbolLibrary | undefined, query: string, lim
     add({ id: r.symbol, label: r.keyword, symbol: r.symbol });
   }
   return out.slice(0, limit);
+}
+
+/**
+ * The picture (and word type) suggested for a typed or recognised word: a library or bundled
+ * symbol whose label is exactly that word (ignoring case and accents). Used by "+ Word" and
+ * "Import a board from a picture".
+ */
+export function suggestSymbol(lib: SymbolLibrary | undefined, word: string): { symbol: string; type?: WordType } | null {
+  const q = fold(word.trim());
+  if (!q) return null;
+  const hit = searchLibrary(lib, word.trim(), 5).find((s) => fold(s.label) === q);
+  return hit ? { symbol: hit.symbol, type: hit.type } : null;
 }
