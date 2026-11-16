@@ -191,7 +191,7 @@ describe('cell colour → word type', () => {
   const coloured: WordType[] = ['pronoun', 'verb', 'descriptor', 'noun', 'social', 'question', 'preposition', 'negation'];
   const rgb = (h: string): RGB => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
   for (const type of coloured) {
-    it(`maps Caleb's ${type} colours back to ${type}`, () => {
+    it(`maps AACFree's ${type} colours back to ${type}`, () => {
       expect(wordTypeForColor(rgb(WORD_COLORS[type].light))).toBe(type);
       expect(wordTypeForColor(rgb(WORD_COLORS[type].dark))).toBe(type);
     });

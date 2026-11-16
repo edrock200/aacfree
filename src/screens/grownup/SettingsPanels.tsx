@@ -52,7 +52,7 @@ export function SpeechPanel() {
             // The device default voice for the communication language.
             const patch = { voiceURI: undefined, voiceIndex: undefined, voiceName: undefined, lang: PACKS[(s.language ?? 'en') as Lang].voice };
             updateSettings(patch);
-            speak(ts("Hi, I'm {name}. This is my voice.", { name: p.name || 'Caleb' }), { ...s, ...patch });
+            speak(ts("Hi, I'm {name}. This is my voice.", { name: p.name || 'AACFree' }), { ...s, ...patch });
           }}>
             <b>{t('Device default')}</b><small>{PACKS[(s.language ?? 'en') as Lang].voice}</small>
           </button>
@@ -60,7 +60,7 @@ export function SpeechPanel() {
             <button key={v.id} className={`voice ${current === v.id ? 'on' : ''}`} onClick={() => {
               const patch = native ? { voiceIndex: Number(v.id), voiceName: v.name, lang: v.lang } : { voiceURI: v.id, lang: v.lang };
               updateSettings(patch);
-              speak(ts("Hi, I'm {name}. This is my voice.", { name: p.name || 'Caleb' }), { ...s, ...patch });
+              speak(ts("Hi, I'm {name}. This is my voice.", { name: p.name || 'AACFree' }), { ...s, ...patch });
             }}>
               <b>{v.name}</b><small>{v.lang}{v.local ? '' : ' · online'}</small>
             </button>
@@ -300,7 +300,7 @@ function PointerSection() {
   const { updateSettings } = useStore.getState();
   const [calibrating, setCalibrating] = useState(false);
   return (
-    <Section title={t('Eye gaze & head pointer')} intro={t('Select by resting a pointer on a button (dwell). Use it with a mouse, a head-mouse or a hardware eye tracker, or let Caleb use the front camera. Camera images are processed on this device only and are never saved or sent. Touch always keeps working, so you or a support person can still tap.')}>
+    <Section title={t('Eye gaze & head pointer')} intro={t('Select by resting a pointer on a button (dwell). Use it with a mouse, a head-mouse or a hardware eye tracker, or let AACFree use the front camera. Camera images are processed on this device only and are never saved or sent. Touch always keeps working, so you or a support person can still tap.')}>
       <Choice label={t('Pointer')} value={s.pointer} onChange={(pointer) => updateSettings({ pointer })}
         options={[
           { value: 'off', label: t('Off') },

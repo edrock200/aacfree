@@ -1,5 +1,5 @@
 /**
- * Default vocabulary for Caleb.
+ * Default vocabulary for AACFree.
  *
  * Kept dependency-free so `scripts/fetch-symbols.mjs` can import it directly
  * with Node's type stripping.

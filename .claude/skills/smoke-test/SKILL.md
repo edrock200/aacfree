@@ -1,9 +1,9 @@
 ---
 name: smoke-test
-description: Run Caleb in a headless browser, click through the main flows and capture screenshots to verify UI changes. Use after any UI change, before releases, or when asked to run/screenshot the app.
+description: Run AACFree in a headless browser, click through the main flows and capture screenshots to verify UI changes. Use after any UI change, before releases, or when asked to run/screenshot the app.
 ---
 
-# Smoke test Caleb
+# Smoke test AACFree
 
 ```bash
 npm run build

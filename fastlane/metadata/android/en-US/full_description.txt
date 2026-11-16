@@ -1,6 +1,6 @@
-Caleb is a free, open-source AAC (augmentative and alternative communication) app for autistic people and the families, teachers and therapists who support them. Tap picture-and-word buttons to build a sentence, and Caleb speaks it aloud.
+AACFree is a free, open-source AAC (augmentative and alternative communication) app for autistic people and the families, teachers and therapists who support them. Tap picture-and-word buttons to build a sentence, and AACFree speaks it aloud.
 
-Caleb is built from what autistic AAC users, parents and speech-language pathologists say they need: words that never move, "no" and "stop" always within reach, fast typing, and privacy by default.
+AACFree is built from what autistic AAC users, parents and speech-language pathologists say they need: words that never move, "no" and "stop" always within reach, fast typing, and privacy by default.
 
 NEW
 • English, Español, Français and Português, with automatic verb conjugation and bilingual labels. Buttons never move.
@@ -36,12 +36,12 @@ FOR PARENTS, TEACHERS AND THERAPISTS
 • Share boards with other AAC apps using the Open Board Format (.obz).
 • Optional private usage insights. They are off unless you turn them on, and they never leave the device.
 • Several profiles on one device.
-• The Back button never closes the app, and Caleb works well with Android app pinning.
+• The Back button never closes the app, and AACFree works well with Android app pinning.
 
 CREDITS
-Pictograms by Sergio Palao. Origin: ARASAAC (arasaac.org), Government of Aragón (Spain). Licence: CC BY-NC-SA 4.0. Because the pictograms are licensed for non-commercial use, Caleb will always be free.
+Pictograms by Sergio Palao. Origin: ARASAAC (arasaac.org), Government of Aragón (Spain). Licence: CC BY-NC-SA 4.0. Because the pictograms are licensed for non-commercial use, AACFree will always be free.
 Font: Atkinson Hyperlegible, by the Braille Institute.
 
-Caleb is a communication tool, not a medical device. Please work with a speech-language pathologist when choosing and setting up AAC.
+AACFree is a communication tool, not a medical device. Please work with a speech-language pathologist when choosing and setting up AAC.
 
 Source code, questions and suggestions: github.com/edrock200/caleb

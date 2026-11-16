@@ -1,5 +1,5 @@
 /**
- * Language packs. Each pack bundles everything Caleb needs to talk in a
+ * Language packs. Each pack bundles everything AACFree needs to talk in a
  * language: interface strings, board vocabulary (keyed by the English
  * originals), grammar, keyboard, prediction and body-map phrasing.
  * English is the source language, so its vocab maps are empty.

@@ -5,7 +5,7 @@ import {
 } from './stamps';
 
 /**
- * Change-by-change merging of Caleb data from any number of devices.
+ * Change-by-change merging of AACFree data from any number of devices.
  *
  * Each item (one button, one phrase, one setting…) carries a stamp `{ t, d }`.
  * For every item the newer stamp wins (ties: a deletion wins, then a fixed

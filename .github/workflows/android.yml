@@ -43,7 +43,7 @@ jobs:
       # ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD to build and sign here.
       # Pull requests never see the secrets and always build a debug-signed APK.
       # Without the secrets, a release publishes the committed release/caleb-latest.apk, but only
-      # if its version matches and it is signed with Caleb's release key (pinned below).
+      # if its version matches and it is signed with AACFree's release key (pinned below).
       # Other runs produce a debug-signed APK.
       - name: Build APK
         working-directory: android
@@ -62,7 +62,7 @@ jobs:
             echo "::error::Publish releases from main only."
             exit 1
           fi
-          OUT="caleb-v$VERSION.apk"
+          OUT="aacfree-v$VERSION.apk"
           if [[ "$GITHUB_REF" == refs/tags/v* && "$GITHUB_REF_NAME" != "v$VERSION" ]]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $VERSION."
             exit 1
@@ -76,10 +76,10 @@ jobs:
             rm -f signing/release.jks keystore.properties
             CERT=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
             if [ "$CERT" != "$RELEASE_CERT_SHA256" ]; then
-              echo "::error::The keystore in ANDROID_KEYSTORE_BASE64 is not Caleb's release key. Its APKs could not update existing installs."
+              echo "::error::The keystore in ANDROID_KEYSTORE_BASE64 is not AACFree's release key. Its APKs could not update existing installs."
               exit 1
             fi
-            echo "Signed with Caleb's release key."
+            echo "Signed with AACFree's release key."
             cp app/build/outputs/apk/release/app-release.apk "../$OUT"
           elif [[ "$RELEASE" == "true" ]]; then
             BT="$ANDROID_HOME/build-tools/36.0.0"
@@ -91,7 +91,7 @@ jobs:
               exit 1
             fi
             if [ "$CERT" != "$RELEASE_CERT_SHA256" ]; then
-              echo "::error::release/caleb-latest.apk is not signed with Caleb's release key. Updates would fail to install."
+              echo "::error::release/caleb-latest.apk is not signed with AACFree's release key. Updates would fail to install."
               exit 1
             fi
             cp "$APK" "../$OUT"
@@ -105,7 +105,9 @@ jobs:
             cp app/build/outputs/apk/debug/app-debug.apk "../$OUT"
           fi
           # Same file under a fixed name, so the newest release is always at
-          # https://github.com/<owner>/<repo>/releases/latest/download/caleb.apk
+          # https://github.com/<owner>/<repo>/releases/latest/download/aacfree.apk
+          # caleb.apk is the same file under the app's former name, so old links and the Downloader code keep working.
+          cp "../$OUT" ../aacfree.apk
           cp "../$OUT" ../caleb.apk
       # Never leave key material on the runner, even when the build fails.
       - name: Remove signing key
@@ -114,9 +116,10 @@ jobs:
         run: rm -f signing/release.jks keystore.properties && rm -rf signing
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: caleb-apk
+          name: aacfree-apk
           path: |
-            caleb-v*.apk
+            aacfree-v*.apk
+            aacfree.apk
             caleb.apk
 
   release:
@@ -129,7 +132,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: caleb-apk
+          name: aacfree-apk
       - name: Release notes from CHANGELOG.md
         id: notes
         run: |
@@ -143,11 +146,11 @@ jobs:
           {
             echo
             echo "---"
-            echo "**Install on Android (7.0+):** download \`caleb.apk\` below, open it, and allow \"install unknown apps\". Updating keeps all boards and settings."
+            echo "**Install on Android (7.0+):** download \`aacfree.apk\` below, open it, and allow \"install unknown apps\". Updating keeps all boards and settings."
             echo
             echo "**Android phones & tablets, or Fire tablets:** in the Downloader app, enter code **5791841** (or go to http://aftv.news/5791841)."
             echo
-            echo "The newest version is always at https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/caleb.apk"
+            echo "The newest version is always at https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/aacfree.apk"
             echo
             echo "Web app (no install needed, works offline): https://aacappfree.com/app/"
           } >> notes.md
@@ -172,10 +175,11 @@ jobs:
         with:
           tag_name: v${{ steps.notes.outputs.version }}
           target_commitish: ${{ github.sha }}
-          name: Caleb v${{ steps.notes.outputs.version }}
+          name: AACFree v${{ steps.notes.outputs.version }}
           body_path: notes.md
           make_latest: true
           overwrite_files: ${{ github.event_name == 'workflow_dispatch' && inputs.overwrite }}
           files: |
+            aacfree.apk
+            aacfree-v*.apk
             caleb.apk
-            caleb-v*.apk

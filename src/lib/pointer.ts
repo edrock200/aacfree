@@ -273,7 +273,7 @@ export class PointerEngine {
       this.hasPointer = false;
       this.setTarget(null);
       if ((this.opts.mode === 'head' || this.opts.mode === 'eyes') && !this.handRest) {
-        // Don't keep the camera on while Caleb is in the background.
+        // Don't keep the camera on while AACFree is in the background.
         if (this.retryTimer) clearTimeout(this.retryTimer);
         this.releaseCamera();
         this.hiddenStop = true;

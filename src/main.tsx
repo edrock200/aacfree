@@ -10,7 +10,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { Capacitor } from '@capacitor/core';
 
 if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
-  // Updates never reload the page mid-sentence: apply them only when Caleb is idle
+  // Updates never reload the page mid-sentence: apply them only when AACFree is idle
   // and hidden (or on the next launch, when the new service worker takes over).
   let pending = false;
   const updateSW = registerSW({

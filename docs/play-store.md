@@ -1,4 +1,4 @@
-# Publishing Caleb on Google Play: owner checklist
+# Publishing AACFree on Google Play: owner checklist
 
 Everything that doesn't need the developer account is already done and lives in the repo:
 
@@ -20,18 +20,18 @@ Package name: **`org.calebaac.app`**. It can never change after the first upload
 
 ## 1. Create the developer account
 
-1. Go to <https://play.google.com/console/signup> and sign in with the Google account that should own Caleb long-term. A dedicated account, not a personal Gmail you might lose, is a good idea.
+1. Go to <https://play.google.com/console/signup> and sign in with the Google account that should own AACFree long-term. A dedicated account, not a personal Gmail you might lose, is a good idea.
 2. Choose the account type:
    - **Personal**: fastest. **New personal accounts must run a closed test with at least 12 testers who stay opted in for 14 days in a row** before they can publish to production. Plan for this (see step 5).
    - **Organization**: needs a D-U-N-S number. It skips the 12-tester rule, but takes longer to set up.
 3. Pay the one-time US$25 registration fee.
 4. Complete identity verification (government ID) and verify a contact phone number and email address. This can take a few days.
-5. Set the **public developer name** (shown under the app title, for example "Caleb AAC") and a **public contact email**. Play requires an email address on the store listing. Consider a dedicated address.
+5. Set the **public developer name** (shown under the app title, for example "AACFree") and a **public contact email**. Play requires an email address on the store listing. Consider a dedicated address.
 
 ## 2. Create the app in the Console
 
 **Home → Create app**:
-- App name: `Caleb AAC – Talk with pictures` (from `title.txt`)
+- App name: `AACFree – Talk with pictures` (from `title.txt`)
 - Default language: **English (United States) – en-US**
 - App or game: **App**
 - Free or paid: **Free**. A free app can never become paid, which is correct here: the ARASAAC pictograms are non-commercial (CC BY-NC-SA).
@@ -126,15 +126,15 @@ Work through every item. Suggested answers:
 - **Content rating:** see step 8.
 - **Target audience and content:** see step 9.
 - **News app:** No.
-- **Advertising ID:** No. Caleb doesn't use it, and the manifest has no `AD_ID` permission.
+- **Advertising ID:** No. AACFree doesn't use it, and the manifest has no `AD_ID` permission.
 - **Government app:** No.
 - **Financial features:** None.
-- **Health apps:** Caleb is a communication tool. Choose that it has **no health features**. The pain scale and body map only help someone *say* how they feel; nothing is measured, diagnosed or tracked. If a reviewer disagrees, the "not a medical device" declaration below covers it.
+- **Health apps:** AACFree is a communication tool. Choose that it has **no health features**. The pain scale and body map only help someone *say* how they feel; nothing is measured, diagnosed or tracked. If a reviewer disagrees, the "not a medical device" declaration below covers it.
 - **Data safety:** see step 10.
 
 ### Not-a-medical-device declaration
 This is already in the full description and README. Use the same wording wherever the Console or a reviewer asks:
-> Caleb is a communication tool (augmentative and alternative communication). It is not a medical device. It does not diagnose, treat, cure, monitor or prevent any disease or condition, and it makes no medical claims. Families should work with a speech-language pathologist when choosing and setting up AAC.
+> AACFree is a communication tool (augmentative and alternative communication). It is not a medical device. It does not diagnose, treat, cure, monitor or prevent any disease or condition, and it makes no medical claims. Families should work with a speech-language pathologist when choosing and setting up AAC.
 
 ## 8. Content rating questionnaire (IARC)
 
@@ -149,8 +149,8 @@ The expected result is **Everyone / PEGI 3 / USK 0 / IARC 3+**.
 
 ## 9. Target audience and the Families policy
 
-- **Target age groups:** Caleb is for **all ages, including children**. Tick every group from **"5 and under" to "18 and over"**.
-- Because children are included, the app falls under the **Google Play Families policy**, and the listing gets an extra review. Caleb is compliant:
+- **Target age groups:** AACFree is for **all ages, including children**. Tick every group from **"5 and under" to "18 and over"**.
+- Because children are included, the app falls under the **Google Play Families policy**, and the listing gets an extra review. AACFree is compliant:
   - **No ads** and no ad SDKs, so there are no certified-ad-network requirements.
   - **No data collection** of any kind: no analytics, crash reporting, advertising ID or device identifiers, and no third-party SDKs that collect data.
   - No accounts, so there's no account-deletion requirement.
@@ -162,13 +162,13 @@ The expected result is **Everyone / PEGI 3 / USK 0 / IARC 3+**.
 
 ## 10. Data safety form
 
-Caleb collects and shares nothing. Suggested answers:
+AACFree collects and shares nothing. Suggested answers:
 
 1. **Does your app collect or share any of the required user data types?** → **No.**
-   - Collection means sending data off the device to you or a third party. Caleb has no servers, analytics or SDKs that do that. Boards, photos, voice clips, settings and the optional usage log stay in on-device storage.
+   - Collection means sending data off the device to you or a third party. AACFree has no servers, analytics or SDKs that do that. Boards, photos, voice clips, settings and the optional usage log stay in on-device storage.
    - **Camera and microphone** are used only on the device. Photos and voice clips are saved locally, and head/eye pointer frames are processed in memory and never stored or sent. Under Play's definitions, on-device processing is not collection.
-   - **Online symbol search:** when a grown-up searches for more pictures, the search words are sent directly to the ARASAAC API, and the images are downloaded from ARASAAC. No identifiers are attached and Caleb keeps no search history. This is an anonymous, user-initiated content fetch. If you prefer to be extra conservative, you can instead declare *App activity → "In-app search history": collected, not shared, processed ephemerally, optional, purpose "App functionality"*. Both answers are defensible; "No" is accurate for Caleb itself.
-   - **Text-to-speech:** speech goes through the system TTS engine the user chose. If that engine uses online voices, the engine's provider handles that data, not Caleb.
+   - **Online symbol search:** when a grown-up searches for more pictures, the search words are sent directly to the ARASAAC API, and the images are downloaded from ARASAAC. No identifiers are attached and AACFree keeps no search history. This is an anonymous, user-initiated content fetch. If you prefer to be extra conservative, you can instead declare *App activity → "In-app search history": collected, not shared, processed ephemerally, optional, purpose "App functionality"*. Both answers are defensible; "No" is accurate for AACFree itself.
+   - **Text-to-speech:** speech goes through the system TTS engine the user chose. If that engine uses online voices, the engine's provider handles that data, not AACFree.
    - **Backups, sync and share** files are created only when the user chooses, and the user decides where they go. Sync files are encrypted with a passcode. Android Auto Backup belongs to the user's own Google account and is not collection by the developer.
 2. Since the answer is "No", the form skips the security-practice questions. Review the preview: it should say **"No data collected"** and **"No data shared with third parties"**.
 

@@ -1,6 +1,6 @@
 ---
 name: add-vocabulary
-description: Add or change Caleb's default words, categories, phrases or schedules, and fetch/curate their ARASAAC symbols. Use when asked to add words, new topic folders, default phrases, fix a wrong picture, or change the home layouts.
+description: Add or change AACFree's default words, categories, phrases or schedules, and fetch/curate their ARASAAC symbols. Use when asked to add words, new topic folders, default phrases, fix a wrong picture, or change the home layouts.
 ---
 
 # Adding vocabulary

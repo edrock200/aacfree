@@ -8,8 +8,8 @@ import { hasUserContent } from './validate';
 
 /**
  * Automatic backups that survive losing the app or the device.
- *  - Android: dated files in Documents/Caleb on the device. The files stay after
- *    the app is removed, but after a reinstall on Android 11 and newer Caleb can
+ *  - Android: dated files in Documents/AACFree on the device. The files stay after
+ *    the app is removed, but after a reinstall on Android 11 and newer AACFree can
  *    no longer list them (they belong to the old install), so the restore list
  *    offers the system file picker, which can still open them.
  *    Optionally also one file in any storage provider the family picks
@@ -96,9 +96,11 @@ const PERIOD: Record<Frequency, number> = { daily: DAY, weekly: 7 * DAY, monthly
 const RETRY_AFTER = 6 * HOUR;
 /** Bytes per chunk sent over the Android bridge (a multiple of 3, so every base64 piece stands alone). */
 const CHUNK = 3 * 1024 * 1024;
-const DIR = 'Caleb';
+/** Automatic backups go to Documents/AACFree; copies made before the rename (Documents/Caleb) are still listed and restorable. */
+const DIR = 'AACFree';
+const OLD_DIR = 'Caleb';
 const native = () => Capacitor.isNativePlatform();
-const FILE_RE = /^caleb-(?:auto-)?backup-(\d{4}-\d{2}-\d{2})(?:[-_](\d{4}))?\.json$/;
+const FILE_RE = /^(?:aacfree|caleb)-(?:auto-)?backup-(\d{4}-\d{2}-\d{2})(?:[-_](\d{4}))?\.json$/;
 
 export const folderPickerSupported = () => !native() && 'showDirectoryPicker' in window;
 export const cloudFileSupported = () => native();
@@ -132,14 +134,14 @@ export async function chooseBackupFolder(): Promise<string | null> {
 /** Android: pick (create) a file in Google Drive / OneDrive / Dropbox / SD card. */
 export async function chooseCloudFile(): Promise<string | null> {
   if (!cloudFileSupported()) return null;
-  const r = await CalebFiles.createDocument({ name: 'caleb-backup.json' });
+  const r = await CalebFiles.createDocument({ name: 'aacfree-backup.json' });
   await setPrefs({ cloudUri: r.uri, cloudName: r.name });
   return r.name;
 }
 export async function forgetCloudFile() { await setPrefs({ cloudUri: undefined, cloudName: undefined }); }
 
 export async function backupFolderName(): Promise<string | null> {
-  if (native()) return 'Documents/Caleb';
+  if (native()) return 'Documents/AACFree';
   const h = await getMeta<DirHandle>('backupFolder');
   return h?.name ?? null;
 }
@@ -147,7 +149,7 @@ export async function backupFolderName(): Promise<string | null> {
 export const lastAutoBackup = () => getMeta<AutoBackupStatus>('autoBackup');
 
 /**
- * Android 10 and older need a storage permission for Documents/Caleb. Asking
+ * Android 10 and older need a storage permission for Documents/AACFree. Asking
  * only happens when a grown-up taps something in the Backup panel.
  */
 export async function hasStoragePermission(): Promise<boolean> {
@@ -217,7 +219,7 @@ async function* base64Chunks(blob: Blob): AsyncGenerator<string> {
   }
 }
 
-/** Android: write Documents/Caleb/<name> in chunks to a temporary name, check its size, then rename. */
+/** Android: write Documents/AACFree/<name> in chunks to a temporary name, check its size, then rename. */
 async function writeDeviceFile(name: string, blob: Blob) {
   const tmp = `${DIR}/${name}.part`;
   let first = true;
@@ -297,7 +299,7 @@ export async function runAutoBackup(data: AppData, opts: { force?: boolean; inte
     return saveStatus(last, dest, due);
   }
   const blob = await createBackup(data, { includeMedia: prefs.includeMedia, includeHistory: prefs.includeHistory, passcode });
-  const name = `caleb-backup-${stamp()}.json`;
+  const name = `aacfree-backup-${stamp()}.json`;
 
   if (due.includes('device')) {
     const allowed = (await hasStoragePermission()) || (opts.interactive ? await askStoragePermission() : false);
@@ -305,7 +307,7 @@ export async function runAutoBackup(data: AppData, opts: { force?: boolean; inte
     else {
       try {
         await writeDeviceFile(name, blob);
-        succeed('device', `Documents/Caleb/${name}`);
+        succeed('device', `Documents/AACFree/${name}`);
         await rotateDevice(prefs.keep, period).catch((e) => console.warn('rotation failed', e));
       } catch (e) {
         console.warn('device backup failed', e);
@@ -367,19 +369,22 @@ export async function rotateFolder(h: Pick<DirHandle, 'entries' | 'removeEntry'>
   for (const n of filesToDelete(names, keep, period)) await h.removeEntry(n).catch(() => {});
 }
 
-/** All automatic backups Caleb can see, newest first (for "Restore an automatic backup"). */
+/** All automatic backups AACFree can see, newest first (for "Restore an automatic backup"). */
 export async function listSavedBackups(opts: { interactive?: boolean } = {}): Promise<SavedBackup[]> {
   const out: SavedBackup[] = [];
   if (native()) {
     try {
       if ((await hasStoragePermission()) || (opts.interactive && (await askStoragePermission()))) {
-        const { files } = await Filesystem.readdir({ path: DIR, directory: Directory.Documents });
-        for (const f of files) {
-          if (!FILE_RE.test(f.name)) continue;
-          out.push({
-            name: f.name, t: timeOf(f.name), source: 'device',
-            read: async () => (await Filesystem.readFile({ path: `${DIR}/${f.name}`, directory: Directory.Documents, encoding: Encoding.UTF8 })).data as string,
-          });
+        for (const dir of [DIR, OLD_DIR]) {
+          let files: { name: string }[] = [];
+          try { ({ files } = await Filesystem.readdir({ path: dir, directory: Directory.Documents })); } catch { continue; /* no folder */ }
+          for (const f of files) {
+            if (!FILE_RE.test(f.name)) continue;
+            out.push({
+              name: f.name, t: timeOf(f.name), source: 'device',
+              read: async () => (await Filesystem.readFile({ path: `${dir}/${f.name}`, directory: Directory.Documents, encoding: Encoding.UTF8 })).data as string,
+            });
+          }
         }
       }
     } catch { /* no folder yet */ }
@@ -402,7 +407,7 @@ export async function listSavedBackups(opts: { interactive?: boolean } = {}): Pr
   return out.sort((a, b) => b.t - a.t);
 }
 
-/** Android: open any backup file from a storage provider (e.g. a backup in Google Drive, or Documents/Caleb after a reinstall). */
+/** Android: open any backup file from a storage provider (e.g. a backup in Google Drive, or Documents/AACFree after a reinstall). */
 export async function openCloudBackup(): Promise<string | null> {
   if (!native()) return null;
   const r = await CalebFiles.openDocument();

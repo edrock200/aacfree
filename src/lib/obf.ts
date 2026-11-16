@@ -11,7 +11,7 @@ const MAX_FILE = 150 * 1024 * 1024;
 
 /**
  * Open Board Format (https://www.openboardformat.org) import / export, so
- * boards can move between Caleb, CoughDrop, Cboard and other AAC apps.
+ * boards can move between AACFree, CoughDrop, Cboard and other AAC apps.
  */
 
 interface OBFButton {
@@ -30,7 +30,7 @@ interface OBFButton {
   ext_caleb_speak_only?: boolean;
 }
 
-// Caleb actions ↔ OBF spec actions (others round-trip via ext_caleb_action).
+// AACFree actions ↔ OBF spec actions (others round-trip via ext_caleb_action).
 const TO_OBF_ACTION: Partial<Record<string, string>> = { home: ':home', speak: ':speak', clear: ':clear', backspace: ':backspace', back: ':back' };
 const FROM_OBF_ACTION: Record<string, ButtonAction> = { ':home': 'home', ':speak': 'speak', ':clear': 'clear', ':backspace': 'backspace', ':back': 'back' };
 interface OBFImage { id: string; url?: string; data?: string; path?: string; content_type?: string; width?: number; height?: number }
@@ -208,7 +208,7 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
       // No usable manifest: fine when there is just one board.
       const obfPaths = Object.keys(entries).filter((p) => p.endsWith('.obf'));
       if (obfPaths.length === 1) rootPath = obfPaths[0];
-      else if (!entries['manifest.json']) throw new Error('This .obz file has no manifest, so Caleb can’t tell which board comes first.');
+      else if (!entries['manifest.json']) throw new Error('This .obz file has no manifest, so AACFree can’t tell which board comes first.');
       else throw new Error('No root board found in this file.');
     }
   } else {

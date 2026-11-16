@@ -3,7 +3,7 @@ import { useStore } from '../store';
 import { t } from '../i18n';
 
 /**
- * Shown while saved data could not be used and Caleb runs from memory
+ * Shown while saved data could not be used and AACFree runs from memory
  * without saving (talking still works). Settings can hide it for now.
  */
 export function LoadProblemBanner() {
@@ -11,10 +11,10 @@ export function LoadProblemBanner() {
   const [hidden, setHidden] = useState(false);
   if (!problem || hidden) return null;
   const text = problem === 'newer'
-    ? t('Your boards were saved by a newer version of Caleb. Please update Caleb. Until then, changes are not saved.')
+    ? t('Your boards were saved by a newer version of AACFree. Please update AACFree. Until then, changes are not saved.')
     : problem === 'unreadable'
       ? t('Your saved boards could not be opened. A copy was kept on this device. Restore a backup in Settings → Backup. Until then, changes are not saved.')
-      : t('Could not open saved boards. Changes will not be saved. Please restart Caleb.');
+      : t('Could not open saved boards. Changes will not be saved. Please restart AACFree.');
   return (
     <div className="save-error" role="alert">
       ⚠ {text}

@@ -55,9 +55,9 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
   const canAuto = native || folderPickerSupported();
   return (
     <Section title={t('Automatic backup')} intro={native
-      ? t('Caleb saves backup files to Documents/Caleb on this device. They stay there even if the app is removed. You can also keep a copy in Google Drive, OneDrive, Dropbox or on an SD card.')
+      ? t('AACFree saves backup files to Documents/AACFree on this device. They stay there even if the app is removed. You can also keep a copy in Google Drive, OneDrive, Dropbox or on an SD card.')
       : canAuto
-        ? t('Caleb saves backup files to a folder you choose (for example a Google Drive, Dropbox or OneDrive folder on this computer).')
+        ? t('AACFree saves backup files to a folder you choose (for example a Google Drive, Dropbox or OneDrive folder on this computer).')
         : t('This browser can’t save files automatically. Use “Save backup file” regularly, or use the Android app or Chrome on a computer.')}>
       {canAuto && (
         <>
@@ -67,7 +67,7 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
           <Slider label={t('Copies to keep')} hint={t('Older copies are deleted automatically.')} value={prefs.keep} min={1} max={12} onChange={(keep) => update({ keep })} />
           <div className="setting">
             <span className="setting-text"><b>{t('Where')}</b>
-              <small>{native ? 'Documents/Caleb' : folder ? `${t('Folder')}: ${folder}` : t('No folder chosen yet.')}</small>
+              <small>{native ? 'Documents/AACFree' : folder ? `${t('Folder')}: ${folder}` : t('No folder chosen yet.')}</small>
               {native && <small>{prefs.cloudName ? `${t('Cloud copy')}: ${prefs.cloudName}` : t('No cloud copy yet.')}</small>}
             </span>
             {!native && <button className="btn" onClick={async () => { const n = await chooseBackupFolder().catch(() => null); if (n) { setFolder(n); now(); } }}>{folder ? t('Change folder') : t('Choose folder')}</button>}
@@ -114,7 +114,7 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
           </ul>
           {native && !saved.some((b) => b.source === 'device') && (
             <>
-              <p className="muted small">{t('After Caleb is reinstalled, Android may hide the backups the old app saved. They are still in Documents/Caleb: choose one with the file picker.')}</p>
+              <p className="muted small">{t('After AACFree is reinstalled, Android may hide the backups the old app saved. They are still in Documents/AACFree: choose one with the file picker.')}</p>
               <button className="btn" onClick={async () => { const text = await openCloudBackup().catch(() => null); if (text) { setSaved(null); onRestore(text, t('Backup file')); } }}>{t('Choose a backup file…')}</button>
             </>
           )}
@@ -380,7 +380,7 @@ export function SyncSection() {
     try {
       const blob = await createSyncFile(useStore.getState().data, chosen, code, await myDevices());
       const stamp = new Date().toISOString().slice(0, 10);
-      showToast(await saveFile(`caleb-sync-${stamp}.calebsync.json`, blob));
+      showToast(await saveFile(`aacfree-sync-${stamp}.json`, blob));
       setSending(false);
     } catch (e) { setError(t((e as Error).message)); } finally { setBusy(false); }
   };

@@ -22,7 +22,7 @@ export { mergeData, totalReceived, type MergeSummary, type SyncConflict } from '
  * profile names) and is authenticated as AES-GCM additional data, so it can't
  * be changed without the passcode. `data` is the deflated, encrypted payload:
  *   { app, kind: 'sync-data', v: 2, data: AppData, devices, assets }
- * v1 files (Caleb 0.4: plaintext profile names, no stored iteration count)
+ * v1 files (AACFree 0.4: plaintext profile names, no stored iteration count)
  * can still be read and merged.
  */
 
@@ -49,7 +49,7 @@ export type SyncFile = SyncFileV1 | SyncFileV2;
 export interface OpenedSync {
   data: AppData;
   devices: Record<string, DeviceInfo>;
-  /** A Caleb 0.4 file. */
+  /** A AACFree 0.4 file. */
   legacy: boolean;
   rev?: string;
   /** Salt of the file (lets automatic sync reuse its cached key). */
@@ -84,7 +84,7 @@ export type Strength = 'short' | 'weak' | 'ok' | 'strong';
 export function passcodeStrength(raw: string): { bits: number; level: Strength } {
   const s = normalizePasscode(raw);
   if (s.length < MIN_PASSCODE) return { bits: 0, level: 'short' };
-  // A passcode in Caleb's own suggested format (XXXX-XXXX-XXXX from ALPHABET) is random: 12 × log2(31) ≈ 59 bits.
+  // A passcode in AACFree's own suggested format (XXXX-XXXX-XXXX from ALPHABET) is random: 12 × log2(31) ≈ 59 bits.
   // The heuristic below would sometimes underrate one that happens to be all letters or have neighbouring letters.
   if (GENERATED.test(raw.trim().toUpperCase())) return { bits: Math.floor(12 * Math.log2(ALPHABET.length)), level: 'strong' };
   let pool = 0;
@@ -124,11 +124,11 @@ export function parseLeadingJSON(text: string): unknown {
 
 export function peekSyncFile(text: string): SyncFile {
   let f: SyncFile;
-  try { f = parseLeadingJSON(text) as SyncFile; } catch { throw new Error('This file is damaged or is not a Caleb sync file.'); }
+  try { f = parseLeadingJSON(text) as SyncFile; } catch { throw new Error('This file is damaged or is not a AACFree sync file.'); }
   if (!f || typeof f !== 'object' || f.app !== 'caleb' || f.kind !== 'sync' || typeof f.data !== 'string' || typeof f.salt !== 'string' || typeof f.iv !== 'string') {
-    throw new Error('This is not a Caleb sync file.');
+    throw new Error('This is not a AACFree sync file.');
   }
-  if (f.v !== 1 && f.v !== 2) throw new Error('This file was made by a newer version of Caleb. Please update the app first.');
+  if (f.v !== 1 && f.v !== 2) throw new Error('This file was made by a newer version of AACFree. Please update the app first.');
   return f;
 }
 
@@ -234,16 +234,16 @@ export async function openSyncFile(f: SyncFile, passcode: string): Promise<Opene
   if (f.v === 1) {
     const plain = await unseal(f, passcode);
     let backup: { app?: string; data?: AppData; assets?: unknown };
-    try { backup = JSON.parse(new TextDecoder().decode(plain)); } catch { throw new Error('This file is damaged or is not a Caleb sync file.'); }
-    if (backup?.app !== 'caleb' || !backup.data?.profiles?.length) throw new Error('This is not a Caleb sync file.');
+    try { backup = JSON.parse(new TextDecoder().decode(plain)); } catch { throw new Error('This file is damaged or is not a AACFree sync file.'); }
+    if (backup?.app !== 'caleb' || !backup.data?.profiles?.length) throw new Error('This is not a AACFree sync file.');
     const data = migrate(structuredClone(backup.data)); // validates (throws on a bad or newer file)
     await storeAssets(backup.assets);
     return { data, devices: {}, legacy: true, salt: f.salt };
   }
   const plain = await unseal(f, normalizePasscode(passcode), { aad: headerAAD(f) });
   let payload: { app?: string; kind?: string; data?: AppData; devices?: unknown; assets?: unknown };
-  try { payload = JSON.parse(strFromU8(f.z === 'deflate' ? inflateSync(plain) : plain)); } catch { throw new Error('This file is damaged or is not a Caleb sync file.'); }
-  if (payload?.app !== 'caleb' || payload.kind !== 'sync-data' || !payload.data?.profiles?.length) throw new Error('This is not a Caleb sync file.');
+  try { payload = JSON.parse(strFromU8(f.z === 'deflate' ? inflateSync(plain) : plain)); } catch { throw new Error('This file is damaged or is not a AACFree sync file.'); }
+  if (payload?.app !== 'caleb' || payload.kind !== 'sync-data' || !payload.data?.profiles?.length) throw new Error('This is not a AACFree sync file.');
   const data = migrate(structuredClone(payload.data));
   await storeAssets(payload.assets);
   return { data, devices: cleanDevices(payload.devices), legacy: false, rev: f.rev, salt: f.salt };

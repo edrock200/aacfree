@@ -136,7 +136,7 @@ async function phoneShots(browser) {
   await settle(page);
   if (!(await page.$('.grid .cell[aria-label="Food folder"]'))) await goHome(page);
   await settle(page);
-  await save(browser, 'phone', 1, 'sentence', await shot(page), 'Tap pictures.<br>Caleb speaks.');
+  await save(browser, 'phone', 1, 'sentence', await shot(page), 'Tap pictures.<br>AACFree speaks.');
 
   await clearMessage(page);
   await page.click('.navbtn[aria-label="Keyboard"]');
@@ -238,7 +238,7 @@ async function art(browser) {
     .cell img { width: 74px; height: 74px; object-fit: contain; }
   </style></head><body>
     <div class="brand">
-      <div class="logo">${iconSvg}<b>Caleb</b></div>
+      <div class="logo">${iconSvg}<b>AACFree</b></div>
       <div class="tag">A voice for every word</div>
       <div class="sub">Free AAC · Works offline · No ads</div>
     </div>

@@ -25,13 +25,13 @@ export function DataPanel() {
   const max = Math.max(1, ...stats.days.map((d) => d.n));
 
   const exportCsv = async () => {
-    const msg = await saveFile(`caleb-usage-${p.name || 'profile'}.csv`, new Blob([usageCsv(log)], { type: 'text/csv' }));
+    const msg = await saveFile(`aacfree-usage-${p.name || 'profile'}.csv`, new Blob([usageCsv(log)], { type: 'text/csv' }));
     showToast(msg);
   };
 
   return (
     <>
-      <Section title={t('Usage insights')} intro={t("Off by default. When on, Caleb keeps a private log on this device only. It is never uploaded. Remember: number of taps isn't the same as communication — use this to spot words to model and celebrate growth. Turn on “Model” in the bottom bar while you demonstrate, so your taps aren't counted as theirs.")}>
+      <Section title={t('Usage insights')} intro={t("Off by default. When on, AACFree keeps a private log on this device only. It is never uploaded. Remember: number of taps isn't the same as communication — use this to spot words to model and celebrate growth. Turn on “Model” in the bottom bar while you demonstrate, so your taps aren't counted as theirs.")}>
         <Toggle label={t('Keep a usage log')} checked={s.logging} onChange={(logging) => updateSettings({ logging })} />
       </Section>
       {log.length > 0 && (

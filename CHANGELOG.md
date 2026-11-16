@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 — 2026-11-16
+**Caleb is now AACFree.** It's the same app, still free, with a new name.
+- The new name is everywhere: the app name on the home screen, the web app, every screen and help text in all four languages, the website (**https://aacappfree.com**, with the web app at `/app/`), the store listing and the release files.
+- **Nothing is lost on updating.** Boards, photos, recordings, settings, profiles, backups and sync all carry over. It installs over Caleb as an update, because the app's internal id and signing key are unchanged.
+- New backup and sync files are named `aacfree-…`, and Android's automatic backups go to `Documents/AACFree`. Backups made by Caleb (`caleb-…` files and `Documents/Caleb`) still appear in the restore list and still open. Old sync files keep working.
+- Releases now offer `aacfree.apk`. The old `caleb.apk` link and the Downloader code keep working and always get the newest version.
+
 ## 0.6.0 — 2026-11-16
 - **Import a board from a picture.** Settings → Boards & words → **Import a board from a picture** (or "Or import a board from a picture…" in New category). Take a photo or a screenshot of a board in another AAC app (TD Snap, Proloquo2Go, TouchChat, LAMP, Cboard…) or of a paper board, and Caleb rebuilds it with the same grid and the same word in every square, so the person keeps their motor plan.
   - **Finds the grid by itself**: the background, the gaps between tiles, and the number of rows and columns. Toolbars, message bars and side panels are left out, and empty squares inside the grid still count. You can drag the edges (on touch too), nudge them with arrow buttons, and change the rows and columns.

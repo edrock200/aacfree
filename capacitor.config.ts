@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'org.calebaac.app',
-  appName: 'Caleb',
+  appName: 'AACFree',
   webDir: 'dist',
   // The app is served from https://localhost (Capacitor's default androidScheme 'https').
   // Don't change the scheme or hostname: it is the origin that owns the saved boards

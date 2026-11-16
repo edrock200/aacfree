@@ -102,7 +102,7 @@ function paths(root: unknown): [Record<string, unknown> | unknown[], string | nu
   return out;
 }
 
-const FRIENDLY = /no Caleb profiles|newer version|no usable boards/;
+const FRIENDLY = /no AACFree profiles|newer version|no usable boards/;
 
 describe('migrate: the single gate for untrusted data', () => {
   it('fixes every field type that used to crash or brick the app', () => {
@@ -284,8 +284,8 @@ describe('locks and privacy in files', () => {
 
   it('readBackup refuses junk with a friendly message', async () => {
     await expect(readBackup('not json')).rejects.toThrow(/damaged/);
-    await expect(readBackup('{"app":"caleb","data":{"profiles":"x"}}')).rejects.toThrow(/not a Caleb backup/);
-    await expect(readBackup('null')).rejects.toThrow(/not a Caleb backup/);
+    await expect(readBackup('{"app":"caleb","data":{"profiles":"x"}}')).rejects.toThrow(/not a AACFree backup/);
+    await expect(readBackup('null')).rejects.toThrow(/not a AACFree backup/);
   });
 });
 

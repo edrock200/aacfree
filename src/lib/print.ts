@@ -50,7 +50,7 @@ export async function buildPrintHTML(p: Profile, boardIds: string[], includeHidd
       <div class="g" style="grid-template-columns:repeat(${num(board.cols, 20)},1fr)">${cells.join('')}</div></section>`);
   }
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(p.name || 'Caleb')} — communication boards</title>
+<title>${esc(p.name || 'AACFree')} — communication boards</title>
 <style>
   @page { size: landscape; margin: 10mm; }
   body { font-family: 'Atkinson Hyperlegible', Arial, sans-serif; margin: 0; padding: 12px; color: #111; }
@@ -73,7 +73,7 @@ export async function buildPrintHTML(p: Profile, boardIds: string[], includeHidd
 </style></head><body>
 <div class="bar"><button onclick="window.print()">${esc(t('Print'))}</button><span>${esc(t('Tip: print in colour, landscape. Laminate for durability.'))}</span></div>
 ${pages.join('\n')}
-<p class="note">Made with Caleb AAC. Pictograms: Sergio Palao, ARASAAC (Government of Aragón), CC BY-NC-SA 4.0.</p>
+<p class="note">Made with AACFree AAC. Pictograms: Sergio Palao, ARASAAC (Government of Aragón), CC BY-NC-SA 4.0.</p>
 </body></html>`;
 }
 
@@ -91,5 +91,5 @@ export async function printBoards(p: Profile, boardIds: string[]): Promise<strin
       return t('Print view opened');
     }
   }
-  return saveFile(`${(p.name || 'caleb').toLowerCase().replace(/\W+/g, '-')}-boards.html`, new Blob([html], { type: 'text/html' }));
+  return saveFile(`${(p.name || 'aacfree').toLowerCase().replace(/\W+/g, '-')}-boards.html`, new Blob([html], { type: 'text/html' }));
 }

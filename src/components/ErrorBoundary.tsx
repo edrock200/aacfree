@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
   }
 
   componentDidCatch(error: Error) {
-    console.error('Caleb crashed', error);
+    console.error('AACFree crashed', error);
   }
 
   restore = async () => {
@@ -43,7 +43,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
           date: formatDate(s.t), reason: t(s.reason),
         }));
         if (!ok) { this.setState({ busy: false }); return; }
-        // Keep what is there now: the in-memory version if Caleb loaded, otherwise what is stored.
+        // Keep what is there now: the in-memory version if AACFree loaded, otherwise what is stored.
         const st = useStore.getState();
         const current = isSaveBlocked() ? null : st.loaded ? st.data : await loadData().catch(() => undefined);
         if (current?.profiles?.length) {
@@ -85,9 +85,9 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
     return (
       <div className="crash">
         <h1>{t('Something went wrong')}</h1>
-        <p>{t('Caleb hit an unexpected problem. Your boards are usually still saved.')}</p>
+        <p>{t('AACFree hit an unexpected problem. Your boards are usually still saved.')}</p>
         <div className="row">
-          <button className="btn primary big" onClick={() => location.reload()}>{t('Reload Caleb')}</button>
+          <button className="btn primary big" onClick={() => location.reload()}>{t('Reload AACFree')}</button>
           <button className="btn big" disabled={this.state.busy} onClick={this.restore}>{t('Restore last automatic backup')}</button>
           <button className="btn big" onClick={this.saveRaw}>{t('Save my data')}</button>
         </div>
