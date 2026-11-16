@@ -51,7 +51,7 @@ export default defineConfig({
         // Precache the app shell and every bundled symbol so Caleb works fully offline, plus the
         // on-device OCR runtime and language data for "Import a board from a picture" (public/ocr,
         // about 10 MB: the WASM core and each language model are under 3 MB, so they fit the limit below).
-        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}', 'ocr/*.{wasm,gz}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}', 'ocr/*.{wasm,traineddata}'],
         // The head/eye pointer runtime (~13 MB) is cached on first use instead of precached.
         globIgnores: ['vision/**'],
         runtimeCaching: [{

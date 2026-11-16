@@ -1088,6 +1088,41 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   check(!violations.length, `picture import: no Content-Security-Policy violations (${violations.join(' | ')})`);
   check(!outside.length, `picture import: nothing is fetched from outside the app (${outside.join(', ')})`);
   await offline.close();
+
+  // The installed web app: the service worker precaches the OCR files, so import works with the network off.
+  const pwa = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+  const pw = await pwa.newPage();
+  pw.on('pageerror', (e) => errors.push('pwa import: ' + e.message));
+  await pw.goto(url);
+  await pw.evaluate(() => navigator.serviceWorker.ready);
+  await pw.reload();
+  await pw.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 30000 }).catch(() => null);
+  const precached = await pw.evaluate(async () => {
+    let n = 0;
+    for (const k of await caches.keys()) n += (await (await caches.open(k)).keys()).filter((r) => r.url.includes('/ocr/')).length;
+    return n;
+  });
+  check(precached === 7, `picture import: the OCR worker, core and 4 languages are precached for offline use (${precached})`);
+  await pwa.setOffline(true);
+  await pw.reload();
+  await pw.fill('.onboarding input', 'Off');
+  await pw.click('text=Next');
+  await pw.click('.layout-card:has-text("Medium")');
+  await pw.click('text=Next'); await pw.click('text=Next');
+  await pw.click('text=Start talking');
+  await pw.waitForSelector('.grid');
+  const pb = await pw.locator('.lockbtn').boundingBox();
+  await pw.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2);
+  await pw.mouse.down(); await pw.waitForTimeout(2200); await pw.mouse.up();
+  await pw.waitForSelector('.grownup');
+  await pw.click('.gu-tab:has-text("Boards")');
+  await pw.click('.gu-section button:has-text("Import a board from a picture")');
+  await pw.setInputFiles('.bi-file', { name: 'board.png', mimeType: 'image/png', buffer: shot });
+  await pw.click('.bi-read');
+  await pw.waitForSelector('.bi-preview', { timeout: 60000 }).catch(() => null);
+  const offRead = await pw.$$eval('.bi-grid .bi-cell', (els) => els.map((e) => e.getAttribute('aria-label')));
+  check(offRead.filter((w, i) => w === words[i][0]).length >= 10, `picture import: works in the installed web app with the network off (${offRead.join(', ')})`);
+  await pwa.close();
 }
 
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');

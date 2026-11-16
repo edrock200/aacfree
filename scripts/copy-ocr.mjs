@@ -8,7 +8,10 @@
  *  - tesseract-core-simd-lstm.js/.wasm tesseract.js-core, LSTM-only SIMD build (Apache-2.0). Only this
  *    build is shipped: the worker loads the exact file we name, and the core finds its .wasm next to the
  *    worker. (The *.wasm.js variant embeds the same WASM as base64 and is about 1 MB bigger.)
- *  - <lang>.traineddata.gz             @tesseract.js-data 4.0.0_best_int models (MIT): eng, spa, fra, por
+ *  - <lang>.traineddata                @tesseract.js-data 4.0.0_best_int models (MIT): eng, spa, fra, por.
+ *    Copied from <lang>.traineddata.gz and still gzip-compressed (tesseract.js recognises the gzip
+ *    header and inflates it), but named without ".gz": the Android build (aapt) strips a ".gz"
+ *    extension and inflates the file, so a ".gz" URL would not exist in the APK.
  *
  * The copied files are git-ignored (about 10 MB); `npm run build` and `npm run dev` run this script.
  */
@@ -26,7 +29,7 @@ const files = [
   [nm('tesseract.js/dist/worker.min.js'), 'worker.min.js'],
   [nm('tesseract.js-core/tesseract-core-simd-lstm.js'), 'tesseract-core-simd-lstm.js'],
   [nm('tesseract.js-core/tesseract-core-simd-lstm.wasm'), 'tesseract-core-simd-lstm.wasm'],
-  ...['eng', 'spa', 'fra', 'por'].map((l) => [nm(`@tesseract.js-data/${l}/4.0.0_best_int/${l}.traineddata.gz`), `${l}.traineddata.gz`]),
+  ...['eng', 'spa', 'fra', 'por'].map((l) => [nm(`@tesseract.js-data/${l}/4.0.0_best_int/${l}.traineddata.gz`), `${l}.traineddata`]),
 ];
 let total = 0;
 for (const [src, name] of files) {

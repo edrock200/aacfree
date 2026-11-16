@@ -222,8 +222,8 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
       }>
       <label className="field"><span>{t('Name')}</span><input value={name} onChange={(e) => setName(e.target.value)} /></label>
       <div className="row">
-        {stepper('Columns', cols, setCols, 1, 12)}
-        {stepper('Rows', rows, setRows, 1, 14)}
+        {stepper(t('Columns'), cols, setCols, 1, 12)}
+        {stepper(t('Rows'), rows, setRows, 1, 14)}
       </div>
       {lost > 0 && <p className="error">{lost} button(s) would be removed by shrinking. Consider hiding them instead.</p>}
       <p className="muted small">{t('Buttons keep their row and column when you resize, so the motor plan stays the same.')}</p>

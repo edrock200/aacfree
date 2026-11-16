@@ -20,5 +20,5 @@ Third-party content NOT covered by the AGPL:
   copied from node_modules at build time): Apache License 2.0,
   https://github.com/naptha/tesseract.js and https://github.com/naptha/tesseract.js-core.
   Tesseract OCR itself is Apache License 2.0 (https://github.com/tesseract-ocr/tesseract).
-- Tesseract language data (public/ocr/*.traineddata.gz, from @tesseract.js-data/eng, spa, fra
+- Tesseract language data (public/ocr/*.traineddata, from @tesseract.js-data/eng, spa, fra
   and por, 4.0.0_best_int): MIT License, https://github.com/naptha/tessdata.

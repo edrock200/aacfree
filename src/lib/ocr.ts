@@ -35,7 +35,9 @@ export async function createReader(lang: Lang, onLoading?: (progress: number) =>
     langPath: local('').replace(/\/$/, ''),
     workerBlobURL: false,
     cacheMethod: 'none',
-    gzip: true,
+    // The files are named <lang>.traineddata but hold the gzip-compressed data, which tesseract.js
+    // detects and inflates (a ".gz" name would not survive the Android build; see copy-ocr.mjs).
+    gzip: false,
     logger: (m) => { if (m.status.startsWith('load') && onLoading) onLoading(m.progress); },
   });
   // Sparse text: find the label wherever it is on the tile, without reading the picture as a block
