@@ -33,10 +33,15 @@
     "@capacitor/status-bar": "^8.0.4",
     "@fontsource/atkinson-hyperlegible": "^5.3.0",
     "@mediapipe/tasks-vision": "^0.10.21",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "@tesseract.js-data/fra": "^1.0.0",
+    "@tesseract.js-data/por": "^1.0.0",
+    "@tesseract.js-data/spa": "^1.0.0",
     "fflate": "^0.8.3",
     "idb": "^8.0.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "tesseract.js": "^7.0.0",
     "zustand": "^5.1.0"
   },
   "devDependencies": {
