@@ -149,7 +149,7 @@ jobs:
             echo
             echo "The newest version is always at https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/caleb.apk"
             echo
-            echo "Web app: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/app/"
+            echo "Web app (no install needed, works offline): https://aacappfree.com/app/"
           } >> notes.md
           cat notes.md
       # A published version is never silently replaced: people may already have installed it.
