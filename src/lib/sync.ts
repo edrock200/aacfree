@@ -60,6 +60,7 @@ export interface OpenedSync {
 
 /** No 0/O, 1/I/L: nothing to mix up when reading it out or copying by hand. */
 const ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+const GENERATED = new RegExp(`^[${ALPHABET}]{4}-[${ALPHABET}]{4}-[${ALPHABET}]{4}$`);
 export const MIN_PASSCODE = 8;
 
 /** A random passcode like "K7QM-4XTR-9PWD": 12 characters from 31, about 59 bits. */
@@ -83,6 +84,9 @@ export type Strength = 'short' | 'weak' | 'ok' | 'strong';
 export function passcodeStrength(raw: string): { bits: number; level: Strength } {
   const s = normalizePasscode(raw);
   if (s.length < MIN_PASSCODE) return { bits: 0, level: 'short' };
+  // A passcode in Caleb's own suggested format (XXXX-XXXX-XXXX from ALPHABET) is random: 12 × log2(31) ≈ 59 bits.
+  // The heuristic below would sometimes underrate one that happens to be all letters or have neighbouring letters.
+  if (GENERATED.test(raw.trim().toUpperCase())) return { bits: Math.floor(12 * Math.log2(ALPHABET.length)), level: 'strong' };
   let pool = 0;
   if (/[0-9]/.test(s)) pool += 10;
   if (/[A-Z]/.test(s)) pool += 26;
