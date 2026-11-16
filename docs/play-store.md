@@ -11,7 +11,7 @@ Everything that doesn't need the developer account is already done and lives in 
 | Feature graphic 1024×500 | `fastlane/metadata/android/en-US/images/featureGraphic.png` |
 | Phone screenshots (6, 1080×1920) | `fastlane/metadata/android/en-US/images/phoneScreenshots/` |
 | 10-inch tablet screenshots (4, 2560×1600) | `fastlane/metadata/android/en-US/images/tenInchScreenshots/` |
-| Privacy policy | `site/privacy.html` → `https://edrock200.github.io/caleb/privacy.html` once Pages deploys `main` |
+| Privacy policy | `site/privacy.html` → `https://aacappfree.com/privacy.html` |
 | Screenshot generator | `scripts/store-screenshots.cjs` (see [Regenerating the graphics](#regenerating-the-graphics)) |
 
 Package name: **`org.calebaac.app`**. It can never change after the first upload.
@@ -112,7 +112,7 @@ jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-r
 **Store settings** (Store presence → Store settings):
 - App category: **Communication**. Avoid "Medical", which brings extra health declarations and implies medical claims.
 - Tags: pick things like *Communication*, *Accessibility* and *Education* if they're offered.
-- Contact details: your public email, and the website `https://edrock200.github.io/caleb/`.
+- Contact details: your public email, and the website `https://aacappfree.com/`.
 
 **Spanish translation:** Main store listing → **Manage translations → Add your own translation text → Spanish (Latin America) – es-419**. Paste the three files from `fastlane/metadata/android/es-419/`. The graphics fall back to the English ones. The description already says the app is in English for now and that Spanish support comes in 0.3. **Remove that sentence** once 0.3 ships.
 
@@ -120,7 +120,7 @@ jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-r
 
 Work through every item. Suggested answers:
 
-- **Privacy policy:** `https://edrock200.github.io/caleb/privacy.html`. Make sure Pages has deployed it first.
+- **Privacy policy:** `https://aacappfree.com/privacy.html`.
 - **Ads:** No, the app does not contain ads.
 - **App access:** "All or some functionality is restricted". Instructions for the reviewer: *"No login. Settings and editing are behind the 'Settings' button in the bottom bar: press and hold it for 2 seconds. No password or PIN is set by default."*
 - **Content rating:** see step 8.
