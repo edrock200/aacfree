@@ -16,3 +16,9 @@ Third-party content NOT covered by the AGPL:
 - ARASAAC pictograms (public/symbols/): author Sergio Palao, origin ARASAAC
   (https://arasaac.org), Government of Aragón (Spain). License: CC BY-NC-SA 4.0.
 - Atkinson Hyperlegible font: Braille Institute of America, SIL Open Font License 1.1.
+- tesseract.js and tesseract.js-core (public/ocr/worker.min.js, public/ocr/tesseract-core-simd-lstm.*,
+  copied from node_modules at build time): Apache License 2.0,
+  https://github.com/naptha/tesseract.js and https://github.com/naptha/tesseract.js-core.
+  Tesseract OCR itself is Apache License 2.0 (https://github.com/tesseract-ocr/tesseract).
+- Tesseract language data (public/ocr/*.traineddata, from @tesseract.js-data/eng, spa, fra
+  and por, 4.0.0_best_int): MIT License, https://github.com/naptha/tessdata.

@@ -48,8 +48,10 @@ export default defineConfig({
         categories: ['education', 'medical', 'productivity'],
       },
       workbox: {
-        // Precache the app shell and every bundled symbol so Caleb works fully offline.
-        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        // Precache the app shell and every bundled symbol so Caleb works fully offline, plus the
+        // on-device OCR runtime and language data for "Import a board from a picture" (public/ocr,
+        // about 10 MB: the WASM core and each language model are under 3 MB, so they fit the limit below).
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}', 'ocr/*.{wasm,traineddata}'],
         // The head/eye pointer runtime (~13 MB) is cached on first use instead of precached.
         globIgnores: ['vision/**'],
         runtimeCaching: [{
@@ -57,7 +59,7 @@ export default defineConfig({
           handler: 'CacheFirst',
           options: { cacheName: 'caleb-vision', expiration: { maxEntries: 10 } },
         }],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallbackDenylist: [/^\/landing/],
       },
     }),
@@ -67,13 +69,15 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     rolldownOptions: {
       output: {
-        // Separate long-lived chunks: the framework, the camera pointer (MediaPipe) and OBF
-        // (fflate). Grown-up screens are a lazy route (App.tsx). Every chunk is still
-        // precached by the service worker and bundled in the APK, so all of it works offline.
+        // Separate long-lived chunks: the framework, the camera pointer (MediaPipe), OBF
+        // (fflate) and OCR (tesseract.js, loaded only by "Import a board from a picture").
+        // Grown-up screens are a lazy route (App.tsx). Every chunk is still precached by the
+        // service worker and bundled in the APK, so all of it works offline.
         codeSplitting: {
           groups: [
             { name: 'mediapipe', test: /node_modules[\\/]@mediapipe[\\/]/, priority: 30 },
             { name: 'obf', test: /node_modules[\\/]fflate[\\/]|src[\\/]lib[\\/]obf\.ts/, priority: 20 },
+            { name: 'ocr', test: /node_modules[\\/](tesseract\.js|bmp-js|is-url|regenerator-runtime|wasm-feature-detect|zlibjs|idb-keyval)[\\/]|src[\\/]lib[\\/]ocr\.ts/, priority: 25 },
             { name: 'vendor', test: /node_modules[\\/](react|react-dom|scheduler|zustand|idb|@capacitor)[\\/]/, priority: 10 },
           ],
         },

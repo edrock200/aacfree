@@ -985,6 +985,146 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await ctx.close();
 }
 
+// --- v0.6 picture import ---
+// A synthetic AAC board (4 × 3 coloured tiles with pictures and words under a message bar) is
+// screenshotted, then imported through the UI. Every request that is not localhost is aborted, and
+// the browser cannot even resolve other hosts, so the OCR must run fully offline.
+{
+  const offline = await chromium.launch({ args: ['--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost'] });
+  const ctx = await offline.newContext({ viewport: { width: 1180, height: 820 }, serviceWorkers: 'block' });
+  const outside = [];
+  await ctx.route('**/*', (r) => {
+    const u = new URL(r.request().url());
+    if (u.hostname === 'localhost' || u.protocol === 'data:' || u.protocol === 'blob:') return r.continue();
+    outside.push(u.href);
+    return r.abort();
+  });
+  // The board uses the app's own font (Atkinson Hyperlegible) and bundled pictures.
+  const html = await (await fetch(url)).text();
+  const cssPath = html.match(/href="\.?\/?(assets\/index-[^"]+\.css)"/)?.[1];
+  const cssText = cssPath ? await (await fetch(new URL(cssPath, url))).text() : '';
+  const fontFile = cssText.match(/atkinson-hyperlegible-latin-700-normal-[\w-]+\.woff2/)?.[0];
+  const words = [['want', '#c5efb4', 5441], ['more', '#c4dcff', 5508], ['help', '#c5efb4', 4570], ['stop', '#ffc2c2', 7195],
+    ['eat', '#c5efb4', 2349], ['drink', '#c5efb4', 2276], ['play', '#c5efb4', 2439], ['go', '#c5efb4', 2432],
+    ['happy', '#c4dcff', 3245], ['dog', '#ffd8b0', 2517], ['ball', '#ffd8b0', 2269], ['you', '#fff1a8', 2608]];
+  const bp = await ctx.newPage();
+  await bp.setViewportSize({ width: 820, height: 620 });
+  await bp.setContent(`<html><head><style>
+    @font-face { font-family: AH; font-weight: 700; src: url(${new URL(`assets/${fontFile}`, url)}) format('woff2'); }
+    body { margin: 0; background: #f2efe9; font-family: AH, sans-serif; }
+    .bar { height: 70px; background: #33415c; color: #fff; display: flex; align-items: center; padding: 0 20px; font-size: 22px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px; height: 518px; }
+    .t { border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+    .t img { width: 72px; height: 72px; } .t b { font-size: 26px; color: #1d1d1f; margin-top: 6px; }
+  </style></head><body><div class="bar">I want</div><div class="grid">${words.map(([w, c, id]) => `<div class="t" style="background:${c}"><img src="${new URL(`symbols/${id}.webp`, url)}"><b>${w}</b></div>`).join('')}</div></body></html>`);
+  await bp.waitForLoadState('networkidle');
+  await bp.evaluate(() => document.fonts.ready);
+  const shot = await bp.screenshot();
+  await bp.close();
+
+  const im = await ctx.newPage();
+  im.on('pageerror', (e) => errors.push('import: ' + e.message));
+  await im.addInitScript(() => {
+    window.__csp = [];
+    document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.effectiveDirective} ${e.blockedURI}`));
+  });
+  await im.goto(url);
+  await im.fill('.onboarding input', 'Pat');
+  await im.click('text=Next');
+  await im.click('.layout-card:has-text("Medium")');
+  await im.click('text=Next'); await im.click('text=Next');
+  await im.click('text=Start talking');
+  await im.waitForSelector('.grid');
+  const lb = await im.locator('.lockbtn').boundingBox();
+  await im.mouse.move(lb.x + lb.width / 2, lb.y + lb.height / 2);
+  await im.mouse.down(); await im.waitForTimeout(2200); await im.mouse.up();
+  await im.waitForSelector('.grownup');
+  await im.click('.gu-tab:has-text("Boards")');
+  await im.click('.gu-section button:has-text("Import a board from a picture")');
+  await im.waitForSelector('.bi-file', { state: 'attached' });
+  check(await im.isVisible('text=The picture stays on this device'), 'picture import: says the picture stays on this device');
+  await im.setInputFiles('.bi-file', { name: 'board.png', mimeType: 'image/png', buffer: shot });
+  await im.waitForSelector('.bi-stage');
+  const rows = Number(await im.textContent('.bi-rows .bi-count'));
+  const cols = Number(await im.textContent('.bi-cols .bi-count'));
+  check(rows === 3 && cols === 4, `picture import: finds the grid (${rows} rows × ${cols} columns), leaving out the message bar`);
+  const t0 = Date.now();
+  await im.click('.bi-read');
+  await im.waitForSelector('.bi-preview', { timeout: 120000 }).catch(() => null);
+  const secs = ((Date.now() - t0) / 1000).toFixed(1);
+  const read = await im.$$eval('.bi-grid .bi-cell', (els) => els.map((e) => e.getAttribute('aria-label')));
+  const right = read.filter((w, i) => w === words[i][0]).length;
+  check(right >= 10, `picture import: reads the words on the device (${right}/12 right in ${secs} s: ${read.join(', ')})`);
+  const colours = await im.$$eval('.bi-grid .bi-cell', (els) => els.map((e) => getComputedStyle(e).backgroundColor));
+  check(colours[0] === 'rgb(197, 239, 180)' && colours[1] === 'rgb(196, 220, 255)' && colours[3] === 'rgb(255, 194, 194)' && colours[9] === 'rgb(255, 216, 176)' && colours[11] === 'rgb(255, 241, 168)',
+    'picture import: tile colours become word types (verb, describing, no, thing, person)');
+  // Bulk switch to the pictures from the screenshot, and back.
+  await im.click('.bi-preview .seg button:has-text("Pictures from my screenshot")');
+  const crops = await im.$$eval('.bi-grid .bi-cell img', (els) => els.filter((e) => e.src.startsWith('blob:')).length);
+  check(crops === 12, `picture import: "Pictures from my screenshot" uses the picture cut from each square (${crops})`);
+  await im.click('.bi-preview .seg button:has-text("Caleb symbols")');
+  // Fix one square: the first one takes its picture from the screenshot.
+  await im.click('.bi-grid .bi-cell >> nth=0');
+  await im.click('.modal .bi-pics button:has-text("From my screenshot")');
+  await im.click('.modal-foot button:has-text("Done") >> nth=-1');
+  await im.fill('.bi-name', 'Old app');
+  await im.click('.bi-save');
+  await im.waitForSelector('.editing .board-title:has-text("Old app")', { timeout: 10000 }).catch(() => null);
+  const saved = await im.$$eval('.grid .cell', (els) => els.map((e) => e.getAttribute('aria-label')));
+  const placed = saved.filter((w, i) => w === read[i] && w === words[i][0]).length;
+  check(saved.length === 12 && placed === right, `picture import: saved as a folder board with every word in its place (${saved.join(', ')})`);
+  check(await im.$eval('.grid .cell >> nth=0', (e) => !!e.querySelector('img')?.src.startsWith('blob:')).catch(() => false),
+    'picture import: a picture from the screenshot is stored on the device like a photo');
+  await im.click('.edit-tools button:has-text("Done")');
+  await im.click('.nav-home');
+  const onHome = (await im.$$eval('.grid .cell', (els) => els.map((e) => e.getAttribute('aria-label')))).includes('Old app folder');
+  if (!onHome) await im.click('.grid .cell[aria-label="More folder"]');
+  check(onHome || (await im.isVisible('.grid .cell[aria-label="Old app folder"]')), 'picture import: the new folder sits in a free square (Home or More)');
+  await im.click('.navbtn[aria-label="Settings"]');
+  await im.click('.gu-tab:has-text("Backup")');
+  check(await im.waitForSelector('.snap-list li:has-text("Before importing a board from a picture")', { timeout: 5000 }).then(() => true, () => false),
+    'picture import: a snapshot is saved before the board is added');
+  const violations = await im.evaluate(() => window.__csp ?? []);
+  check(!violations.length, `picture import: no Content-Security-Policy violations (${violations.join(' | ')})`);
+  check(!outside.length, `picture import: nothing is fetched from outside the app (${outside.join(', ')})`);
+  await offline.close();
+
+  // The installed web app: the service worker precaches the OCR files, so import works with the network off.
+  const pwa = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+  const pw = await pwa.newPage();
+  pw.on('pageerror', (e) => errors.push('pwa import: ' + e.message));
+  await pw.goto(url);
+  await pw.evaluate(() => navigator.serviceWorker.ready);
+  await pw.reload();
+  await pw.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 30000 }).catch(() => null);
+  const precached = await pw.evaluate(async () => {
+    let n = 0;
+    for (const k of await caches.keys()) n += (await (await caches.open(k)).keys()).filter((r) => r.url.includes('/ocr/')).length;
+    return n;
+  });
+  check(precached === 7, `picture import: the OCR worker, core and 4 languages are precached for offline use (${precached})`);
+  await pwa.setOffline(true);
+  await pw.reload();
+  await pw.fill('.onboarding input', 'Off');
+  await pw.click('text=Next');
+  await pw.click('.layout-card:has-text("Medium")');
+  await pw.click('text=Next'); await pw.click('text=Next');
+  await pw.click('text=Start talking');
+  await pw.waitForSelector('.grid');
+  const pb = await pw.locator('.lockbtn').boundingBox();
+  await pw.mouse.move(pb.x + pb.width / 2, pb.y + pb.height / 2);
+  await pw.mouse.down(); await pw.waitForTimeout(2200); await pw.mouse.up();
+  await pw.waitForSelector('.grownup');
+  await pw.click('.gu-tab:has-text("Boards")');
+  await pw.click('.gu-section button:has-text("Import a board from a picture")');
+  await pw.setInputFiles('.bi-file', { name: 'board.png', mimeType: 'image/png', buffer: shot });
+  await pw.click('.bi-read');
+  await pw.waitForSelector('.bi-preview', { timeout: 60000 }).catch(() => null);
+  const offRead = await pw.$$eval('.bi-grid .bi-cell', (els) => els.map((e) => e.getAttribute('aria-label')));
+  check(offRead.filter((w, i) => w === words[i][0]).length >= 10, `picture import: works in the installed web app with the network off (${offRead.join(', ')})`);
+  await pwa.close();
+}
+
 console.log(errors.length ? 'PAGE ERRORS:\n' + errors.join('\n') : 'No page errors');
 await browser.close();
 process.exit(failures || errors.length ? 1 : 0);

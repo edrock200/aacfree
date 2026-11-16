@@ -3,7 +3,7 @@ import { useStore, useProfile } from '../store';
 import { Modal } from './Modal';
 import { Symbol } from './Symbol';
 import { SymbolPicker } from './SymbolPicker';
-import { searchLibrary } from '../lib/library';
+import { suggestSymbol } from '../lib/library';
 import { boardPaths } from '../lib/boards';
 import { uid } from '../lib/util';
 import type { AACButton, WordType } from '../types';
@@ -25,12 +25,7 @@ export function AddWordDialog({ initialWord = '', boardId, onClose }: { initialW
   const paths = useMemo(() => boardPaths(p), [p]);
   const boards = Object.values(p.boards).sort((a, b) => (paths[a.id]?.length ?? 99) - (paths[b.id]?.length ?? 99) || a.name.localeCompare(b.name));
 
-  const suggestion = useMemo(() => {
-    const q = word.trim().toLowerCase();
-    if (!q) return null;
-    const hit = searchLibrary(library, q, 5).find((s) => s.label.toLowerCase() === q) ?? null;
-    return hit ? { symbol: hit.symbol, type: hit.type } : null;
-  }, [word, library]);
+  const suggestion = useMemo(() => suggestSymbol(library, word), [word, library]);
   const pic = chosen ?? suggestion;
   const board = p.boards[target];
   const free = board?.cells.filter((c) => !c).length ?? 0;

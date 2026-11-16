@@ -14,5 +14,6 @@ android/signing/
 .idea
 dist-site
 public/vision/wasm
+public/ocr
 .claude/worktrees/
 *.tsbuildinfo

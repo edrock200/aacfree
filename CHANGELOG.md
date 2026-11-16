@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0 — 2026-11-16
+- **Import a board from a picture.** Settings → Boards & words → **Import a board from a picture** (or "Or import a board from a picture…" in New category). Take a photo or a screenshot of a board in another AAC app (TD Snap, Proloquo2Go, TouchChat, LAMP, Cboard…) or of a paper board, and Caleb rebuilds it with the same grid and the same word in every square, so the person keeps their motor plan.
+  - **Finds the grid by itself**: the background, the gaps between tiles, and the number of rows and columns. Toolbars, message bars and side panels are left out, and empty squares inside the grid still count. You can drag the edges (on touch too), nudge them with arrow buttons, and change the rows and columns.
+  - **Reads every word on the device.** Text recognition (Tesseract) is built into the app and runs offline in the board's language plus English. The picture never leaves the device. A 6 × 8 board takes a few seconds on a computer.
+  - **Pictures and colours:** each word gets Caleb's own symbol, and the tile's colour becomes the nearest word type in the Modified Fitzgerald Key. Or keep the pictures from your screenshot (for one square or all of them), stored on the device like photos; a note explains they may belong to the app that made them.
+  - **Check before saving:** the preview shows the board as it will look. Tap a square to fix the word, change the picture or word type, empty it, or make it a folder (an empty folder board with that name).
+  - **Save** as a new folder on any board (first empty square, else a new row: nothing moves) or as a new profile. A snapshot is taken first, and Undo works.
+- Help & tips explains how to bring a board from another app.
+
 ## 0.5.5 — 2026-11-16
 - **Only the content scrolls.** Swiping in Settings (and anywhere else) scrolls just that area. The screen, the message bar and the bottom bar stay put. Hidden screen-reader labels deep in the settings were stretching the page, so the whole screen could slide up. The page itself can no longer scroll, and first-time setup and the error screen scroll inside themselves.
 - **Setting sliders need Save.** Moving a slider in Settings (speed, pitch, volume, text size, timings and the like) shows the new value with **Save** and **Cancel**, plus what it was before. Nothing changes until Save. Vertical swipes over a slider scroll the page instead of grabbing it, so scrolling past a slider can't change it by accident.

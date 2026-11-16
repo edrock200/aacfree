@@ -1,12 +1,16 @@
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useStore, useProfile } from '../store';
 import { Modal } from './Modal';
 import { Symbol } from './Symbol';
 import { SymbolPicker } from './SymbolPicker';
 import { allCategories } from '../lib/library';
 import { uid } from '../lib/util';
+import { placeFolder } from '../lib/boards';
 import type { AACButton, Cell } from '../types';
 import { t } from '../i18n';
+
+// Loaded only when used (this dialog is also part of the Talk screen's chunk).
+const BoardImport = lazy(() => import('./BoardImport').then((m) => ({ default: m.BoardImport })));
 
 /**
  * Create a new category on the boards: a folder button (with an icon) that
@@ -23,6 +27,7 @@ export function NewCategoryDialog({ parentBoardId, onClose, onCreated }: {
   const [icon, setIcon] = useState<string | undefined>();
   const [from, setFrom] = useState('');
   const [picking, setPicking] = useState(false);
+  const [importing, setImporting] = useState(false);
   const parent = p.boards[parentBoardId] ?? p.boards[p.rootId];
 
   const chooseFrom = (id: string) => {
@@ -48,18 +53,7 @@ export function NewCategoryDialog({ parentBoardId, onClose, onCreated }: {
     updateProfile((pp) => {
       pp.boards[id] = { id, name: name.trim(), cols, rows, cells, symbol: icon };
       // Put the folder in the first free square of this board, else on "More", else add a row.
-      let target = pp.boards[parent.id];
-      let idx = target.cells.findIndex((c) => !c);
-      if (idx < 0 && pp.boards.more && parent.id !== 'more') {
-        target = pp.boards.more;
-        idx = target.cells.findIndex((c) => !c);
-      }
-      if (idx >= 0) target.cells[idx] = folder;
-      else {
-        target.rows += 1;
-        target.cells.push(folder, ...Array(target.cols - 1).fill(null));
-      }
-      placedOn = target.name;
+      placedOn = placeFolder(pp, parent.id, folder).name;
     }, { undoable: true });
     showToast(t('“{v0}” added to {v1}', { v0: name.trim(), v1: placedOn }));
     onCreated?.(id);
@@ -87,9 +81,15 @@ export function NewCategoryDialog({ parentBoardId, onClose, onCreated }: {
               </select>
             </label>
             <p className="muted small">{t('The folder goes in the first empty square on “{board}”. If that board is full, it goes on “More”.', { board: parent.name })}</p>
+            <button className="btn small" onClick={() => setImporting(true)}>{t('Or import a board from a picture…')}</button>
           </div>
         </div>
       </Modal>
+      {importing && (
+        <Suspense fallback={null}>
+          <BoardImport parentBoardId={parent.id} onClose={() => setImporting(false)} onCreated={(id) => { onCreated?.(id); onClose(); }} />
+        </Suspense>
+      )}
       {picking && <SymbolPicker initialQuery={name} noLibrarySave onClose={() => setPicking(false)} onPick={(s) => { setIcon(s); setPicking(false); }} />}
     </>
   );

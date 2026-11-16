@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useStore, useProfile } from '../../store';
 import { Choice, Section, Toggle } from './controls';
 import { boardPaths } from '../../lib/boards';
@@ -7,11 +7,14 @@ import { Modal } from '../../components/Modal';
 import { buildProfile } from '../../data/defaults';
 import { uid } from '../../lib/util';
 import type { LayoutId } from '../../types';
-import { IconEdit, IconPlus } from '../../components/Icons';
+import { IconCamera, IconEdit, IconPlus } from '../../components/Icons';
 import { NewCategoryDialog } from '../../components/NewCategoryDialog';
 import { t, type Lang } from '../../i18n';
 import { addSnapshot } from '../../lib/db';
 import { applyStarterWords } from '../../lib/starter';
+
+// "Import a board from a picture" (and the OCR it loads) is its own chunk, fetched when opened.
+const BoardImport = lazy(() => import('../../components/BoardImport').then((m) => ({ default: m.BoardImport })));
 
 export const LAYOUTS: { id: LayoutId; name: string; desc: string }[] = [
   { id: 'big', name: 'Big buttons · 12', desc: '4 × 3 grid. Beginners, or harder motor access.' },
@@ -27,6 +30,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
   const [confirmLayout, setConfirmLayout] = useState<LayoutId | null>(null);
   const [printSel, setPrintSel] = useState<string[] | null>(null);
   const [newCat, setNewCat] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [printing, setPrinting] = useState(false);
   const paths = boardPaths(p);
   const boards = Object.values(p.boards).sort((a, b) => (paths[a.id]?.length ?? 99) - (paths[b.id]?.length ?? 99) || a.name.localeCompare(b.name));
@@ -106,6 +110,9 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
           ))}
         </div>
       </Section>
+      <Section title={t('Import a board from a picture')} intro={t('Moving from another AAC app or a paper board? Take a photo or screenshot of a board. Caleb rebuilds it with the same grid and every word in the same place, so the person keeps their motor plan. The picture never leaves this device.')}>
+        <button className="btn" onClick={() => setImporting(true)}><IconCamera /> {t('Import a board from a picture')}</button>
+      </Section>
       <Section title={t('Grow vocabulary over time')} intro={t('AAC best practice: keep every word in its place and reveal more as the person is ready. Starter mode hides all but about 12 to 20 key words on Home, plus all folders. Nothing moves, and hidden words leave a gap. Reveal words one at a time in edit mode, or all at once here.')}>
         <div className="row">
           <button className="btn" onClick={() => {
@@ -142,6 +149,11 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
         )}
       </Section>
       {newCat && <NewCategoryDialog parentBoardId={p.rootId} onClose={() => setNewCat(false)} onCreated={(id) => editBoard(id)} />}
+      {importing && (
+        <Suspense fallback={null}>
+          <BoardImport parentBoardId={p.rootId} onClose={() => setImporting(false)} onCreated={(id) => editBoard(id)} />
+        </Suspense>
+      )}
       {printSel && (
         <Modal title={t('Print boards')} onClose={() => setPrintSel(null)}
           footer={<><span className="spacer" /><button className="btn" onClick={() => setPrintSel(null)}>{t('Cancel')}</button>

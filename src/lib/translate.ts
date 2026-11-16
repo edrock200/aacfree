@@ -258,3 +258,16 @@ export function phraseGroupKey(name: string): string {
   }
   return name;
 }
+
+/**
+ * The English original (`key`) for a word the family typed or a picture import read, only when it
+ * is exactly a built-in word of the communication language (same spelling as the language pack
+ * gives it). English profiles carry no keys (see `fromEnglish`), so this is undefined for 'en'.
+ */
+export function builtInKey(label: string, lang: Lang): string | undefined {
+  if (lang === 'en') return undefined;
+  const en = maps(lang).toEn.get(lower(label));
+  if (!en) return undefined;
+  const w = maps(lang).toX.get(lower(en));
+  return w && w[0] === label && english().labels.has(en) ? en : undefined;
+}
