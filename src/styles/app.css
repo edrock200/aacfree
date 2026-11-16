@@ -836,3 +836,11 @@ small { font-size: 0.85em; }
 .phrases-head h2 { margin: 0; font-size: 1.3rem; }
 .phrases-head-sym.sym, .phrases-head .sym { width: 40px; height: 40px; object-fit: contain; }
 .phrases-head .sym-emoji { font-size: 32px; line-height: 1; }
+
+/* Bottom bar: every button (Settings included) fits on the narrowest phones; buttons share the width equally. */
+@media (max-width: 720px) {
+  .navbar { gap: 0; padding-left: 2px; padding-right: 2px; }
+  .navbar .navbtn { min-width: 0; flex: 1 1 0; padding: 2px 1px; }
+  .navbar .navbtn span { font-size: clamp(9px, 2.85vw, 0.8rem); letter-spacing: -0.01em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .navbar .navbtn svg { width: 22px; height: 22px; }
+}

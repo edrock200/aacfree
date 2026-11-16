@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.4 — 2026-11-16
+- **Home and More in the bottom bar**, between Phrases and Tools.
+  - **Home** does the same as the Home button at the top left: back to the home board, from any screen.
+  - **More** opens the More board (all the topic folders) in one tap, from any screen. It only appears when the profile has a More board, so imported boards without one don't get a dead button.
+  - The current place is highlighted, and both buttons work with scanning, dwell, and hold and debounce settings.
+- **The bottom bar fits on small phones:** buttons share the width equally, so every button, Settings included, stays on screen down to 320 px.
+
 ## 0.5.3 — 2026-11-15
 - **Phrases open on folder cards.** Recent, Needs, Feelings, Boundaries, Chat, Questions, Emergency and the family's own groups are shown as folder cards with a picture and the number of phrases inside, in a fixed order. Tapping a card opens its phrases, and a Back button (or Android Back) returns to the folders.
   - Built-in groups keep their pictures in every language. A family's own group shows the picture of its first phrase that has one, or a folder.

@@ -1,0 +1,1 @@
+La barra de abajo ahora tiene los botones Inicio y Más entre Frases y Herramientas: Inicio vuelve al tablero de inicio y Más abre el tablero Más con un toque. Todos los botones caben en teléfonos pequeños, incluido Ajustes.
