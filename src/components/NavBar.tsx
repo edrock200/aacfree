@@ -1,6 +1,6 @@
 import { useRef, useState, type MouseEvent } from 'react';
-import { useStore, useSettings, useLock, type Screen } from '../store';
-import { IconChat, IconEdit, IconKeyboard, IconLock, IconPerson, IconSearch, IconSettings, IconTools } from './Icons';
+import { useStore, useSettings, useLock, useProfile, type Screen } from '../store';
+import { IconChat, IconEdit, IconHome, IconKeyboard, IconLock, IconMore, IconPerson, IconSearch, IconSettings, IconTools } from './Icons';
 import { LockGate } from './LockGate';
 import { usePress } from '../lib/usePress';
 import { t } from '../i18n';
@@ -13,6 +13,12 @@ export function NavBar({ onFind }: { onFind: () => void }) {
   const unlocked = useStore((st) => st.unlocked);
   const editMode = useStore((st) => st.editMode);
   const modeling = useStore((st) => st.modeling);
+  const boardStack = useStore((st) => st.boardStack);
+  const profile = useProfile();
+  // The "More" board of the built-in layouts (imported boards may not have one).
+  const hasMore = Object.hasOwn(profile.boards, 'more') && profile.rootId !== 'more';
+  const atHome = screen === 'talk' && boardStack.length === 1;
+  const atMore = screen === 'talk' && boardStack.length === 2 && boardStack[1] === 'more';
   const { setScreen, setUnlocked, setEditMode, lock, setTool, setModeling } = useStore.getState();
   const [gate, setGate] = useState<false | 'auto' | 'math'>(false);
   const holdTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -59,6 +65,10 @@ export function NavBar({ onFind }: { onFind: () => void }) {
   const kb = usePress({ ...pressOpts, onActivate: () => go('keyboard') });
   const ph = usePress({ ...pressOpts, onActivate: () => go('phrases') });
   const tl = usePress({ ...pressOpts, onActivate: () => go('tools') });
+  // Same as the Home button at the top left.
+  const hm = usePress({ ...pressOpts, onActivate: () => useStore.getState().home() });
+  // Home → More, in one press.
+  const mr = usePress({ ...pressOpts, onActivate: () => { const st = useStore.getState(); st.home(); st.openBoard('more'); } });
   const fd = usePress({ ...pressOpts, onActivate: onFind });
 
   return (
@@ -68,6 +78,10 @@ export function NavBar({ onFind }: { onFind: () => void }) {
       )}
       {s.showPhrasesNav && (
         <button className={`navbtn ${screen === 'phrases' ? 'on' : ''}`} data-scan-item aria-label={t('Phrases')} {...ph}><IconChat /><span>{t('Phrases')}</span></button>
+      )}
+      <button className={`navbtn nav-home2 ${atHome ? 'on' : ''}`} data-scan-item aria-label={t('Home')} {...hm}><IconHome /><span>{t('Home')}</span></button>
+      {hasMore && (
+        <button className={`navbtn nav-more ${atMore ? 'on' : ''}`} data-scan-item aria-label={t('More')} {...mr}><IconMore /><span>{t('More')}</span></button>
       )}
       {s.showToolsNav && (
         <button className={`navbtn ${screen === 'tools' ? 'on' : ''}`} data-scan-item aria-label={t('Tools')} {...tl}><IconTools /><span>{t('Tools')}</span></button>

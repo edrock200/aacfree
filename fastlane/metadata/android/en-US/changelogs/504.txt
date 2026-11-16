@@ -1,0 +1,1 @@
+The bottom bar now has Home and More buttons between Phrases and Tools: Home goes back to the home board, and More opens the More board in one tap. Every button fits on small phones, Settings included.

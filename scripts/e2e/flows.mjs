@@ -932,6 +932,20 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   check(!(await ph.isVisible('.quickbar-grid')) && (await ph.$$('.msg-word')).length === 1, 'phone: choosing a word from the dialog adds it and closes the dialog');
   const clipped = await ph.$$eval('.grid .cell-label', (els) => els.filter((l) => l.scrollWidth > l.clientWidth + 1).length);
   check(clipped === 0, `phone: no board label is cut off sideways (${clipped})`);
+  // Bottom bar: Home and More sit between Phrases and Tools, and everything fits on a phone.
+  const navOrder = await ph.$$eval('.navbar .navbtn span', (els) => els.map((e) => e.textContent));
+  check(navOrder.indexOf('Home') === navOrder.indexOf('Phrases') + 1 && navOrder.indexOf('More') === navOrder.indexOf('Home') + 1 && navOrder.indexOf('Tools') === navOrder.indexOf('More') + 1,
+    `bottom bar: Phrases, Home, More, Tools in order (${navOrder.join(', ')})`);
+  check(await ph.$eval('.navbar', (n) => n.scrollWidth <= n.clientWidth + 1), 'bottom bar: every button fits on a 360 px phone (Settings included)');
+  await ph.click('.navbtn.nav-more');
+  check(await ph.isVisible('.grid .cell[aria-label="Actions folder"]'), 'bottom bar: More opens the More board');
+  await ph.click('.grid .cell[aria-label="Actions folder"]');
+  await ph.click('.navbtn.nav-home2');
+  check(await ph.isVisible('.grid .cell[aria-label="I"]'), 'bottom bar: Home goes back to the Home board, like the top Home button');
+  await ph.click('.navbar .navbtn[aria-label="Phrases"]');
+  await ph.click('.navbtn.nav-more');
+  check(await ph.isVisible('.grid .cell[aria-label="Actions folder"]'), 'bottom bar: More works from another screen too');
+  await ph.click('.navbtn.nav-home2');
   // Feelings scale: speaks only the size the person chose.
   await ph.click('.navbtn[aria-label="Tools"]');
   await ph.click('.tool-tile[aria-label="How big?"]');

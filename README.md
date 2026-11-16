@@ -24,6 +24,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **Motor-planning friendly core vocabulary.** Four home layouts: Big 4×3, Phone core 5×6, Medium 6×5, and Full 8×6 with the Universal Core words. Words never move. Hidden words keep their place. Big folders are split into fixed pages with Previous/Next buttons, with no scrolling.
 - **25 topic folders, about 770 different words**, with 740 bundled [ARASAAC](https://arasaac.org) pictograms. Includes food, drinks, feelings, people, places, play, actions, describing words, little words, social, questions, body, clothes, animals, colours, numbers, time, school, routines, calm & sensory, weather, at home, tech & media, shopping, and health.
 - **Modified Fitzgerald Key colour coding.** It can be filled, border-only, or turned off.
+- **Bottom bar:** Keyboard, Phrases, Home, More (all topic folders in one tap), Tools, Find and Settings, all on screen even on small phones.
 - **Always-on quick bar:** yes · no · stop · help · wait · break · I don't know · Hey! Protest words are always reachable.
 - **Message bar:** speak (Speak turns into **Stop** while talking; on an empty bar it brings back the last message), delete a word (hold to clear, always with Undo), save as a phrase ★, show in big text (with a flip for the person across from you), share or copy.
 - **Word forms on demand:** long-press a word, or tap it in the message bar, for go → went/going/goes, plurals, and bigger/biggest. A Word forms button is also on the Full layout.

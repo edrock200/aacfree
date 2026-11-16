@@ -1,6 +1,7 @@
 /** v0.5 UI strings added while merging the work streams (English source → translation). */
 export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
   es: {
+    'More': 'Más',
     "Recent": "Recientes",
     "{name} folder, {n} phrases": "Carpeta {name}, {n} frases",
     'All': 'Todas',
@@ -15,6 +16,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Then…': 'Después…',
   },
   fr: {
+    'More': 'Plus',
     "Recent": "Récentes",
     "{name} folder, {n} phrases": "Dossier {name}, {n} phrases",
     'All': 'Tous',
@@ -29,6 +31,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Then…': 'Ensuite…',
   },
   pt: {
+    'More': 'Mais',
     "Recent": "Recentes",
     "{name} folder, {n} phrases": "Pasta {name}, {n} frases",
     'All': 'Todas',
