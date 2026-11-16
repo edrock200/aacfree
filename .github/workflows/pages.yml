@@ -50,5 +50,16 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # A build that waited in the queue must never replace a newer site: deploy only if this
+      # commit is still the tip of main.
+      - name: Skip builds of an older commit
+        id: fresh
+        run: |
+          head=$(git ls-remote "https://github.com/${{ github.repository }}" refs/heads/main | cut -f1)
+          if [ -n "$head" ] && [ "$head" != "${{ github.sha }}" ]; then
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Not deploying ${{ github.sha }}: main is now at $head."
+          fi
       - id: deployment
+        if: steps.fresh.outputs.stale != 'true'
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
