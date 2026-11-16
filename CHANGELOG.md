@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.5 — 2026-11-16
+- **Only the content scrolls.** Swiping in Settings (and anywhere else) scrolls just that area. The screen, the message bar and the bottom bar stay put. Hidden screen-reader labels deep in the settings were stretching the page, so the whole screen could slide up. The page itself can no longer scroll, and first-time setup and the error screen scroll inside themselves.
+- **Setting sliders need Save.** Moving a slider in Settings (speed, pitch, volume, text size, timings and the like) shows the new value with **Save** and **Cancel**, plus what it was before. Nothing changes until Save. Vertical swipes over a slider scroll the page instead of grabbing it, so scrolling past a slider can't change it by accident.
+
 ## 0.5.4 — 2026-11-16
 - **Home and More in the bottom bar**, between Phrases and Tools.
   - **Home** does the same as the Home button at the top left: back to the home board, from any screen.

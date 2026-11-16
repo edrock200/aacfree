@@ -80,6 +80,9 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body, #root { height: 100%; margin: 0; }
+/* The page itself never scrolls: only content areas (boards pager, settings, phrases, tools, dialogs) do.
+   Otherwise a swipe in Settings could move the whole screen, bottom bar included. */
+html, body { overflow: hidden; overscroll-behavior: none; }
 /* Text size applies app-wide: everything in rem follows it (menus a little less than board words). */
 html { font-size: calc(16px * clamp(0.85, var(--font-scale), 1.5)); }
 body {
@@ -120,6 +123,8 @@ small { font-size: 0.85em; }
 
 /* ================= App shell ================= */
 .app {
+  /* position: a containing block, so absolutely positioned bits (screen-reader labels) can't stretch the page. */
+  position: relative;
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -650,7 +655,9 @@ small { font-size: 0.85em; }
 @keyframes toast { from { opacity: 0; transform: translate(-50%, 10px); } }
 
 /* ================= Onboarding ================= */
-.onboarding { min-height: 100dvh; display: grid; place-items: center; padding: 16px; overflow-y: auto; }
+.onboarding { height: 100dvh; display: grid; place-items: start center; padding: 16px; overflow-y: auto; }
+/* margin-block auto centres the card when it fits, and lets a tall card scroll from its top when it does not. */
+.onboarding > .ob-card { margin-block: auto; }
 .ob-card { width: min(720px, 100%); background: var(--surface); border-radius: 22px; padding: 28px; box-shadow: 0 10px 40px rgba(60,40,10,.12); }
 .ob-card h1 { font-size: 2rem; }
 .ob-logo { width: 84px; height: 84px; margin-bottom: 10px; }
@@ -700,7 +707,7 @@ small { font-size: 0.85em; }
 }
 
 /* ===== Crash screen / save warning ===== */
-.crash { max-width: 640px; margin: 10vh auto; padding: 24px; }
+.crash { max-width: 640px; height: 100dvh; overflow-y: auto; margin: 0 auto; padding: 10vh 24px 24px; overscroll-behavior: contain; }
 .crash pre { white-space: pre-wrap; font-size: 0.85rem; color: var(--muted); }
 .save-error { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 8px 12px; background: #c0392b; color: #fff; font-weight: 700; }
 .save-error .btn { background: #fff; color: #c0392b; border-color: #fff; }
@@ -844,3 +851,12 @@ small { font-size: 0.85em; }
   .navbar .navbtn span { font-size: clamp(9px, 2.85vw, 0.8rem); letter-spacing: -0.01em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .navbar .navbtn svg { width: 22px; height: 22px; }
 }
+
+/* Scrolling areas keep their scroll to themselves (no chaining into the page). */
+.gu-main, .gu-nav, .phrases-screen, .tool-body, .tools-menu, .modal-body, .voice-list, .board-list, .onboarding { overscroll-behavior: contain; }
+
+/* Setting sliders: vertical swipes scroll the page; a change needs Save. */
+.setting.slider input[type="range"] { touch-action: pan-y; }
+.setting.slider.dirty { background: var(--accent-soft); border-radius: 12px; padding-inline: 10px; }
+.slider-save { flex-basis: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.slider-save small { margin-right: auto; }

@@ -1,0 +1,1 @@
+Swiping in Settings now scrolls only the settings, not the whole screen and bottom bar. Setting sliders only change when you tap Save, so scrolling past one can't change it by accident.

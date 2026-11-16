@@ -942,6 +942,37 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   await ph.click('.grid .cell[aria-label="Actions folder"]');
   await ph.click('.navbtn.nav-home2');
   check(await ph.isVisible('.grid .cell[aria-label="I"]'), 'bottom bar: Home goes back to the Home board, like the top Home button');
+  // Settings on a phone: only the settings area scrolls (the page and the bottom bar stay put),
+  // and a slider change needs Save.
+  {
+    const lb = await ph.locator('.lockbtn').boundingBox();
+    await ph.mouse.move(lb.x + 5, lb.y + 5); await ph.mouse.down(); await ph.waitForTimeout(2300); await ph.mouse.up();
+    await ph.waitForSelector('.grownup');
+    await ph.click('.gu-tab:has-text("Display")');
+    const pageScroll = await ph.evaluate(() => document.scrollingElement.scrollHeight - document.scrollingElement.clientHeight);
+    const inner = await ph.$eval('.gu-main', (m) => m.scrollHeight > m.clientHeight);
+    check(pageScroll === 0 && inner, `settings: the page itself can't scroll; only the settings area does (${pageScroll})`);
+    await ph.click('.gu-tab:has-text("Voice")');
+    const slider = ph.locator('.setting.slider input[type="range"]').first();
+    const before = await slider.inputValue();
+    await slider.evaluate((el) => {
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      set.call(el, String(Number(el.max)));
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    check(await ph.isVisible('.slider-save button:has-text("Save")'), 'settings: moving a slider shows Save and Cancel');
+    await ph.click('.slider-save button:has-text("Cancel")');
+    check((await slider.inputValue()) === before && !(await ph.isVisible('.slider-save')), 'settings: Cancel puts the slider back without changing the setting');
+    await slider.evaluate((el) => {
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      set.call(el, String(Number(el.max)));
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await ph.click('.slider-save button:has-text("Save")');
+    check(!(await ph.isVisible('.slider-save')) && (await slider.inputValue()) !== before, 'settings: Save applies the slider change');
+    await ph.click('.gu-nav-foot .btn.primary'); // Lock & return
+    await ph.waitForSelector('.grid .cell');
+  }
   await ph.click('.navbar .navbtn[aria-label="Phrases"]');
   await ph.click('.navbtn.nav-more');
   check(await ph.isVisible('.grid .cell[aria-label="Actions folder"]'), 'bottom bar: More works from another screen too');

@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
+import { t } from '../../i18n';
 
 export function Toggle({ label, hint, checked, onChange }: { label: ReactNode; hint?: ReactNode; checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -10,17 +11,34 @@ export function Toggle({ label, hint, checked, onChange }: { label: ReactNode; h
   );
 }
 
+/**
+ * A setting slider that only takes effect when saved: dragging (or brushing it while scrolling) changes a
+ * draft value, and Save / Cancel appear until the change is confirmed. Vertical swipes scroll the page
+ * instead of moving the slider (touch-action: pan-y).
+ */
 export function Slider({ label, hint, value, min, max, step = 1, onChange, format }: {
   label: ReactNode; hint?: ReactNode; value: number; min: number; max: number; step?: number; onChange: (v: number) => void; format?: (v: number) => string;
 }) {
+  const id = useId();
+  const [draft, setDraft] = useState<number | null>(null);
+  const shown = draft ?? value;
+  const dirty = draft !== null && draft !== value;
+  const show = (v: number) => (format ? format(v) : String(v));
   return (
-    <label className="setting slider">
-      <span className="setting-text"><b>{label}</b>{hint && <small>{hint}</small>}</span>
+    <div className={`setting slider ${dirty ? 'dirty' : ''}`}>
+      <label className="setting-text" htmlFor={id}><b>{label}</b>{hint && <small>{hint}</small>}</label>
       <span className="slider-row">
-        <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
-        <output>{format ? format(value) : value}</output>
+        <input id={id} type="range" min={min} max={max} step={step} value={shown} onChange={(e) => setDraft(Number(e.target.value))} />
+        <output htmlFor={id}>{show(shown)}</output>
       </span>
-    </label>
+      {dirty && (
+        <span className="slider-save" role="group" aria-label={t('Unsaved change')}>
+          <small className="muted">{t('Was {v}', { v: show(value) })}</small>
+          <button type="button" className="btn small" onClick={() => setDraft(null)}>{t('Cancel')}</button>
+          <button type="button" className="btn small primary" onClick={() => { onChange(draft); setDraft(null); }}>{t('Save')}</button>
+        </span>
+      )}
+    </div>
   );
 }
 
