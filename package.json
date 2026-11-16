@@ -7,7 +7,7 @@
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/copy-vision.mjs && tsc --noEmit -p . && vite build",
+    "build": "node scripts/copy-vision.mjs && node scripts/copy-ocr.mjs && tsc --noEmit -p . && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
@@ -19,7 +19,8 @@
     "e2e": "node scripts/e2e/flows.mjs",
     "screens": "node scripts/e2e/screens.mjs",
     "vision": "node scripts/copy-vision.mjs",
-    "predev": "node scripts/copy-vision.mjs"
+    "predev": "node scripts/copy-vision.mjs && node scripts/copy-ocr.mjs",
+    "ocr": "node scripts/copy-ocr.mjs"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^8.0.2",
