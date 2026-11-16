@@ -1004,6 +1004,8 @@ export const FR_PHRASES: Record<string, string> = {
   'What is that?': "Qu'est-ce que c'est ?",
   'I am autistic and I use this app to communicate. Please be patient.':
     "Je suis autiste et j'utilise cette appli pour communiquer. Merci de votre patience.",
+  "I can't talk with my voice, so I use this app to communicate. Please be patient.":
+    "Je ne peux pas parler avec ma voix, alors j'utilise cette appli pour communiquer. Merci de votre patience.",
   'I am lost. Please help me.': "Je ne sais pas où je suis. Aidez-moi, s'il vous plaît.",
   'Please call my family.': "Appelez ma famille, s'il vous plaît.",
   'I am hurt.': 'Je me suis fait mal.',

@@ -1,7 +1,7 @@
 # CLAUDE.md — AACFree
 
 AACFree (AGPL-3.0-or-later) is a free, open-source **AAC (augmentative & alternative communication)** app for autistic
-people and their families. It ships as a **web app / PWA** and an **Android APK** (Capacitor).
+and non-verbal people and their families. It ships as a **web app / PWA** and an **Android APK** (Capacitor).
 Everything is offline-first and stored on the device. There is no server and no accounts.
 
 **Name:** the app was called Caleb until v0.7. Everything users see says **AACFree** (website: https://aacappfree.com). Internal identifiers keep the old name **on purpose**, because changing them would lose families' data or break updates:

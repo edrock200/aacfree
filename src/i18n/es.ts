@@ -72,7 +72,7 @@ export const ES_UI: Record<string, string> = {
   'Buttons keep their row and column when you resize, so the motor plan stays the same.': 'Los botones conservan su fila y columna al cambiar el tamaño, así el plan motor sigue igual.',
   'AACFree': 'AACFree',
   'AACFree hit an unexpected problem. Your boards are usually still saved.': 'AACFree tuvo un problema inesperado. Normalmente tus tableros siguen guardados.',
-  'AACFree is a free, open-source AAC app made for autistic people and their families. No ads, no subscriptions, no accounts. Everything stays on this device.': 'AACFree es una app de CAA gratuita y de código abierto, hecha para personas autistas y sus familias. Sin anuncios, sin suscripciones, sin cuentas. Todo se queda en este dispositivo.',
+  'AACFree is a free, open-source AAC app made for autistic and non-verbal people and their families. No ads, no subscriptions, no accounts. Everything stays on this device.': 'AACFree es una app de CAA gratuita y de código abierto, hecha para personas autistas y no verbales y sus familias. Sin anuncios, sin suscripciones, sin cuentas. Todo se queda en este dispositivo.',
   'AACFree keeps the last 15 versions on this device: one per day, plus one before every restore, layout change or import.': 'AACFree guarda las últimas 15 versiones en este dispositivo: una por día, más una antes de cada restauración, cambio de diseño o importación.',
   'AACFree was changed in another window. Showing the latest version.': 'AACFree se modificó en otra ventana. Se muestra la versión más reciente.',
   'Calibrate for best results.': 'Calibra para obtener mejores resultados.',

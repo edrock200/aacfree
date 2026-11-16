@@ -109,7 +109,7 @@ export const PACKS: Record<Lang, LangPack> = {
     vocab: {
       labels: ES_LABELS, categories: ES_CATEGORY_NAMES, phrases: ES_PHRASES, phraseCategories: ES_PHRASE_CATEGORIES, schedule: ES_SCHEDULE,
       home: 'Inicio', core: 'Palabras básicas', extra: 'Mis símbolos extra',
-      aboutMe: (n) => `¡Hola! Me llamo ${n || '…'}. Soy autista y uso esta aplicación para comunicarme. Por favor, ten paciencia y dame más tiempo para responder. Entiendo más de lo que puedo decir.`,
+      aboutMe: (n) => `¡Hola! Me llamo ${n || '…'}. Uso esta aplicación para comunicarme porque hablar me cuesta. Por favor, ten paciencia y dame más tiempo para responder. Entiendo más de lo que puedo decir.`,
     },
     words: ES_COMMON_WORDS, bigrams: ES_BIGRAMS,
     starters: ['yo', 'quiero', 'más', 'no', 'sí', 'qué', 'me', 'por', 'tú', 'mi'],
@@ -132,7 +132,7 @@ export const PACKS: Record<Lang, LangPack> = {
     vocab: {
       labels: FR_LABELS, categories: FR_CATEGORY_NAMES, phrases: FR_PHRASES, phraseCategories: FR_PHRASE_CATEGORIES, schedule: FR_SCHEDULE,
       home: 'Accueil', core: 'Mots de base', extra: 'Mes pictogrammes en plus',
-      aboutMe: (n) => `Bonjour ! Je m'appelle ${n || '…'}. Je suis autiste et j'utilise cette application pour communiquer. Merci de votre patience : laissez-moi plus de temps pour répondre. Je comprends plus de choses que je ne peux en dire.`,
+      aboutMe: (n) => `Bonjour ! Je m'appelle ${n || '…'}. J'utilise cette application pour communiquer, parce que parler est difficile pour moi. Merci de votre patience : laissez-moi plus de temps pour répondre. Je comprends plus de choses que je ne peux en dire.`,
     },
     words: FR_COMMON_WORDS, bigrams: FR_BIGRAMS,
     starters: ['je', 'veux', 'encore', 'non', 'oui', 'quoi', 'tu', 'mon', 'il', 'est'],
@@ -159,7 +159,7 @@ export const PACKS: Record<Lang, LangPack> = {
     vocab: {
       labels: PT_LABELS, categories: PT_CATEGORY_NAMES, phrases: PT_PHRASES, phraseCategories: PT_PHRASE_CATEGORIES, schedule: PT_SCHEDULE,
       home: 'Início', core: 'Palavras essenciais', extra: 'Meus símbolos extras',
-      aboutMe: (n) => `Oi! Meu nome é ${n || '…'}. Sou autista e uso este aplicativo para me comunicar. Por favor, tenha paciência e me dê mais tempo para responder. Eu entendo mais do que consigo falar.`,
+      aboutMe: (n) => `Oi! Meu nome é ${n || '…'}. Uso este aplicativo para me comunicar, porque falar é difícil para mim. Por favor, tenha paciência e me dê mais tempo para responder. Eu entendo mais do que consigo falar.`,
     },
     words: PT_COMMON_WORDS, bigrams: PT_BIGRAMS,
     starters: ['eu', 'quero', 'mais', 'não', 'sim', 'o que', 'você', 'meu', 'é', 'por favor'],

@@ -1,4 +1,4 @@
-AACFree es una app de CAA (comunicación aumentativa y alternativa) gratuita y de código abierto para personas autistas y para las familias, docentes y terapeutas que las acompañan. Toca botones con pictogramas y palabras para armar una oración, y AACFree la dice en voz alta.
+AACFree es una app de CAA (comunicación aumentativa y alternativa) gratuita y de código abierto para personas autistas y no verbales, y para las familias, docentes y terapeutas que las acompañan. Toca botones con pictogramas y palabras para armar una oración, y AACFree la dice en voz alta.
 
 En español, inglés, francés y portugués, con teclado con ñ y acentos y conjugación automática (yo + querer → quiero).
 

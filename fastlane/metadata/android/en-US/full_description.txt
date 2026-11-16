@@ -1,4 +1,4 @@
-AACFree is a free, open-source AAC (augmentative and alternative communication) app for autistic people and the families, teachers and therapists who support them. Tap picture-and-word buttons to build a sentence, and AACFree speaks it aloud.
+AACFree is a free, open-source AAC (augmentative and alternative communication) app for autistic and non-verbal people and the families, teachers and therapists who support them. Tap picture-and-word buttons to build a sentence, and AACFree speaks it aloud.
 
 AACFree is built from what autistic AAC users, parents and speech-language pathologists say they need: words that never move, "no" and "stop" always within reach, fast typing, and privacy by default.
 

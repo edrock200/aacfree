@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 — 2026-11-16
+- **For autistic and non-verbal people.** The app, the help, the website and the store listing now describe AACFree as being for autistic **and non-verbal** people and their families, in all four languages.
+- **The About me card no longer assumes autism.** New profiles get "I use this app to communicate, because talking is hard for me…". A card that still has the old default text is left as it is, and still translates when the language is switched. Cards the family wrote are never changed.
+- **New Emergency phrase** for new profiles: "I can't talk with my voice, so I use this app to communicate. Please be patient." It sits next to the existing "I am autistic…" phrase.
+
 ## 0.7.0 — 2026-11-16
 **Caleb is now AACFree.** It's the same app, still free, with a new name.
 - The new name is everywhere: the app name on the home screen, the web app, every screen and help text in all four languages, the website (**https://aacappfree.com**, with the web app at `/app/`), the store listing and the release files.

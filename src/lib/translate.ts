@@ -171,16 +171,27 @@ function fromEnglish(p: Profile, to: Lang): Profile {
 /** The built-in "About me" card text in a language. */
 export function aboutMeText(lang: Lang, name: string): string {
   if (lang !== 'en' && PACKS[lang].vocab) return PACKS[lang].vocab!.aboutMe(name);
-  return `Hi! My name is ${name || '…'}. I am autistic and I use this app to communicate. Please be patient and give me extra time to answer. I understand more than I can say.`;
+  return `Hi! My name is ${name || '…'}. I use this app to communicate, because talking is hard for me. Please be patient and give me extra time to answer. I understand more than I can say.`;
 }
+
+/** The built-in About me text before v0.7 (still recognised, so an untouched card keeps translating on a language switch). */
+const LEGACY_ABOUT_ME: Record<Lang, (n: string) => string> = {
+  en: (n) => `Hi! My name is ${n || '…'}. I am autistic and I use this app to communicate. Please be patient and give me extra time to answer. I understand more than I can say.`,
+  es: (n) => `¡Hola! Me llamo ${n || '…'}. Soy autista y uso esta aplicación para comunicarme. Por favor, ten paciencia y dame más tiempo para responder. Entiendo más de lo que puedo decir.`,
+  fr: (n) => `Bonjour ! Je m'appelle ${n || '…'}. Je suis autiste et j'utilise cette application pour communiquer. Merci de votre patience : laissez-moi plus de temps pour répondre. Je comprends plus de choses que je ne peux en dire.`,
+  pt: (n) => `Oi! Meu nome é ${n || '…'}. Sou autista e uso este aplicativo para me comunicar. Por favor, tenha paciência e me dê mais tempo para responder. Eu entendo mais do que consigo falar.`,
+};
 
 /** If `text` is the untouched built-in About me text of `lang`, the name in it ('' for none); otherwise null. */
 function aboutMeName(text: string, lang: Lang): string | null {
   const MARK = '\u0000';
-  const [pre, post] = aboutMeText(lang, MARK).split(MARK);
-  if (post === undefined || text.length < pre.length + post.length || !text.startsWith(pre) || !text.endsWith(post)) return null;
-  const name = text.slice(pre.length, text.length - post.length);
-  return name === '…' ? '' : name;
+  for (const template of [(n: string) => aboutMeText(lang, n), LEGACY_ABOUT_ME[lang]]) {
+    const [pre, post] = template(MARK).split(MARK);
+    if (post === undefined || text.length < pre.length + post.length || !text.startsWith(pre) || !text.endsWith(post)) continue;
+    const name = text.slice(pre.length, text.length - post.length);
+    return name === '…' ? '' : name;
+  }
+  return null;
 }
 
 export function translateProfile(input: Profile, to: Lang): Profile {
