@@ -391,6 +391,7 @@ export const DEFAULT_PHRASES: { category: string; text: string; icon?: string }[
   { category: 'Questions', text: 'Where are we going?', icon: 'go' },
   { category: 'Questions', text: 'Can I have a turn?', icon: 'turn' },
   { category: 'Questions', text: 'What is that?', icon: 'what' },
+  { category: 'Emergency', text: "I can't talk with my voice, so I use this app to communicate. Please be patient.", icon: 'communication' },
   { category: 'Emergency', text: 'I am autistic and I use this app to communicate. Please be patient.', icon: 'communication' },
   { category: 'Emergency', text: 'I am lost. Please help me.', icon: 'lost' },
   { category: 'Emergency', text: 'Please call my family.', icon: 'telephone' },

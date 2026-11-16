@@ -1,7 +1,7 @@
 <p align="center"><img src="public/icon.svg" width="96" alt="AACFree logo"></p>
 
 <h1 align="center">AACFree</h1>
-<p align="center"><b>A free, open-source AAC app for autistic people and their families.</b><br>
+<p align="center"><b>A free, open-source AAC app for autistic and non-verbal people and their families.</b><br>
 Web app (installable PWA) · Android APK · Works offline · No ads, no subscriptions, no accounts</p>
 
 ---

@@ -84,7 +84,7 @@ export function Onboarding() {
               ))}
             </div>
             <h1>{t('Welcome to AACFree')}</h1>
-            <p>{t('A free communication app (AAC) for autistic people and the people who love them. No ads, no accounts, and it works offline. Everything stays on this device.')}</p>
+            <p>{t('A free communication app (AAC) for autistic and non-verbal people, and the people who love them. No ads, no accounts, and it works offline. Everything stays on this device.')}</p>
             <label className="field"><span>{t('Who will use AACFree?')} <small>{t('(optional)')}</small></span>
               <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('Name')} />
             </label>

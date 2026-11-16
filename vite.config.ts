@@ -33,7 +33,7 @@ export default defineConfig({
       manifest: {
         name: 'AACFree',
         short_name: 'AACFree',
-        description: 'Free, open-source AAC communication app for autistic people and their families.',
+        description: 'Free, open-source AAC communication app for autistic and non-verbal people and their families.',
         theme_color: '#f6f3ee',
         background_color: '#f6f3ee',
         display: 'standalone',
