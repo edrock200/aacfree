@@ -1,0 +1,1 @@
+New: import a board from a picture. Take a photo or screenshot of a board in another AAC app or on paper. Caleb finds the grid, reads every word on your device (no internet) and rebuilds it with each word in the same place, a matching symbol and its word colour. Fix any square, then save it as a folder or a new profile.

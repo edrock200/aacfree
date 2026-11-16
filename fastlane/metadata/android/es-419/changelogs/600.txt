@@ -1,0 +1,1 @@
+Nuevo: importa un tablero desde una imagen. Toma una foto o captura de un tablero de otra app de CAA o de papel. Caleb encuentra la cuadrícula, lee cada palabra en tu dispositivo (sin internet) y lo reconstruye con cada palabra en el mismo lugar, un símbolo y el color de su tipo. Corrige cualquier casilla y guárdalo como carpeta o perfil nuevo.

@@ -52,6 +52,7 @@ Caleb is an **augmentative and alternative communication (AAC)** app: tap pictur
 - **Sync across devices, change by change.** Edits made on a parent's phone, a school tablet and the user's tablet are merged item by item, so nothing is lost when more than one device changed. Deletions carry over, and when the same button was changed in two places the newer change wins and the conflict is listed (a snapshot is kept first). **Automatic sync** goes through one file the family picks in Google Drive, OneDrive or Dropbox (Android, and desktop Chrome/Edge); iPad, iPhone and Firefox use Send/Receive files. Everything is encrypted with the family's passcode. There is no account and no Caleb server. Each device keeps its own voice, PIN and history settings.
 - **Automatic backups** (daily, weekly or monthly, keeping as many copies as you like) that survive uninstalling. On Android they can also go straight to Google Drive, OneDrive, Dropbox or an SD card. Backups can be encrypted with a passcode and can leave out photos or message history.
 - **Data safety:** every change is saved instantly, plus automatic daily snapshots and snapshots before any restore, import, layout change or delete (kept separately, so one never pushes out the other). Unreadable or newer-version data is never overwritten. Every loaded or imported file is checked and repaired first. A one-file backup (including photos and recordings) works for moving devices, and the app asks the browser to keep storage persistently.
+- **Import a board from a picture.** Moving from TD Snap, Proloquo2Go, TouchChat, LAMP, Cboard or a paper board? Take a photo or screenshot of a board. Caleb finds the grid, reads every word on the device (no internet, no account) and rebuilds it with the same rows and columns, the same word in each square, a matching Caleb symbol and the colour of its word type, so the person keeps their motor plan. Fix any square before saving, mark folders, or keep the pictures from your screenshot for your family's own use. It becomes a new folder (nothing else moves) or a new profile, with a snapshot first.
 - **Open Board Format** `.obz` export and import, to share boards with CoughDrop, Cboard and others.
 - **Private usage insights** (opt-in): words per day, most-used words, new words, average message length and recent messages, with CSV export for your SLP. Nothing leaves the device.
 - **Multiple profiles** on one device, synced like everything else.
@@ -117,11 +118,13 @@ Caleb has no servers, analytics, ads or accounts. On Android, the system's own A
 
 - **Sync** writes only to a file the family chooses (for example in Google Drive), encrypted with the family's passcode. The passcode and this device's settings never leave the device.
 - **Recent sentences** can be deleted by the person, kept only until Caleb restarts, or turned off. "Private for now" pauses recent sentences, learned words and the usage log.
+- **Import a board from a picture** reads the words with text recognition that runs on the device (Tesseract, bundled with the app). The picture is never uploaded and nothing is downloaded while it works.
 - **Backups:** plain (unencrypted) backups never contain the settings PIN. New installs leave recent sentences out of backups unless you include them.
 
 ## Credits and licence
 - App code: [GNU AGPL-3.0-or-later](LICENSE). If you run a modified version for others, including as a website, you must share its source. See [NOTICE](NOTICE).
 - Pictograms: Sergio Palao. Origin: [ARASAAC](https://arasaac.org), Government of Aragón (Spain). Licence: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Because the pictograms are non-commercial, Caleb must stay free.
 - Font: [Atkinson Hyperlegible](https://brailleinstitute.org/freefont), Braille Institute (SIL OFL 1.1)
+- On-device text recognition for picture import: [tesseract.js](https://github.com/naptha/tesseract.js) and tesseract.js-core (Apache-2.0), with Tesseract language data from [@tesseract.js-data](https://github.com/naptha/tessdata) (`4.0.0_best_int`, MIT; English, Spanish, French, Portuguese)
 
 Caleb is not a medical device. Please work with a speech-language pathologist when choosing and setting up AAC.
