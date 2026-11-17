@@ -18,6 +18,7 @@
     "icons": "node scripts/make-icons.mjs",
     "e2e": "node scripts/e2e/flows.mjs",
     "screens": "node scripts/e2e/screens.mjs",
+    "guide:shots": "node scripts/guide-screenshots.mjs",
     "vision": "node scripts/copy-vision.mjs",
     "predev": "node scripts/copy-vision.mjs && node scripts/copy-ocr.mjs",
     "ocr": "node scripts/copy-ocr.mjs"

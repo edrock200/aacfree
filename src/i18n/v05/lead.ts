@@ -16,6 +16,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Unnamed': 'Sin nombre',
     'First…': 'Primero…',
     'Then…': 'Después…',
+    'Full user guide': 'Guía de uso completa',
+    'Step-by-step help for every screen and setting, with pictures. It opens in your web browser.': 'Ayuda paso a paso para cada pantalla y cada ajuste, con imágenes. Se abre en el navegador.',
   },
   fr: {
     'More': 'Plus',
@@ -33,6 +35,8 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Unnamed': 'Sans nom',
     'First…': 'D’abord…',
     'Then…': 'Ensuite…',
+    'Full user guide': 'Guide d’utilisation complet',
+    'Step-by-step help for every screen and setting, with pictures. It opens in your web browser.': 'Une aide pas à pas pour chaque écran et chaque réglage, avec des images. Elle s’ouvre dans le navigateur.',
   },
   pt: {
     'More': 'Mais',
@@ -50,5 +54,7 @@ export const UI: Record<'es' | 'fr' | 'pt', Record<string, string>> = {
     'Unnamed': 'Sem nome',
     'First…': 'Primeiro…',
     'Then…': 'Depois…',
+    'Full user guide': 'Guia de uso completo',
+    'Step-by-step help for every screen and setting, with pictures. It opens in your web browser.': 'Ajuda passo a passo para cada tela e cada configuração, com imagens. Abre no navegador.',
   },
 };

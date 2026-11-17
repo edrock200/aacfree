@@ -1,0 +1,1807 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AACFree user guide: every screen, setting and tool</title>
+  <meta name="description" content="The complete AACFree user guide for parents, carers, teachers and speech therapists: getting started, talking, phrases, tools, every setting, editing boards, switch scanning, eye gaze, backups and sync." />
+  <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://aacappfree.com/guide/" />
+  <meta property="og:title" content="AACFree user guide" />
+  <meta property="og:description" content="How to use every screen, setting and tool in AACFree, the free offline AAC app." />
+  <meta property="og:image" content="img/talk-tablet.webp" />
+  <style>
+    :root {
+      --bg: #f6f3ee; --surface: #fff; --text: #1d1d1f; --muted: #5f5b55; --accent: #1d7a6a; --accent-soft: #d5efe9; --border: #e3ddd2;
+      --y: #fff1a8; --g: #c5efb4; --b: #c4dcff; --o: #ffd8b0; --p: #ffcfe3; --v: #e3d1ff; --r: #ffc2c2;
+      --note: #fff6d6; --note-border: #e8d38a; --shadow: 0 10px 30px rgba(40, 30, 10, .12);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #15171c; --surface: #20232a; --text: #f2f2f2; --muted: #a3a7b0; --accent: #4fc3a8; --accent-soft: #1d3a34; --border: #343944;
+        --note: #2c2a1e; --note-border: #5d5532; --shadow: 0 10px 30px rgba(0, 0, 0, .35); }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body { margin: 0; font-family: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 1.05rem; }
+    a { color: var(--accent); }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px; }
+    .skip { position: absolute; left: -9999px; top: 8px; }
+    .skip:focus { left: 12px; z-index: 10; background: var(--accent); color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 700; }
+    header.site { display: flex; align-items: center; gap: 12px; padding: 18px 0; flex-wrap: wrap; }
+    header.site .brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; }
+    header.site img { width: 44px; height: 44px; }
+    header.site b { font-size: 1.4rem; }
+    header.site nav { margin-left: auto; display: flex; gap: 18px; font-weight: 700; flex-wrap: wrap; }
+    header.site nav a { text-decoration: none; color: var(--text); }
+    header.site nav a[aria-current] { color: var(--accent); }
+    .intro { padding: 18px 0 30px; }
+    .intro h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.08; margin: 0 0 12px; letter-spacing: -0.02em; }
+    .intro p.lead { font-size: 1.2rem; color: var(--muted); margin: 0 0 22px; max-width: 60ch; }
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px; font-weight: 700; font-size: 1rem; text-decoration: none; border: 2px solid var(--accent); }
+    .btn.primary { background: var(--accent); color: #fff; }
+    @media (prefers-color-scheme: dark) { .btn.primary { color: #10231f; } }
+    .btn.ghost { color: var(--accent); background: transparent; }
+    .layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 44px; align-items: start; }
+    /* Table of contents: a sticky side panel on wide screens, a collapsible box on phones. */
+    .toc { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 6px 10px 12px; font-size: 0.95rem; }
+    .toc summary { cursor: pointer; font-weight: 700; padding: 8px 6px; list-style-position: inside; }
+    .toc ol { list-style: none; margin: 0; padding: 0; }
+    .toc li { margin: 1px 0; }
+    .toc a { display: block; padding: 3px 8px; border-radius: 8px; color: var(--text); text-decoration: none; line-height: 1.35; }
+    .toc a:hover, .toc a:focus-visible { background: var(--accent-soft); }
+    .toc a.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+    .toc ol ol { padding-left: 14px; font-size: 0.9rem; display: none; }
+    .toc li.open > ol, .toc.searching ol ol { display: block; }
+    .search { margin: 6px 0 10px; }
+    .search label { display: block; font-weight: 700; font-size: 0.9rem; margin: 0 4px 4px; }
+    .search input { width: 100%; font: inherit; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); }
+    .search input:focus { outline: 3px solid var(--accent); outline-offset: 1px; }
+    .search output { display: block; color: var(--muted); font-size: 0.85rem; margin: 4px 4px 0; min-height: 1.2em; }
+    main { min-width: 0; }
+    main > section { max-width: 76ch; padding-bottom: 8px; }
+    main > section + section { border-top: 1px solid var(--border); margin-top: 28px; }
+    h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); line-height: 1.2; margin: 34px 0 10px; scroll-margin-top: 14px; }
+    h3 { font-size: 1.3rem; margin: 30px 0 6px; scroll-margin-top: 14px; }
+    h4 { font-size: 1.08rem; margin: 22px 0 4px; scroll-margin-top: 14px; }
+    .hl { color: inherit; text-decoration: none; }
+    .hl:hover::after, .hl:focus-visible::after { content: ' #'; color: var(--accent); }
+    .num { color: var(--accent); margin-right: 6px; }
+    p, li { max-width: 72ch; }
+    ul, ol { padding-left: 1.3em; }
+    li { margin-bottom: 4px; }
+    .ui { font-weight: 700; white-space: nowrap; }
+    kbd { font: inherit; font-weight: 700; background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; padding: 0 6px; }
+    figure { margin: 18px 0 24px; }
+    figure img { display: block; max-width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); background: #fff; }
+    figure.mid img { max-width: min(100%, 560px); }
+    figure.small img { max-width: min(100%, 420px); }
+    figure.phone img { max-width: min(100%, 300px); border-radius: 22px; }
+    figure.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    figure.pair figcaption { grid-column: 1 / -1; }
+    figcaption { color: var(--muted); font-size: 0.92rem; margin-top: 8px; max-width: 72ch; }
+    .callout { background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: 12px; padding: 12px 16px; margin: 16px 0; }
+    .callout.warn { background: var(--note); border-color: var(--note-border); border-left-color: #c58a00; }
+    .callout p { margin: 4px 0; }
+    .callout b:first-child { display: inline; }
+    .steps { counter-reset: s; list-style: none; padding-left: 0; }
+    .steps > li { counter-increment: s; position: relative; padding-left: 40px; margin-bottom: 10px; }
+    .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 0.9rem; }
+    @media (prefers-color-scheme: dark) { .steps > li::before { color: #10231f; } }
+    .platform { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); vertical-align: 2px; white-space: nowrap; }
+    .platform.exp { background: var(--note); color: #8a5a00; border: 1px solid var(--note-border); }
+    @media (prefers-color-scheme: dark) { .platform.exp { color: #f0c96a; } }
+    table.settings { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 0.97rem; }
+    table.settings caption { text-align: left; font-weight: 700; padding: 6px 0; }
+    table.settings th, table.settings td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+    table.settings th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+    table.settings td:first-child { font-weight: 700; width: 30%; }
+    table.settings td.d { width: 17%; color: var(--muted); }
+    table.settings tr:target { background: var(--accent-soft); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; list-style: none; }
+    .chips li { padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.92rem; color: #1d1d1f; margin: 0; }
+    dl.gloss dt { font-weight: 700; margin-top: 12px; scroll-margin-top: 14px; }
+    dl.gloss dd { margin: 2px 0 0 0; max-width: 72ch; }
+    .faq h3 { font-size: 1.15rem; }
+    .top { display: inline-block; margin: 14px 0 0; font-size: 0.9rem; font-weight: 700; }
+    .hide { display: none !important; }
+    footer.site { padding: 30px 0 50px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); margin-top: 40px; }
+    footer.site nav { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 10px; font-weight: 700; }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; gap: 10px; }
+      .toc { position: static; max-height: none; }
+      header.site nav { margin-left: 0; width: 100%; gap: 6px 16px; font-size: 0.95rem; }
+    }
+    @media (max-width: 640px) {
+      body { font-size: 1rem; }
+      .wrap { padding: 0 16px; }
+      figure.pair { grid-template-columns: 1fr; }
+      table.settings, table.settings tbody, table.settings tr, table.settings td { display: block; width: auto !important; }
+      table.settings thead { display: none; }
+      table.settings tr { padding: 10px 0; border-bottom: 1px solid var(--border); }
+      table.settings td { border: 0; padding: 2px 0; }
+      table.settings td.d::before { content: 'Default: '; font-weight: 700; color: var(--text); }
+      .ui { white-space: normal; }
+    }
+    @media print {
+      :root { --bg: #fff; --surface: #fff; --text: #000; --muted: #333; --accent: #0b5b4e; --border: #bbb; --shadow: none; }
+      body { font-size: 11pt; }
+      header.site nav, .toc, .cta, .top, .skip, .search { display: none !important; }
+      .layout { display: block; }
+      main > section { max-width: none; }
+      figure, table.settings tr, .callout { break-inside: avoid; }
+      figure img { max-width: 70% !important; box-shadow: none; }
+      figure.phone img { max-width: 35% !important; }
+      h2, h3 { break-after: avoid; }
+      a { color: inherit; }
+      .hl::after { content: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to the guide</a>
+  <div class="wrap">
+    <header class="site">
+      <a class="brand" href="../"><img src="../icon.svg" alt="" /><b>AACFree</b></a>
+      <nav aria-label="Site">
+        <a href="../">Home</a>
+        <a href="../#features">Features</a>
+        <a href="./" aria-current="page">User guide</a>
+        <a href="../app/">Open the app</a>
+        <a href="../download/aacfree.apk">Download</a>
+        <a href="https://github.com/edrock200/caleb">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="intro" id="top">
+      <h1>AACFree user guide</h1>
+      <p class="lead">Everything AACFree can do, explained step by step: talking, phrases, tools, every setting, editing boards, switches and eye gaze, backups and sync. Written for parents, carers, teachers and speech therapists.</p>
+      <div class="cta">
+        <a class="btn primary" href="../app/">Open the web app</a>
+        <a class="btn ghost" href="../download/aacfree.apk">Download for Android</a>
+        <a class="btn ghost" href="../">Back to the home page</a>
+      </div>
+    </div>
+
+    <div class="layout">
+      <details class="toc" id="toc" open>
+        <summary>Contents</summary>
+        <div class="search" id="search" hidden>
+          <label for="q">Search the guide</label>
+          <input id="q" type="search" placeholder="For example: PIN, backup, switch" autocomplete="off" />
+          <output id="q-count" for="q" aria-live="polite"></output>
+        </div>
+        <nav aria-label="Guide contents">
+          <ol>
+            <li><a href="#welcome"><span class="num">1</span>Welcome</a>
+              <ol>
+                <li><a href="#what-is-aacfree">What AACFree is</a></li>
+                <li><a href="#how-to-read">How to read this guide</a></li>
+                <li><a href="#quick-start">Quick start: 5 minutes</a></li>
+              </ol>
+            </li>
+            <li><a href="#get"><span class="num">2</span>Getting AACFree</a>
+              <ol>
+                <li><a href="#iphone-ipad">iPhone and iPad</a></li>
+                <li><a href="#android-chrome">Android (web app)</a></li>
+                <li><a href="#computer">Computer or Chromebook</a></li>
+                <li><a href="#offline">Check it works offline</a></li>
+                <li><a href="#apk">The Android app (APK)</a></li>
+                <li><a href="#updating">Updates</a></li>
+                <li><a href="#first-setup">First-time setup</a></li>
+              </ol>
+            </li>
+            <li><a href="#moving-from-another-app"><span class="num">3</span>Moving from another AAC app</a>
+              <ol>
+                <li><a href="#move-from-picture">From a photo or screenshot</a></li>
+                <li><a href="#move-from-obf">From an .obf / .obz file</a></li>
+              </ol>
+            </li>
+            <li><a href="#restoring"><span class="num">4</span>Restoring a backup / new device</a>
+              <ol>
+                <li><a href="#restore-file">Restore a backup file</a></li>
+                <li><a href="#restore-auto">Restore an automatic backup</a></li>
+                <li><a href="#restore-cloud">Android cloud copy</a></li>
+                <li><a href="#restore-locked">Passcode-locked backups</a></li>
+                <li><a href="#restore-new-device">A new device</a></li>
+                <li><a href="#restore-sync">Join sync on a new device</a></li>
+                <li><a href="#restore-undo">Undo a restore</a></li>
+                <li><a href="#restore-caleb">Old Caleb backups</a></li>
+              </ol>
+            </li>
+            <li><a href="#talk"><span class="num">5</span>The Talk screen</a>
+              <ol>
+                <li><a href="#board">The board</a></li>
+                <li><a href="#folders">Folders</a></li>
+                <li><a href="#pages">Previous and Next pages</a></li>
+                <li><a href="#message-bar">The message bar</a></li>
+                <li><a href="#quick-bar">The quick bar</a></li>
+                <li><a href="#word-forms">Word forms</a></li>
+                <li><a href="#bottom-bar">The bottom bar</a></li>
+                <li><a href="#find-word">Find a word</a></li>
+                <li><a href="#big-text">Big text</a></li>
+                <li><a href="#modelling">Modelling mode</a></li>
+                <li><a href="#colours">Colours</a></li>
+                <li><a href="#hidden-words">Hidden words</a></li>
+              </ol>
+            </li>
+            <li><a href="#keyboard"><span class="num">6</span>Keyboard and prediction</a></li>
+            <li><a href="#phrases"><span class="num">7</span>Phrases</a>
+              <ol>
+                <li><a href="#phrase-folders">Phrase folders</a></li>
+                <li><a href="#recent">Recent sentences</a></li>
+                <li><a href="#favourites">Favourites</a></li>
+                <li><a href="#scripts">Scripts and gestalts</a></li>
+                <li><a href="#editing-phrases">Editing phrases</a></li>
+              </ol>
+            </li>
+            <li><a href="#tools"><span class="num">8</span>Tools</a>
+              <ol>
+                <li><a href="#tool-schedule">Schedule</a></li>
+                <li><a href="#tool-first-then">First / Then</a></li>
+                <li><a href="#tool-timer">Timer</a></li>
+                <li><a href="#tool-choices">Choices</a></li>
+                <li><a href="#tool-how-big">How big?</a></li>
+                <li><a href="#tool-pain">Pain scale</a></li>
+                <li><a href="#tool-body">Body</a></li>
+                <li><a href="#tool-about-me">About me</a></li>
+                <li><a href="#tool-draw">Draw</a></li>
+                <li><a href="#tool-attention">Get attention</a></li>
+                <li><a href="#tool-my-voice">My voice</a></li>
+                <li><a href="#hiding-tools">Hiding tools</a></li>
+              </ol>
+            </li>
+            <li><a href="#settings"><span class="num">9</span>Settings, panel by panel</a>
+              <ol>
+                <li><a href="#opening-settings">Opening Settings</a></li>
+                <li><a href="#lock-and-pin">The lock and the PIN</a></li>
+                <li><a href="#panel-boards">Boards &amp; words</a></li>
+                <li><a href="#panel-symbols">Symbols</a></li>
+                <li><a href="#panel-voice">Voice</a></li>
+                <li><a href="#panel-display">Display</a></li>
+                <li><a href="#panel-access">Access</a></li>
+                <li><a href="#panel-insights">Insights</a></li>
+                <li><a href="#panel-backup">Backup</a></li>
+                <li><a href="#panel-profiles">Profiles</a></li>
+                <li><a href="#panel-lock">Lock</a></li>
+                <li><a href="#panel-help">Help &amp; tips</a></li>
+              </ol>
+            </li>
+            <li><a href="#editing"><span class="num">10</span>Editing boards</a>
+              <ol>
+                <li><a href="#edit-mode">Edit mode</a></li>
+                <li><a href="#button-editor">The button editor</a></li>
+                <li><a href="#move">Moving buttons</a></li>
+                <li><a href="#hide">Hide instead of delete</a></li>
+                <li><a href="#show-hide">Show/Hide mode</a></li>
+                <li><a href="#add-word">+ Word</a></li>
+                <li><a href="#new-category">New category folders</a></li>
+                <li><a href="#board-settings">Board settings and size</a></li>
+                <li><a href="#edit-quick-bar">Editing the quick bar</a></li>
+                <li><a href="#undo">Undo</a></li>
+                <li><a href="#print">Paper boards</a></li>
+                <li><a href="#import-picture">Import a board from a picture</a></li>
+              </ol>
+            </li>
+            <li><a href="#symbols"><span class="num">11</span>The symbol library</a></li>
+            <li><a href="#languages"><span class="num">12</span>Languages</a></li>
+            <li><a href="#access"><span class="num">13</span>Access</a>
+              <ol>
+                <li><a href="#touch">Touch</a></li>
+                <li><a href="#scanning">Switch scanning</a></li>
+                <li><a href="#dwell">Dwell</a></li>
+                <li><a href="#head-pointer">Head pointer</a></li>
+                <li><a href="#eye-gaze">Eye gaze</a></li>
+                <li><a href="#seeing">Seeing the screen</a></li>
+              </ol>
+            </li>
+            <li><a href="#voice"><span class="num">14</span>Voice and speech</a></li>
+            <li><a href="#profiles"><span class="num">15</span>Profiles</a></li>
+            <li><a href="#backups"><span class="num">16</span>Backups, snapshots and sync</a>
+              <ol>
+                <li><a href="#backup-file">The backup file</a></li>
+                <li><a href="#automatic-backup">Automatic backups</a></li>
+                <li><a href="#snapshots">Snapshots</a></li>
+                <li><a href="#sync">Sync across devices</a></li>
+                <li><a href="#obf">Open Board Format</a></li>
+              </ol>
+            </li>
+            <li><a href="#privacy"><span class="num">17</span>Insights and privacy</a></li>
+            <li><a href="#tips"><span class="num">18</span>Tips from AAC research</a></li>
+            <li><a href="#troubleshooting"><span class="num">19</span>Troubleshooting and FAQ</a></li>
+            <li><a href="#glossary"><span class="num">20</span>Glossary</a></li>
+            <li><a href="#credits"><span class="num">21</span>Credits and licences</a></li>
+          </ol>
+        </nav>
+      </details>
+
+      <main id="content" tabindex="-1">
+
+<!-- ============================================================ 1 -->
+<section id="welcome" data-s>
+  <h2><a class="hl" href="#welcome"><span class="num">1</span>Welcome</a></h2>
+
+  <h3 id="what-is-aacfree"><a class="hl" href="#what-is-aacfree">What AACFree is</a></h3>
+  <p>AACFree is a free communication app for autistic and non-verbal people, and the people who love them. AAC stands for <b>augmentative and alternative communication</b>: any way of communicating that adds to speech or takes its place. In AACFree, the person taps picture-and-word buttons to build a sentence, and the device speaks it aloud.</p>
+  <ul>
+    <li><b>Free, forever.</b> No ads, no subscriptions, no accounts.</li>
+    <li><b>Private.</b> Everything stays on the device. There is no AACFree server.</li>
+    <li><b>Works offline.</b> Once installed, it works with no internet at all.</li>
+    <li><b>Runs almost anywhere:</b> as a web app on iPhone, iPad, Android, Chromebook and computers, and as an Android app.</li>
+    <li><b>Four languages:</b> English, Español, Français and Português.</li>
+  </ul>
+  <p>AACFree used to be called <b>Caleb</b>. It is the same app with a new name. If you used Caleb, your boards, backups and sync files still work.</p>
+  <figure>
+    <img src="img/talk-tablet.webp" width="1180" height="820" alt="AACFree on a tablet. At the top, the message bar shows the words I want more pizza with pictures, and a green Speak button. Below it, a row of quick words: yes, no, stop, help, wait, break, I don't know, Hey. The main board has 48 colour-coded buttons such as I, want, go, like, more, what, and folders such as Food, Drinks, Play and Feelings. The bottom bar has Keyboard, Phrases, Home, More, Tools, Find, Model and Settings." loading="lazy" />
+    <figcaption>The Talk screen on a tablet, with the Full core layout. The sentence “I want more pizza” is ready to speak.</figcaption>
+  </figure>
+
+  <h3 id="how-to-read"><a class="hl" href="#how-to-read">How to read this guide</a></h3>
+  <p>You don't need to read it all. Start with the <a href="#quick-start">quick start</a>, then come back when you need something. Some tips:</p>
+  <ul>
+    <li>Words in <b class="ui">bold</b> are the names you see on the screen, such as <b class="ui">Speak</b> or <b class="ui">Boards &amp; words</b>.</li>
+    <li>An arrow means “then tap”. <b class="ui">Settings → Backup → Save backup file</b> means: open Settings, tap the Backup panel, then tap Save backup file.</li>
+    <li>A label like <span class="platform">Android app</span> means a feature only works there.</li>
+    <li>“The person” means the person who uses AACFree to communicate. “You” means the parent, carer, teacher or therapist helping them.</li>
+    <li>On a phone, tap <b>Contents</b> at the top of the guide to jump to a section, or search for a word.</li>
+  </ul>
+
+  <h3 id="quick-start"><a class="hl" href="#quick-start">Quick start: your first sentence in 5 minutes</a></h3>
+  <ol class="steps">
+    <li><b>Open AACFree.</b> Go to <a href="../app/">aacappfree.com/app</a>, or open the Android app. (To install it properly, see <a href="#get">Getting AACFree</a>.)</li>
+    <li><b>Do the short setup.</b> Choose a language, type the person's name (optional) and tap <b class="ui">Next</b>. Pick a layout: <b class="ui">Phone core · 30</b> on a phone, <b class="ui">Medium · 30</b> or <b class="ui">Full core · 48</b> on a tablet. Tap <b class="ui">Next</b>, choose a voice, then <b class="ui">Start talking</b>. You can also tap <b class="ui">Skip setup</b>.</li>
+    <li><b>Tap a few words.</b> Tap <b class="ui">I</b>, then <b class="ui">want</b>. Each word is spoken and appears in the message bar at the top.</li>
+    <li><b>Open a folder.</b> Tap the <b class="ui">Food</b> folder, then <b class="ui">pizza</b>. AACFree goes back to the Home board by itself, ready for the next word.</li>
+    <li><b>Speak the sentence.</b> Tap the green <b class="ui">Speak</b> button. To remove the last word, tap the delete key (⌫) next to it. Hold it to clear the whole message.</li>
+    <li><b>Find the safe words.</b> The row just under the message bar is the <a href="#quick-bar">quick bar</a>: yes, no, stop, help, wait, break. It is always there.</li>
+    <li><b>Find Settings.</b> Bottom right. Hold it for 2 seconds to open it. That's where you edit boards and change everything else.</li>
+    <li><b>Save a backup.</b> In <b class="ui">Settings → Backup</b>, tap <b class="ui">Save backup file</b> once you have made changes, and keep the file somewhere safe.</li>
+  </ol>
+  <div class="callout">
+    <p><b>The most important tip:</b> use the app yourself while you talk to the person. Tap “want” as you say “want”. This is called <a href="#tips">modelling</a>, and it is how people learn AAC.</p>
+  </div>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 2 -->
+<section id="get" data-s>
+  <h2><a class="hl" href="#get"><span class="num">2</span>Getting AACFree</a></h2>
+  <p>There are two ways to get AACFree. Both are free and both work offline.</p>
+  <ul>
+    <li><b>The web app</b> at <a href="../app/">aacappfree.com/app</a>. Add it to your home screen once and it opens full screen like a normal app. Use this on iPhone, iPad, computers and Chromebooks.</li>
+    <li><b>The Android app</b> (<a href="../download/aacfree.apk">aacfree.apk</a>). Best on Android phones and tablets: it has the device's own voices, automatic backups to a folder that survives uninstalling, and a few other extras.</li>
+  </ul>
+
+  <h3 id="iphone-ipad"><a class="hl" href="#iphone-ipad">iPhone and iPad (Safari)</a></h3>
+  <ol class="steps">
+    <li>Open <a href="../app/">aacappfree.com/app</a> in <b>Safari</b>.</li>
+    <li>Tap the <b class="ui">Share</b> button (the square with an arrow pointing up).</li>
+    <li>Scroll down and tap <b class="ui">Add to Home Screen</b>, then <b class="ui">Add</b>.</li>
+    <li>From now on, always open AACFree from its icon on the home screen.</li>
+  </ol>
+  <div class="callout warn">
+    <p><b>Important on iPhone and iPad:</b> Safari can delete a website's saved data after about 7 days without a visit. Apps added to the home screen are treated differently and keep their boards. So use the home-screen icon, not a Safari tab, and save a <a href="#backup-file">backup file</a> now and then.</p>
+  </div>
+
+  <h3 id="android-chrome"><a class="hl" href="#android-chrome">Android phone or tablet (Chrome)</a></h3>
+  <ol class="steps">
+    <li>Open <a href="../app/">aacappfree.com/app</a> in <b>Chrome</b>.</li>
+    <li>Tap <b class="ui">Install</b> when Chrome offers it. Or tap the <b>⋮</b> menu → <b class="ui">Add to Home screen</b> (or <b class="ui">Install app</b>) → <b class="ui">Install</b>.</li>
+    <li>Open AACFree from its new icon.</li>
+  </ol>
+  <p>On Android you can also use the <a href="#apk">Android app</a> instead. Choose one, not both: they keep separate data.</p>
+
+  <h3 id="computer"><a class="hl" href="#computer">Computer or Chromebook (Chrome or Edge)</a></h3>
+  <ol class="steps">
+    <li>Open <a href="../app/">aacappfree.com/app</a>.</li>
+    <li>Click the <b>install</b> icon at the right end of the address bar (a screen with a down arrow). Or open the browser menu → <b class="ui">Install AACFree</b>. In Edge: <b class="ui">Apps → Install this site as an app</b>.</li>
+  </ol>
+  <p>Chrome and Edge on a computer can also do <a href="#automatic-backup">automatic backups</a> to a folder and <a href="#sync">automatic sync</a>. Firefox and Safari can use AACFree too, but use manual backup and sync files instead.</p>
+
+  <h3 id="offline"><a class="hl" href="#offline">Check that it works offline</a></h3>
+  <ol class="steps">
+    <li>The first time, keep AACFree open for a minute or two on Wi-Fi. It saves everything it needs on the device (about 20 MB), including all 740 built-in pictures.</li>
+    <li>To check: turn on airplane mode, then open AACFree from its icon. Your boards should appear and talking should work.</li>
+  </ol>
+  <p>A few things do need the internet: searching for more pictures online (<b class="ui">More (online)</b> in the picture chooser), downloading a missing picture, and some online voices. Everything else, including <a href="#import-picture">reading words from a picture</a>, works offline.</p>
+
+  <h3 id="apk"><a class="hl" href="#apk">The Android app (APK)</a></h3>
+  <p>AACFree isn't in the Play Store yet, so you install it from a file. This is safe and takes a minute.</p>
+  <ol class="steps">
+    <li>On the Android phone or tablet (Android 7 or newer), download <a href="../download/aacfree.apk">aacfree.apk</a>.</li>
+    <li>Open the downloaded file. Android asks whether to allow <b class="ui">Install unknown apps</b> for your browser or file app. Allow it, then tap <b class="ui">Install</b>.</li>
+    <li>Open AACFree from the app list.</li>
+  </ol>
+  <p>Fire tablets and other Android devices can also use the free <b>Downloader</b> app: enter the code <b>5791841</b>. It downloads the newest version.</p>
+  <p><b>Tip:</b> turn on Android <b>App pinning</b> so AACFree can't be closed by accident. See <a href="#panel-lock">Settings → Lock → Stay in the app</a>. The Android Back button moves around inside AACFree and never closes it.</p>
+
+  <h3 id="updating"><a class="hl" href="#updating">Updates</a></h3>
+  <ul>
+    <li><b>Web app:</b> updates arrive by themselves when you are online. AACFree waits to apply them until it is idle: never in the middle of a sentence, while Settings are unlocked or editing is on, or while a timer is running.</li>
+    <li><b>Android app:</b> download <a href="../download/aacfree.apk">aacfree.apk</a> again and install it over the old one. <b>Don't uninstall first.</b> Updating keeps all boards, photos, recordings and settings. (The old <code>caleb.apk</code> link still works and gives the same file.)</li>
+    <li>You can see the version number at the bottom of <b class="ui">Settings → Help &amp; tips</b>.</li>
+  </ul>
+
+  <h3 id="first-setup"><a class="hl" href="#first-setup">First-time setup</a></h3>
+  <p>The first time AACFree opens, it asks a few questions. Every step can be skipped, and everything can be changed later in Settings.</p>
+  <figure class="pair">
+    <img src="img/onboarding-welcome.webp" width="720" height="508" alt="The welcome screen: language buttons English, Español, Français, Português; the heading Welcome to AACFree; a box asking Who will use AACFree, filled in with Sam; and the buttons Skip setup, Next and I have a backup." loading="lazy" />
+    <img src="img/onboarding-layout.webp" width="720" height="857" alt="The layout step: four layout cards (Big buttons 12, Phone core 30, Medium 30, Full core 48) with Full core selected, a Start with fewer words checkbox, and Playful look and Clean look buttons." loading="lazy" />
+    <figcaption>Left: the welcome step. Right: choosing a starting layout.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li><b>Welcome.</b> Choose the language: <b class="ui">English</b>, <b class="ui">Español</b>, <b class="ui">Français</b> or <b class="ui">Português</b>. Type the name of the person who will use AACFree (optional). Then tap <b class="ui">Next</b>, or <b class="ui">Skip setup</b> to start straight away with the suggested layout.</li>
+    <li><b>I have a backup.</b> Moving from another device? Tap <b class="ui">I have a backup</b> on the welcome step and choose your backup file. If the backup is locked with a passcode, type it and tap <b class="ui">Open backup</b>. Everything comes back as it was, and setup is done.</li>
+    <li><b>Choose a starting layout.</b> The layout decides how many words are on the Home board:
+      <ul>
+        <li><b class="ui">Big buttons · 12</b>: a 4 × 3 grid. For beginners, or harder motor access.</li>
+        <li><b class="ui">Phone core · 30</b>: a 5 × 6 grid shaped for phones held upright. Suggested on small screens.</li>
+        <li><b class="ui">Medium · 30</b>: a 6 × 5 grid. A good starting point for most people. Suggested on tablets.</li>
+        <li><b class="ui">Full core · 48</b>: an 8 × 6 grid with the Universal Core words. For tablets, with lots of room to grow.</li>
+      </ul>
+      Pick one you can grow into. Changing layout later moves words, which means relearning (see <a href="#tips">motor planning</a>).
+    </li>
+    <li><b>Start with fewer words</b> (not offered for Big buttons). Recommended for beginners: only about 12 to 20 key words show on Home at first, plus all the folders. The other words are hidden, but keep their places for later.</li>
+    <li><b>Playful look or Clean look.</b> Clean uses simpler button shapes and suits teens and adults. You can change this later in <a href="#panel-display">Display</a>.</li>
+    <li><b>Pick a voice.</b> Tap each voice to hear it. If you can, let the person choose. <b class="ui">Device default</b> uses the device's usual voice for that language.</li>
+    <li><b>Settings.</b> The last step explains that Settings sit bottom right, behind a 2-second hold. Tap <b class="ui">Start talking</b>.</li>
+  </ol>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ task: moving from another app -->
+<section id="moving-from-another-app" data-s>
+  <h2><a class="hl" href="#moving-from-another-app"><span class="num">3</span>Moving from another AAC app</a></h2>
+  <p>Coming from TD Snap, Proloquo2Go, TouchChat, LAMP, Cboard, CoughDrop or a paper board? There are two ways to bring boards across. Both keep every word in the same place, so the person keeps their motor plan, and neither changes anything you already have.</p>
+  <ul>
+    <li><a href="#move-from-picture">From a photo or screenshot</a> of the board. Works with any app, and with paper boards.</li>
+    <li><a href="#move-from-obf">From an Open Board Format file</a> (<code>.obf</code> or <code>.obz</code>), if the other app can export one.</li>
+  </ul>
+
+  <h3 id="move-from-picture"><a class="hl" href="#move-from-picture">From a photo or screenshot</a></h3>
+  <p>AACFree finds the grid in the picture, reads every word with text recognition that runs on this device, and rebuilds the board with the same rows and columns. The picture never leaves the device, and no internet is needed.</p>
+  <ol class="steps">
+    <li><b>Get a picture of the board.</b> In the other app, take a screenshot of one board page (on most tablets: power and volume-down together, or power and Home). For a paper board, take a photo from straight above. One picture makes one board; repeat for each folder.</li>
+    <li><b>Open the importer.</b> In AACFree, hold <b class="ui">Settings</b> for 2 seconds, then <b class="ui">Boards &amp; words → Import a board from a picture</b>. (Or, in edit mode, <b class="ui">+ Category</b> → <b class="ui">Or import a board from a picture…</b>)</li>
+    <li><b>Pick the picture.</b> Tap <b class="ui">Take photo</b> to use the camera, or <b class="ui">Choose a picture</b> for a screenshot from the gallery or files.</li>
+    <li><b>Check the grid.</b> AACFree draws its grid over the picture and says, for example, “Found 3 rows and 4 columns.” Toolbars, message bars and side panels are left out. Check that the dashed lines sit <b>between</b> the buttons:
+      <ul>
+        <li>Drag the round handles on the four edges to move the edges (works with touch and a mouse).</li>
+        <li>Use <b class="ui">Rows</b> and <b class="ui">Columns</b> <b>−</b> and <b>+</b> to fix the count.</li>
+        <li><b class="ui">Move the edges a little</b> opens arrow buttons to nudge each edge (for keyboard and switch users too).</li>
+        <li>If AACFree couldn't find the buttons itself, it says so: drag the edges onto the board and set the rows and columns.</li>
+        <li><b class="ui">Another picture</b> starts again with a different picture.</li>
+      </ul>
+    </li>
+    <li><b>Tap <span class="ui">Read the words</span>.</b> AACFree gets its word reader ready, then reads square by square (“Reading square 5 of 12…”). It takes a few seconds on a computer and can take a minute on an older tablet. <b class="ui">Cancel</b> goes back to the grid.</li>
+    <li><b>Check the preview.</b> It shows the board as it will look: each word with an AACFree picture and the colour of its word type (from the colour of the tile in your picture). A line at the top says how many words were found, and how many squares have a picture but no word yet.
+      <ul>
+        <li><b class="ui">Pictures</b>: keep <b class="ui">AACFree symbols</b>, or switch to <b class="ui">Pictures from my screenshot</b> to keep the pictures cut from your picture, for every square at once. Pictures from other apps may belong to the people who made them, so use them only for your family's own boards.</li>
+        <li><b>Tap any square to fix it</b> (see the next step).</li>
+      </ul>
+    </li>
+    <li><b>Fix a square.</b> In <b class="ui">Fix this square</b> you can change the <b class="ui">Word</b>, choose the <b class="ui">Picture</b> (<b class="ui">AACFree symbol</b>, <b class="ui">From my screenshot</b>, or <b class="ui">Choose another picture…</b>), change the <b class="ui">Word type (colour)</b>, tick <b class="ui">Empty square</b> to leave it empty, or tick <b class="ui">Opens a folder</b> to make it a folder (an empty folder board with that name, to fill in later, for example by importing that folder's own screenshot). Tap <b class="ui">Done</b>. A square left without a word stays empty.</li>
+    <li><b>Name it and choose where it goes.</b> Type a <b class="ui">Board name</b>. Under <b class="ui">Where should it go?</b> choose:
+      <ul>
+        <li><b class="ui">A new folder on a board</b>, and the board to <b class="ui">Put the folder on</b>. The folder goes in the first empty square. If that board is full, it goes on More; if More is full too, a new row is added at the bottom. Nothing else moves.</li>
+        <li><b class="ui">A new profile</b>, whose Home board is the imported board. Good when you are moving a whole system across. Your current profile isn't changed, and the new profile keeps this device's voice and access settings.</li>
+      </ul>
+    </li>
+    <li><b>Tap <span class="ui">Save board</span>.</b> A snapshot is saved first, and you can press <b class="ui">Undo</b> on the message that appears. When you import from <b class="ui">Boards &amp; words</b> as a folder, AACFree then opens the new board in edit mode so you can carry on.</li>
+  </ol>
+  <figure class="pair">
+    <img src="img/import-grid.webp" width="860" height="880" alt="Import a board from a picture, the grid step: a screenshot of a 3 by 4 board from another app with a dark toolbar at the top. AACFree's grid covers only the 12 tiles, with round handles on each edge. Below are Rows 3 and Columns 4 steppers and the buttons Another picture, Cancel and Read the words." loading="lazy" />
+    <img src="img/import-preview.webp" width="860" height="976" alt="The preview step: Found 12 words in 3 rows and 4 columns. A Pictures switch between AACFree symbols and Pictures from my screenshot, and the rebuilt board with want, more, help, stop, eat, drink, play, go, happy, dog, ball and you in their original colours." loading="lazy" />
+    <figcaption>Left: AACFree found the 3 × 4 grid and left the toolbar out. Right: the words it read, ready to check and save.</figcaption>
+  </figure>
+  <figure class="small">
+    <img src="img/import-fix.webp" width="520" height="704" alt="The Fix this square window for the word dog: a Word box, Picture choices AACFree symbol and From my screenshot, Choose another picture, word type colour chips, and Empty square and Opens a folder checkboxes." loading="lazy" />
+    <figcaption>Tap a square to fix its word, picture or colour, or to make it empty or a folder.</figcaption>
+  </figure>
+
+  <h4 id="import-tips">Tips for a good picture</h4>
+  <ul>
+    <li><b>A screenshot works best.</b> It is sharp, straight and evenly lit.</li>
+    <li>For a photo: hold the camera <b>straight above</b> the board (not at an angle), in good light, with no glare or shadows, and fill the picture with the board.</li>
+    <li>Show <b>one page</b> of the board, with the whole grid visible. It's fine if toolbars and the message bar are in the picture too.</li>
+    <li>Make the words big: on a tablet screenshot, turn the other app's text size up if you can.</li>
+    <li>Check the communication language first (<a href="#panel-display">Display → Language</a>). Words are read in the board's language plus English.</li>
+  </ul>
+  <h4 id="import-limits">What it can't do (yet)</h4>
+  <ul>
+    <li><b>Boards with no gaps between the buttons</b> are hard to split by themselves. Set the edges, rows and columns by hand.</li>
+    <li><b>Photos taken at an angle</b> make the grid a slanted shape, so the lines can't sit between every button. Take the photo again from straight above.</li>
+    <li><b>Single letters</b> (alphabet and keyboard pages) are mostly skipped, because one letter is too easy to misread. Only “I” and “a” (and a few one-letter words in Spanish, French and Portuguese) are kept. AACFree has its own <a href="#keyboard">keyboard</a> instead.</li>
+    <li>It reads words, not what buttons do. Folders become empty folders you fill in; actions such as “speak” or “clear” become plain words (delete them, or hide them).</li>
+    <li>Pictures, numbers mixed with letters, and very small or decorative text may be misread. Always check the preview.</li>
+    <li>A board can have at most 30 rows and 20 columns.</li>
+  </ul>
+
+  <h3 id="move-from-obf"><a class="hl" href="#move-from-obf">From an Open Board Format file (.obf / .obz)</a></h3>
+  <p>Open Board Format is a shared file format for AAC boards. CoughDrop, Cboard and several other apps can export it. A <code>.obz</code> file holds a whole set of boards with their pictures; a <code>.obf</code> file is one board.</p>
+  <ol class="steps">
+    <li>In the other app, export the boards as <code>.obz</code> (or <code>.obf</code>) and get the file onto this device (download, email, cloud drive).</li>
+    <li>In AACFree: <b class="ui">Settings → Backup → Share boards (Open Board Format) → Import boards…</b> and choose the file.</li>
+    <li>The boards become a <b>new profile</b>, named after the board set, and AACFree switches to it. Nothing you had is overwritten, and a snapshot is saved first. The new profile keeps this device's voice and access settings (scanning, pointer and so on).</li>
+    <li>Look through the boards, then <a href="#editing">edit</a> anything that needs it. Switch back to your other profile in <a href="#panel-profiles">Profiles</a>.</li>
+  </ol>
+  <p>AACFree can also export: <b class="ui">Export boards (.obz)</b> saves the current profile's boards for other apps.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ task: restoring -->
+<section id="restoring" data-s>
+  <h2><a class="hl" href="#restoring"><span class="num">4</span>Restoring from a backup / moving to a new device</a></h2>
+  <p>A <b>backup file</b> holds everything: all profiles, boards, photos, recordings, phrases and settings. You can restore one on the same device (after a mistake or a reset) or on a new device. Choose the way that fits:</p>
+  <ul>
+    <li><a href="#restore-file">Restore a backup file</a> you saved.</li>
+    <li><a href="#restore-auto">Restore an automatic backup</a> from the list.</li>
+    <li><a href="#restore-cloud">Restore the Android cloud copy</a> from Google Drive, OneDrive or Dropbox.</li>
+    <li><a href="#restore-locked">Open a passcode-locked backup</a>.</li>
+    <li><a href="#restore-new-device">Start a new device from a backup</a> with “I have a backup”.</li>
+    <li><a href="#restore-sync">Join sync on a new device</a>, to keep two devices in step.</li>
+    <li><a href="#restore-undo">Undo a restore</a> with a snapshot.</li>
+    <li><a href="#restore-caleb">Find old Caleb backups</a>.</li>
+  </ul>
+  <div class="callout warn"><p><b>A restore replaces everything on this device</b> with the backup: every profile. Before it does, AACFree saves the current version as a snapshot, so you can go back. This device keeps its own settings lock and PIN.</p></div>
+
+  <h3 id="restore-file"><a class="hl" href="#restore-file">Restore a backup file</a></h3>
+  <ol class="steps">
+    <li>Get the backup file (a <code>.json</code> file, for example <code>sam-backup-2026-11-17.json</code>) onto the device: from email, a cloud drive, a USB stick or the Downloads folder.</li>
+    <li>Hold <b class="ui">Settings</b> for 2 seconds, then open <b class="ui">Backup</b>.</li>
+    <li>Under <b class="ui">Backup file</b>, tap <b class="ui">Restore from file…</b> and choose the file.</li>
+    <li>AACFree shows the file name and the profiles inside it, and asks <b class="ui">Restore this backup?</b> Tap <b class="ui">Replace with backup</b>.</li>
+  </ol>
+  <figure class="mid">
+    <img src="img/restore-confirm.webp" width="520" height="276" alt="The Restore this backup? window: the file name and 1 profile(s): Sam. Everything on this device is replaced by the backup. Your current version is saved as a snapshot first, so you can go back. Buttons Cancel and Replace with backup." loading="lazy" />
+    <figcaption>Before anything is replaced, AACFree shows what is in the file and saves a snapshot.</figcaption>
+  </figure>
+
+  <h3 id="restore-auto"><a class="hl" href="#restore-auto">Restore an automatic backup</a></h3>
+  <p>If <a href="#automatic-backup">automatic backups</a> are on <span class="platform">Android app</span> <span class="platform">Chrome / Edge on a computer</span>:</p>
+  <ol class="steps">
+    <li><b class="ui">Settings → Backup → Automatic backup → Restore an automatic backup…</b></li>
+    <li>The list shows the dated copies (newest first) and, on Android, the cloud copy. Tap <b class="ui">Restore</b> next to the one you want, then confirm.</li>
+    <li>On a computer, AACFree may ask for permission to the backup folder again; allow it.</li>
+  </ol>
+  <p>After AACFree is reinstalled on Android, Android may hide the backups the old app saved. They are still in <code>Documents/AACFree</code>: in the restore list, tap <b class="ui">Choose a backup file…</b> and pick one with the file picker.</p>
+
+  <h3 id="restore-cloud"><a class="hl" href="#restore-cloud">Restore the Android cloud copy</a> <span class="platform">Android app</span></h3>
+  <p>If you set up <b class="ui">Add a cloud copy…</b>, AACFree keeps one copy up to date in Google Drive, OneDrive, Dropbox or on an SD card.</p>
+  <ul>
+    <li>On the same device: the cloud copy is in the <b class="ui">Restore an automatic backup…</b> list, marked <b class="ui">Cloud copy</b>.</li>
+    <li>On a new device: tap <b class="ui">Open a backup from Drive or another app…</b> (in <b class="ui">Automatic backup</b>), and choose the file in the system file picker.</li>
+  </ul>
+
+  <h3 id="restore-locked"><a class="hl" href="#restore-locked">Open a passcode-locked backup</a></h3>
+  <p>If backups were locked with <b class="ui">Lock backups with a passcode</b>, AACFree asks for that passcode when you restore: <b class="ui">This backup is locked</b>. Type the backup passcode and tap <b class="ui">Unlock</b>. Upper and lower case matter. Without the passcode, a locked backup can't be opened by anyone, including us, so keep it written down somewhere safe.</p>
+
+  <h3 id="restore-new-device"><a class="hl" href="#restore-new-device">Start a new device from a backup</a></h3>
+  <ol class="steps">
+    <li>On the old device: <b class="ui">Settings → Backup → Save backup file</b>. Send the file to yourself (email, cloud drive) or copy it across.</li>
+    <li>On the new device, install AACFree (see <a href="#get">Getting AACFree</a>) and open it.</li>
+    <li>On the first screen, tap <b class="ui">I have a backup</b> and choose the file. If it is locked, type its passcode and tap <b class="ui">Open backup</b>.</li>
+    <li>Everything comes back: profiles, boards, photos, recordings, phrases and settings. Check the voice in <a href="#panel-voice">Settings → Voice</a>, because each device has its own voices.</li>
+  </ol>
+  <p>Already past the first screen? Use <b class="ui">Settings → Backup → Restore from file…</b> instead.</p>
+
+  <h3 id="restore-sync"><a class="hl" href="#restore-sync">Join sync on a new device</a></h3>
+  <p>To keep the new device in step with the others (rather than copying once), join your family's <a href="#sync">sync</a>:</p>
+  <ul>
+    <li><b>Automatic sync</b> <span class="platform">Android app</span> <span class="platform">Chrome / Edge on a computer</span>: <b class="ui">Settings → Backup → Set up automatic sync…</b> → <b class="ui">No: choose the sync file another device made…</b>, choose the shared file (for example in Google Drive), type the sync passcode and tap <b class="ui">Start syncing</b>.</li>
+    <li><b>iPad, iPhone and Firefox</b>: on another device, tap <b class="ui">Send to another device…</b>; on the new one, <b class="ui">Receive from another device…</b> and type the passcode.</li>
+  </ul>
+  <p>If the new device now has an extra profile from its own first-time setup, delete it in <a href="#panel-profiles">Settings → Profiles</a>.</p>
+
+  <h3 id="restore-undo"><a class="hl" href="#restore-undo">Undo a restore</a></h3>
+  <p>Restored the wrong file? Go to <b class="ui">Settings → Backup → Automatic snapshots</b>. Find the snapshot called <b>Before importing a backup</b> (or <b>Before restoring a snapshot</b>) with the right time, tap <b class="ui">Restore</b>, and confirm. You are back where you were.</p>
+  <figure class="mid">
+    <img src="img/settings-snapshots.webp" width="860" height="306" alt="The Automatic snapshots section: a Take snapshot now button and a list of snapshots with dates and reasons such as Manual snapshot and Automatic daily backup, each with a Restore button." loading="lazy" />
+    <figcaption>Snapshots are kept on the device. Each one says when and why it was taken.</figcaption>
+  </figure>
+
+  <h3 id="restore-caleb"><a class="hl" href="#restore-caleb">Old Caleb backups</a></h3>
+  <p>AACFree was called Caleb until version 0.7. Old backups still open:</p>
+  <ul>
+    <li>Backup and sync files named <code>caleb-…</code> restore and sync like the new <code>aacfree-…</code> files.</li>
+    <li>On Android, automatic backups made by Caleb are in <code>Documents/Caleb</code>. They still appear in the <b class="ui">Restore an automatic backup…</b> list next to the new ones in <code>Documents/AACFree</code>. If you can't see them (for example after reinstalling), use <b class="ui">Choose a backup file…</b> and look in <code>Documents/Caleb</code>.</li>
+    <li>The Android app installs over Caleb as an update and keeps everything; there is nothing to restore.</li>
+  </ul>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 3 -->
+<section id="talk" data-s>
+  <h2><a class="hl" href="#talk"><span class="num">5</span>The Talk screen</a></h2>
+  <p>This is where the person talks. From top to bottom: the <a href="#message-bar">message bar</a>, the <a href="#quick-bar">quick bar</a>, the <a href="#board">board</a>, and the <a href="#bottom-bar">bottom bar</a>. Talking is never locked: every word is always available, whatever the settings lock is set to.</p>
+  <figure class="phone">
+    <img src="img/talk-phone.webp" width="585" height="1266" alt="AACFree on a phone with the Phone core layout: the message bar with want and go, a quick bar with yes, no, stop, help, wait and an All button, a 5 by 6 board of big buttons, and the bottom bar." loading="lazy" />
+    <figcaption>On a phone, with the Phone core layout. The quick bar shows an <b class="ui">All</b> button because not every quick word fits.</figcaption>
+  </figure>
+
+  <h3 id="board"><a class="hl" href="#board">The board</a></h3>
+  <p>The board is a fixed grid of buttons. Each button has a picture and a word. Tap a button and:</p>
+  <ul>
+    <li>its word is added to the message bar,</li>
+    <li>the word is spoken (unless <a href="#panel-voice">Speak each word when tapped</a> is off),</li>
+    <li>if you were inside a folder, AACFree goes back to Home so the next word is one tap away (you can turn this off: <a href="#panel-voice">Go back to Home after picking a word in a folder</a>).</li>
+  </ul>
+  <p>Buttons <b>never move on their own</b>. Each word lives in the same place every day, so the person can learn where it is by feel, like typing without looking. This is called <a href="#tips">motor planning</a>, and it is why AACFree hides words instead of deleting them, and adds new rows instead of shuffling.</p>
+  <p>Some special buttons do something instead of adding a word. The <b class="ui">Word forms</b> button on the Full core layout opens the <a href="#word-forms">word forms</a> of the last word in the message.</p>
+
+  <h3 id="folders"><a class="hl" href="#folders">Folders</a></h3>
+  <p>Buttons that look like a folder (a tab at the top left, a beige colour) open another board: <b class="ui">Food</b>, <b class="ui">Drinks</b>, <b class="ui">Play</b>, <b class="ui">Feelings</b>, <b class="ui">People</b> and more. The <b class="ui">More</b> folder holds all 25 topic folders, from Animals to Weather. Folders are only one level deep, so it is hard to get lost.</p>
+  <ul>
+    <li>To go back, tap the <b>Home</b> button (house) or the <b>Back</b> arrow at the top left of the message bar. On Android, the Back button works too.</li>
+    <li>The name of the open folder shows above the board.</li>
+    <li>To hear the folder's name when it opens, turn on <a href="#panel-voice">Say folder names when opened</a>.</li>
+  </ul>
+
+  <h3 id="pages"><a class="hl" href="#pages">Previous and Next pages</a></h3>
+  <p>When a board has more rows than fit on the screen, AACFree splits it into pages instead of scrolling. Big <b class="ui">◀ Previous</b> and <b class="ui">Next ▶</b> buttons sit at the bottom, always in the same place, and dots show which page you are on. A word is always on the same page, in the same spot.</p>
+  <figure class="phone">
+    <img src="img/folder-pages.webp" width="585" height="1266" alt="The Food folder on a phone: 35 food words such as eat, hungry, apple, banana, pizza and pasta, with Previous and Next buttons and three page dots at the bottom." loading="lazy" />
+    <figcaption>The Food folder on a phone is split into three pages. <b class="ui">Next ▶</b> shows the next page.</figcaption>
+  </figure>
+  <p>Bigger <a href="#panel-display">text</a> or a bigger <a href="#panel-display">space between buttons</a> can mean more pages. On a tablet held sideways, most boards fit on one page.</p>
+
+  <h3 id="message-bar"><a class="hl" href="#message-bar">The message bar</a></h3>
+  <figure>
+    <img src="img/message-bar.webp" width="1180" height="88" alt="The message bar: Home and Back buttons on the left, the words I want more pizza with pictures, then star, share, expand and X buttons, a delete key, and a green Speak button." loading="lazy" />
+    <figcaption>The message bar, from left to right: Home, Back, the message, its tools, delete and Speak.</figcaption>
+  </figure>
+  <ul>
+    <li><b>Home</b> (house) goes back to the Home board. <b>Back</b> (arrow) goes back one folder, or back to the board from another screen.</li>
+    <li><b>The message</b> shows each word with its picture. Tap a word in the message to change its form (go → went) or to remove just that word. Tapping an empty part of the bar speaks the message, like Speak.</li>
+    <li><b class="ui">Speak</b> says the whole message. While it is talking, the button turns into <b class="ui">Stop</b>. If <a href="#panel-voice">Clear message after speaking</a> is on, tapping Speak on the empty bar brings the last message back and says it again.</li>
+    <li><b>Delete</b> (⌫) removes the last word. <b>Hold</b> it to clear the whole message.</li>
+    <li>Whenever a message is cleared, a <b class="ui">Message cleared</b> note appears with <b class="ui">Undo</b>. It stays until the next word is added, so nothing is lost by accident.</li>
+  </ul>
+  <p>When there are words in the bar, four small tools appear:</p>
+  <ul>
+    <li><b>★ Save as phrase</b> saves the sentence in <a href="#favourites">Phrases → Favorites</a>.</li>
+    <li><b>Share or copy text</b> sends the words by text message, email or another app, or copies them.</li>
+    <li><b>Show in big text</b> opens <a href="#big-text">Big text</a>.</li>
+    <li><b>× Clear message</b> empties the bar (with Undo).</li>
+  </ul>
+  <figure class="small">
+    <img src="img/message-menu-phone.webp" width="585" height="495" alt="On a phone, the message bar shows a three-dots button. Its menu lists Save phrase, Share / copy, Big text and Clear." loading="lazy" />
+    <figcaption>On a phone the tools sit in the <b>⋯</b> menu: <b class="ui">Save phrase</b>, <b class="ui">Share / copy</b>, <b class="ui">Big text</b> and <b class="ui">Clear</b>.</figcaption>
+  </figure>
+
+  <h3 id="quick-bar"><a class="hl" href="#quick-bar">The quick bar</a></h3>
+  <p>The row under the message bar holds the words a person must always be able to say: <b class="ui">yes</b>, <b class="ui">no</b>, <b class="ui">stop</b>, <b class="ui">help</b>, <b class="ui">wait</b>, <b class="ui">break</b>, <b class="ui">I don't know</b> and <b class="ui">Hey!</b>. They are on every screen except Settings: the board, the keyboard, Phrases and Tools.</p>
+  <ul>
+    <li><b class="ui">Hey!</b> is spoken straight away to get someone's attention, without going into the message.</li>
+    <li>On a narrow screen, an <b class="ui">All</b> button appears at the end of the row. It opens every quick word in one window, in the same order, so the protest words are one tap away on any phone.</li>
+    <li>You can change the quick words: see <a href="#edit-quick-bar">Editing the quick bar</a>. You can also turn the quick bar off in <a href="#panel-display">Display</a>, but we don't recommend it.</li>
+  </ul>
+
+  <h3 id="word-forms"><a class="hl" href="#word-forms">Word forms</a></h3>
+  <p>Words don't change by themselves in English. When the person wants another form, they ask for it:</p>
+  <ul>
+    <li><b>Long-press</b> a button on the board (hold about half a second) to choose a form before adding it.</li>
+    <li>Or <b>tap a word in the message bar</b> to change it after adding it. This window also has <b class="ui">Remove word</b>.</li>
+    <li>Or, on the Full core layout, tap the <b class="ui">Word forms</b> button to change the last word.</li>
+  </ul>
+  <p>AACFree offers verb forms (go → goes, going, went, gone), plurals (dog → dogs), and comparisons (big → bigger, biggest). The first choice is always the plain word, so you can go back. Forms never stack (no “goinged”). You can type your own forms for any button in the <a href="#button-editor">button editor</a>.</p>
+  <figure class="small">
+    <img src="img/word-forms.webp" width="520" height="280" alt="The word forms window for want, with the choices want, wants, wanting, wanted and a Remove word button." loading="lazy" />
+    <figcaption>Tapping “want” in the message bar offers want, wants, wanting and wanted.</figcaption>
+  </figure>
+  <p>In Spanish, French and Portuguese, verbs can also change by themselves after a word like “I” or “you”. See <a href="#languages">Languages</a>.</p>
+  <div class="callout"><p>If <a href="#touch">Select on touch</a> is on, long-press is off. Use the message bar to change forms instead.</p></div>
+
+  <h3 id="bottom-bar"><a class="hl" href="#bottom-bar">The bottom bar</a></h3>
+  <p>The bar at the bottom moves between screens. From left to right:</p>
+  <ul>
+    <li><b class="ui">Keyboard</b>: type words, with prediction. See <a href="#keyboard">Keyboard</a>.</li>
+    <li><b class="ui">Phrases</b>: saved sentences, recent sentences and scripts. See <a href="#phrases">Phrases</a>.</li>
+    <li><b class="ui">Home</b>: back to the Home board from anywhere.</li>
+    <li><b class="ui">More</b>: opens the More board (all the topic folders) in one tap. It only shows when the boards have a More board.</li>
+    <li><b class="ui">Tools</b>: schedules, timer, scales and more. See <a href="#tools">Tools</a>.</li>
+    <li><b class="ui">Find</b>: find where a word lives. See <a href="#find-word">Find a word</a>.</li>
+    <li><b class="ui">Model</b>: only shows when the usage log or learned words are on. See <a href="#modelling">Modelling mode</a>.</li>
+    <li><b class="ui">Settings</b> (bottom right, with a lock): hold it for 2 seconds to open Settings. See <a href="#opening-settings">Opening Settings</a>.</li>
+  </ul>
+  <p>The current screen is highlighted. Tapping Keyboard, Phrases or Tools again goes back to the board. While Settings are unlocked, <b class="ui">Edit</b> and <b class="ui">Lock</b> buttons also appear here. You can hide the Keyboard, Phrases and Tools buttons in <a href="#panel-display">Display</a>.</p>
+
+  <h3 id="find-word"><a class="hl" href="#find-word">Find a word</a></h3>
+  <p>Tap <b class="ui">Find</b> and type a word. AACFree lists every button with that word and the path to it, such as <i>Home › Drinks</i>.</p>
+  <figure class="mid">
+    <img src="img/find-word.webp" width="860" height="386" alt="The Find a word window with drink typed in. Results: drink on Home, drink in Home › Drinks, and others, each with a Show me button." loading="lazy" />
+    <figcaption>Find a word shows where “drink” lives. <b class="ui">Show me</b> walks there step by step.</figcaption>
+  </figure>
+  <ul>
+    <li><b class="ui">Show me</b> goes to Home, then opens each folder in turn, highlighting the buttons to tap. This shows the person (and you) the motor plan. It is a great way to <a href="#tips">model</a>.</li>
+    <li>Hidden words are found too, marked <i>hidden for now</i>. While Settings are unlocked, <b class="ui">Reveal</b> shows a hidden word on its board.</li>
+    <li>If the word isn't on any board: <b class="ui">Say it</b> speaks it, <b class="ui">Put in message</b> adds it to the message bar, and (while Settings are unlocked) <b class="ui">Add to a board…</b> adds it as a new button.</li>
+  </ul>
+
+  <h3 id="big-text"><a class="hl" href="#big-text">Big text</a></h3>
+  <p>Big text fills the screen with the message, as large as it fits. Use it in noisy places, or with someone who can't hear well. <b class="ui">↻ Flip</b> turns the text upside down, so the person across the table can read it. <b class="ui">Speak</b> says it, and <b class="ui">Close</b> (or a tap anywhere) closes it.</p>
+  <p>The person can choose to <b>show</b> messages instead of speaking them: <a href="#tool-my-voice">My voice → Show, don't speak</a>.</p>
+
+  <h3 id="modelling"><a class="hl" href="#modelling">Modelling mode</a></h3>
+  <p>When the <a href="#privacy">usage log</a> or <a href="#keyboard">learned words</a> are on, a <b class="ui">Model</b> button appears in the bottom bar. Turn it on (it says <b class="ui">Modelling</b>) while you demonstrate on the person's device. Your taps then aren't counted as theirs in Insights, and aren't learned by prediction. Turn it off when you hand the device back.</p>
+
+  <h3 id="colours"><a class="hl" href="#colours">Colours (the Modified Fitzgerald Key)</a></h3>
+  <p>Buttons are coloured by the kind of word, using a common AAC system called the <b>Modified Fitzgerald Key</b>. It helps people find words faster and build sentences in order (who → doing → describing → what).</p>
+  <ul class="chips" aria-label="Colour key">
+    <li style="background:var(--y)">People / pronouns</li>
+    <li style="background:var(--g)">Actions / verbs</li>
+    <li style="background:var(--b)">Describing words</li>
+    <li style="background:var(--o)">Things / nouns</li>
+    <li style="background:var(--p)">Social words</li>
+    <li style="background:var(--v)">Questions</li>
+    <li style="background:#f9d9f2">Little position words</li>
+    <li style="background:var(--r)">No / not</li>
+    <li style="background:#e4e4e4">Little words</li>
+    <li style="background:#fff;border:1px solid #ccc">Joining words</li>
+    <li style="background:#efe3cf">Folders</li>
+  </ul>
+  <p>You can show the colour as a fill, as a border only, or turn it off: <a href="#panel-display">Display → Colour coding</a>. Each button's word type (and so its colour) can be changed, and you can give any button its own colour: see <a href="#button-editor">the button editor</a>.</p>
+
+  <h3 id="hidden-words"><a class="hl" href="#hidden-words">Hidden words</a></h3>
+  <p>A hidden word leaves an empty gap on the board. It keeps its place, so when you show it again it is exactly where it will always be. This lets you start with fewer words and grow the vocabulary without moving anything.</p>
+  <ul>
+    <li>Hide or show one word in the <a href="#button-editor">button editor</a>, or many at once with <a href="#show-hide">Show/Hide mode</a>.</li>
+    <li><b class="ui">Starter words only</b> and <b class="ui">Show all words</b> in <a href="#panel-boards">Boards &amp; words</a> hide or show many words at once.</li>
+    <li><b class="ui">Babble mode</b> in <a href="#panel-display">Display</a> shows every hidden word for a while, so the person can explore.</li>
+  </ul>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 4 -->
+<section id="keyboard" data-s>
+  <h2><a class="hl" href="#keyboard"><span class="num">6</span>Keyboard and prediction</a></h2>
+  <p>Tap <b class="ui">Keyboard</b> in the bottom bar to type. Typing is often faster for people who can spell, and it is in the same app as the symbols, so there is no switching apps mid-conversation.</p>
+  <figure>
+    <img src="img/keyboard.webp" width="1180" height="820" alt="The keyboard screen: a row of word suggestions (hug, hurt, hungry and others) above QWERTY letter keys, a shift key, a delete key, and a bottom row with 123, full stop, question mark, space, exclamation mark and comma." loading="lazy" />
+    <figcaption>Typing “hu” suggests whole words. Tap one to add it.</figcaption>
+  </figure>
+  <ul>
+    <li>The word you are typing shows in the message bar with a cursor. <b class="ui">space</b> adds it as a word (and says it, if <a href="#panel-voice">Speak each word when tapped</a> is on).</li>
+    <li>The <b>suggestions</b> row above the keys offers whole words. Tap one to add it straight away. After a word is added, it suggests likely next words.</li>
+    <li><b>⇧</b> makes the next letter a capital. AACFree always writes “I” as a capital.</li>
+    <li><b>⌫</b> deletes a letter. With nothing being typed, it pulls the last word back so you can fix it.</li>
+    <li><b class="ui">123</b> switches to numbers and more punctuation; <b class="ui">abc</b> switches back. <b class="ui">.</b> <b class="ui">?</b> <b class="ui">!</b> <b class="ui">,</b> attach to the word before them.</li>
+    <li>Then tap <b class="ui">Speak</b> as usual. Typed words mix freely with symbol words.</li>
+    <li><b>Physical and Bluetooth keyboards</b> work on this screen: letters type, <kbd>Space</kbd> adds the word, <kbd>Backspace</kbd> deletes and <kbd>Enter</kbd> speaks. (Not while switch scanning is on, because the keys are then the switches.)</li>
+  </ul>
+  <h3 id="prediction"><a class="hl" href="#prediction">How prediction works</a></h3>
+  <p>Suggestions come from a built-in dictionary for the language plus every word on the person's boards. With <b class="ui">Learn from what is typed and said</b> turned on (<a href="#panel-boards">Boards &amp; words → Keyboard</a>), AACFree also learns the person's own words and sentences, and suggests what they tend to say next. Learning is <b>off</b> by default, it stays on the device, and you can wipe it with <b class="ui">Forget learned words</b>.</p>
+  <p>The letter layout can be <b class="ui">QWERTY</b> (default), <b class="ui">AZERTY</b> or <b class="ui">ABC</b> (alphabetical, easier for some beginners). Each language has its own keys: ñ, ¿ and ¡ in Spanish; é, è, à, ç, â, û, ë, ï and œ in French; ã, õ and ç in Portuguese.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 5 -->
+<section id="phrases" data-s>
+  <h2><a class="hl" href="#phrases"><span class="num">7</span>Phrases</a></h2>
+  <p>Phrases are whole sentences said with one tap. Use them for things said often, for urgent needs, for scripts, and for anything the person wants to say fast.</p>
+
+  <h3 id="phrase-folders"><a class="hl" href="#phrase-folders">Phrase folders</a></h3>
+  <p>Tap <b class="ui">Phrases</b> in the bottom bar. Phrases open on folder cards, always in the same order, each with a picture and the number of phrases inside: <b class="ui">Recent</b>, then <b class="ui">Needs</b>, <b class="ui">Feelings</b>, <b class="ui">Boundaries</b> (such as “Please stop” and “I need space”), <b class="ui">Chat</b>, <b class="ui">Questions</b> and <b class="ui">Emergency</b>, plus any groups you add. A <b class="ui">Favorites</b> folder appears once you save a phrase with ★.</p>
+  <figure>
+    <img src="img/phrases-folders.webp" width="1180" height="820" alt="The Phrases screen with folder cards: Recent 5, Needs 8, Feelings, Boundaries, Chat, Questions and Emergency, each with a picture and a count." loading="lazy" />
+    <figcaption>Phrases open on folder cards. Tap a card to see its phrases.</figcaption>
+  </figure>
+  <p>Tap a card to open it, then tap a phrase to say it. Tap <b class="ui">Phrases</b> (top left) or Android Back to return to the folders. A plain tap on a phrase <b>always speaks it</b>, even while Settings are unlocked.</p>
+  <p>The Emergency folder has phrases such as “I can't talk with my voice, so I use this app to communicate. Please be patient.” and “Please call my family.” Check these and add your own, together with the <a href="#tool-about-me">About me</a> card.</p>
+
+  <h3 id="recent"><a class="hl" href="#recent">Recent sentences</a></h3>
+  <p><b class="ui">Recent</b> lists the last sentences the person spoke (up to 50 shown), newest first, so they can be said again quickly.</p>
+  <figure>
+    <img src="img/phrases-recent.webp" width="1180" height="820" alt="The Recent folder: Private for now and Clear recent buttons at the top, and a list of sentences such as I want go and stop, each with plus, star and bin buttons." loading="lazy" />
+    <figcaption>Recent sentences, with buttons to put a sentence back in the message bar, save it, or delete it.</figcaption>
+  </figure>
+  <ul>
+    <li>Tap a sentence to say it again.</li>
+    <li><b>+</b> (Put in message bar) puts it in the message bar so it can be changed before speaking.</li>
+    <li><b>★</b> (Save to favourites) keeps it in Favorites.</li>
+    <li><b>Bin</b> (Delete this sentence) removes it, with Undo.</li>
+    <li><b class="ui">Clear recent</b> removes them all, with Undo.</li>
+    <li><b class="ui">Private for now</b>: while it is on, new sentences aren't kept and nothing is logged. It turns off when AACFree restarts.</li>
+  </ul>
+  <p><b>Recent sentences belong to the person.</b> They can delete them, clear them or go private without the settings lock. You can choose how long sentences are kept in <a href="#panel-insights">Insights → Recent sentences</a>.</p>
+
+  <h3 id="favourites"><a class="hl" href="#favourites">Favourites</a></h3>
+  <p>To save the message in the message bar, tap <b>★</b> (or <b class="ui">Save phrase</b> in the ⋯ menu on a phone). It goes into the <b class="ui">Favorites</b> folder, with the picture of its first word. The ★ in Recent does the same for a recent sentence.</p>
+
+  <h3 id="scripts"><a class="hl" href="#scripts">Scripts and gestalts</a></h3>
+  <p>Some people communicate in whole chunks of language, often lines from films, songs or things they have heard. These are called <b>gestalts</b> or scripts, and people who learn language this way are called <b>gestalt language processors</b>. A script like “To infinity and beyond!” can carry a real meaning for that person, such as “let's go!”.</p>
+  <p>Save scripts exactly as the person says them, in their own group (for example <b>Scripts</b>). Add a picture that means something to them, or <a href="#recorded-voices">record the line</a> in a familiar voice. Scripts sit alongside the core words; they don't replace them.</p>
+
+  <h3 id="editing-phrases"><a class="hl" href="#editing-phrases">Editing phrases</a></h3>
+  <ol class="steps">
+    <li>Unlock Settings (hold <b class="ui">Settings</b> for 2 seconds), then go to <b class="ui">Phrases</b>. Or use <b class="ui">Settings → Boards &amp; words → Edit phrases</b>, which takes you there with editing on.</li>
+    <li>Tap <b class="ui">Edit phrases</b> (the pencil). Each phrase now shows a pencil.</li>
+    <li>Tap a phrase to edit it, or <b class="ui">Add phrase</b> to add one. In the editor: <b class="ui">Phrase or script</b> (the words), <b class="ui">Group</b> (which folder), <b class="ui">Picture</b>, and an optional <b>recorded voice</b> (up to 15 seconds).</li>
+    <li>On the folder cards, <b class="ui">+ Group</b> adds a new phrase group. An empty group can be removed with <b class="ui">Remove empty group</b>.</li>
+    <li>To delete a phrase, open it and tap <b class="ui">Delete</b>. You can press Undo straight after, and a snapshot is kept.</li>
+    <li>Tap <b class="ui">Done editing</b> when you are finished.</li>
+  </ol>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 6 -->
+<section id="tools" data-s>
+  <h2><a class="hl" href="#tools"><span class="num">8</span>Tools</a></h2>
+  <p>Tap <b class="ui">Tools</b> in the bottom bar for visual supports. Each tool speaks in the communication language. Tap <b class="ui">Tools</b> at the top left (or Android Back) to go back to the menu. The quick bar stays on screen in every tool.</p>
+  <figure>
+    <img src="img/tools-menu.webp" width="1180" height="820" alt="The Tools menu with tiles: Schedule, First / Then, Timer, Choices, How big?, Pain scale, Body, About me, Draw, My voice and Get attention." loading="lazy" />
+    <figcaption>The Tools menu.</figcaption>
+  </figure>
+
+  <h3 id="tool-schedule"><a class="hl" href="#tool-schedule">Schedule</a></h3>
+  <p>A visual schedule: what happens today, one step at a time. AACFree comes with <b>Morning</b> and <b>Bedtime</b> schedules.</p>
+  <figure>
+    <img src="img/tool-schedule.webp" width="1180" height="820" alt="The Morning schedule. At the top, Now: get dressed, and Next: breakfast. Below, the steps wake up and toilet are ticked off, and get dressed is highlighted as the current step." loading="lazy" />
+    <figcaption>The Morning schedule with two steps done. <b class="ui">Now</b> and <b class="ui">Next</b> show what is happening.</figcaption>
+  </figure>
+  <ul>
+    <li>Tabs at the top switch between schedules.</li>
+    <li><b class="ui">Now</b> and <b class="ui">Next</b> show the current and next step in big pictures.</li>
+    <li>Tap a step to hear it. Tap its <b>✓</b> to mark it done (“…, finished!”) or not done.</li>
+    <li>If the Now step has a length, a <b class="ui">5 min timer</b> button (for example) starts the <a href="#tool-timer">timer</a>.</li>
+    <li>When every step is done: <b class="ui">🎉 All done!</b> and <b class="ui">Start again</b>. <b class="ui">Reset</b> clears the ticks at any time.</li>
+    <li><b>Ticks reset by themselves each day</b>, so the schedule starts fresh every morning.</li>
+  </ul>
+  <p><b>To edit:</b> unlock Settings, open the schedule and tap <b class="ui">Edit</b> (or use <b class="ui">Settings → Boards &amp; words → Edit schedules</b>). Then you can:</p>
+  <ul>
+    <li><b class="ui">+ New</b>: add a schedule. Type its name in the box.</li>
+    <li><b class="ui">Duplicate</b>: copy this schedule, for example for a school-day version.</li>
+    <li><b class="ui">Delete</b>: delete the schedule (with Undo).</li>
+    <li><b class="ui">Add step</b>: search the person's words, or type any text and choose “use text”.</li>
+    <li>Next to each step: move it up, <b>edit</b> it (its name, picture and <b class="ui">How long? (minutes, optional)</b>), or remove it (with Undo).</li>
+  </ul>
+
+  <h3 id="tool-first-then"><a class="hl" href="#tool-first-then">First / Then</a></h3>
+  <p>Two big cards: <b>First</b> this, <b>Then</b> that. Helpful for transitions, such as “First bath, then play”.</p>
+  <figure>
+    <img src="img/tool-firstthen.webp" width="1180" height="820" alt="The First / Then tool: a First card showing bath and a Then card showing play, with buttons Say it, bath done, Change first and Change then." loading="lazy" />
+    <figcaption>First / Then with “bath” and “play”.</figcaption>
+  </figure>
+  <ul>
+    <li>Tap an empty card (or <b class="ui">Change first</b> / <b class="ui">Change then</b>) to choose a word. Search the person's words, or type any text.</li>
+    <li><b class="ui">Say it</b> says “First bath, then play.” Tapping a card says its word.</li>
+    <li><b class="ui">✓ bath done</b> marks the first part as done and says “bath is done. Now play!”. <b class="ui">Undo done</b> takes it back.</li>
+    <li>It remembers its cards when you leave and come back.</li>
+  </ul>
+
+  <h3 id="tool-timer"><a class="hl" href="#tool-timer">Timer</a></h3>
+  <p>A visual countdown: a red disc that shrinks as time passes, so the person can see how much time is left.</p>
+  <ul>
+    <li>Choose a length: <b class="ui">1 min</b>, 2, 3, 5 (the default), 10, 15, 20 or <b class="ui">30 min</b>.</li>
+    <li><b class="ui">Start</b>, <b class="ui">Pause</b>, <b class="ui">Reset</b>, and <b class="ui">+1 min</b> while it runs.</li>
+    <li>The timer <b>keeps running</b> on other screens. A small countdown chip shows in the corner; tap it to come back.</li>
+    <li>At the end, a chime plays and AACFree says “Time is up! All done.”</li>
+  </ul>
+
+  <h3 id="tool-choices"><a class="hl" href="#tool-choices">Choices</a></h3>
+  <p>A choice board with 2 to 6 options.</p>
+  <ol class="steps">
+    <li>Tap <b class="ui">Add option</b> and pick words or type text. Tap <b>×</b> on an option to remove it.</li>
+    <li>Tap <b class="ui">Ready – offer choices</b>. AACFree asks “Which one do you want?”.</li>
+    <li>The person taps one, and AACFree says “I choose …”.</li>
+    <li><b class="ui">Change options</b> goes back to setting up. The options are remembered.</li>
+  </ol>
+
+  <h3 id="tool-how-big"><a class="hl" href="#tool-how-big">How big?</a></h3>
+  <p>A scale for <b>how big a feeling is</b>, from <b class="ui">Very small</b> (1) to <b class="ui">Very big</b> (5). Tapping a level says, for example, “This feeling is big.” It only says how big the feeling is; it doesn't name the feeling or ask for anything. The levels use a neutral tint and a meter that fills up, with no colour meaning good or bad. There are also <b class="ui">Not sure</b>, <b class="ui">I need help.</b> and <b class="ui">I need a break.</b> buttons.</p>
+
+  <h3 id="tool-pain"><a class="hl" href="#tool-pain">Pain scale</a></h3>
+  <p>“How much does it hurt?” Six faces from <b class="ui">0 No hurt</b> to <b class="ui">10 Hurts worst</b>. Tapping one says, for example, “My pain is 6 out of 10. It hurts even more.” Use it with <a href="#tool-body">Body</a> to say where.</p>
+
+  <h3 id="tool-body"><a class="hl" href="#tool-body">Body</a></h3>
+  <p>“Where?” Tap a body part (head, eyes, ears, tummy, back, leg, foot and more: 20 in all), then what is wrong: <b class="ui">hurts</b>, <b class="ui">is itchy</b>, <b class="ui">feels funny</b> or <b class="ui">is bleeding</b>. AACFree says the sentence, such as “My knee hurts.” <b class="ui">other place</b> goes back to the body parts.</p>
+
+  <h3 id="tool-about-me"><a class="hl" href="#tool-about-me">About me</a></h3>
+  <p>A card to show or read to new people: teachers, doctors, first responders. By default it says “I use this app to communicate, because talking is hard for me…”. <b class="ui">Read it aloud</b> speaks the card.</p>
+  <p><b>To edit:</b> unlock Settings, open About me and tap <b class="ui">Edit</b> (or <b class="ui">Settings → Boards &amp; words → Edit About me</b>). There are two boxes: <b class="ui">About me (read aloud)</b>, and <b class="ui">Emergency contacts (shown, not spoken)</b> for names and phone numbers.</p>
+
+  <h3 id="tool-draw"><a class="hl" href="#tool-draw">Draw</a></h3>
+  <p>A drawing pad for pictures or handwriting. Pick a colour, the eraser (⌫) or the pen size, and <b class="ui">Clear</b> to start again. Drawings aren't saved. Drawing works by touch only, so it is left out of switch scanning.</p>
+
+  <h3 id="tool-attention"><a class="hl" href="#tool-attention">Get attention</a></h3>
+  <p>One tap plays a chime, then says “Excuse me! I want to say something.” Useful when people around aren't looking.</p>
+
+  <h3 id="tool-my-voice"><a class="hl" href="#tool-my-voice">My voice</a></h3>
+  <p>The person's own controls for how AACFree speaks. They are <b>never locked</b>.</p>
+  <figure>
+    <img src="img/tool-myvoice.webp" width="1180" height="820" alt="My voice: How loud with Quiet, Normal and Loud buttons; How fast with Slower and Faster buttons around 1.0×; Show, don't speak with an Off: speaking out loud button; and Private for now with an Off button." loading="lazy" />
+    <figcaption>My voice: loudness, speed, “Show, don't speak” and “Private for now”.</figcaption>
+  </figure>
+  <ul>
+    <li><b class="ui">How loud</b>: <b class="ui">Quiet</b>, <b class="ui">Normal</b> or <b class="ui">Loud</b>. A short sample plays.</li>
+    <li><b class="ui">How fast</b>: <b class="ui">Slower</b> and <b class="ui">Faster</b>, in small steps.</li>
+    <li><b class="ui">Show, don't speak</b>: messages open in <a href="#big-text">Big text</a> instead of being spoken. For times when the person wants to communicate quietly.</li>
+    <li><b class="ui">Private for now</b>: what they say isn't kept in Recent and nothing is logged, until AACFree restarts.</li>
+  </ul>
+  <p>Volume and speed here are the same settings as in <a href="#panel-voice">Settings → Voice</a>.</p>
+
+  <h3 id="hiding-tools"><a class="hl" href="#hiding-tools">Hiding tools</a></h3>
+  <p>To keep the Tools menu simple, hide tools the person doesn't use: <b class="ui">Settings → Display → Tools shown</b>. Every tool has a switch there, including About me and Get attention. Hidden tools keep their contents. To hide the whole Tools button, turn off <b class="ui">Tools button</b> in the same panel.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 7 -->
+<section id="settings" data-s>
+  <h2><a class="hl" href="#settings"><span class="num">9</span>Settings, panel by panel</a></h2>
+  <p>Settings is where you edit boards and change how AACFree looks, sounds and works. It is behind a lock, so the person can't change things by accident. Talking is never locked.</p>
+  <p>Each setting belongs to the profile that is open, except the lock and PIN (one for the whole device) and the backup and sync choices (kept on the device).</p>
+
+  <h3 id="opening-settings"><a class="hl" href="#opening-settings">Opening Settings</a></h3>
+  <ol class="steps">
+    <li>Find <b class="ui">Settings</b> at the bottom right, with a lock icon.</li>
+    <li><b>Press and hold it for 2 seconds.</b> It says <b class="ui">Keep holding…</b> while you hold. (With a PIN or math question lock, a short tap opens the question instead.)</li>
+    <li>Settings opens. On the left (on a phone: at the top) are the panels: <b class="ui">Boards &amp; words</b>, <b class="ui">Symbols</b>, <b class="ui">Voice</b>, <b class="ui">Display</b>, <b class="ui">Access</b>, <b class="ui">Insights</b>, <b class="ui">Backup</b>, <b class="ui">Profiles</b>, <b class="ui">Lock</b> and <b class="ui">Help &amp; tips</b>.</li>
+    <li>Below the panels: <b class="ui">Edit boards</b> goes straight to edit mode on the board, and <b class="ui">Lock &amp; return</b> locks Settings and goes back to Home.</li>
+  </ol>
+  <figure>
+    <img src="img/settings-boards.webp" width="1180" height="820" alt="Settings open on the Boards &amp; words panel. The left column lists the panels, with Edit boards and Lock &amp; return buttons at the bottom. The main area shows Edit boards with Edit Home board, New category and Blank board buttons and a list of boards." loading="lazy" />
+    <figcaption>Settings, open on <b class="ui">Boards &amp; words</b>.</figcaption>
+  </figure>
+  <ul>
+    <li><b>Sliders need Save.</b> When you move a slider (speed, text size, timings), the new value shows with <b class="ui">Save</b> and <b class="ui">Cancel</b> and what it was before. Nothing changes until you tap Save. Switches and choice buttons change straight away.</li>
+    <li><b>Editing unlocked.</b> While Settings are unlocked, you can leave Settings to edit boards, phrases and tools. A bar at the top says <b class="ui">Editing unlocked</b>, with a <b class="ui">Lock</b> button. Talking on the device doesn't keep it unlocked.</li>
+    <li><b>Locks by itself.</b> AACFree locks again after 5 minutes without Settings or editing activity, or when it has been in the background for more than a minute.</li>
+    <li><b>Backup reminder.</b> If you haven't saved a backup file for a month, Settings shows a reminder with <b class="ui">Back up now</b>.</li>
+  </ul>
+
+  <h3 id="lock-and-pin"><a class="hl" href="#lock-and-pin">The lock and the PIN</a></h3>
+  <p>Choose the lock in <a href="#panel-lock">Settings → Lock</a>. There is <b>one lock for the whole device</b>, whichever profile is open, so switching or adding profiles can't get round it.</p>
+  <ul>
+    <li><b class="ui">Hold 2 seconds</b> (default): enough to stop accidental taps.</li>
+    <li><b class="ui">Math question</b>: tap Settings, then type the answer to a multiplication such as 7 × 4 on the number pad.</li>
+    <li><b class="ui">PIN</b>: tap Settings, then type a 4 to 6 digit PIN and <b class="ui">OK</b>.</li>
+    <li><b class="ui">No lock</b>: a tap opens Settings. Only for adults who manage their own device.</li>
+  </ul>
+  <figure class="small">
+    <img src="img/lock-pin.webp" width="520" height="544" alt="The Unlock settings window: Enter your PIN, two dots for digits typed, a number pad with 1 to 9, delete, 0 and OK, and a Forgot PIN? button." loading="lazy" />
+    <figcaption>With a PIN lock. The dots don't show how long the PIN is.</figcaption>
+  </figure>
+  <p>After a few wrong tries, AACFree asks you to wait a few seconds before trying again (up to a minute). If someone uses a keyboard or screen reader and can't hold, the hold lock asks a math question instead.</p>
+  <h4 id="forgot-pin">Forgot the PIN?</h4>
+  <ol class="steps">
+    <li>Tap <b class="ui">Settings</b>, then <b class="ui">Forgot PIN?</b> under the number pad.</li>
+    <li>Press and hold the big button for 10 seconds, until it says <b class="ui">✓ Held</b>.</li>
+    <li>Type the sentence shown: <b>Reset my settings lock</b>.</li>
+    <li>Tap <b class="ui">Remove PIN and open Settings</b>. Only the PIN is removed (the lock goes back to Hold 2 seconds); no boards are touched. Set a new PIN in Settings → Lock.</li>
+  </ol>
+
+  <!-- Boards & words -->
+  <h3 id="panel-boards"><a class="hl" href="#panel-boards">Boards &amp; words</a></h3>
+  <table class="settings">
+    <thead><tr><th scope="col">Setting or button</th><th scope="col">What it does and when to use it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Edit Home board</td><td>Goes to the Home board in <a href="#edit-mode">edit mode</a>.</td><td class="d">—</td></tr>
+      <tr><td>New category</td><td>Makes a new folder button with an icon on Home, optionally filled from a library category. See <a href="#new-category">New category folders</a>.</td><td class="d">—</td></tr>
+      <tr><td>Blank board</td><td>Makes an empty board called “New board”, puts a folder button for it on the More board (or on Home, if there is no More board), and opens it in edit mode. A full board gets a new row; nothing moves.</td><td class="d">—</td></tr>
+      <tr><td>Board list</td><td>Every board, with its size, number of buttons, hidden words, and “not linked” if no folder opens it. <b class="ui">Edit</b> opens that board in edit mode.</td><td class="d">—</td></tr>
+      <tr><td>Import a board from a picture</td><td>Rebuilds a board from a photo or screenshot of another app or a paper board. See <a href="#move-from-picture">Moving from another AAC app</a>.</td><td class="d">—</td></tr>
+      <tr><td>Starter words only</td><td>Hides all but 12 to 20 key words on Home (such as I, you, want, more, help, stop, go, not, all done), plus all folders. Nothing moves. Good for a new user. Undo is in edit mode.</td><td class="d">—</td></tr>
+      <tr><td>Show all words</td><td>Shows every hidden word on every board. A line below says how many words are hidden right now.</td><td class="d">—</td></tr>
+      <tr><td>Print boards…</td><td>Choose boards to print as paper boards. See <a href="#print">Paper boards</a>.</td><td class="d">Home and its folders ticked</td></tr>
+      <tr><td>Home layout</td><td><b class="ui">Big buttons · 12</b>, <b class="ui">Phone core · 30</b>, <b class="ui">Medium · 30</b> or <b class="ui">Full core · 48</b>. Changing layout <b>replaces all boards</b> with the built-in words for that layout (phrases, schedules and settings stay). A snapshot is saved first and Undo is offered. Avoid changing it once the person has learned where words are.</td><td class="d">Chosen at setup</td></tr>
+      <tr><td>Letter layout</td><td>Keyboard keys: <b class="ui">QWERTY</b>, <b class="ui">AZERTY</b> or <b class="ui">ABC</b> (alphabetical).</td><td class="d">QWERTY</td></tr>
+      <tr><td>Learn from what is typed and said</td><td>Lets prediction learn the person's own words and sentences. Stays on the device. Turn on once the person types or speaks sentences regularly.</td><td class="d">Off</td></tr>
+      <tr><td>Forget learned words (n)</td><td>Appears once words have been learned. Wipes them.</td><td class="d">—</td></tr>
+      <tr><td>Edit phrases / Edit schedules / Edit About me</td><td>Under <b>Edit other things</b>: jumps to Phrases, the Schedule or About me with editing switched on. Settings stay unlocked until you lock them.</td><td class="d">—</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Symbols -->
+  <h3 id="panel-symbols"><a class="hl" href="#panel-symbols">Symbols</a></h3>
+  <p>The <b>Symbol library</b>: every picture, in category folders. Search all pictures, open a category, add your own categories and symbols. See <a href="#symbols">The symbol library</a>.</p>
+  <figure>
+    <img src="img/settings-symbols.webp" width="1180" height="820" alt="Settings, Symbols panel: a Search all pictures box and a grid of category folders with icons and counts, starting with a New category tile, then Core words, Food, Drinks, Feelings and more." loading="lazy" />
+    <figcaption>The symbol library in Settings → Symbols.</figcaption>
+  </figure>
+
+  <!-- Voice -->
+  <h3 id="panel-voice"><a class="hl" href="#panel-voice">Voice</a></h3>
+  <figure>
+    <img src="img/settings-voice.webp" width="1180" height="820" alt="Settings, Voice panel: a Language filter, a list of voices starting with Device default, and sliders for Speed, Pitch and Volume, with a Test voice button." loading="lazy" />
+    <figcaption>Settings → Voice. Tap a voice to hear it and choose it.</figcaption>
+  </figure>
+  <table class="settings">
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Language filter</td><td>Shows voices for one language, or <b class="ui">All languages</b>. Starts on the communication language.</td><td class="d">Communication language</td></tr>
+      <tr><td>Voice list</td><td>Every voice on the device. Tap one to hear “Hi, I'm …. This is my voice.” and choose it. <b class="ui">Device default</b> uses the device's usual voice for the language. Voices marked “online” need the internet. Let the person choose if they can. This choice stays on this device and doesn't sync.</td><td class="d">Device default</td></tr>
+      <tr><td>Speed</td><td>How fast the voice talks, 0.50× to 1.80×.</td><td class="d">1.00×</td></tr>
+      <tr><td>Pitch</td><td>How high or low the voice is, 0.50 to 1.80. Not every voice can change pitch.</td><td class="d">1.00</td></tr>
+      <tr><td>Volume</td><td>10% to 100% of the device volume. The person can also change it in <a href="#tool-my-voice">My voice</a>. Stays on this device.</td><td class="d">100%</td></tr>
+      <tr><td>Test voice</td><td>Says “I want to go to the park, please.”</td><td class="d">—</td></tr>
+      <tr><td>Pronunciations</td><td>Fix how the voice says a name or word: type the <b class="ui">Written word</b> and how to <b class="ui">Say it like</b> (for example Siobhan → shi-vawn), <b class="ui">Test</b>, then <b class="ui">Add</b>. Applies to everything spoken. <b class="ui">Remove</b> deletes one.</td><td class="d">None</td></tr>
+      <tr id="set-speak-on-tap"><td>Speak each word when tapped</td><td>Says each word as it is tapped. Turn off for silent sentence building (only Speak talks).</td><td class="d">On</td></tr>
+      <tr><td>Say folder names when opened</td><td>Says the folder's name when it opens. Helpful for people who rely on hearing (auditory feedback).</td><td class="d">Off</td></tr>
+      <tr><td>Clear message after speaking</td><td>Empties the message bar after Speak. Tapping Speak on the empty bar brings the last message back.</td><td class="d">Off</td></tr>
+      <tr><td>Go back to Home after picking a word in a folder</td><td>Fewer taps for the next word. Turn off if the person often picks several words from the same folder.</td><td class="d">On</td></tr>
+      <tr><td>Show, don't speak</td><td>Under <b>My voice (for the person)</b>: messages open in Big text instead of being spoken. The person can switch this themselves in <a href="#tool-my-voice">Tools → My voice</a>; <b class="ui">Open My voice</b> goes there.</td><td class="d">Off</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Display -->
+  <h3 id="panel-display"><a class="hl" href="#panel-display">Display</a></h3>
+  <figure>
+    <img src="img/settings-display.webp" width="1180" height="820" alt="Settings, Display panel: Language section with Communication language, App language and Second language on buttons, then the Look section with Theme, Style and Colour coding." loading="lazy" />
+    <figcaption>Settings → Display: language, look, buttons and screen.</figcaption>
+  </figure>
+  <table class="settings">
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Communication language</td><td>The language of the board words, word forms, keyboard and voice: English, Español, Français or Português. Switching asks first, translates boards, phrases and schedules, and keeps every button in its place. See <a href="#languages">Languages</a>.</td><td class="d">Chosen at setup</td></tr>
+      <tr><td>App language</td><td>The language of menus and Settings. <b class="ui">Same</b> follows the communication language. Use it if you read a different language from the one the person talks in.</td><td class="d">Same</td></tr>
+      <tr><td>Second language on buttons</td><td>Shows each built-in word in a second language, small, under the main word. For bilingual families and classrooms.</td><td class="d">None</td></tr>
+      <tr><td>Conjugate verbs automatically</td><td>Only for Spanish, French and Portuguese. After a word like “I” or “you”, a verb changes to match it (yo + querer → quiero).</td><td class="d">On</td></tr>
+      <tr><td>Theme</td><td><b class="ui">Light</b>, <b class="ui">Dark</b> or <b class="ui">High contrast</b>. Dark and high contrast put a light plate behind pictures so they stay clear.</td><td class="d">Light</td></tr>
+      <tr><td>Style</td><td><b class="ui">Playful</b> or <b class="ui">Clean</b> (simpler button shapes; good for teens and adults).</td><td class="d">Playful</td></tr>
+      <tr><td>Colour coding</td><td>The Modified Fitzgerald Key colours: <b class="ui">Filled</b>, <b class="ui">Border only</b> or <b class="ui">Off</b>. A legend shows the colours. Border only can help people who find lots of colour busy.</td><td class="d">Filled</td></tr>
+      <tr><td>Show words on buttons</td><td>Turn off to show pictures only (buttons without a picture still show their word).</td><td class="d">On</td></tr>
+      <tr><td>Words above pictures</td><td>Puts the word above the picture instead of below.</td><td class="d">Off</td></tr>
+      <tr><td>Letter case</td><td><b class="ui">As written</b>, <b class="ui">lower</b> or <b class="ui">UPPER</b>. Some early readers find one case easier.</td><td class="d">As written</td></tr>
+      <tr id="set-text-size"><td>Text size</td><td>70% to 180%. Scales the text of the whole app. Bigger text can mean more <a href="#pages">pages</a> on small screens.</td><td class="d">100%</td></tr>
+      <tr><td>Space between buttons</td><td>0 to 20 px. More space helps people who hit the button next to the one they want.</td><td class="d">6 px</td></tr>
+      <tr><td>Show pictures in the message bar</td><td>Shows each word's picture in the message bar.</td><td class="d">On</td></tr>
+      <tr><td>Quick bar (yes, no, stop, help…)</td><td>Shows the <a href="#quick-bar">quick bar</a> on every screen. Recommended: it keeps protest and help words reachable everywhere.</td><td class="d">On</td></tr>
+      <tr><td>Keyboard button / Phrases button / Tools button</td><td>Show or hide these in the bottom bar, to keep things simple for a beginner.</td><td class="d">On</td></tr>
+      <tr><td>Reduce motion</td><td>Turns off animations and smooth scrolling.</td><td class="d">Off</td></tr>
+      <tr><td>Keep screen awake</td><td>Stops the screen going to sleep while AACFree is open. Important for switch and eye-gaze users, who don't touch the screen. Works in the Android app and in browsers that support it; otherwise the setting says so, and you can change the sleep time in the device settings. Stays on this device.</td><td class="d">Off</td></tr>
+      <tr><td>Babble mode (show hidden words)</td><td>Shows every hidden word, so the person can explore all the vocabulary. Turn off to hide them again.</td><td class="d">Off</td></tr>
+      <tr><td>Tools shown</td><td>A switch for each tool in the Tools menu: Schedule, First / Then, Timer, Choices, How big?, Pain scale, Body, About me, Draw, My voice and Get attention. Hidden tools keep their contents.</td><td class="d">All on</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Access -->
+  <h3 id="panel-access"><a class="hl" href="#panel-access">Access</a></h3>
+  <p>Ways to use AACFree without precise tapping. How to use each one is explained in <a href="#access">Access: touch, switches, pointers</a>.</p>
+  <table class="settings">
+    <caption>Touch and feedback</caption>
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Hold to select</td><td>The finger must stay on a button this long (up to 2 seconds) before it counts. For people who brush or bump buttons by accident.</td><td class="d">Off</td></tr>
+      <tr><td>Ignore repeated taps</td><td>After a selection, ignore taps for this long (up to 2 seconds). For people who tap twice or have a tremor.</td><td class="d">Off</td></tr>
+      <tr><td>Select on touch (instead of release)</td><td>Buttons work as soon as the finger touches, instead of when it lifts. Fastest for confident users. Long-press for word forms is off with this.</td><td class="d">Off</td></tr>
+      <tr><td>Click sound</td><td>A click on each selection.</td><td class="d">Off</td></tr>
+      <tr><td>Vibrate</td><td>A short buzz on each selection, on devices that can.</td><td class="d">On</td></tr>
+    </tbody>
+  </table>
+  <table class="settings">
+    <caption>Eye gaze &amp; head pointer</caption>
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Pointer</td><td><b class="ui">Off</b>, <b class="ui">Dwell (mouse / eye tracker)</b>, <b class="ui">Head pointer (camera)</b> or <b class="ui">Eye gaze (camera, experimental)</b>. Touch always keeps working. Stays on this device.</td><td class="d">Off</td></tr>
+      <tr><td>Dwell time</td><td>How long to rest the pointer on a button to select it, 0.4 to 3.0 seconds.</td><td class="d">1.0 s</td></tr>
+      <tr><td>Rest button</td><td>Shows a <b class="ui">Rest</b> button the person can dwell on to pause selecting, and dwell on again to carry on.</td><td class="d">On</td></tr>
+      <tr><td>Sensitivity</td><td>Head pointer only, 1 to 10. Higher means smaller head movements reach the edges of the screen.</td><td class="d">5</td></tr>
+      <tr><td>Smoothing</td><td>Camera pointers, 0% to 90%. Higher is steadier but slower.</td><td class="d">60%</td></tr>
+      <tr><td>Long blink selects</td><td>Camera pointers. Closing both eyes for half a second selects what the pointer is on.</td><td class="d">Off</td></tr>
+      <tr><td>Calibrate eyes / Re-calibrate eyes</td><td>Eye gaze only. A 9-dot calibration. See <a href="#eye-gaze">Eye gaze</a>.</td><td class="d">—</td></tr>
+    </tbody>
+  </table>
+  <figure class="mid">
+    <img src="img/settings-pointer.webp" width="860" height="633" alt="The Eye gaze and head pointer section with Eye gaze (camera, experimental) selected: Dwell time, Rest button, Smoothing, Long blink selects, a Calibrate eyes button and the note Calibrate for best results." loading="lazy" />
+    <figcaption>Pointer settings with eye gaze selected.</figcaption>
+  </figure>
+  <table class="settings" id="scan-settings">
+    <caption>Switch scanning</caption>
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Turn on scanning</td><td>Starts switch scanning on every screen except Settings and edit mode. Stays on this device.</td><td class="d">Off</td></tr>
+      <tr><td>Mode</td><td><b class="ui">1 switch (auto)</b>: the highlight moves by itself; press to choose. <b class="ui">2 switches (step)</b>: one switch moves, the other chooses.</td><td class="d">1 switch (auto)</td></tr>
+      <tr><td>Pattern</td><td><b class="ui">Rows, then buttons</b> (choose a row, then a button in it) or <b class="ui">One by one</b> (every item in turn; simpler but slower).</td><td class="d">Rows, then buttons</td></tr>
+      <tr><td>Scan speed</td><td>1 switch only. How long each item stays highlighted, 0.5 to 4.0 seconds. Start slow and speed up as the person gets faster.</td><td class="d">1.5 s</td></tr>
+      <tr><td>Extra time on the first item</td><td>1 switch only. When scanning starts again or enters a row, the first item stays highlighted a little longer (up to 3 seconds).</td><td class="d">Off</td></tr>
+      <tr><td>Pause after this many rounds</td><td>1 switch only. If nobody presses the switch, scanning rests after this many rounds (1 to 10). The next press starts it again.</td><td class="d">Never</td></tr>
+      <tr><td>Switch acceptance time</td><td>The switch must be held this long to count (up to 1 second). Filters bumps and tremor.</td><td class="d">Off</td></tr>
+      <tr><td>Ignore the switch after a selection</td><td>Stops a double press or a held switch from choosing again straight away (up to 2 seconds).</td><td class="d">0.5 s</td></tr>
+      <tr><td>“Leave row” step</td><td>With Rows, then buttons: after the last button in a row, an extra step goes back to choosing rows. Without it, scanning goes back to rows after two rounds of the row.</td><td class="d">Off</td></tr>
+      <tr><td>Speak items while scanning (auditory scanning)</td><td>Says each item as it is highlighted. For people who can't easily see the screen, or who like to hear the choices.</td><td class="d">On</td></tr>
+      <tr><td>Use a different voice for scan cues</td><td>Cues sound softer and higher, so they are easy to tell apart from what the person says.</td><td class="d">Off</td></tr>
+      <tr><td>Your switch / Select switch</td><td>The key the switch sends to choose. <b class="ui">Set key…</b> then press the switch to assign it; <b class="ui">Use default</b> goes back.</td><td class="d">1 switch: Space, Enter or arrows. 2 switches: Enter</td></tr>
+      <tr><td>Next switch</td><td>The key that moves the highlight (2 switches).</td><td class="d">2 switches: Space or arrows</td></tr>
+    </tbody>
+  </table>
+  <table class="settings">
+    <caption>Highlight</caption>
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Colour</td><td>The colour of the scanning, pointer and Find word highlight: theme colour (<b>A</b>), orange, yellow, pink, light blue, blue or green. A black and white edge keeps it visible on every button colour.</td><td class="d">Theme colour</td></tr>
+      <tr><td>Thickness</td><td>2 to 14 px. A preview shows how it looks.</td><td class="d">5 px</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Insights -->
+  <h3 id="panel-insights"><a class="hl" href="#panel-insights">Insights</a></h3>
+  <figure>
+    <img src="img/settings-insights.webp" width="1180" height="820" alt="Settings, Insights panel with the usage log on: buttons for 7, 14, 30 and 90 days; tiles for 16 words tapped, 10 different words, 5 messages spoken, 2.4 words per message, 0 phrases used and 0 modelled by partners; an Activity per day chart; and Most used words." loading="lazy" />
+    <figcaption>Insights after turning on the usage log.</figcaption>
+  </figure>
+  <table class="settings">
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Keep a usage log</td><td>Keeps a private log of words and messages on this device only. Then Insights shows, for the last <b class="ui">7</b>, <b class="ui">14</b>, <b class="ui">30</b> or <b class="ui">90 days</b>: words tapped, different words, messages spoken, words per message, phrases used, and taps modelled by partners (not counted); activity per day; most used words; new words in this period; and recent messages. See <a href="#privacy">Insights and privacy</a>.</td><td class="d">Off</td></tr>
+      <tr><td>Export CSV for a therapist</td><td>Saves the whole log as a spreadsheet file to share with your speech therapist.</td><td class="d">—</td></tr>
+      <tr><td>Delete log</td><td>Deletes the log for this profile from this device, after a check. It can't be undone.</td><td class="d">—</td></tr>
+      <tr><td>Keep recent sentences</td><td>How long <a href="#recent">Recent</a> sentences are kept: <b class="ui">Always</b>, <b class="ui">Until AACFree restarts</b>, or <b class="ui">Don't keep</b> (which also clears what is there, with Undo).</td><td class="d">Always</td></tr>
+      <tr><td>Clear recent</td><td>Clears Recent now, with Undo.</td><td class="d">—</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Backup -->
+  <h3 id="panel-backup"><a class="hl" href="#panel-backup">Backup</a></h3>
+  <figure>
+    <img src="img/settings-backup.webp" width="1180" height="820" alt="Settings, Backup panel: Backup file section with Save backup file and Restore from file buttons and the storage used; Automatic backup section with the Automatic backups switch, How often (Daily, Weekly, Monthly), Copies to keep slider, Where, and Include photos and recorded voices." loading="lazy" />
+    <figcaption>Settings → Backup on a computer (Chrome). On Android, “Where” is Documents/AACFree, with an optional cloud copy.</figcaption>
+  </figure>
+  <table class="settings">
+    <thead><tr><th scope="col">Setting or button</th><th scope="col">What it does and when to use it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Save backup file</td><td>Saves everything in one file: all profiles, boards, photos, recordings, phrases and settings. On the web it downloads; on Android it saves and opens the share menu. Shows the date of the last backup file and the storage used.</td><td class="d">—</td></tr>
+      <tr><td>Restore from file…</td><td>Replaces everything with a backup file, after a snapshot. See <a href="#restoring">Restoring from a backup</a>.</td><td class="d">—</td></tr>
+      <tr><td>Automatic backups</td><td>Saves dated backup files by itself. <span class="platform">Android app</span> <span class="platform">Chrome / Edge on a computer</span></td><td class="d">On</td></tr>
+      <tr><td>How often</td><td><b class="ui">Daily</b>, <b class="ui">Weekly</b> or <b class="ui">Monthly</b>.</td><td class="d">Weekly</td></tr>
+      <tr><td>Copies to keep</td><td>1 to 12. Older copies are deleted automatically.</td><td class="d">4</td></tr>
+      <tr><td>Where</td><td>Android: <code>Documents/AACFree</code> on the device, which survives uninstalling. <b class="ui">Add a cloud copy…</b> also keeps one copy in Google Drive, OneDrive, Dropbox or on an SD card (<b class="ui">Change cloud file</b>, <b class="ui">Remove</b>). Computer: <b class="ui">Choose folder</b>, for example a Google Drive or Dropbox folder.</td><td class="d">Android: Documents/AACFree. Computer: none yet</td></tr>
+      <tr><td>Include photos and recorded voices</td><td>Turn off for much smaller files. Also applies to Save backup file.</td><td class="d">On</td></tr>
+      <tr><td>Include message history and learned words</td><td>Turn on to back up Recent sentences and learned words. Off for more privacy. Also applies to Save backup file.</td><td class="d">Off</td></tr>
+      <tr><td>Lock backups with a passcode</td><td>Encrypts backup files. Type a backup passcode (6 or more characters) and <b class="ui">Save passcode</b>. You need it to restore, so write it down. The passcode stays on this device. Also applies to Save backup file.</td><td class="d">Off</td></tr>
+      <tr><td>Back up now / Restore an automatic backup… / Open a backup from Drive or another app…</td><td>Make a backup now, pick one of the automatic copies to restore, or (Android) open any backup file through the system file picker.</td><td class="d">—</td></tr>
+      <tr><td>Sync between devices (encrypted)</td><td>Keeps devices in step. See <a href="#sync">Sync across devices</a>.</td><td class="d">Off</td></tr>
+      <tr><td>Automatic snapshots</td><td>Earlier versions kept on the device. <b class="ui">Take snapshot now</b>, or <b class="ui">Restore</b> one. See <a href="#snapshots">Snapshots</a>.</td><td class="d">Always on</td></tr>
+      <tr><td>Export boards (.obz) / Import boards…</td><td>Open Board Format, to share boards with other AAC apps. See <a href="#obf">Open Board Format</a>.</td><td class="d">—</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Profiles -->
+  <h3 id="panel-profiles"><a class="hl" href="#panel-profiles">Profiles</a></h3>
+  <table class="settings">
+    <thead><tr><th scope="col">Setting or button</th><th scope="col">What it does</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>Name (This person)</td><td>The name of the open profile. It shows at the top of Settings and in the voice sample.</td><td class="d">From setup</td></tr>
+      <tr><td>Profiles list</td><td>Every profile on the device. <b class="ui">Switch</b> opens another profile; <b class="ui">Delete</b> removes one (after a check, with a snapshot first).</td><td class="d">—</td></tr>
+      <tr><td>+ Add profile</td><td>A new profile with its own <b class="ui">Name</b> and <b class="ui">Layout</b>.</td><td class="d">Medium layout</td></tr>
+    </tbody>
+  </table>
+  <p>More in <a href="#profiles">Profiles</a>.</p>
+
+  <!-- Lock -->
+  <h3 id="panel-lock"><a class="hl" href="#panel-lock">Lock</a></h3>
+  <figure>
+    <img src="img/settings-lock.webp" width="1180" height="820" alt="Settings, Lock panel: Settings lock with How to open Settings choices Hold 2 seconds, Math question, PIN and No lock, a Set a PIN box and Save PIN button; Privacy with Download missing pictures from ARASAAC; and Stay in the app (Android)." loading="lazy" />
+    <figcaption>Settings → Lock.</figcaption>
+  </figure>
+  <table class="settings">
+    <thead><tr><th scope="col">Setting</th><th scope="col">What it does and when to change it</th><th scope="col">Default</th></tr></thead>
+    <tbody>
+      <tr><td>How to open Settings</td><td><b class="ui">Hold 2 seconds</b>, <b class="ui">Math question</b>, <b class="ui">PIN</b> or <b class="ui">No lock</b>. Covers every profile on the device. See <a href="#lock-and-pin">The lock and the PIN</a>.</td><td class="d">Hold 2 seconds</td></tr>
+      <tr><td>Set a PIN / Change PIN</td><td>4 to 6 digits, then <b class="ui">Save PIN</b>. Saving a PIN also switches the lock to PIN. Choose PIN if the person has learned to hold the button.</td><td class="d">No PIN</td></tr>
+      <tr><td>Download missing pictures from ARASAAC</td><td>All pictures come with the app. If one is missing (for example on imported boards), AACFree fetches it from arasaac.org, which then sees a request from this device. Turn off to never fetch pictures.</td><td class="d">On</td></tr>
+      <tr><td>Stay in the app (Android)</td><td>How to turn on Android <b>App pinning</b>: Android Settings → Security → App pinning; then open Recent apps, tap AACFree's icon and choose Pin.</td><td class="d">—</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Help -->
+  <h3 id="panel-help"><a class="hl" href="#panel-help">Help &amp; tips</a></h3>
+  <p>A link to this <b class="ui">Full user guide</b>, the <b>Getting started</b> tips (see <a href="#tips">Tips from AAC research</a>), a short <b>How to…</b> list, and <b>About AACFree</b> with the credits and the version number.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 8 -->
+<section id="editing" data-s>
+  <h2><a class="hl" href="#editing"><span class="num">10</span>Editing boards</a></h2>
+  <p>You can change any button: its word, picture, colour, voice and what it does. Before you start, read <a href="#tips">motor planning</a>: try to add and reveal words rather than move them.</p>
+
+  <h3 id="edit-mode"><a class="hl" href="#edit-mode">Edit mode</a></h3>
+  <p>To start: unlock Settings and tap <b class="ui">Edit boards</b> (or <b class="ui">Boards &amp; words → Edit Home board</b>, or <b class="ui">Edit</b> next to any board). While Settings are unlocked you can also tap <b class="ui">Edit</b> in the bottom bar on any board.</p>
+  <figure>
+    <img src="img/edit-mode.webp" width="1180" height="820" alt="The Home board in edit mode: an Editing unlocked bar at the top, a plus button at the end of the quick bar, and a toolbar with Show/Hide, + Word, Undo, + Category, Board and Done. Buttons have dashed borders, and the board is split into two pages." loading="lazy" />
+    <figcaption>Edit mode: the toolbar above the board, and a <b>+</b> on the quick bar.</figcaption>
+  </figure>
+  <p>In edit mode, tapping a button opens it for editing instead of speaking it, and empty squares show a <b>+</b>. The toolbar above the board has:</p>
+  <ul>
+    <li><b class="ui">Show/Hide</b>: hide or show words with one tap each (<a href="#show-hide">Show/Hide mode</a>).</li>
+    <li><b class="ui">+ Word</b>: add a word quickly (<a href="#add-word">+ Word</a>).</li>
+    <li><b class="ui">Undo</b>: undo the last change (<a href="#undo">Undo</a>).</li>
+    <li><b class="ui">+ Category</b>: a new folder (<a href="#new-category">New category folders</a>).</li>
+    <li><b class="ui">Board</b>: the board's name and size (<a href="#board-settings">Board settings</a>).</li>
+    <li><b class="ui">Done</b>: leave edit mode.</li>
+  </ul>
+  <p>You can open folders while editing: edit a folder button and tap <b class="ui">Open folder →</b>. If some boards aren't linked from any folder, a note on Home says so; find them in <b class="ui">Settings → Boards &amp; words</b>.</p>
+
+  <h3 id="button-editor"><a class="hl" href="#button-editor">The button editor</a></h3>
+  <figure>
+    <img src="img/button-editor.webp" width="860" height="796" alt="The Edit button window for want: a preview with Change picture, a Label box, What it does choices Adds word, Opens folder and Speaks right away, Say something different, Word type (colour) chips, Custom colour swatches, Recorded voice with Record voice, Word forms, and Hide from the user for now. The footer has Move, Copy to, Delete, Cancel and Save." loading="lazy" />
+    <figcaption>The button editor.</figcaption>
+  </figure>
+  <p>Tap a button in edit mode (or an empty <b>+</b> square for a new one):</p>
+  <ul>
+    <li><b>Picture</b>: tap the preview or <b class="ui">Change picture</b> to choose from the library, online symbols, emoji or a photo (see <a href="#symbols">The symbol library</a>). For a new button, a matching picture is suggested as you type.</li>
+    <li><b class="ui">Label</b>: the word on the button.</li>
+    <li><b class="ui">What it does</b>: <b class="ui">Adds word</b> (normal), <b class="ui">Opens folder</b>, or <b class="ui">Speaks right away</b> (says it without adding it to the message, like “Hey!”).</li>
+    <li><b class="ui">Folder to open</b> (for Opens folder): an existing board, or <b class="ui">+ New empty folder called “…”</b>. Then tap the new folder and add words.</li>
+    <li><b class="ui">Say something different</b> (optional): what is spoken and added, if different from the label. For example, a label “Grandma” that says “Nana Rose”.</li>
+    <li><b class="ui">Word type (colour)</b>: sets the <a href="#colours">Fitzgerald colour</a> and helps word forms.</li>
+    <li><b class="ui">Custom colour</b> (optional): any colour of your own; <b>A</b> goes back to automatic.</li>
+    <li><b class="ui">Recorded voice</b>: <b class="ui">Record voice</b> plays your recording instead of the computer voice (up to 15 seconds). <b class="ui">Play</b>, <b class="ui">Re-record</b> or <b class="ui">Remove</b>.</li>
+    <li><b class="ui">Word forms</b> (comma separated, optional): your own forms for <a href="#word-forms">long-press</a>, for example “went, going”. Leave empty for the automatic ones.</li>
+    <li><b class="ui">Hide from the user for now</b>: keeps its place, so the motor plan stays the same (<a href="#hide">Hide instead of delete</a>).</li>
+  </ul>
+  <p>At the bottom: <b class="ui">Open folder →</b> (folders), <b class="ui">Move</b>, <b class="ui">Copy to…</b> (puts a copy in the first free square of another board, adding a row if it is full), <b class="ui">Delete</b>, <b class="ui">Cancel</b> and <b class="ui">Save</b>.</p>
+  <p>If you rename a built-in word, it becomes your own word: a language switch keeps your label instead of translating it.</p>
+
+  <h3 id="move"><a class="hl" href="#move">Moving buttons</a></h3>
+  <ol class="steps">
+    <li>In edit mode, tap the button, then <b class="ui">Move</b>.</li>
+    <li>“Now tap where it should go”: tap the new place. The two buttons swap places.</li>
+  </ol>
+  <p>Moving changes where the person finds a word. Do it early, or rarely, and model the new place.</p>
+
+  <h3 id="hide"><a class="hl" href="#hide">Hide instead of delete</a></h3>
+  <p>Tap <b class="ui">Delete</b> and AACFree offers <b class="ui">Hide instead</b>. Hiding a word keeps its spot, so the person's muscle memory still works when it comes back. Deleting removes it for good (you can still Undo). Hidden buttons show with a crossed-out eye in edit mode, and as a gap when talking.</p>
+
+  <h3 id="show-hide"><a class="hl" href="#show-hide">Show/Hide mode</a></h3>
+  <p>To grow vocabulary step by step: in edit mode tap <b class="ui">Show/Hide</b> (“Tap words to hide or show them”), then tap words to hide or reveal them, one tap each. <b class="ui">Reveal 5 more</b> shows the next five hidden words on this board. Tap <b class="ui">Done hiding</b> when finished. Folders and action buttons can't be hidden this way.</p>
+
+  <h3 id="add-word"><a class="hl" href="#add-word">+ Word</a></h3>
+  <p>The quickest way to add a word: tap <b class="ui">+ Word</b>, type the word (a picture is suggested; tap it to change it), choose the board in <b class="ui">Put it on</b>, and tap <b class="ui">Add word</b>. It goes in the first empty square. If the board is full, a new row is added at the bottom, so nothing else moves. Find a word can also add a missing word: <b class="ui">Add to a board…</b>.</p>
+
+  <h3 id="new-category"><a class="hl" href="#new-category">New category folders</a></h3>
+  <figure class="small">
+    <img src="img/new-category.webp" width="520" height="424" alt="The New category window: a folder preview with an icon, a Name box with Swimming, a Start with symbols from list, the note The folder goes in the first empty square on Home, and an Or import a board from a picture button." loading="lazy" />
+    <figcaption>A new category folder, started from a library category.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>In edit mode tap <b class="ui">+ Category</b> (or <b class="ui">Settings → Boards &amp; words → New category</b>).</li>
+    <li>Type a <b class="ui">Name</b> (for example Soccer, Grandma's, Minecraft) and tap the preview to choose an icon.</li>
+    <li><b class="ui">Start with symbols from</b>: <b class="ui">Nothing (empty folder)</b>, or a library category to fill the new board with its pictures straight away.</li>
+    <li>Tap <b class="ui">Create category</b>. The folder goes in the first empty square of the board you are on; if that board is full, it goes on More; if More is full too, a new row is added.</li>
+  </ol>
+  <p>The same window has <b class="ui">Or import a board from a picture…</b> (see <a href="#move-from-picture">Moving from another AAC app</a>).</p>
+
+  <h3 id="board-settings"><a class="hl" href="#board-settings">Board settings and size</a></h3>
+  <p>In edit mode, tap <b class="ui">Board</b>:</p>
+  <ul>
+    <li><b class="ui">Name</b>: the board's name.</li>
+    <li><b class="ui">Columns</b> (1 to 12) and <b class="ui">Rows</b> (1 to 14), with − and +. Buttons keep their row and column when you resize, so the motor plan stays the same. If shrinking would remove buttons, AACFree warns you; consider hiding them instead.</li>
+    <li><b class="ui">Delete folder</b> (not on Home): removes the folder and its words from every board, after a check. Undo works, and a snapshot is kept.</li>
+  </ul>
+
+  <h3 id="edit-quick-bar"><a class="hl" href="#edit-quick-bar">Editing the quick bar</a></h3>
+  <p>In edit mode, tap a quick-bar word to edit it in the button editor (quick-bar buttons can't open folders), or tap the <b>+</b> at its end to add one. Delete removes it from the quick bar. Keep yes, no, stop, help and break there.</p>
+
+  <h3 id="undo"><a class="hl" href="#undo">Undo</a></h3>
+  <p><b class="ui">Undo</b> in the edit toolbar takes back board changes one at a time: edits, moves, hides, new words and folders, resizes. Many other actions show a message with <b class="ui">Undo</b> for a few seconds (deleting a phrase, schedule or folder, changing layout, clearing the message). For bigger mistakes, use <a href="#snapshots">snapshots</a>.</p>
+
+  <h3 id="print"><a class="hl" href="#print">Paper boards</a></h3>
+  <p>A paper copy is a low-tech backup for the bath, the pool, a flat battery or a broken screen.</p>
+  <ol class="steps">
+    <li><b class="ui">Settings → Boards &amp; words → Print boards…</b></li>
+    <li>Tick the boards to print (Home and its folders are ticked to start with), then tap <b class="ui">Print boards</b>.</li>
+    <li>On the web, a print view opens: tap <b class="ui">Print</b>. Print in colour, landscape, and laminate for durability. The quick bar is on every page.</li>
+    <li>On Android, the boards are saved as a web page. Open it in Chrome and choose Print, or send it to a computer.</li>
+  </ol>
+
+  <h3 id="import-picture"><a class="hl" href="#import-picture">Import a board from a picture</a></h3>
+  <p>Rebuild a board from a photo or screenshot of another AAC app or a paper board, with every word in the same place. The full steps, tips and limits are in <a href="#move-from-picture">Moving from another AAC app</a>.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 9 -->
+<section id="symbols" data-s>
+  <h2><a class="hl" href="#symbols"><span class="num">11</span>The symbol library</a></h2>
+  <p>AACFree comes with about 740 ARASAAC pictures built in, so it works offline. They are organised into category folders, each with an icon: Core words, Food, Drinks, Feelings, People, Places and the other topics. Your family can add its own categories and pictures. The library is shared by every profile on the device.</p>
+
+  <h3 id="categories"><a class="hl" href="#categories">Browsing the library</a></h3>
+  <p>Open <b class="ui">Settings → Symbols</b>. Tap a category folder to see its pictures, or type in <b class="ui">Search all pictures…</b>. <b class="ui">All categories</b> goes back. The same library appears whenever you choose a picture for a button (the <b class="ui">Symbols</b> tab).</p>
+  <p>Built-in pictures can't be changed. Tap one to see it, then <b class="ui">Save a copy to a category</b> if you want to rename it or give it another word type.</p>
+
+  <h3 id="own-symbols"><a class="hl" href="#own-symbols">Adding your own categories and pictures</a></h3>
+  <ol class="steps">
+    <li>In <b class="ui">Settings → Symbols</b>, tap <b class="ui">New category</b>. Give it a name (for example Grandma's house, Soccer, My toys) and tap the folder to choose an icon. Tap <b class="ui">Save</b>.</li>
+    <li>In a category, tap <b class="ui">Add symbol</b>. Choose a picture, type the <b class="ui">Word</b>, check the <b class="ui">Category</b> and the word type (its colour on buttons), and tap <b class="ui">Save</b>.</li>
+    <li>Your own categories and pictures are marked “yours”. Tap one of your pictures to edit or delete it; tap <b class="ui">Edit</b> in your category to rename it or delete it. Deleting a category doesn't change buttons already on boards.</li>
+  </ol>
+  <p>You can make a whole board folder from a library category: see <a href="#new-category">New category folders</a>.</p>
+
+  <h3 id="choose-picture"><a class="hl" href="#choose-picture">Choosing a picture</a></h3>
+  <figure>
+    <img src="img/symbol-picker.webp" width="860" height="796" alt="The Choose a picture window with four tabs: Symbols, More (online), Emoji and Photo. The Symbols tab shows a search box and category folders. A No picture button and the ARASAAC credit are at the bottom." loading="lazy" />
+    <figcaption>Choosing a picture for a button.</figcaption>
+  </figure>
+  <ul>
+    <li><b class="ui">Symbols</b>: the library, with search.</li>
+    <li><b class="ui">More (online)</b>: searches thousands more ARASAAC pictures on arasaac.org. Needs the internet. The picture you choose is saved on the device, so it then works offline.</li>
+    <li><b class="ui">Emoji</b>: a set of emoji.</li>
+    <li><b class="ui">Photo</b>: <b class="ui">Take photo</b> with the camera, or <b class="ui">Choose from gallery</b>. Real photos of the person's own people, places and things are often the easiest to understand.</li>
+    <li><b class="ui">No picture</b>: a word-only button.</li>
+  </ul>
+  <p>On the More (online) and Photo tabs, <b class="ui">Also save to my symbols</b> keeps the picture in a library category, with a word, so you can use it again.</p>
+
+  <h3 id="missing-pictures"><a class="hl" href="#missing-pictures">Missing pictures</a></h3>
+  <p>Boards imported from other apps may use ARASAAC pictures that aren't built in. AACFree then downloads them from arasaac.org when it is online. To never fetch anything, turn off <b class="ui">Download missing pictures from ARASAAC</b> in <a href="#panel-lock">Settings → Lock → Privacy</a>.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 10 -->
+<section id="languages" data-s>
+  <h2><a class="hl" href="#languages"><span class="num">12</span>Languages</a></h2>
+  <p>AACFree speaks <b>English</b>, <b>Español</b>, <b>Français</b> and <b>Português (Brasil)</b>. Each has the full app, all the board words, phrases and schedules, grammar, a keyboard with accents, prediction and voices.</p>
+  <ul>
+    <li><b>Communication language</b>: the language the person talks in. It sets the board words, word forms, keyboard, voice, and everything the tools say. Change it in <a href="#panel-display">Settings → Display → Language</a>.</li>
+    <li><b>App language</b>: the language of menus and Settings. A parent can read English menus while the person talks in Spanish, for example. <b class="ui">Same</b> follows the communication language. This choice stays on the device.</li>
+    <li><b>Second language on buttons</b>: shows each built-in word in a second language under the main word. Good for bilingual homes and classrooms.</li>
+    <li><b>Automatic verb forms</b> in Spanish, French and Portuguese (<b class="ui">Conjugate verbs automatically</b>, on by default): after a subject such as “yo”, “je” or “eu”, a verb changes to match: yo + querer → quiero, yo + gustar → me gusta, je + aimer → j'aime. Long-press a word for other forms. English never changes words by itself.</li>
+  </ul>
+  <h3 id="switching-language"><a class="hl" href="#switching-language">Switching the communication language</a></h3>
+  <p>Choose the new language and confirm <b class="ui">Switch</b>. AACFree saves a snapshot, then translates board words, phrases and schedules <b>in place</b>: every button stays exactly where it was. Words you added or renamed yourself stay as they are. Switching back is exact, so you can try a language and return.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 11 -->
+<section id="access" data-s>
+  <h2><a class="hl" href="#access"><span class="num">13</span>Access: touch, switches, pointers</a></h2>
+  <p>Not everyone can tap accurately. AACFree has several ways in, all in <a href="#panel-access">Settings → Access</a>. An occupational therapist can help you choose and set them up.</p>
+
+  <h3 id="touch"><a class="hl" href="#touch">Touch</a></h3>
+  <ul>
+    <li><b class="ui">Hold to select</b>: for people who brush buttons by accident. Start around 0.3 to 0.5 seconds.</li>
+    <li><b class="ui">Ignore repeated taps</b>: for double taps or tremor. Start around 0.5 to 1 second.</li>
+    <li><b class="ui">Select on touch (instead of release)</b>: the fastest, for confident users. It turns off long-press for word forms.</li>
+    <li><b class="ui">Click sound</b> and <b class="ui">Vibrate</b> give feedback that a press counted.</li>
+  </ul>
+  <p>These apply to every button the person uses: the board, quick bar, message bar, bottom bar, Phrases and Tools.</p>
+
+  <h3 id="scanning"><a class="hl" href="#scanning">Switch scanning</a></h3>
+  <p><b>Scanning</b> is for people who use one or two <b>switches</b> (big buttons they press with a hand, head, foot or another body part) instead of touching the screen. A highlight moves over the screen in order, and the person presses the switch when it reaches what they want. Bluetooth or USB switch interfaces that act like a keyboard work; so does a keyboard.</p>
+  <figure>
+    <img src="img/scanning.webp" width="1180" height="820" alt="The Talk screen during switch scanning: the first row of the board (I, want, go, like, more, all done, what, Food) has a thick orange and black highlight around each button." loading="lazy" />
+    <figcaption>Scanning by rows: the whole first row is highlighted. Pressing the switch now goes into this row.</figcaption>
+  </figure>
+  <ol class="steps">
+    <li>Connect the switch. Check it sends a key such as Space or Enter (most switch interfaces do), or assign its key with <b class="ui">Set key…</b>.</li>
+    <li>Turn on <b class="ui">Turn on scanning</b> in <a href="#scan-settings">Settings → Access → Switch scanning</a> and choose the mode.</li>
+    <li><b class="ui">Lock &amp; return</b>. Scanning starts on the Talk screen.</li>
+  </ol>
+  <figure class="mid">
+    <img src="img/settings-scanning.webp" width="860" height="1102" alt="The Switch scanning settings: Turn on scanning, Mode with 1 switch (auto) and 2 switches (step), Pattern with Rows, then buttons and One by one, Scan speed, Extra time on the first item, Pause after this many rounds, Switch acceptance time, Ignore the switch after a selection, Leave row step, Speak items while scanning, Use a different voice for scan cues, and the switch keys." loading="lazy" />
+    <figcaption>Every switch scanning setting. Defaults are in the <a href="#scan-settings">table above</a>.</figcaption>
+  </figure>
+  <h4>One switch (auto)</h4>
+  <p>The highlight moves by itself, at the <b class="ui">Scan speed</b>. With <b class="ui">Rows, then buttons</b>, it first moves over groups (the message bar, the quick bar, each row of the board, the bottom bar). Press the switch when the right row is highlighted, then again when the right button is. After two rounds of a row with no press, it goes back to the rows (or use the <b class="ui">“Leave row” step</b>). With <b class="ui">One by one</b>, it visits every item in turn. Default keys: Space, Enter or the arrow keys. Tapping the screen also works as the switch.</p>
+  <h4>Two switches (step)</h4>
+  <p>One switch moves the highlight on (<b>next</b>, default Space or arrows), the other chooses (<b>select</b>, default Enter). Nothing moves until the person presses. On a touchscreen: a tap is next, a long tap (over half a second) is select.</p>
+  <h4>Good to know</h4>
+  <ul>
+    <li><b>Auditory scanning</b> (<b class="ui">Speak items while scanning</b>, on by default) says each item as it is highlighted. It never cuts off what the person is saying. A different, softer cue voice is an option.</li>
+    <li>A held switch counts once. <b class="ui">Switch acceptance time</b> ignores very short bumps, and <b class="ui">Ignore the switch after a selection</b> stops double choices.</li>
+    <li>Everything the person uses can be scanned, including dialogs, Find word, the First/Then picker, the words in the message bar, the timer chip and the Undo on messages. A helper can still tap the screen directly. In Find word, a partner can tap the text box and type.</li>
+    <li>Settings and edit mode are never scanned. To leave scanning, <b>hold the Settings button</b> for 2 seconds; with a PIN or math lock, the question appears. While Settings are unlocked, the <b class="ui">Edit</b> and <b class="ui">Lock</b> buttons can be tapped.</li>
+    <li>Change the highlight's colour and thickness under <a href="#panel-access">Highlight</a>.</li>
+  </ul>
+
+  <h3 id="dwell"><a class="hl" href="#dwell">Dwell (mouse, head-mouse or eye tracker)</a></h3>
+  <p>With <b class="ui">Pointer → Dwell (mouse / eye tracker)</b>, the person selects by resting the pointer on a button for the <b class="ui">Dwell time</b>. A ring fills around the pointer as it counts. Use it with a mouse, a trackball, a head-mouse, or a dedicated eye tracker that moves the mouse pointer.</p>
+  <ul>
+    <li>Dwell only starts after a real movement, and starts again after a new board opens, so nothing is chosen by accident.</li>
+    <li>The <b class="ui">Rest</b> button (bottom left) pauses selecting; dwell on <b class="ui">Resume</b> to carry on. Turn it off with <b class="ui">Rest button</b>.</li>
+    <li>The pointer pauses in Settings and in edit mode. Touch always keeps working.</li>
+    <li>Browsers may not allow speech until someone has touched the screen or pressed a key once. If you see <b class="ui">Tap once to turn the voice on</b>, a helper taps it once.</li>
+  </ul>
+
+  <h3 id="head-pointer"><a class="hl" href="#head-pointer">Head pointer (camera)</a></h3>
+  <p>With <b class="ui">Head pointer (camera)</b>, AACFree uses the front camera to follow the person's head: small head movements move the pointer, and dwell selects. The camera images are processed on this device only, and are never saved or sent. The camera switches off while AACFree is hidden.</p>
+  <ul>
+    <li>Allow the camera when the browser or Android asks.</li>
+    <li><b class="ui">Centre</b> (bottom left, tap or dwell on it): then look at the middle of the screen while it counts down. Do this when the pointer drifts.</li>
+    <li><b class="ui">Sensitivity</b>: higher means smaller movements reach the edges. <b class="ui">Smoothing</b>: higher is steadier but slower.</li>
+    <li><b class="ui">Long blink selects</b> (optional): close both eyes for half a second to select.</li>
+    <li>If the camera stops, tap <b class="ui">Restart camera</b>. Dwell stops while the face is lost.</li>
+  </ul>
+
+  <h3 id="eye-gaze"><a class="hl" href="#eye-gaze">Eye gaze (camera)</a> <span class="platform exp">Experimental</span></h3>
+  <p>With <b class="ui">Eye gaze (camera, experimental)</b>, AACFree estimates where the person looks using the front camera. Webcam eye gaze is approximate: it works best with large buttons (the Big buttons or Phone core layout). A dedicated eye tracker is much more accurate; use it with <a href="#dwell">Dwell</a> mode.</p>
+  <h4 id="calibration">Calibrating</h4>
+  <ol class="steps">
+    <li>In <b class="ui">Settings → Access</b>, choose <b class="ui">Eye gaze (camera, experimental)</b>, then tap <b class="ui">Calibrate eyes</b>.</li>
+    <li>Sit about an arm's length from the screen, with the face well lit from the front (not a window behind). Hold the device steady, or put it on a stand.</li>
+    <li>Tap <b class="ui">Start</b>. A dot appears in 9 places in turn. <b>Keep the head still, move only the eyes</b>, and look right at each dot until it fills up.</li>
+    <li>If the face is lost, the dot waits (“Looking for your face…”). After 8 seconds it skips that dot.</li>
+    <li>When it works, AACFree says <b>Eye gaze calibrated</b>, or that it is approximate and larger buttons work best.</li>
+  </ol>
+  <p>If calibration fails, it says why: the face wasn't seen at enough dots (face the camera with more light), or the dots couldn't be told apart (keep the head still and look right at each dot). Try again with <b class="ui">Re-calibrate eyes</b>.</p>
+  <h4>Rest, Resume, Centre and Restart camera</h4>
+  <ul>
+    <li><b class="ui">Rest</b>: a real tap pauses everything, camera included; only a tap on <b class="ui">Resume</b> carries on. Resting hands-free (by dwell or switch) lets the person resume by looking at <b class="ui">Resume</b> for a long, deliberate moment (at least 2.5 seconds).</li>
+    <li><b class="ui">Centre</b> is for the head pointer.</li>
+    <li><b class="ui">Restart camera</b> appears if the camera stops or fails.</li>
+  </ul>
+
+  <h3 id="seeing"><a class="hl" href="#seeing">Seeing the screen</a></h3>
+  <ul>
+    <li><b class="ui">Text size</b> (70% to 180%) scales the whole app. See <a href="#panel-display">Display</a>.</li>
+    <li><b class="ui">Theme</b>: <b class="ui">Light</b>, <b class="ui">Dark</b> or <b class="ui">High contrast</b>. <b class="ui">Style</b>: Playful or Clean.</li>
+    <li><b class="ui">Colour coding</b> filled, border only or off.</li>
+    <li><b class="ui">Highlight</b> colour and thickness for scanning, dwell and Find word (<a href="#panel-access">Access</a>).</li>
+    <li><b class="ui">Reduce motion</b> turns off animations.</li>
+    <li><b class="ui">Keep screen awake</b> for people who don't touch the screen.</li>
+    <li>A bigger layout (Big buttons · 12) or more <b class="ui">Space between buttons</b> makes targets larger.</li>
+  </ul>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 12 -->
+<section id="voice" data-s>
+  <h2><a class="hl" href="#voice"><span class="num">14</span>Voice and speech</a></h2>
+  <h3 id="choosing-voice"><a class="hl" href="#choosing-voice">Choosing a voice</a></h3>
+  <p>AACFree uses the voices on the device. In <a href="#panel-voice">Settings → Voice</a>, tap a voice to hear it and choose it, then set <b class="ui">Speed</b>, <b class="ui">Pitch</b> and <b class="ui">Volume</b> and tap <b class="ui">Test voice</b>. The voice should sound right to the person: their age, their gender, their accent. Let them choose if they can.</p>
+  <ul>
+    <li><b>Android:</b> install more voices in Android Settings → Text-to-speech (for example “Speech Services by Google” from the Play Store, then its voice data).</li>
+    <li><b>iPhone and iPad:</b> add voices in iOS Settings → Accessibility → Spoken Content → Voices. Enhanced voices sound much better.</li>
+    <li><b>Computers:</b> Edge and Chrome include natural online voices (marked “online”, which need the internet); the computer's own voices work offline.</li>
+    <li>Each device keeps its own voice. It doesn't sync, because devices have different voices.</li>
+  </ul>
+  <p>The person can make it louder, quieter, faster or slower themselves in <a href="#tool-my-voice">Tools → My voice</a>, or show messages instead of speaking them.</p>
+
+  <h3 id="pronunciations"><a class="hl" href="#pronunciations">Pronunciations</a></h3>
+  <p>If the voice says a name or word wrong, add a fix in <b class="ui">Settings → Voice → Pronunciations</b>: the <b class="ui">Written word</b> and how to <b class="ui">Say it like</b>, for example “Siobhan” → “shi-vawn”. Tap <b class="ui">Test</b>, then <b class="ui">Add</b>. It applies everywhere: buttons, typing and phrases.</p>
+
+  <h3 id="recorded-voices"><a class="hl" href="#recorded-voices">Recorded voices</a></h3>
+  <p>Any button or phrase can play a recording instead of the computer voice: a sibling saying a name, a parent's “I love you”, a favourite sound or script. In the <a href="#button-editor">button editor</a> or the <a href="#editing-phrases">phrase editor</a>, tap <b class="ui">Record voice</b>, speak (up to 15 seconds), and tap <b class="ui">Stop</b>. <b class="ui">Play</b> to check it, <b class="ui">Re-record</b> or <b class="ui">Remove</b>. Allow the microphone when asked. Recordings are saved on the device and included in backups (unless you turn photos and recordings off).</p>
+
+  <h3 id="speech-not-working"><a class="hl" href="#speech-not-working">If speech doesn't work</a></h3>
+  <p>AACFree never fails silently: it shows a message that says what to do.</p>
+  <ul>
+    <li><b>“Speech is not working on this device.”</b> (Android app) Tap <b class="ui">Install voices</b> and install or update the text-to-speech engine and its voice data.</li>
+    <li><b>“No voices are installed.”</b> Add a voice in the device's text-to-speech settings, then open AACFree again.</li>
+    <li><b>“This browser can't speak.”</b> Use Chrome, Edge or Safari, or the Android app.</li>
+    <li><b>“Tap once to turn the voice on.”</b> Some browsers only allow speech after a first touch. Tap once.</li>
+    <li>Check the device volume and silent switch, and the <b class="ui">Volume</b> in Settings → Voice and in My voice.</li>
+    <li>Check that <b class="ui">Show, don't speak</b> isn't on in My voice.</li>
+    <li>Choose <b class="ui">Device default</b> in Settings → Voice, in case a chosen voice was removed.</li>
+  </ul>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 13 -->
+<section id="profiles" data-s>
+  <h2><a class="hl" href="#profiles"><span class="num">15</span>Profiles</a></h2>
+  <p>A profile is one person's AACFree: their boards, phrases, schedules, About me, voice and settings. Several people can share a device, such as siblings or a classroom tablet, each with their own profile.</p>
+  <ul>
+    <li><b>Add:</b> <b class="ui">Settings → Profiles → + Add profile</b>. Type a <b class="ui">Name</b>, choose a <b class="ui">Layout</b> and tap <b class="ui">Create</b>. The new profile opens.</li>
+    <li><b>Switch:</b> <b class="ui">Settings → Profiles</b>, then <b class="ui">Switch</b> next to the profile. The open one is marked <b class="ui">Active</b>.</li>
+    <li><b>Rename:</b> change <b class="ui">Name</b> under <b class="ui">This person</b>.</li>
+    <li><b>Delete:</b> <b class="ui">Delete</b> next to a profile, then confirm. A snapshot is saved first.</li>
+    <li><b>Copy a profile's boards:</b> there is no Duplicate button. To start a new profile from someone's boards, use <b class="ui">Settings → Backup → Export boards (.obz)</b>, then <b class="ui">Import boards…</b> with that file: the boards come in as a new profile. (Phrases, schedules and settings aren't copied this way.)</li>
+  </ul>
+  <p>Things shared by every profile on the device: the <b>settings lock and PIN</b> (one for all, so switching profiles can't get round it), the <b>symbol library</b>, and the backup and sync choices. A backup file and sync include every profile.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 14 -->
+<section id="backups" data-s>
+  <h2><a class="hl" href="#backups"><span class="num">16</span>Backups, snapshots and sync</a></h2>
+  <p>AACFree saves every change straight away, on the device. On top of that there are four safety nets. To get data back, see <a href="#restoring">Restoring from a backup</a>.</p>
+
+  <h3 id="backup-file"><a class="hl" href="#backup-file">The backup file</a></h3>
+  <p><b class="ui">Settings → Backup → Save backup file</b> saves everything in one file: all profiles, boards, photos, recordings, phrases and settings. Keep a copy somewhere safe (a cloud drive, or email it to yourself). It is also how you move to a new device. Settings shows when you last saved one and reminds you after a month.</p>
+  <ul>
+    <li>On the web the file downloads. On Android it is saved, then the share menu opens so you can send it to Drive, email and so on.</li>
+    <li>The <b>photos</b>, <b>message history</b> and <b>passcode</b> choices under Automatic backup also apply to this file.</li>
+    <li>Plain (unlocked) backups never contain the settings PIN.</li>
+  </ul>
+
+  <h3 id="automatic-backup"><a class="hl" href="#automatic-backup">Automatic backups</a> <span class="platform">Android app</span> <span class="platform">Chrome / Edge on a computer</span></h3>
+  <p>AACFree can save dated backup files by itself, <b class="ui">Daily</b>, <b class="ui">Weekly</b> (default) or <b class="ui">Monthly</b>, keeping the newest copies (4 by default, up to 12). It checks when it starts, when it comes back to the screen, and every hour while open.</p>
+  <ul>
+    <li><b>Android app:</b> files go to <code>Documents/AACFree</code>. They stay there even if the app is removed. <b class="ui">Add a cloud copy…</b> picks a file in Google Drive, OneDrive, Dropbox or on an SD card through the system file picker; AACFree updates it on every backup.</li>
+    <li><b>Chrome or Edge on a computer:</b> tap <b class="ui">Choose folder</b> and pick a folder, for example your Google Drive, Dropbox or OneDrive folder.</li>
+    <li><b>iPhone, iPad, Firefox and Safari</b> can't save files by themselves. Use <b class="ui">Save backup file</b> regularly.</li>
+    <li><b class="ui">Include photos and recorded voices</b> (on): turn off for much smaller files.</li>
+    <li><b class="ui">Include message history and learned words</b> (off): turn on to keep Recent and prediction in backups.</li>
+    <li><b class="ui">Lock backups with a passcode</b> (off): encrypts backup files. Set a passcode of 6 or more characters and <b>write it down</b>: without it, the backups can't be opened. The passcode stays on this device.</li>
+    <li><b class="ui">Back up now</b> makes one straight away. The last automatic backup and any problem are shown underneath.</li>
+  </ul>
+
+  <h3 id="snapshots"><a class="hl" href="#snapshots">Snapshots</a></h3>
+  <p>Snapshots are earlier versions kept inside AACFree on this device, in <b class="ui">Settings → Backup → Automatic snapshots</b>. AACFree keeps:</p>
+  <ul>
+    <li>one a day for the last 10 days (“Automatic daily backup”),</li>
+    <li>the last 10 taken before a big change: a restore, an import, changing the layout or language, deleting a folder, phrase, schedule, profile or library picture, and syncing changes from another device (always when there are conflicts),</li>
+    <li>your last 5 manual snapshots (<b class="ui">Take snapshot now</b>).</li>
+  </ul>
+  <p>Tap <b class="ui">Restore</b> next to a snapshot to go back to it. Your current version is saved as a snapshot first, so you can undo that too. Snapshots live on the device only: if the device is lost or the app removed, they go too. That's why the backup file matters.</p>
+
+  <h3 id="sync"><a class="hl" href="#sync">Sync across devices</a></h3>
+  <p>Sync keeps several devices in step, such as the person's tablet, a parent's phone and a school device, with no account and no AACFree server. Changes go through a file that is encrypted with a passcode only your family knows. Devices combine changes <b>button by button</b>: an edit on the phone and a different edit on the tablet are both kept, and deletions carry over.</p>
+  <figure class="mid">
+    <img src="img/settings-sync.webp" width="860" height="358" alt="The Sync between devices (encrypted) section: Automatic sync with a Set up automatic sync button, and Send or receive a sync file with Send to another device and Receive from another device buttons." loading="lazy" />
+    <figcaption>Settings → Backup → Sync between devices.</figcaption>
+  </figure>
+  <h4 id="auto-sync">Automatic sync <span class="platform">Android app</span> <span class="platform">Chrome / Edge on a computer</span></h4>
+  <ol class="steps">
+    <li>On the first device: <b class="ui">Set up automatic sync…</b> → <b class="ui">Yes: create a new sync file…</b>. Choose a place every device can reach, such as a Google Drive, OneDrive or Dropbox folder.</li>
+    <li>AACFree suggests a strong <b class="ui">Sync passcode</b> (or type your own, at least 8 letters or numbers; <b class="ui">Make a new passcode</b> suggests another). <b>Write it down.</b> Tap <b class="ui">Start syncing</b>.</li>
+    <li>On each other device: <b class="ui">Set up automatic sync…</b> → <b class="ui">No: choose the sync file another device made…</b>, choose the same file, type the passcode and tap <b class="ui">Start syncing</b>.</li>
+  </ol>
+  <figure class="small">
+    <img src="img/sync-setup.webp" width="520" height="316" alt="The Set up automatic sync window: Is this the first device to sync? with the buttons Yes: create a new sync file and No: choose the sync file another device made." loading="lazy" />
+    <figcaption>Setting up automatic sync.</figcaption>
+  </figure>
+  <p>From then on, each device syncs when AACFree opens or comes back to the screen, about 45 seconds after an edit, and every 5 minutes while open. It never interrupts talking. The sync section shows <b class="ui">Last synced</b>, and lets you:</p>
+  <ul>
+    <li><b class="ui">Sync now</b>.</li>
+    <li><b class="ui">Rename</b> this device (<b class="ui">This device's name</b>), shown on other devices, as in “3 changes from Tablet”.</li>
+    <li>See <b class="ui">Recent syncs</b> and <b class="ui">Show conflicts</b>.</li>
+    <li><b class="ui">Turn off automatic sync</b> on this device. Nothing is deleted.</li>
+  </ul>
+  <h4 id="manual-sync">Send and Receive (any device, including iPad, iPhone and Firefox)</h4>
+  <ol class="steps">
+    <li>On the device with the changes: <b class="ui">Send to another device…</b>. Check the passcode (a strong one is suggested), tick the <b class="ui">Profiles to send</b>, and tap <b class="ui">Create sync file</b>.</li>
+    <li>Move the file any way you like: share, email, cloud drive. Tell the passcode separately; don't send it with the file.</li>
+    <li>On the other device: <b class="ui">Receive from another device…</b>, choose the file, type the passcode and tap <b class="ui">Unlock</b>.</li>
+    <li><b class="ui">Ready to sync</b> shows what will change (or “Nothing new for this device.”). Tap <b class="ui">Sync now</b>. A snapshot is saved first.</li>
+  </ol>
+  <p>Passcodes ignore upper and lower case, spaces and dashes when you type them.</p>
+  <h4 id="what-syncs">What syncs, and what stays on each device</h4>
+  <ul>
+    <li><b>Syncs:</b> profiles (boards and every button, the quick bar, phrases and groups, schedules, About me, profile names, and most settings), the symbol library, recent sentences and learned words (combined, not overwritten), and profiles added or deleted.</li>
+    <li><b>Stays on each device:</b> the voice and volume, eye-gaze calibration, the app language, keep screen awake, the pointer mode and whether scanning is on, the settings lock and PIN, the sync passcode and file, backup choices and passcode, and the usage log.</li>
+  </ul>
+  <h4 id="conflicts">Conflicts</h4>
+  <p>If the same thing was changed on two devices before they synced (the same button edited on both, say), the <b>newer change wins</b>. AACFree lists it as a conflict, such as “Button “juice” on Drinks: kept the change from Tablet”, and saves a snapshot first. The other version is in <a href="#snapshots">Automatic snapshots</a> if you need it.</p>
+
+  <h3 id="obf"><a class="hl" href="#obf">Open Board Format (.obz)</a></h3>
+  <p><b class="ui">Settings → Backup → Share boards (Open Board Format)</b>:</p>
+  <ul>
+    <li><b class="ui">Export boards (.obz)</b> saves the open profile's boards for use in other AAC apps such as CoughDrop and Cboard.</li>
+    <li><b class="ui">Import boards…</b> brings in <code>.obz</code> or <code>.obf</code> boards made elsewhere, as a new profile, so nothing is overwritten. See <a href="#move-from-obf">Moving from another AAC app</a>.</li>
+  </ul>
+  <p>Open Board Format carries boards only. Use a backup file to move everything.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 15 -->
+<section id="privacy" data-s>
+  <h2><a class="hl" href="#privacy"><span class="num">17</span>Insights and privacy</a></h2>
+  <p>AACFree has no accounts, no servers, no ads and no analytics. Boards, photos, recordings, settings and logs are stored only on the device.</p>
+  <h3 id="usage-log"><a class="hl" href="#usage-log">The usage log (opt-in)</a></h3>
+  <p>Some families and therapists like to see which words are used, to choose words to model and to celebrate growth. In <a href="#panel-insights">Settings → Insights</a>, turn on <b class="ui">Keep a usage log</b>. It is <b>off by default</b>, kept on this device only, and never uploaded. You can export it as a CSV file for a therapist (<b class="ui">Export CSV for a therapist</b>) or delete it (<b class="ui">Delete log</b>).</p>
+  <p>Remember: the number of taps isn't the same as communication. Turn on <a href="#modelling">Model</a> while you demonstrate, so your taps aren't counted as the person's.</p>
+  <h3 id="learned-words"><a class="hl" href="#learned-words">Learned words</a></h3>
+  <p><b class="ui">Learn from what is typed and said</b> (in <a href="#panel-boards">Boards &amp; words</a>) improves prediction with the person's own words. Off by default, on the device only, and <b class="ui">Forget learned words</b> wipes it.</p>
+  <h3 id="persons-privacy"><a class="hl" href="#persons-privacy">The person's own privacy</a></h3>
+  <ul>
+    <li>The person can delete a recent sentence, clear them all, or turn on <b class="ui">Private for now</b>, without the settings lock. Private for now pauses recent sentences, learned words and the usage log until AACFree restarts.</li>
+    <li>You can keep recent sentences <b class="ui">Always</b>, <b class="ui">Until AACFree restarts</b>, or not at all (<b class="ui">Don't keep</b>).</li>
+    <li>Backups leave out message history unless you include it.</li>
+  </ul>
+  <h3 id="network"><a class="hl" href="#network">When AACFree uses the internet</a></h3>
+  <ul>
+    <li>Searching for more pictures (<b class="ui">More (online)</b>), and downloading a missing picture, contact arasaac.org. The second can be turned off in <a href="#panel-lock">Settings → Lock → Privacy</a>.</li>
+    <li>Some voices are online voices, run by the device's speech service.</li>
+    <li>The web app checks for updates.</li>
+    <li>Sync and cloud backups write only to a file your family chooses, encrypted if you set a passcode.</li>
+  </ul>
+  <p>Never sent anywhere: camera images for head pointer and eye gaze (processed on the device and never saved), pictures you import (words are read on the device), the passcodes, and the PIN. On Android, the system's own Auto Backup may include the app's data in the family's Google account backup; you can turn it off in Android settings. See also the <a href="../privacy.html">privacy policy</a>.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 16 -->
+<section id="tips" data-s>
+  <h2><a class="hl" href="#tips"><span class="num">18</span>Tips from AAC research</a></h2>
+  <p>AACFree was designed from what autistic AAC users, parents and speech therapists say works. These are the habits that help most. They are also in <b class="ui">Settings → Help &amp; tips</b>.</p>
+  <ol>
+    <li><b>Model, model, model.</b> Use the app yourself while you talk: tap “want” and “more” as you say them. People learn AAC the way babies learn speech, by seeing it used for months before they're expected to use it. You don't need to model every word: one or two key words per sentence is plenty. Find word (<b class="ui">Show me</b>) shows where words live.</li>
+    <li><b>Presume competence.</b> Assume the person understands more than they can show, and has things to say. Talk to them as you would to anyone their age.</li>
+    <li><b>Don't test, don't require.</b> Avoid “show me ___” drills, or making the person “use their words” to get things. Offer the device, wait, and respond to any attempt.</li>
+    <li><b>Always available.</b> Keep the device within reach all day: at meals, in the car, outside, at school. It is their voice, so never take it away as a punishment.</li>
+    <li><b>Babbling is learning.</b> Tapping lots of buttons, repeating words or “stimming” on the device is exploration. Respond to it. <b class="ui">Babble mode</b> shows hidden words for exploring.</li>
+    <li><b>Honour “no” and “stop”.</b> When the person uses protest words, respond to them. They are in the quick bar on every board for that reason.</li>
+    <li><b>Grow, don't rearrange.</b> Motor planning means finding a word by where it is, without looking. Moving words breaks that. Start with many words hidden and reveal them over time.</li>
+    <li><b>Core words first.</b> A small set of core words (I, want, more, go, stop, not, help, like) makes up most of what we say. They sit on the Home board; topic words (fringe words) are one level down in folders.</li>
+    <li><b>Scripts are language.</b> For gestalt language processors, save meaningful phrases and scripts in Phrases.</li>
+    <li><b>Have a paper backup.</b> <a href="#print">Print boards</a> for the bath, the pool or a flat battery.</li>
+  </ol>
+  <p>AACFree is not a medical device. Work with a speech-language pathologist (speech and language therapist) to choose and set up AAC.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 17 -->
+<section id="troubleshooting" class="faq" data-s>
+  <h2><a class="hl" href="#troubleshooting"><span class="num">19</span>Troubleshooting and FAQ</a></h2>
+
+  <h3 id="faq-no-sound"><a class="hl" href="#faq-no-sound">There's no sound</a></h3>
+  <p>Check the device volume and silent switch first. Then see <a href="#speech-not-working">If speech doesn't work</a>: AACFree shows a message that says what's wrong, such as no voices installed.</p>
+
+  <h3 id="faq-settings"><a class="hl" href="#faq-settings">I can't open Settings, or I forgot the PIN</a></h3>
+  <p>Press and <b>hold</b> Settings (bottom right) for 2 seconds; a quick tap isn't enough with the hold lock. With a PIN, tap <b class="ui">Forgot PIN?</b> and follow <a href="#forgot-pin">the steps</a>: hold for 10 seconds and type “Reset my settings lock”. Only the PIN is removed.</p>
+
+  <h3 id="faq-lost"><a class="hl" href="#faq-lost">Boards are gone or wrong, and I want them back</a></h3>
+  <p>Try a <a href="#snapshots">snapshot</a> first (<b class="ui">Settings → Backup → Automatic snapshots</b>): there is one for each of the last 10 days and before every big change. Otherwise restore a backup file or an automatic backup. Step by step: <a href="#restoring">Restoring from a backup / moving to a new device</a>.</p>
+
+  <h3 id="faq-new-device"><a class="hl" href="#faq-new-device">How do I move to a new device?</a></h3>
+  <p>Save a backup file on the old device, then tap <b class="ui">I have a backup</b> on the new one. Or join sync. See <a href="#restoring">Restoring from a backup / moving to a new device</a>.</p>
+
+  <h3 id="faq-other-app"><a class="hl" href="#faq-other-app">How do I bring boards from another AAC app?</a></h3>
+  <p>Take a screenshot of each board and import it, or import an Open Board Format file. See <a href="#moving-from-another-app">Moving from another AAC app</a>.</p>
+
+  <h3 id="faq-ipad"><a class="hl" href="#faq-ipad">My iPad or iPhone lost everything</a></h3>
+  <p>Safari can clear a website's data after about 7 days without a visit. Always open AACFree from its <a href="#iphone-ipad">home-screen icon</a>, which keeps its data, and save a backup file regularly (iPad and iPhone can't do automatic backups). To get boards back, <a href="#restore-file">restore a backup file</a>, or receive a sync file from another device.</p>
+
+  <h3 id="faq-offline"><a class="hl" href="#faq-offline">It isn't working offline</a></h3>
+  <p>Open AACFree once on Wi-Fi from its home-screen icon and leave it open a minute or two, so it can save everything. Then <a href="#offline">test with airplane mode</a>. If you only ever opened it in a browser tab in private mode, it can't save itself: install it properly. The Android app always works offline.</p>
+
+  <h3 id="faq-eye-gaze"><a class="hl" href="#faq-eye-gaze">Eye gaze won't calibrate</a></h3>
+  <ul>
+    <li>Light the face from the front; avoid a bright window behind the person.</li>
+    <li>Sit about an arm's length away, with the device steady on a stand.</li>
+    <li>Keep the head still and move only the eyes; look right at each dot until it fills.</li>
+    <li>Glasses with glare and very low light make it harder.</li>
+    <li>Use bigger buttons (Big buttons or Phone core). Webcam eye gaze is experimental and approximate; a dedicated eye tracker with <a href="#dwell">Dwell</a> is far more accurate. A <a href="#head-pointer">head pointer</a> or <a href="#scanning">switches</a> may suit better.</li>
+    <li>If the camera stops, tap <b class="ui">Restart camera</b>.</li>
+  </ul>
+
+  <h3 id="faq-update"><a class="hl" href="#faq-update">How do I update?</a></h3>
+  <p>The web app updates itself. For the Android app, install the new <a href="../download/aacfree.apk">aacfree.apk</a> over the old one, without uninstalling. See <a href="#updating">Updates</a>.</p>
+
+  <h3 id="faq-banner"><a class="hl" href="#faq-banner">A yellow message says my boards couldn't be opened, or changes aren't being saved</a></h3>
+  <ul>
+    <li><b>“Your saved boards could not be opened. A copy was kept on this device.”</b> Nothing is overwritten while this shows. Restore a backup in <b class="ui">Settings → Backup</b>, or a snapshot.</li>
+    <li><b>“Your boards were saved by a newer version of AACFree.”</b> Update AACFree (for example, an older APK on a second device).</li>
+    <li><b>“Changes aren't being saved (device storage may be full).”</b> Tap <b class="ui">Save a backup file now</b>, then free up space on the device.</li>
+  </ul>
+
+  <h3 id="faq-leaves"><a class="hl" href="#faq-leaves">The person keeps leaving the app</a></h3>
+  <p>On Android, turn on App pinning (<a href="#panel-lock">Settings → Lock → Stay in the app</a>). On iPad and iPhone, use iOS Guided Access (Settings → Accessibility → Guided Access).</p>
+
+  <h3 id="faq-scanning"><a class="hl" href="#faq-scanning">Scanning won't stop, or I can't reach Settings while scanning</a></h3>
+  <p>Hold the Settings button for 2 seconds. Settings isn't scanned, so you can turn off <b class="ui">Turn on scanning</b> in Access.</p>
+
+  <h3 id="faq-small"><a class="hl" href="#faq-small">Buttons are too small, or the board has pages</a></h3>
+  <p>Use a layout with fewer buttons, reduce <b class="ui">Text size</b> or <b class="ui">Space between buttons</b>, or turn the tablet sideways. Pages are on purpose: they keep every word in a fixed place instead of scrolling.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 18 -->
+<section id="glossary" data-s>
+  <h2><a class="hl" href="#glossary"><span class="num">20</span>Glossary</a></h2>
+  <dl class="gloss">
+    <dt id="g-aac">AAC</dt><dd>Augmentative and alternative communication: ways of communicating that add to speech or replace it, from picture boards to apps like AACFree.</dd>
+    <dt id="g-apk">APK</dt><dd>An Android app file. AACFree's is <code>aacfree.apk</code>.</dd>
+    <dt id="g-auditory">Auditory scanning</dt><dd>Scanning where each choice is spoken as it is highlighted.</dd>
+    <dt id="g-babble">Babble mode</dt><dd>Shows every hidden word so the person can explore all the vocabulary.</dd>
+    <dt id="g-core">Core words</dt><dd>The small set of words used most often in any conversation (I, want, go, more, not, help). They sit on the Home board.</dd>
+    <dt id="g-dwell">Dwell</dt><dd>Selecting by resting a pointer (mouse, head or eyes) on a button for a set time.</dd>
+    <dt id="g-fitzgerald">Modified Fitzgerald Key</dt><dd>A colour code for word types: yellow for people, green for actions, blue for describing words, orange for things, and so on.</dd>
+    <dt id="g-fringe">Fringe words</dt><dd>Topic words, like foods or places, used less often. They live in folders.</dd>
+    <dt id="g-gestalt">Gestalt language processing</dt><dd>Learning language in whole chunks or scripts (often from films or songs) before breaking them into single words.</dd>
+    <dt id="g-hidden">Hiding (masking)</dt><dd>Making a word invisible while it keeps its place, to grow vocabulary without moving anything.</dd>
+    <dt id="g-modelling">Modelling (aided language input)</dt><dd>Using the person's AAC yourself while you talk to them, so they see how it is used.</dd>
+    <dt id="g-motor">Motor planning</dt><dd>Finding a word by where it is, by feel and habit, without searching. It needs words that never move.</dd>
+    <dt id="g-obf">Open Board Format (OBF / OBZ)</dt><dd>A shared file format for AAC boards. <code>.obf</code> is one board; <code>.obz</code> is a set with pictures.</dd>
+    <dt id="g-partner">Communication partner</dt><dd>Anyone talking with the AAC user.</dd>
+    <dt id="g-presume">Presuming competence</dt><dd>Assuming the person understands and has things to say, even if they can't show it yet.</dd>
+    <dt id="g-profile">Profile</dt><dd>One person's boards, phrases and settings. A device can hold several.</dd>
+    <dt id="g-pwa">Web app (PWA)</dt><dd>A website that installs to the home screen and works offline like an app.</dd>
+    <dt id="g-quick">Quick bar</dt><dd>The row of always-available words (yes, no, stop, help…) under the message bar.</dd>
+    <dt id="g-scanning">Scanning</dt><dd>A highlight moves through the choices; the person presses a switch to pick one.</dd>
+    <dt id="g-snapshot">Snapshot</dt><dd>An earlier version of everything, kept on the device, that you can go back to.</dd>
+    <dt id="g-switch">Switch</dt><dd>A large button pressed with any body part, used instead of touching the screen.</dd>
+    <dt id="g-sync">Sync file</dt><dd>The encrypted file that carries changes between devices.</dd>
+  </dl>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+<!-- ============================================================ 19 -->
+<section id="credits" data-s>
+  <h2><a class="hl" href="#credits"><span class="num">21</span>Credits and licences</a></h2>
+  <ul>
+    <li><b>AACFree</b> is free and open source under the <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL-3.0-or-later</a>. Source code: <a href="https://github.com/edrock200/caleb">github.com/edrock200/caleb</a>. Suggestions and bug reports are welcome there.</li>
+    <li><b>Pictograms:</b> Sergio Palao. Origin: <a href="https://arasaac.org">ARASAAC</a>, Government of Aragón (Spain). Licence: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>. Because the pictograms are non-commercial, AACFree must stay free.</li>
+    <li><b>Font:</b> <a href="https://brailleinstitute.org/freefont">Atkinson Hyperlegible</a> by the Braille Institute (SIL Open Font License 1.1).</li>
+    <li><b>Text recognition</b> for picture import: <a href="https://github.com/naptha/tesseract.js">tesseract.js</a> and tesseract.js-core (Apache-2.0), with Tesseract language data (MIT) for English, Spanish, French and Portuguese.</li>
+    <li><b>Head and eye tracking:</b> Google MediaPipe Tasks Vision (Apache-2.0), running on the device.</li>
+  </ul>
+  <p>AACFree is not a medical device. Please work with a speech-language pathologist when choosing and setting up AAC.</p>
+  <a class="top" href="#top">Back to top ↑</a>
+</section>
+
+      </main>
+    </div>
+
+    <footer class="site">
+      <nav aria-label="Footer">
+        <a href="../">Home</a>
+        <a href="../app/">Open the web app</a>
+        <a href="../download/aacfree.apk">Download for Android</a>
+        <a href="./">User guide</a>
+        <a href="../privacy.html">Privacy policy</a>
+        <a href="#top">Back to top ↑</a>
+      </nav>
+      AACFree is free and open source (<a href="https://github.com/edrock200/caleb">GNU AGPL-3.0</a>). Pictograms by Sergio Palao, from <a href="https://arasaac.org">ARASAAC</a> (Government of Aragón), licensed CC BY-NC-SA 4.0.
+      Font: Atkinson Hyperlegible by the Braille Institute. AACFree is not a medical device. Work with your speech-language pathologist to choose AAC.
+    </footer>
+  </div>
+
+  <script>
+  (function () {
+    var toc = document.getElementById('toc');
+    var narrow = window.matchMedia('(max-width: 960px)');
+    // On phones the contents start folded, and fold again after a jump.
+    if (narrow.matches) toc.open = false;
+    toc.addEventListener('click', function (e) {
+      if (e.target.closest('a') && narrow.matches) toc.open = false;
+    });
+
+    var sections = Array.prototype.slice.call(document.querySelectorAll('main > section[data-s]'));
+    var tocItems = Array.prototype.slice.call(document.querySelectorAll('.toc nav > ol > li'));
+    var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+
+    // Highlight the section being read, and open its sub-list.
+    function mark(id) {
+      tocLinks.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + id); });
+      tocItems.forEach(function (li) {
+        var a = li.querySelector('a');
+        var sec = document.getElementById(a.getAttribute('href').slice(1));
+        li.classList.toggle('open', !!sec && (sec.id === id || !!sec.querySelector('[id="' + id + '"]')));
+      });
+    }
+    var heads = Array.prototype.slice.call(document.querySelectorAll('main section[data-s], main h3[id]'));
+    if ('IntersectionObserver' in window) {
+      var current = '';
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) current = en.target.id; });
+        if (current) mark(current);
+      }, { rootMargin: '0px 0px -75% 0px' });
+      heads.forEach(function (h) { io.observe(h); });
+    }
+
+    // Search: shows only the sections and topics that mention every word typed.
+    var box = document.getElementById('search');
+    var q = document.getElementById('q');
+    var out = document.getElementById('q-count');
+    box.hidden = false;
+    function blocks(sec) {
+      // A section's topics: each h3 with the content that follows it.
+      var groups = [], cur = null;
+      Array.prototype.forEach.call(sec.children, function (el) {
+        if (el.tagName === 'H3') { cur = [el]; groups.push(cur); }
+        else if (cur && !el.classList.contains('top')) cur.push(el);
+      });
+      return groups;
+    }
+    var data = sections.map(function (s) { return { s: s, groups: blocks(s) }; });
+    function text(els) { return els.map(function (e) { return e.textContent; }).join(' ').toLowerCase(); }
+    // A search word matches the start of a word in the text ("pin" finds "PIN" and "pinning", not "spinning").
+    function esc(w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+    function has(hay, w) { return new RegExp('(^|[^a-z0-9\u00c0-\u024f])' + esc(w)).test(hay); }
+    q.addEventListener('input', function () {
+      var words = q.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      var hits = 0;
+      toc.classList.toggle('searching', words.length > 0);
+      data.forEach(function (d, i) {
+        var all = d.s.textContent.toLowerCase();
+        var match = words.every(function (w) { return has(all, w); });
+        d.s.classList.toggle('hide', !match);
+        if (tocItems[i]) tocItems[i].classList.toggle('hide', !match);
+        var head = d.s.querySelector('h2').textContent.toLowerCase();
+        var whole = words.every(function (w) { return has(head, w); });
+        d.groups.forEach(function (g) {
+          var show = !words.length || !match || whole || words.every(function (w) { return has(text(g), w); });
+          g.forEach(function (el) { el.classList.toggle('hide', !show); });
+          var link = document.querySelector('.toc a[href="#' + g[0].id + '"]');
+          if (link) link.parentNode.classList.toggle('hide', !show);
+          if (show && match && words.length) hits++;
+        });
+        if (match && !d.groups.length && words.length) hits++;
+      });
+      out.textContent = !words.length ? '' : hits ? hits + (hits === 1 ? ' topic matches.' : ' topics match.') : 'Nothing found. Try another word.';
+    });
+  })();
+  </script>
+</body>
+</html>

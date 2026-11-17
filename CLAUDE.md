@@ -32,7 +32,10 @@ node scripts/e2e/screens.mjs <url> <outdir>   # Playwright smoke test + screensh
 node scripts/e2e/phone-layouts.mjs <url> <outdir>   # every layout at 320/360/412 px: cut-off labels, picture size, quick bar
 npm run e2e          # functional e2e (editing, undo, backup/OBF round-trip, scanning); needs `npx vite preview --port 4173`
 npm run android:apk  # build web, cap sync, gradle assembleRelease (needs Android SDK, see skill)
+npm run guide:shots  # regenerate the user guide's screenshots (site/guide/img); needs `npx vite preview --port 4173` and NODE_PATH=/opt/node22/lib/node_modules
 ```
+
+**User guide:** `site/guide/index.html` (served at https://aacappfree.com/guide/, linked from Settings → Help & tips) documents every screen, setting and default. When you add, rename or remove a feature, setting, label or default, update the guide in the same change, and re-run `npm run guide:shots` if a screenshot changes.
 
 ## Layout of the code
 - `src/types.ts`: the data model (Profile → boards → cells of AACButton, plus Settings)

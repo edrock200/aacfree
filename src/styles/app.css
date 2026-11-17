@@ -586,6 +586,7 @@ small { font-size: 0.85em; }
 .help-list li { margin-bottom: 10px; line-height: 1.45; }
 .howto dt { font-weight: 700; margin-top: 10px; }
 .howto dd { margin: 2px 0 0; color: var(--muted); line-height: 1.45; }
+.guide-link { text-decoration: none; align-self: flex-start; }
 
 .lockgate { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .lockgate p { font-size: 1.3rem; margin: 0; }

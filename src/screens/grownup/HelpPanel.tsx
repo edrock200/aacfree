@@ -1,9 +1,16 @@
 import { Section } from './controls';
+import { IconHelp } from '../../components/Icons';
 import { t } from '../../i18n';
+
+/** The online user guide (opens in a new tab, or the system browser in the Android app). */
+export const GUIDE_URL = 'https://aacappfree.com/guide/';
 
 export function HelpPanel() {
   return (
     <>
+      <Section title={t('Full user guide')} intro={t('Step-by-step help for every screen and setting, with pictures. It opens in your web browser.')}>
+        <a className="btn primary guide-link" href={GUIDE_URL} target="_blank" rel="noopener noreferrer"><IconHelp size={20} /> {t('Full user guide')}</a>
+      </Section>
       <Section title={t('Getting started')}>
         <ol className="help-list">
           <li><b>{t('Model, model, model.')}</b> {t("Use the app yourself while you talk: tap “want” and “more” as you say them. People learn AAC the way babies learn speech, by seeing it used for months before they're expected to use it. Use Find word (🔍) to show where words live.")}</li>
