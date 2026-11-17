@@ -1,4 +1,4 @@
-package org.calebaac.app;
+package com.aacappfree.app;
 
 import android.app.Activity;
 import android.view.WindowManager;
@@ -11,7 +11,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 /**
  * "Keep screen awake" for the Android app. The WebView has no Screen Wake Lock
  * API, and switch or gaze users never touch the screen, so without this the
- * tablet goes to sleep mid-use. FLAG_KEEP_SCREEN_ON applies only while Caleb's
+ * tablet goes to sleep mid-use. FLAG_KEEP_SCREEN_ON applies only while AACFree's
  * window is visible and needs no permission.
  */
 @CapacitorPlugin(name = "AACFreeScreen")

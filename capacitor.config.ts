@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'org.calebaac.app',
+  appId: 'com.aacappfree.app',
   appName: 'AACFree',
   webDir: 'dist',
   // The app is served from https://localhost (Capacitor's default androidScheme 'https').
@@ -9,6 +9,16 @@ const config: CapacitorConfig = {
   // (IndexedDB), and it is 'self' in the Content-Security-Policy in index.html.
   android: {
     backgroundColor: '#f6f3ee',
+  },
+  // iOS serves the app from capacitor://localhost (the default iosScheme). Don't change it either:
+  // that origin owns the saved boards on iPhone and iPad.
+  ios: {
+    backgroundColor: '#f6f3ee',
+    // The page never scrolls (only content areas do), so stop the whole web view from bouncing.
+    scrollEnabled: false,
+    // A long press is how grown-ups open Settings; no link previews or callouts.
+    allowsLinkPreview: false,
+    contentInset: 'never',
   },
   plugins: {
     SystemBars: {

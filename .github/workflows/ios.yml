@@ -1,0 +1,74 @@
+name: iOS app
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Sign the app and upload it to App Store Connect / TestFlight (needs the App Store secrets; main only)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Third-party actions are pinned to commit SHAs (the tag is in the comment).
+jobs:
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build && npx cap sync ios
+      # Every run: check that the native project and its Swift plugins compile.
+      - name: Build for the iOS Simulator (no signing)
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/sim CODE_SIGNING_ALLOWED=NO build | tail -n 40
+      # Upload: add repository secrets APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID and ASC_KEY_P8
+      # (the contents of the App Store Connect API key's .p8 file, Admin access). See docs/app-store.md.
+      - name: Archive and upload to App Store Connect
+        if: github.event_name == 'workflow_dispatch' && inputs.upload
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -o pipefail
+          if [[ "$GITHUB_REF" != refs/heads/main ]]; then echo "::error::Upload from main only."; exit 1; fi
+          for v in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do
+            if [ -z "${!v}" ]; then echo "::error::Secret $v is not set. See docs/app-store.md."; exit 1; fi
+          done
+          VERSION=$(node -p "require('./package.json').version")
+          CODE=$(node -p "const [a,b,c]=require('./package.json').version.split('.').map(Number); a*10000+b*100+c")
+          BUILD="$CODE.$GITHUB_RUN_NUMBER"
+          KEY="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          umask 077
+          printf '%s\n' "$ASC_KEY_P8" > "$KEY"
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath build/AACFree.xcarchive archive \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" "${AUTH[@]}" | tail -n 40
+          cat > build/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath build/AACFree.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/export "${AUTH[@]}" | tail -n 40
+          rm -f "$KEY"
+          echo "::notice::Uploaded AACFree $VERSION ($BUILD). It appears in App Store Connect → TestFlight after processing."

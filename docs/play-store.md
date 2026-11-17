@@ -14,7 +14,7 @@ Everything that doesn't need the developer account is already done and lives in 
 | Privacy policy | `site/privacy.html` → `https://aacappfree.com/privacy.html` |
 | Screenshot generator | `scripts/store-screenshots.cjs` (see [Regenerating the graphics](#regenerating-the-graphics)) |
 
-Package name: **`org.calebaac.app`**. It can never change after the first upload.
+Package name: **`com.aacappfree.app`**. It can never change after the first upload.
 
 ---
 
@@ -183,7 +183,7 @@ AACFree collects and shares nothing. Suggested answers:
 ### Optional: automate uploads with fastlane
 The metadata is already in fastlane `supply` layout. To push text, graphics and AABs from the command line later, create a Google Cloud service account with Play Console access (Setup → API access), save its JSON key **outside git**, and run:
 ```bash
-fastlane supply --package_name org.calebaac.app --json_key /path/to/key.json \
+fastlane supply --package_name com.aacappfree.app --json_key /path/to/key.json \
   --aab android/app/build/outputs/bundle/release/app-release.aab --track internal
 ```
 This is optional. Copying and pasting in the Console works fine.

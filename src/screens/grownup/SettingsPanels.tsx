@@ -1,3 +1,4 @@
+import { isIOSDevice } from '../../lib/platform';
 import { useEffect, useRef, useState } from 'react';
 import { useStore, useProfile } from '../../store';
 import { listVoices, speak, type VoiceInfo } from '../../lib/tts';
@@ -37,7 +38,9 @@ export function SpeechPanel() {
 
   return (
     <>
-      <Section title={t('Voice')} intro={t('Pick a voice that sounds right to the person, and let them choose if they can. Voices come from the device; on Android you can install more in Settings → Text-to-speech.')}>
+      <Section title={t('Voice')} intro={isIOSDevice()
+        ? t('Pick a voice that sounds right to the person, and let them choose if they can. Voices come from the device; on iPad and iPhone you can download more in Settings → Accessibility → Spoken Content → Voices.')
+        : t('Pick a voice that sounds right to the person, and let them choose if they can. Voices come from the device; on Android you can install more in Settings → Text-to-speech.')}>
         <div className="setting">
           <span className="setting-text"><b>{t('Language filter')}</b></span>
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
@@ -65,7 +68,7 @@ export function SpeechPanel() {
               <b>{v.name}</b><small>{v.lang}{v.local ? '' : ' · online'}</small>
             </button>
           ))}
-          {voices.length === 0 && <p className="muted">{t('No voices found. On Android, install “Speech Services by Google” from the Play Store.')}</p>}
+          {voices.length === 0 && <p className="muted">{isIOSDevice() ? t('No voices found. On iPad and iPhone, download one in Settings → Accessibility → Spoken Content → Voices.') : t('No voices found. On Android, install “Speech Services by Google” from the Play Store.')}</p>}
         </div>
         <Slider label={t('Speed')} value={s.rate} min={0.5} max={1.8} step={0.05} onChange={(rate) => updateSettings({ rate })} format={(v) => `${v.toFixed(2)}×`} />
         <Slider label={t('Pitch')} value={s.pitch} min={0.5} max={1.8} step={0.05} onChange={(pitch) => updateSettings({ pitch })} format={(v) => v.toFixed(2)} />

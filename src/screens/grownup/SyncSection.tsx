@@ -1,3 +1,4 @@
+import { isAndroidApp, isIOSApp } from '../../lib/platform';
 import { useEffect, useState } from 'react';
 import { applySyncedData, useStore, useProfile } from '../../store';
 import { Choice, Section, Slider, Toggle } from './controls';
@@ -54,7 +55,9 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
 
   const canAuto = native || folderPickerSupported();
   return (
-    <Section title={t('Automatic backup')} intro={native
+    <Section title={t('Automatic backup')} intro={isIOSApp()
+      ? t('AACFree saves backup files in its own folder in the Files app (On My iPad or On My iPhone → AACFree). Deleting the app deletes them too, so also keep a copy in iCloud Drive, Google Drive, OneDrive or Dropbox.')
+      : native
       ? t('AACFree saves backup files to Documents/AACFree on this device. They stay there even if the app is removed. You can also keep a copy in Google Drive, OneDrive, Dropbox or on an SD card.')
       : canAuto
         ? t('AACFree saves backup files to a folder you choose (for example a Google Drive, Dropbox or OneDrive folder on this computer).')
@@ -67,7 +70,7 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
           <Slider label={t('Copies to keep')} hint={t('Older copies are deleted automatically.')} value={prefs.keep} min={1} max={12} onChange={(keep) => update({ keep })} />
           <div className="setting">
             <span className="setting-text"><b>{t('Where')}</b>
-              <small>{native ? 'Documents/AACFree' : folder ? `${t('Folder')}: ${folder}` : t('No folder chosen yet.')}</small>
+              <small>{isIOSApp() ? t('Files app → AACFree') : native ? 'Documents/AACFree' : folder ? `${t('Folder')}: ${folder}` : t('No folder chosen yet.')}</small>
               {native && <small>{prefs.cloudName ? `${t('Cloud copy')}: ${prefs.cloudName}` : t('No cloud copy yet.')}</small>}
             </span>
             {!native && <button className="btn" onClick={async () => { const n = await chooseBackupFolder().catch(() => null); if (n) { setFolder(n); now(); } }}>{folder ? t('Change folder') : t('Choose folder')}</button>}
@@ -112,7 +115,7 @@ export function AutoBackupSection({ onRestore }: { onRestore: (text: string, nam
             ))}
             {saved.length === 0 && <li className="muted">{t('No automatic backups found.')}</li>}
           </ul>
-          {native && !saved.some((b) => b.source === 'device') && (
+          {isAndroidApp() && !saved.some((b) => b.source === 'device') && (
             <>
               <p className="muted small">{t('After AACFree is reinstalled, Android may hide the backups the old app saved. They are still in Documents/AACFree: choose one with the file picker.')}</p>
               <button className="btn" onClick={async () => { const text = await openCloudBackup().catch(() => null); if (text) { setSaved(null); onRestore(text, t('Backup file')); } }}>{t('Choose a backup file…')}</button>

@@ -72,8 +72,10 @@ jobs:
             umask 077
             echo "$KS_B64" | base64 -d > signing/release.jks
             printf 'storeFile=signing/release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' "$KS_PASS" "$KEY_ALIAS" "$KEY_PASS" > keystore.properties
-            ./gradlew assembleRelease --no-daemon
+            # The app bundle (.aab) is what Google Play takes; the APK is for direct installs.
+            ./gradlew assembleRelease bundleRelease --no-daemon
             rm -f signing/release.jks keystore.properties
+            cp app/build/outputs/bundle/release/app-release.aab "../aacfree-v$VERSION.aab"
             CERT=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
             if [ "$CERT" != "$RELEASE_CERT_SHA256" ]; then
               echo "::error::The keystore in ANDROID_KEYSTORE_BASE64 is not AACFree's release key. Its APKs could not update existing installs."
@@ -118,6 +120,12 @@ jobs:
           path: |
             aacfree-v*.apk
             aacfree.apk
+      # For Google Play: download it from this run's summary (Artifacts) and upload it in the Play Console.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: aacfree-play-bundle
+          path: aacfree-v*.aab
+          if-no-files-found: ignore
 
   release:
     needs: apk

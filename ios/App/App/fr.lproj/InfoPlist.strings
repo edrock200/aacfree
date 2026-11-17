@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "AACFree utilise l'appareil photo pour prendre des photos pour les boutons et, si tu l'actives, pour pointer avec la tête ou les yeux. Les images restent sur cet appareil.";
+"NSMicrophoneUsageDescription" = "AACFree utilise le micro pour enregistrer une voix pour un bouton. Les enregistrements restent sur cet appareil.";
+"NSPhotoLibraryUsageDescription" = "AACFree te permet de choisir une photo pour un bouton ou l'image d'un tableau à importer. Les photos restent sur cet appareil.";
+"NSPhotoLibraryAddUsageDescription" = "AACFree peut enregistrer dans tes photos une image que tu partages depuis l'app.";

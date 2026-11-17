@@ -1,3 +1,4 @@
+import { isIOSDevice } from '../../lib/platform';
 import { useState } from 'react';
 import { useStore, useProfile, useLock } from '../../store';
 import { Section, Choice, Toggle } from './controls';
@@ -89,9 +90,15 @@ export function SecurityPanel() {
       <Section title={t('Privacy')} intro={t('AACFree has no accounts and never sends anything about the person. All pictures come with the app. If one is missing (for example on imported boards), AACFree can fetch it from arasaac.org, which then sees a request from this device. Searching for new symbols also uses arasaac.org.')}>
         <Toggle label={t('Download missing pictures from ARASAAC')} checked={settings.downloadSymbols !== false} onChange={(downloadSymbols) => updateSettings({ downloadSymbols })} />
       </Section>
+      {isIOSDevice() ? (
+        <Section title={t('Stay in the app (iPad and iPhone)')} intro={t('To stop the person leaving AACFree by accident, turn on Guided Access: Settings → Accessibility → Guided Access, and set a passcode. Then open AACFree and triple-click the side or Home button to start it. Triple-click again and enter the passcode to end it.')}>
+          <span />
+        </Section>
+      ) : (
       <Section title={t('Stay in the app (Android)')} intro={t("To stop the person leaving AACFree by accident, turn on Android “App pinning”: Settings → Security → App pinning. Then open Recent apps, tap AACFree's icon and choose Pin. The Back button inside AACFree never closes the app.")}>
         <span />
       </Section>
+      )}
     </>
   );
 }

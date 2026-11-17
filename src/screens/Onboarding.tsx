@@ -1,3 +1,4 @@
+import { isAndroidApp } from '../lib/platform';
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import { LAYOUTS, LayoutThumb } from './grownup/VocabPanel';
@@ -107,6 +108,9 @@ export function Onboarding() {
                 </div>
               )}
               {restoreError && <p className="error small" role="alert">{restoreError}</p>}
+              {isAndroidApp() && locked === null && (
+                <p className="muted small">{t('Used AACFree on this device before version 0.8? Your boards are still in the older app. Open it, go to Settings → Backup → Save backup file, then tap “I have a backup” here.')}</p>
+              )}
             </div>
           </>
         )}
