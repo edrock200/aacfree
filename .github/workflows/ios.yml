@@ -31,6 +31,38 @@ jobs:
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/sim CODE_SIGNING_ALLOWED=NO build | tail -n 40
+      # Start the app on an iPad simulator: it must keep running, draw the first screen and log no
+      # JavaScript errors (Capacitor forwards the web console to the system log in Debug builds).
+      - name: Launch in the iPad Simulator
+        run: |
+          DEV=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in sorted(d.items(), reverse=True) if 'iOS' in k for x in v if x['name'].startswith('iPad')))")
+          xcrun simctl boot "$DEV"
+          xcrun simctl bootstatus "$DEV" -b > /dev/null
+          xcrun simctl install "$DEV" build/sim/Build/Products/Debug-iphonesimulator/App.app
+          xcrun simctl launch "$DEV" com.aacappfree.app
+          sleep 25
+          xcrun simctl io "$DEV" screenshot build/ipad.png
+          xcrun simctl spawn "$DEV" log show --last 2m --style compact --predicate 'process == "App"' > build/app.log || true
+          grep -E "⚡️|error|Error" build/app.log | grep -v "Load failed for asset" | tail -n 40 || true
+          if ! xcrun simctl spawn "$DEV" launchctl list | grep -q com.aacappfree.app; then echo "::error::The app is not running (it crashed)."; exit 1; fi
+          python3 -m pip install --quiet --user pillow
+          python3 - <<'PY'
+          from PIL import Image
+          im = Image.open('build/ipad.png').convert('RGB').resize((200, 150))
+          colours = len(set(im.getdata()))
+          print(f'Screenshot {Image.open("build/ipad.png").size}, {colours} colours')
+          if colours < 20:
+              raise SystemExit('::error::The first screen looks blank.')
+          PY
+          if grep -q "⚡️  \[error\]" build/app.log; then echo "::error::JavaScript errors in the app (see above)."; exit 1; fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: ios-simulator
+          path: |
+            build/ipad.png
+            build/app.log
+          if-no-files-found: ignore
       # Upload: add repository secrets APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID and ASC_KEY_P8
       # (the contents of the App Store Connect API key's .p8 file, Admin access). See docs/app-store.md.
       - name: Archive and upload to App Store Connect
