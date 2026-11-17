@@ -9,7 +9,7 @@
  * do on a real device (headless browsers have no voices) and no error toasts appear.
  */
 import { createRequire } from 'node:module';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -167,10 +167,10 @@ const toggle = (page, label) => page.click(`.setting:has-text("${label}") .switc
   await page.click('.tool-tile[aria-label="First / Then"]'); await pause(page);
   await page.click('.ft-slot.first');
   await page.fill('.modal input', 'bath'); await pause(page);
-  await page.click('.modal .sym-opt:not(.text-only) >> nth=0'); await pause(page);
+  await page.click('.modal .sym-opt[aria-label="bath"]'); await pause(page);
   await page.click('.ft-slot.then');
-  await page.fill('.modal input', 'story'); await pause(page);
-  await page.click('.modal .sym-opt:not(.text-only) >> nth=0'); await pause(page);
+  await page.fill('.modal input', 'play'); await pause(page);
+  await page.click('.modal .sym-opt[aria-label="play"]'); await pause(page);
   await shot(page, 'tool-firstthen');
   await page.click('.tool-head button:has-text("Tools")');
   await page.click('.tool-tile[aria-label="My voice"]'); await pause(page);
@@ -200,6 +200,17 @@ const toggle = (page, label) => page.click(`.setting:has-text("${label}") .switc
   await panel(page, 'Backup');
   await shot(page, 'settings-backup');
   await shot(section(page, 'Sync between devices (encrypted)'), 'settings-sync');
+  // Save a backup file, then start restoring it (and cancel) to show the confirmation.
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.click('button:has-text("Save backup file")')]);
+  const backupPath = await dl.path();
+  await pause(page, 2500);
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('button:has-text("Restore from file…")')]);
+  await chooser.setFiles({ name: dl.suggestedFilename(), mimeType: 'application/json', buffer: await readFile(backupPath) });
+  await page.waitForSelector('.modal'); await pause(page);
+  await shot(page.locator('.modal'), 'restore-confirm');
+  await closeModal(page);
+  await page.click('button:has-text("Take snapshot now")'); await pause(page, 2600);
+  await shot(section(page, 'Automatic snapshots'), 'settings-snapshots');
   const setup = page.locator('button:has-text("Set up automatic sync…")');
   if (await setup.count()) {
     await setup.click(); await pause(page);
@@ -315,6 +326,14 @@ const toggle = (page, label) => page.click(`.setting:has-text("${label}") .switc
 }
 
 await browser.close();
+
+// Keep the width and height attributes in the guide in step with the new images (no layout shift).
+const guidePath = join(root, 'site/guide/index.html');
+const sizes = Object.fromEntries(made.map((m) => [m.name, m]));
+const guide = (await readFile(guidePath, 'utf8')).replace(/<img src="img\/([\w-]+)\.webp"((?: width="\d+" height="\d+")?)/g, (all, name) =>
+  sizes[name] ? `<img src="img/${name}.webp" width="${sizes[name].width}" height="${sizes[name].height}"` : all);
+await writeFile(guidePath, guide);
+
 const total = made.reduce((n, x) => n + x.kb, 0);
 for (const m of made) console.log(`${m.name}.webp  ${m.width}×${m.height}  ${m.kb} KB`);
 console.log(`${made.length} images, ${total} KB in total${failed ? `, ${failed} failed` : ''}`);
