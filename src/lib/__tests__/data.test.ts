@@ -284,8 +284,8 @@ describe('locks and privacy in files', () => {
 
   it('readBackup refuses junk with a friendly message', async () => {
     await expect(readBackup('not json')).rejects.toThrow(/damaged/);
-    await expect(readBackup('{"app":"caleb","data":{"profiles":"x"}}')).rejects.toThrow(/not a AACFree backup/);
-    await expect(readBackup('null')).rejects.toThrow(/not a AACFree backup/);
+    await expect(readBackup('{"app":"caleb","data":{"profiles":"x"}}')).rejects.toThrow(/not an AACFree backup/);
+    await expect(readBackup('null')).rejects.toThrow(/not an AACFree backup/);
   });
 });
 

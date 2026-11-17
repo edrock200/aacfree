@@ -78,7 +78,7 @@ export const TalkScreen = memo(function TalkScreen() {
       pp.boards[board.id].cells[editing.index] = nb;
     }, { undoable: true });
     setEditing(null);
-    showToast(newBoard ? 'Folder created — tap it to add words' : 'Saved');
+    showToast(newBoard ? t('Folder created — tap it to add words') : t('Saved'));
   };
 
   const deleteButton = () => {
@@ -225,7 +225,7 @@ function BoardSettings({ board, isRoot, onClose }: { board: Board; isRoot: boole
         {stepper(t('Columns'), cols, setCols, 1, 12)}
         {stepper(t('Rows'), rows, setRows, 1, 14)}
       </div>
-      {lost > 0 && <p className="error">{lost} button(s) would be removed by shrinking. Consider hiding them instead.</p>}
+      {lost > 0 && <p className="error">{t('{n} button(s) would be removed by shrinking. Consider hiding them instead.', { n: lost })}</p>}
       <p className="muted small">{t('Buttons keep their row and column when you resize, so the motor plan stays the same.')}</p>
     </Modal>
     {confirmDelete && (

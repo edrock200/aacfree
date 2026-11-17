@@ -22,7 +22,7 @@ import { t, type Lang } from '../i18n';
 
 /**
  * "Import a board from a picture": a photo or screenshot of a board in another AAC app (or on
- * paper) becomes a AACFree board with the same grid and the same word in every position, so the
+ * paper) becomes an AACFree board with the same grid and the same word in every position, so the
  * person's motor plan carries over. Everything happens on this device: the grid is found by
  * src/lib/boardimport.ts and the words are read by on-device OCR (src/lib/ocr.ts, loaded only here).
  */
@@ -412,7 +412,7 @@ export function BoardImport({ parentBoardId, onClose, onCreated }: {
                 <select value={parent} onChange={(e) => setParent(e.target.value)}>
                   {boards.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
-                <small>{t('The folder goes in the first empty square. If the board is full, a new row is added at the bottom. Nothing else moves.')}</small>
+                <small>{t('The folder goes in the first empty square. If the board is full, it goes on More; only if More is full too is a new row added at the bottom. Nothing else moves.')}</small>
               </label>
             ) : (
               <p className="muted small">{t('A new profile starts with this board as its Home board. This profile is not changed.')}</p>

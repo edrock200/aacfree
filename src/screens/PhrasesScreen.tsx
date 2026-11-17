@@ -219,10 +219,10 @@ function PhraseEditor({ phrase, categories, onSave, onClose, onDelete }: { phras
         <div className="field"><span>{t('Picture')}</span>
           <div className="row">
             {ph.symbol && <Symbol value={ph.symbol} className="preview-sym" />}
-            <button className="btn" onClick={() => setPicking(true)}>{ph.symbol ? 'Change' : 'Add picture'}</button>
+            <button className="btn" onClick={() => setPicking(true)}>{ph.symbol ? t('Change picture') : t('Add picture')}</button>
           </div>
         </div>
-        <div className="field"><span>Recorded voice (optional)</span>
+        <div className="field"><span>{t('Recorded voice (optional)')}</span>
           <AudioRecorder value={ph.audio} onChange={(audio) => setPh({ ...ph, audio })} />
         </div>
       </Modal>

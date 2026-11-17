@@ -131,7 +131,7 @@ export function BackupPanel() {
       </Section>
       <Section title={t('Share boards (Open Board Format)')} intro={t('Export boards as .obz to use in other AAC apps (CoughDrop, Cboard, etc.), or import .obz/.obf boards made elsewhere. Imports become a new profile so nothing is overwritten.')}>
         <div className="row">
-          <button className="btn" disabled={busy} onClick={exportObz}>Export boards (.obz)</button>
+          <button className="btn" disabled={busy} onClick={exportObz}>{t('Export boards (.obz)')}</button>
           <button className="btn" disabled={busy} onClick={importObz}>{t('Import boards…')}</button>
         </div>
       </Section>

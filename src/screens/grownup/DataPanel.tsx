@@ -45,7 +45,7 @@ export function DataPanel() {
             <div className="stat"><b>{stats.sentences.length}</b><small>{t('messages spoken')}</small></div>
             <div className="stat"><b>{stats.avgLen.toFixed(1)}</b><small>{t('words per message')}</small></div>
             <div className="stat"><b>{stats.phrases}</b><small>{t('phrases used')}</small></div>
-            <div className="stat"><b>{stats.modeled}</b><small>modelled by partners (not counted)</small></div>
+            <div className="stat"><b>{stats.modeled}</b><small>{t('modelled by partners (not counted)')}</small></div>
           </div>
           <h4>{t('Activity per day')}</h4>
           <div className="bars" role="img" aria-label={t('Activity per day chart')}>

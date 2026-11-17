@@ -108,7 +108,7 @@ export function ScheduleTool() {
           <input className="inline-input" value={sched.name} onChange={(e) => updateProfile((pp) => { pp.schedules.find((x) => x.id === sched.id)!.name = e.target.value; })} aria-label={t('Schedule name')} />
           <button className="btn small" onClick={() => {
             const id = uid('s');
-            updateProfile((pp) => { pp.schedules.push({ id, name: `${sched.name} (copy)`, steps: sched.steps.map((x) => ({ ...x, id: uid('st'), done: false })) }); });
+            updateProfile((pp) => { pp.schedules.push({ id, name: t('{name} (copy)', { name: sched.name }), steps: sched.steps.map((x) => ({ ...x, id: uid('st'), done: false })) }); });
             setSid(id);
           }}>{t('Duplicate')}</button>
           <button className="btn small danger-outline" onClick={() => setConfirmDelete(true)}><IconTrash size={18} /> {t('Delete')}</button>
@@ -141,7 +141,7 @@ export function ScheduleTool() {
           <li key={st.id} className={`step ${st.done ? 'done' : ''} ${i === nowIndex ? 'current' : ''}`}>
             <PersonButton s={s} className="step-main" label={st.label} onPress={() => { speakText(st.label); }}>
               <Symbol value={st.symbol} />
-              <span>{st.label}{st.minutes ? <small className="muted"> · {st.minutes} min</small> : null}</span>
+              <span>{st.label}{st.minutes ? <small className="muted"> · {t('{n} min', { n: st.minutes })}</small> : null}</span>
             </PersonButton>
             <PersonButton s={s} className="iconbtn check" label={st.done ? t('Mark not done') : t('Mark done')} onPress={() => {
               mutate((steps) => { steps[i].done = !steps[i].done; }, true);
@@ -190,11 +190,11 @@ function StepEditor({ step, onSave, onClose }: { step: ScheduleStep; onSave: (s:
         <div className="cat-editor">
           <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label={t('Choose picture')}>
             {st.symbol ? <Symbol value={st.symbol} /> : <IconPlus size={40} />}
-            <span>{st.symbol ? 'Change picture' : 'Add picture'}</span>
+            <span>{st.symbol ? t('Change picture') : t('Add picture')}</span>
           </button>
           <div className="grow">
             <label className="field"><span>{t('Step')}</span><input value={st.label} onChange={(e) => setSt({ ...st, label: e.target.value })} /></label>
-            <label className="field"><span>How long? (minutes, optional)</span>
+            <label className="field"><span>{t('How long? (minutes, optional)')}</span>
               <input type="number" min={0} max={240} value={st.minutes ?? ''} onChange={(e) => setSt({ ...st, minutes: Number(e.target.value) || undefined })} />
             </label>
           </div>

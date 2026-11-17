@@ -69,15 +69,15 @@ export function isEncryptedBackup(text: string): boolean {
 /** Decrypt an encrypted backup to the plain backup JSON text. */
 export async function decryptBackup(text: string, passcode: string): Promise<string> {
   let f: EncryptedBackupFile;
-  try { f = JSON.parse(text) as EncryptedBackupFile; } catch { throw new Error('This file is damaged or is not a AACFree backup.'); }
+  try { f = JSON.parse(text) as EncryptedBackupFile; } catch { throw new Error('This file is damaged or is not an AACFree backup.'); }
   return new TextDecoder().decode(await unseal(f, passcode));
 }
 
 export async function readBackup(text: string): Promise<AppData> {
   let file: Partial<BackupFile>;
-  try { file = JSON.parse(text) as Partial<BackupFile>; } catch { throw new Error('This file is damaged or is not a AACFree backup.'); }
+  try { file = JSON.parse(text) as Partial<BackupFile>; } catch { throw new Error('This file is damaged or is not an AACFree backup.'); }
   if (!file || typeof file !== 'object' || file.app !== 'caleb' || !Array.isArray(file.data?.profiles) || !file.data.profiles.length) {
-    throw new Error('This is not a AACFree backup file.');
+    throw new Error('This is not an AACFree backup file.');
   }
   // Validate everything BEFORE writing any assets (throws on a bad or newer file).
   const data = migrate(structuredClone(file.data));
