@@ -65,7 +65,7 @@ export interface AutoBackupStatus {
 
 export interface SavedBackup { name: string; t: number; source: 'device' | 'folder' | 'cloud'; read: () => Promise<string> }
 
-interface CalebFilesPlugin {
+interface AACFreeFilesPlugin {
   createDocument(o: { name: string }): Promise<{ uri: string; name: string }>;
   openDocument(): Promise<{ uri: string; name: string }>;
   /**
@@ -77,7 +77,7 @@ interface CalebFilesPlugin {
   writeDocument(o: { uri: string; text?: string; data?: string; part?: 'begin' | 'append' | 'commit' }): Promise<{ bytes?: number }>;
   readDocument(o: { uri: string }): Promise<{ text: string }>;
 }
-const CalebFiles = registerPlugin<CalebFilesPlugin>('CalebFiles');
+const AACFreeFiles = registerPlugin<AACFreeFilesPlugin>('AACFreeFiles');
 
 type FileHandle = { createWritable(): Promise<{ write(d: Blob | string): Promise<void>; close(): Promise<void> }>; getFile(): Promise<File> };
 type DirHandle = {
@@ -96,13 +96,13 @@ const PERIOD: Record<Frequency, number> = { daily: DAY, weekly: 7 * DAY, monthly
 const RETRY_AFTER = 6 * HOUR;
 /** Bytes per chunk sent over the Android bridge (a multiple of 3, so every base64 piece stands alone). */
 const CHUNK = 3 * 1024 * 1024;
-/** Automatic backups go to Documents/AACFree; copies made before the rename (Documents/Caleb) are still listed and restorable. */
+/** Automatic backups go to Documents/AACFree. Copies in the older folder and with the older file prefix are still listed and restorable. */
 const DIR = 'AACFree';
 const OLD_DIR = 'Caleb';
 const native = () => Capacitor.isNativePlatform();
 const FILE_RE = /^(?:aacfree|caleb)-(?:auto-)?backup-(\d{4}-\d{2}-\d{2})(?:[-_](\d{4}))?\.json$/;
 
-export const folderPickerSupported = () => !native() && 'showDirectoryPicker' in window;
+export const folderPickerSupported = () => !native() && typeof (window as unknown as { showDirectoryPicker?: unknown }).showDirectoryPicker === 'function';
 export const cloudFileSupported = () => native();
 
 const FREQS: Frequency[] = ['daily', 'weekly', 'monthly'];
@@ -134,7 +134,7 @@ export async function chooseBackupFolder(): Promise<string | null> {
 /** Android: pick (create) a file in Google Drive / OneDrive / Dropbox / SD card. */
 export async function chooseCloudFile(): Promise<string | null> {
   if (!cloudFileSupported()) return null;
-  const r = await CalebFiles.createDocument({ name: 'aacfree-backup.json' });
+  const r = await AACFreeFiles.createDocument({ name: 'aacfree-backup.json' });
   await setPrefs({ cloudUri: r.uri, cloudName: r.name });
   return r.name;
 }
@@ -241,10 +241,10 @@ async function writeDeviceFile(name: string, blob: Blob) {
 async function writeCloudFile(uri: string, blob: Blob) {
   let first = true;
   for await (const data of base64Chunks(blob)) {
-    await CalebFiles.writeDocument({ uri, data, part: first ? 'begin' : 'append' });
+    await AACFreeFiles.writeDocument({ uri, data, part: first ? 'begin' : 'append' });
     first = false;
   }
-  const r = await CalebFiles.writeDocument({ uri, data: '', part: 'commit' });
+  const r = await AACFreeFiles.writeDocument({ uri, data: '', part: 'commit' });
   if (typeof r?.bytes === 'number' && r.bytes !== blob.size) throw new Error(VERIFY_FAILED);
 }
 
@@ -391,7 +391,7 @@ export async function listSavedBackups(opts: { interactive?: boolean } = {}): Pr
     const prefs = await getPrefs();
     if (prefs.cloudUri) {
       const uri = prefs.cloudUri;
-      out.push({ name: prefs.cloudName ?? 'cloud file', t: 0, source: 'cloud', read: async () => (await CalebFiles.readDocument({ uri })).text });
+      out.push({ name: prefs.cloudName ?? 'cloud file', t: 0, source: 'cloud', read: async () => (await AACFreeFiles.readDocument({ uri })).text });
     }
   } else {
     const h = await getMeta<DirHandle>('backupFolder');
@@ -410,6 +410,6 @@ export async function listSavedBackups(opts: { interactive?: boolean } = {}): Pr
 /** Android: open any backup file from a storage provider (e.g. a backup in Google Drive, or Documents/AACFree after a reinstall). */
 export async function openCloudBackup(): Promise<string | null> {
   if (!native()) return null;
-  const r = await CalebFiles.openDocument();
-  return (await CalebFiles.readDocument({ uri: r.uri })).text;
+  const r = await AACFreeFiles.openDocument();
+  return (await AACFreeFiles.readDocument({ uri: r.uri })).text;
 }

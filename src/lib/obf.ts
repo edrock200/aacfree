@@ -24,13 +24,21 @@ interface OBFButton {
   load_board?: { id?: string; path?: string; url?: string };
   action?: string;
   hidden?: boolean;
-  ext_caleb_type?: string;
-  ext_caleb_action?: string;
-  ext_caleb_color?: string;
-  ext_caleb_speak_only?: boolean;
+  ext_aacfree_type?: string;
+  ext_aacfree_action?: string;
+  ext_aacfree_color?: string;
+  ext_aacfree_speak_only?: boolean;
 }
 
-// AACFree actions ↔ OBF spec actions (others round-trip via ext_caleb_action).
+/** Boards exported by versions before 0.7.2 use the older `ext_caleb_` prefix for the same fields. */
+function legacyExt(ob: OBFButton) {
+  const o = ob as unknown as Record<string, unknown>;
+  for (const k of ['type', 'action', 'color', 'speak_only']) {
+    if (o[`ext_aacfree_${k}`] === undefined && o[`ext_caleb_${k}`] !== undefined) o[`ext_aacfree_${k}`] = o[`ext_caleb_${k}`];
+  }
+}
+
+// AACFree actions ↔ OBF spec actions (others round-trip via ext_aacfree_action).
 const TO_OBF_ACTION: Partial<Record<string, string>> = { home: ':home', speak: ':speak', clear: ':clear', backspace: ':backspace', back: ':back' };
 const FROM_OBF_ACTION: Record<string, ButtonAction> = { ':home': 'home', ':speak': 'speak', ':clear': 'clear', ':backspace': 'backspace', ':back': 'back' };
 interface OBFImage { id: string; url?: string; data?: string; path?: string; content_type?: string; width?: number; height?: number }
@@ -92,14 +100,14 @@ export async function exportOBZ(p: Profile): Promise<Blob> {
           id: b.id,
           label: b.label,
           background_color: hexToRgb(buttonColor(b.type, false, b.color)),
-          ext_caleb_type: b.type,
+          ext_aacfree_type: b.type,
         };
         if (b.speak) ob.vocalization = b.speak;
         if (b.hidden) ob.hidden = true;
-        if (b.color) ob.ext_caleb_color = b.color;
-        if (b.speakOnly) ob.ext_caleb_speak_only = true;
+        if (b.color) ob.ext_aacfree_color = b.color;
+        if (b.speakOnly) ob.ext_aacfree_speak_only = true;
         if (b.action) {
-          ob.ext_caleb_action = b.action;
+          ob.ext_aacfree_action = b.action;
           if (TO_OBF_ACTION[b.action]) ob.action = TO_OBF_ACTION[b.action];
         }
         if (b.link && boardPaths[b.link]) ob.load_board = { id: b.link, path: boardPaths[b.link] };
@@ -249,20 +257,21 @@ export async function importOBF(file: File): Promise<{ boards: Record<string, Bo
         if (bid == null || typeof bid === 'object') continue;
         const ob = byId.get(String(bid));
         if (!ob) continue;
+        legacyExt(ob);
         const label = text(ob.label, 200);
         const vocal = text(ob.vocalization, 1000);
         const b: AACButton = {
           id: uid('b'),
           label: label ?? vocal ?? '',
-          type: (typeof ob.ext_caleb_type === 'string' ? ob.ext_caleb_type : 'misc') as WordType,
+          type: (typeof ob.ext_aacfree_type === 'string' ? ob.ext_aacfree_type : 'misc') as WordType,
         };
         if (vocal && vocal !== label) b.speak = vocal;
         if (ob.hidden === true) b.hidden = true;
-        if (ob.ext_caleb_color) b.color = safeColor(ob.ext_caleb_color);
-        else if (!ob.ext_caleb_type) b.color = safeColor(rgbToHex(typeof ob.background_color === 'string' ? ob.background_color : undefined));
+        if (ob.ext_aacfree_color) b.color = safeColor(ob.ext_aacfree_color);
+        else if (!ob.ext_aacfree_type) b.color = safeColor(rgbToHex(typeof ob.background_color === 'string' ? ob.background_color : undefined));
         if (!b.color) delete b.color;
-        if (ob.ext_caleb_speak_only === true) b.speakOnly = true;
-        const action = (typeof ob.ext_caleb_action === 'string' ? ob.ext_caleb_action as ButtonAction : undefined)
+        if (ob.ext_aacfree_speak_only === true) b.speakOnly = true;
+        const action = (typeof ob.ext_aacfree_action === 'string' ? ob.ext_aacfree_action as ButtonAction : undefined)
           ?? (typeof ob.action === 'string' ? FROM_OBF_ACTION[ob.action] : undefined);
         if (action) b.action = action;
         const lb = isObj(ob.load_board) ? ob.load_board : undefined;

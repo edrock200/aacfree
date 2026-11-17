@@ -17,7 +17,7 @@ import {
  *   - when AACFree opens and whenever it comes back to the screen,
  *   - about 45 seconds after an edit, and every 5 minutes while open,
  *   - from "Sync now".
- * Android keeps the file through the system file picker (CalebFilesPlugin);
+ * Android keeps the file through the system file picker (AACFreeFilesPlugin);
  * desktop Chrome/Edge keep a File System Access handle in IndexedDB. iPad,
  * iPhone and Firefox can't keep a file, so they use the manual Send/Receive.
  *
@@ -44,15 +44,15 @@ export interface SyncLogEntry {
   conflicts: SyncConflict[];
 }
 
-interface CalebFilesPlugin {
+interface AACFreeFilesPlugin {
   createDocument(o: { name: string }): Promise<{ uri: string; name: string }>;
   openDocument(): Promise<{ uri: string; name: string }>;
   /** With `part`, base64 chunks collect in a temp file; 'commit' copies it in one go and checks every byte. */
   writeDocument(o: { uri: string; text?: string; data?: string; part?: 'begin' | 'append' | 'commit' }): Promise<{ bytes?: number }>;
   readDocument(o: { uri: string }): Promise<{ text: string }>;
 }
-let plugin: CalebFilesPlugin | null = null;
-const files = () => (plugin ??= registerPlugin<CalebFilesPlugin>('CalebFiles'));
+let plugin: AACFreeFilesPlugin | null = null;
+const files = () => (plugin ??= registerPlugin<AACFreeFilesPlugin>('AACFreeFiles'));
 
 type Writable = { write(d: Blob | string): Promise<void>; close(): Promise<void> };
 type FileHandle = {

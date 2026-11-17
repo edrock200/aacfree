@@ -8,7 +8,7 @@ import { buildProfile, DEFAULT_SETTINGS } from '../../data/defaults';
 import type { AppData, Profile } from '../../types';
 
 import indexHtml from '../../../index.html?raw';
-import screenJava from '../../../android/app/src/main/java/org/calebaac/app/CalebScreenPlugin.java?raw';
+import screenJava from '../../../android/app/src/main/java/org/calebaac/app/AACFreeScreenPlugin.java?raw';
 import mainJava from '../../../android/app/src/main/java/org/calebaac/app/MainActivity.java?raw';
 import filePaths from '../../../android/app/src/main/res/xml/file_paths.xml?raw';
 import androidYml from '../../../.github/workflows/android.yml?raw';
@@ -17,7 +17,7 @@ import pagesYml from '../../../.github/workflows/pages.yml?raw';
 
 const FILES: Record<string, string> = {
   'index.html': indexHtml,
-  'android/app/src/main/java/org/calebaac/app/CalebScreenPlugin.java': screenJava,
+  'android/app/src/main/java/org/calebaac/app/AACFreeScreenPlugin.java': screenJava,
   'android/app/src/main/java/org/calebaac/app/MainActivity.java': mainJava,
   'android/app/src/main/res/xml/file_paths.xml': filePaths,
   '.github/workflows/android.yml': androidYml,
@@ -175,10 +175,10 @@ describe('keep screen awake (defect 30)', () => {
   });
 
   it('the native plugin exists and is registered in MainActivity', () => {
-    const java = read('android/app/src/main/java/org/calebaac/app/CalebScreenPlugin.java');
-    expect(java).toContain('@CapacitorPlugin(name = "CalebScreen")');
+    const java = read('android/app/src/main/java/org/calebaac/app/AACFreeScreenPlugin.java');
+    expect(java).toContain('@CapacitorPlugin(name = "AACFreeScreen")');
     expect(java).toContain('FLAG_KEEP_SCREEN_ON');
-    expect(read('android/app/src/main/java/org/calebaac/app/MainActivity.java')).toContain('registerPlugin(CalebScreenPlugin.class)');
+    expect(read('android/app/src/main/java/org/calebaac/app/MainActivity.java')).toContain('registerPlugin(AACFreeScreenPlugin.class)');
   });
 });
 

@@ -560,6 +560,17 @@ describe('OBF / OBZ import (malformed and hostile files)', () => {
     return new File([zipSync(f) as BlobPart], 'x.obz');
   };
 
+  it('reads word types and colours from both the current and the older extension fields', async () => {
+    const b = board('1', { buttons: [
+      { id: 'b1', label: 'hi', ext_aacfree_type: 'verb', ext_aacfree_color: '#123456' },
+      { id: 'b2', label: 'go', ext_caleb_type: 'noun', ext_caleb_speak_only: true },
+    ] });
+    const r = await importOBF(obz({ 'manifest.json': { root: 'boards/1.obf' }, 'boards/1.obf': b }));
+    const [x, y] = r.boards[r.rootId].cells;
+    expect(x).toMatchObject({ type: 'verb', color: '#123456' });
+    expect(y).toMatchObject({ type: 'noun', speakOnly: true });
+  });
+
   it('imports a normal package and links boards', async () => {
     const r = await importOBF(obz({ 'manifest.json': { root: 'boards/1.obf' }, 'boards/1.obf': board('1'), 'boards/2.obf': board('2') }));
     expect(Object.keys(r.boards).length).toBe(2);

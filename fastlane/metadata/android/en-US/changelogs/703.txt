@@ -1,0 +1,1 @@
+The app, the website and the guide now use only the name AACFree. Boards exported as Open Board files keep their word colours under AACFree’s own names, and older exports still import.

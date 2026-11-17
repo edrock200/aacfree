@@ -3,7 +3,7 @@
      - Documents: backup and board files saved by src/lib/files.ts, then sent with the share sheet
      - the app's own Pictures folder: photos taken with the camera for a button (WebView file chooser)
      - the app cache: fallback for saved files when Documents can't be written
-     CalebFilesPlugin uses the system file picker (content:// URIs) and needs no entry here. -->
+     AACFreeFilesPlugin uses the system file picker (content:// URIs) and needs no entry here. -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <external-path name="documents" path="Documents/" />
     <external-files-path name="camera_photos" path="Pictures/" />

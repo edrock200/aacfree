@@ -14,8 +14,8 @@ import com.getcapacitor.annotation.CapacitorPlugin;
  * tablet goes to sleep mid-use. FLAG_KEEP_SCREEN_ON applies only while Caleb's
  * window is visible and needs no permission.
  */
-@CapacitorPlugin(name = "CalebScreen")
-public class CalebScreenPlugin extends Plugin {
+@CapacitorPlugin(name = "AACFreeScreen")
+public class AACFreeScreenPlugin extends Plugin {
 
     /** setKeepOn({ on: boolean }) */
     @PluginMethod

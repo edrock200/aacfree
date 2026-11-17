@@ -3,7 +3,7 @@
  * Assembles the public website into dist-site/:
  *   /            landing page (site/)
  *   /app/        the AACFree web app / PWA (dist/)
- *   /download/   the latest Android APK (release/caleb-latest.apk)
+ *   /download/   the latest Android APK (release/aacfree-latest.apk)
  * Run `npm run build` first (npm run build:site does both).
  */
 import { cp, mkdir, rm, writeFile, access } from 'node:fs/promises';
@@ -17,11 +17,9 @@ await mkdir(out, { recursive: true });
 await cp(join(root, 'site'), out, { recursive: true });
 await cp(join(root, 'dist'), join(out, 'app'), { recursive: true });
 try {
-  await access(join(root, 'release/caleb-latest.apk'));
+  await access(join(root, 'release/aacfree-latest.apk'));
   await mkdir(join(out, 'download'), { recursive: true });
-  await cp(join(root, 'release/caleb-latest.apk'), join(out, 'download/aacfree.apk'));
-  // The former name stays available so existing links keep working.
-  await cp(join(root, 'release/caleb-latest.apk'), join(out, 'download/caleb-latest.apk'));
+  await cp(join(root, 'release/aacfree-latest.apk'), join(out, 'download/aacfree.apk'));
 } catch { console.warn('No APK in release/ — download link will be broken'); }
 await writeFile(join(out, '.nojekyll'), '');
 console.log('Site ready in dist-site/');

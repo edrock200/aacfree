@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
       let data: unknown = await loadData();
       // Plain files never carry the grown-up PIN.
       try { if (Array.isArray((data as AppData)?.profiles)) data = withoutPin(migrateLock(structuredClone(data as AppData))); } catch { /* keep as is */ }
-      downloadBlob(new Blob([JSON.stringify({ app: 'caleb', kind: 'raw', data })], { type: 'application/json' }), 'caleb-raw-data.json');
+      downloadBlob(new Blob([JSON.stringify({ app: 'caleb', kind: 'raw', data })], { type: 'application/json' }), 'aacfree-raw-data.json');
     } catch {
       alert(t('Could not read the saved data.'));
     }

@@ -4,13 +4,13 @@ AACFree (AGPL-3.0-or-later) is a free, open-source **AAC (augmentative & alterna
 and non-verbal people and their families. It ships as a **web app / PWA** and an **Android APK** (Capacitor).
 Everything is offline-first and stored on the device. There is no server and no accounts.
 
-**Name:** the app was called Caleb until v0.7. Everything users see says **AACFree** (website: https://aacappfree.com). Internal identifiers keep the old name **on purpose**, because changing them would lose families' data or break updates:
-- the Android package id `org.calebaac.app` (and its signing key), and the plugin names `CalebFiles`/`CalebScreen`;
-- the IndexedDB database `caleb` and the `caleb:` localStorage keys;
-- the `app: 'caleb'` marker inside backup and sync files;
-- `release/caleb-latest.apk` and the repo name.
+**Name:** everything users see says **AACFree** (website: https://aacappfree.com). Never write the app's earlier name in anything users see (app, website, guide, changelog, store text). A few internal identifiers still use `caleb` and must **never** change, because changing them would lose families' data or break updates:
+- the Android package id `org.calebaac.app` and its signing key (alias `caleb`);
+- the IndexedDB database `caleb`, the `caleb:` localStorage keys and other storage/cache names;
+- the `app: 'caleb'` marker inside backup and sync files (older app versions check it);
+- the repo name, and the `caleb.apk` release asset that the Downloader short link points at.
 
-New backup and sync files are named `aacfree-…` and automatic backups go to `Documents/AACFree`. Old `caleb-…` files and `Documents/Caleb` are still read. Releases publish both `aacfree.apk` and the legacy `caleb.apk` (same file), so old links and the Downloader code keep working.
+Backup and sync files are named `aacfree-…` and automatic backups go to `Documents/AACFree`. Older `caleb-…` files, the older `Documents/Caleb` folder and OBF files with `ext_caleb_*` fields are still read.
 
 ## Stack
 - React 19, TypeScript, Vite 8 (`src/`), zustand store (`src/store.ts`), IndexedDB via `idb` (`src/lib/db.ts`)
@@ -58,7 +58,7 @@ npm run guide:shots  # regenerate the user guide's screenshots (site/guide/img);
 - **Switch scanning:** the state machine is `src/lib/scanner.ts` (pure, tested); `useScanner` is the DOM layer. Scan items belong to their nearest `data-scan-group`. Overlays use `Modal` (or `data-scan-scope` plus `useDialog()`), which scopes scanning and traps focus.
 - **Import a board from a picture:** `src/components/BoardImport.tsx` (Settings → Boards & words, and New category). `src/lib/boardimport.ts` is pure and unit-tested: grid detection (background from the gap lines, ink profiles, the longest regular run of same-sized bands, trimming toolbars and side panels, extending to outlined white tiles), tile bounds, tile colour → Fitzgerald word type, label clean-up (`labelOf`, with a known-word bonus) and empty squares. `src/lib/ocr.ts` wraps tesseract.js and is only reached by a dynamic import (its own `ocr` chunk). Everything it loads is same-origin from `public/ocr/`, copied by `scripts/copy-ocr.mjs` (git-ignored, about 10 MB): `worker.min.js`, the SIMD LSTM core (`tesseract-core-simd-lstm.js` + `.wasm`) and `eng/spa/fra/por.traineddata` (`4.0.0_best_int`, still gzip-compressed but named without `.gz`, because aapt strips that extension in the APK; `gzip: false` and tesseract.js inflates them). `workerBlobURL: false` and `cacheMethod: 'none'`, so no blob: workers, no IndexedDB cache and no CDN. These files are precached by the service worker (`ocr/*.{wasm,traineddata}` in `globPatterns`; `maximumFileSizeToCacheInBytes` is 8 MB, so keep each file under it) and land in the APK through `npx cap sync`. Saving takes a snapshot first, then places a folder with `placeFolder()` (`src/lib/boards.ts`) or makes a profile through `replaceData`, and sets `key` via `builtInKey()` (`translate.ts`). Pictures come from `suggestSymbol()` (`library.ts`, also used by "+ Word"); screenshot crops are stored as `img:` assets.
 - **Pointer access:** `src/lib/pointer.ts` (dwell, head, eyes) + `PointerLayer`/`GazeCalibration`. The MediaPipe model is committed in `public/vision/`; the WASM is copied from node_modules by `scripts/copy-vision.mjs` (runs in `npm run build`).
-- **Sync/backup:** `src/lib/crypto.ts` (AES-GCM + PBKDF2), `src/lib/sync.ts` (passcode files + merge), and `src/lib/autobackup.ts` (scheduled dated backups with rotation, encryption and include options; the device-level prefs and passcode live in IndexedDB meta, never in backups). On Android, `CalebFilesPlugin.java` (registered in MainActivity) writes to a file the user picked via the system file picker, such as Google Drive (chunked, verified after writing). `CalebScreenPlugin.java` keeps the screen awake.
+- **Sync/backup:** `src/lib/crypto.ts` (AES-GCM + PBKDF2), `src/lib/sync.ts` (passcode files + merge), and `src/lib/autobackup.ts` (scheduled dated backups with rotation, encryption and include options; the device-level prefs and passcode live in IndexedDB meta, never in backups). On Android, `AACFreeFilesPlugin.java` (registered in MainActivity) writes to a file the user picked via the system file picker, such as Google Drive (chunked, verified after writing). `AACFreeScreenPlugin.java` keeps the screen awake.
 - `src/lib/`: tts, morphology (word forms), prediction, scanning (`useScanner`), touch accommodations (`usePress`), backup, OBF import/export, files (web download vs Android share)
 - `src/components/`: grid/cell/message bar/quick bar/nav bar/editors/pickers
 - `src/screens/`: Talk, Keyboard, Phrases, Tools (+ `tools/*`), GrownUp (+ `grownup/*`), Onboarding

@@ -1,7 +1,7 @@
 {
   "name": "aacfree",
   "private": true,
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "AACFree — a free, open-source AAC (augmentative & alternative communication) app for autistic and non-verbal people and their families.",
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -13,7 +13,7 @@
     "test": "vitest run",
     "symbols": "node scripts/fetch-symbols.mjs",
     "android:sync": "npm run build && npx cap sync android",
-    "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease && cp app/build/outputs/apk/release/app-release.apk ../release/caleb-latest.apk",
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease && cp app/build/outputs/apk/release/app-release.apk ../release/aacfree-latest.apk",
     "build:site": "npm run build && node scripts/build-site.mjs",
     "icons": "node scripts/make-icons.mjs",
     "e2e": "node scripts/e2e/flows.mjs",
