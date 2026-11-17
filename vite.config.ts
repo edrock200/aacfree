@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
-// BASE lets the site be served from a sub-path (e.g. GitHub Pages: /caleb/).
+// BASE lets the site be served from a sub-path (e.g. /app/).
 const base = process.env.BASE ?? './';
 
 /**
@@ -14,7 +14,7 @@ const base = process.env.BASE ?? './';
  */
 function devWithoutCsp(): Plugin {
   return {
-    name: 'caleb-dev-without-csp',
+    name: 'aacfree-dev-without-csp',
     apply: 'serve',
     transformIndexHtml: (html) => html.replace(/\s*<meta http-equiv="Content-Security-Policy"[^>]*>/, ''),
   };
@@ -48,7 +48,7 @@ export default defineConfig({
         categories: ['education', 'medical', 'productivity'],
       },
       workbox: {
-        // Precache the app shell and every bundled symbol so Caleb works fully offline, plus the
+        // Precache the app shell and every bundled symbol so AACFree works fully offline, plus the
         // on-device OCR runtime and language data for "Import a board from a picture" (public/ocr,
         // about 10 MB: the WASM core and each language model are under 3 MB, so they fit the limit below).
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}', 'ocr/*.{wasm,traineddata}'],

@@ -16,7 +16,7 @@ AACFree is an **augmentative and alternative communication (AAC)** app: tap pict
 
 | Platform | How |
 |---|---|
-| **Android** (7.0+) | Download [**aacfree.apk**](https://github.com/edrock200/caleb/releases/latest/download/aacfree.apk) (always the newest version; the old `caleb.apk` link still works; changes are on the [Releases page](https://github.com/edrock200/caleb/releases)), open it, and allow "install unknown apps". |
+| **Android** (7.0+) | Download [**aacfree.apk**](https://github.com/edrock200/caleb/releases/latest/download/aacfree.apk) (always the newest version; changes are on the [Releases page](https://github.com/edrock200/caleb/releases)), open it, and allow "install unknown apps". |
 | **Android phones & tablets, Fire tablets** (with the Downloader app) | In the [Downloader](https://www.aftvnews.com/downloader/) app, enter code **5791841** (or go to [aftv.news/5791841](http://aftv.news/5791841)). It downloads the newest version. |
 | **Any browser / iPad / iPhone / Chromebook / PC** | Open the web app at **[aacappfree.com/app](https://aacappfree.com/app/)** and choose **Install** / **Add to Home Screen**. No app store needed, and it then works offline. On iPhone/iPad, add it to the Home Screen so Safari keeps its data. |
 
@@ -73,13 +73,13 @@ npm run dev            # http://localhost:5173
 npm test               # unit tests
 npm run build          # typecheck + build web app → dist/
 npm run build:site     # landing page + web app + APK → dist-site/
-npm run android:apk    # build signed release APK → release/caleb-latest.apk
+npm run android:apk    # build signed release APK → release/aacfree-latest.apk
 ```
 
 Project guide for contributors and AI agents: [CLAUDE.md](CLAUDE.md). Changing the default words: [add-vocabulary skill](.claude/skills/add-vocabulary/SKILL.md).
 
 ### Website
-`.github/workflows/pages.yml` publishes `dist-site/` to GitHub Pages on every push to `main`: the landing page at `/`, the user guide at `/guide/` (from `site/guide/`; regenerate its screenshots with `npm run guide:shots`), the web app at `/app/`, and the APK at `/download/caleb-latest.apk`. Enable it under **Settings → Pages → Source: GitHub Actions**; the `github-pages` environment must allow deploys from `main`. The site is served at the custom domain **https://aacappfree.com** (set in Settings → Pages), with the web app at `/app/`.
+`.github/workflows/pages.yml` publishes `dist-site/` to GitHub Pages on every push to `main`: the landing page at `/`, the user guide at `/guide/` (from `site/guide/`; regenerate its screenshots with `npm run guide:shots`), the web app at `/app/`, and the APK at `/download/aacfree.apk`. Enable it under **Settings → Pages → Source: GitHub Actions**; the `github-pages` environment must allow deploys from `main`. The site is served at the custom domain **https://aacappfree.com** (set in Settings → Pages), with the web app at `/app/`.
 
 ### Android builds
 `.github/workflows/android.yml` builds the APK on pull requests. When you push a tag like `v1.0.1`, it also attaches the APK to a GitHub Release.

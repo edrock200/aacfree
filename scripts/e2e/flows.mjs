@@ -825,8 +825,8 @@ check(!(await cells()).includes('want'), 'show/hide mode hides a word with one t
   const usePrivateFile = () => {
     window.__sync = '';
     const h = {
-      kind: 'file', name: 'caleb-sync.calebsync.json',
-      getFile: async () => new File([window.__sync], 'caleb-sync.calebsync.json'),
+      kind: 'file', name: 'aacfree-sync.json',
+      getFile: async () => new File([window.__sync], 'aacfree-sync.json'),
       createWritable: async () => {
         let buf = '';
         return { write: async (d) => { buf += typeof d === 'string' ? d : await d.text(); }, close: async () => { window.__sync = buf; } };

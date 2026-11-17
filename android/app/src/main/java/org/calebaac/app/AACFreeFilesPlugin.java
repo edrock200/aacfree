@@ -26,8 +26,8 @@ import java.nio.charset.StandardCharsets;
  * picker. The family picks the place once; Caleb keeps permission and
  * overwrites that file on every automatic backup. No accounts or API keys.
  */
-@CapacitorPlugin(name = "CalebFiles")
-public class CalebFilesPlugin extends Plugin {
+@CapacitorPlugin(name = "AACFreeFiles")
+public class AACFreeFilesPlugin extends Plugin {
 
     /** Opens the system "save as" picker. Resolves { uri, name }. */
     @PluginMethod

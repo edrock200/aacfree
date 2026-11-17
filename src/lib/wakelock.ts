@@ -4,14 +4,14 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
  * "Keep screen awake". Switch and gaze users make no touches, so without this
  * the tablet can sleep mid-sentence. Browsers get the Screen Wake Lock API.
  * The Android WebView usually lacks it, so the app falls back to the native
- * CalebScreen plugin (FLAG_KEEP_SCREEN_ON on the activity window).
+ * AACFreeScreen plugin (FLAG_KEEP_SCREEN_ON on the activity window).
  */
 
-interface CalebScreenPlugin {
+interface AACFreeScreenPlugin {
   setKeepOn(opts: { on: boolean }): Promise<void>;
 }
 
-const CalebScreen = registerPlugin<CalebScreenPlugin>('CalebScreen');
+const AACFreeScreen = registerPlugin<AACFreeScreenPlugin>('AACFreeScreen');
 
 interface Sentinel { release: () => Promise<void> }
 type WakeLockNav = Navigator & { wakeLock?: { request: (t: 'screen') => Promise<Sentinel> } };
@@ -20,7 +20,7 @@ let wanted = false;
 let sentinel: Sentinel | null = null;
 let nativeOn = false;
 
-const nativeAvailable = () => Capacitor.isNativePlatform() && Capacitor.isPluginAvailable('CalebScreen');
+const nativeAvailable = () => Capacitor.isNativePlatform() && Capacitor.isPluginAvailable('AACFreeScreen');
 const webAvailable = () => typeof navigator !== 'undefined' && !!(navigator as WakeLockNav).wakeLock;
 
 /** True when some way of keeping the screen on exists here. */
@@ -31,7 +31,7 @@ export function keepAwakeAvailable(): boolean {
 async function setNative(on: boolean): Promise<boolean> {
   if (!nativeAvailable()) return false;
   try {
-    await CalebScreen.setKeepOn({ on });
+    await AACFreeScreen.setKeepOn({ on });
     nativeOn = on;
     return true;
   } catch {

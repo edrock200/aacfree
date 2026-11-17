@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.3 — 2026-11-17
+- The app, the website, the user guide and the store text now use only the name AACFree.
+- Boards exported as Open Board files (.obz) mark AACFree's word types and colours with AACFree's own field names. Files exported by earlier versions still import with their colours and word types.
+- The emergency "save my data" file is named `aacfree-raw-data.json`.
+
 ## 0.7.2 — 2026-11-17
 - **User guide:** a full illustrated guide to every screen, setting and tool is at **https://aacappfree.com/guide/**. It covers moving from another AAC app (from a picture, an Open Board file or a backup) and restoring onto a new device. Settings → Help & tips links to it.
 - **More of the app is translated.** Labels and messages in Phrases, the library, the symbol editor, backups, the timer, First/Then, Draw and Insights now show in Spanish, French and Portuguese too.
@@ -12,18 +17,18 @@
 - **New Emergency phrase** for new profiles: "I can't talk with my voice, so I use this app to communicate. Please be patient." It sits next to the existing "I am autistic…" phrase.
 
 ## 0.7.0 — 2026-11-16
-**Caleb is now AACFree.** It's the same app, still free, with a new name.
-- The new name is everywhere: the app name on the home screen, the web app, every screen and help text in all four languages, the website (**https://aacappfree.com**, with the web app at `/app/`), the store listing and the release files.
-- **Nothing is lost on updating.** Boards, photos, recordings, settings, profiles, backups and sync all carry over. It installs over Caleb as an update, because the app's internal id and signing key are unchanged.
-- New backup and sync files are named `aacfree-…`, and Android's automatic backups go to `Documents/AACFree`. Backups made by Caleb (`caleb-…` files and `Documents/Caleb`) still appear in the restore list and still open. Old sync files keep working.
-- Releases now offer `aacfree.apk`. The old `caleb.apk` link and the Downloader code keep working and always get the newest version.
+**AACFree** has its own name and website.
+- AACFree is the name everywhere: on the home screen, in the web app, on every screen and in the help text in all four languages, on the website (**https://aacappfree.com**, with the web app at `/app/`), in the store listing and in the release files.
+- **Nothing is lost on updating.** Boards, photos, recordings, settings, profiles, backups and sync all carry over.
+- Backup and sync files are named `aacfree-…`, and Android's automatic backups go to `Documents/AACFree`. Older backups still appear in the restore list and still open, and older sync files keep working.
+- Releases offer `aacfree.apk`, which always gets the newest version.
 - The website explains step by step how to add the web app to the home screen for offline use: Safari on iPhone and iPad, Chrome on Android, and Chrome or Edge on a computer. It also covers how to check that it works offline.
 
 ## 0.6.0 — 2026-11-16
-- **Import a board from a picture.** Settings → Boards & words → **Import a board from a picture** (or "Or import a board from a picture…" in New category). Take a photo or a screenshot of a board in another AAC app (TD Snap, Proloquo2Go, TouchChat, LAMP, Cboard…) or of a paper board, and Caleb rebuilds it with the same grid and the same word in every square, so the person keeps their motor plan.
+- **Import a board from a picture.** Settings → Boards & words → **Import a board from a picture** (or "Or import a board from a picture…" in New category). Take a photo or a screenshot of a board in another AAC app (TD Snap, Proloquo2Go, TouchChat, LAMP, Cboard…) or of a paper board, and AACFree rebuilds it with the same grid and the same word in every square, so the person keeps their motor plan.
   - **Finds the grid by itself**: the background, the gaps between tiles, and the number of rows and columns. Toolbars, message bars and side panels are left out, and empty squares inside the grid still count. You can drag the edges (on touch too), nudge them with arrow buttons, and change the rows and columns.
   - **Reads every word on the device.** Text recognition (Tesseract) is built into the app and runs offline in the board's language plus English. The picture never leaves the device. A 6 × 8 board takes a few seconds on a computer.
-  - **Pictures and colours:** each word gets Caleb's own symbol, and the tile's colour becomes the nearest word type in the Modified Fitzgerald Key. Or keep the pictures from your screenshot (for one square or all of them), stored on the device like photos; a note explains they may belong to the app that made them.
+  - **Pictures and colours:** each word gets AACFree's own symbol, and the tile's colour becomes the nearest word type in the Modified Fitzgerald Key. Or keep the pictures from your screenshot (for one square or all of them), stored on the device like photos; a note explains they may belong to the app that made them.
   - **Check before saving:** the preview shows the board as it will look. Tap a square to fix the word, change the picture or word type, empty it, or make it a folder (an empty folder board with that name).
   - **Save** as a new folder on any board (first empty square, else a new row: nothing moves) or as a new profile. A snapshot is taken first, and Undo works.
 - Help & tips explains how to bring a board from another app.
@@ -38,7 +43,7 @@
   - **More** opens the More board (all the topic folders) in one tap, from any screen. It only appears when the profile has a More board, so imported boards without one don't get a dead button.
   - The current place is highlighted, and both buttons work with scanning, dwell, and hold and debounce settings.
 - **The bottom bar fits on small phones:** buttons share the width equally, so every button, Settings included, stays on screen down to 320 px.
-- The sync passcode meter always rates Caleb's own suggested passcodes as strong. About 1 in 30 suggestions was shown as only "ok" or "weak", even though they are random and strong.
+- The sync passcode meter always rates AACFree's own suggested passcodes as strong. About 1 in 30 suggestions was shown as only "ok" or "weak", even though they are random and strong.
 
 ## 0.5.3 — 2026-11-15
 - **Phrases open on folder cards.** Recent, Needs, Feelings, Boundaries, Chat, Questions, Emergency and the family's own groups are shown as folder cards with a picture and the number of phrases inside, in a fixed order. Tapping a card opens its phrases, and a Back button (or Android Back) returns to the folders.
@@ -71,7 +76,7 @@ Built from the v0.4 review (nine reviewers plus adversarial checks; see docs/rev
 **Sync across devices, change by change**
 - Devices merge **item by item** (each button, board, phrase, schedule, setting and library symbol) instead of keeping whichever whole profile is newest. Changes made on several devices are all kept, and deletions carry over.
 - When the same thing was changed on two devices, the newer change wins, the conflict is listed, and a snapshot is kept first.
-- **Automatic sync** through one file the family picks in Google Drive, OneDrive or Dropbox (Android, and desktop Chrome/Edge). It runs when Caleb opens, after edits and every few minutes, and never interrupts talking. iPad, iPhone and Firefox use Send/Receive files with the same merge.
+- **Automatic sync** through one file the family picks in Google Drive, OneDrive or Dropbox (Android, and desktop Chrome/Edge). It runs when AACFree opens, after edits and every few minutes, and never interrupts talking. iPad, iPhone and Firefox use Send/Receive files with the same merge.
 - Talking, recent sentences and learned words never overwrite another device's edits. Each device keeps its own voice, PIN and access settings.
 - Stronger suggested passcodes, and a better-protected file format. v0.4 sync files still open, but every device needs 0.5.
 
@@ -88,7 +93,7 @@ Built from the v0.4 review (nine reviewers plus adversarial checks; see docs/rev
 - Scanning ignores a held switch and key repeat, with a switch acceptance time and a lockout after each selection.
 - New scanning settings: assign any key, first-item delay, scan loops, a Leave-row step and a softer cue voice.
 - Every control can be reached by scanning, including dialogs, Find word, the First/Then picker, message words, toasts and the timer.
-- Dwell starts only after real movement, re-arms after a new board, and stops when the face is lost. The camera recovers by itself and switches off while Caleb is hidden.
+- Dwell starts only after real movement, re-arms after a new board, and stops when the face is lost. The camera recovers by itself and switches off while AACFree is hidden.
 - New Rest, Centre (hands-free re-centre) and Restart-camera controls.
 - Two-tone highlights readable on every colour, with a choice of colour and thickness. Text size now scales the whole app.
 - Dialogs keep keyboard and screen-reader focus inside them. Grown-ups can be reached by keyboard under the hold lock.
@@ -125,7 +130,7 @@ Built from the v0.4 review (nine reviewers plus adversarial checks; see docs/rev
 
 **Backup options**
 - Automatic backups **daily, weekly or monthly**, as dated files, with **how many copies to keep**.
-- **Android: keep a copy in Google Drive, OneDrive, Dropbox or on an SD card**, chosen once with the system file picker; Caleb updates it on every backup.
+- **Android: keep a copy in Google Drive, OneDrive, Dropbox or on an SD card**, chosen once with the system file picker; AACFree updates it on every backup.
 - **Passcode-locked (encrypted) backups**: the passcode stays on the device; restoring asks for it.
 - Choose whether backups include **photos/recordings** and **message history**.
 - **Restore any automatic copy**, or open a backup from Drive or another app.
@@ -138,7 +143,7 @@ Roadmap release.
 - **Eye gaze & head pointer:** dwell selection for mouse, head-mice and hardware eye trackers; a camera head pointer;
   experimental camera eye gaze with 9-point calibration; optional long-blink select. Everything runs on the device and nothing is recorded.
 - **Encrypted sync between devices** with no account or server: a passcode-locked file (AES-256-GCM), where the newest profile wins and libraries are combined.
-- **Weekly automatic backup file:** Documents/Caleb on Android (survives uninstalling); a chosen folder on desktop Chrome.
+- **Weekly automatic backup file:** Documents/AACFree on Android (survives uninstalling); a chosen folder on desktop Chrome.
 - **Google Play ready:** store listing (English and Spanish), screenshots, feature graphic, privacy policy, checklist (docs/play-store.md), and the AAB build.
 
 ## 0.2.0 — 2026-11-12

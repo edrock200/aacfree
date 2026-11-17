@@ -1,0 +1,1 @@
+La app, el sitio web y la guía usan solo el nombre AACFree. Los tableros exportados como archivos Open Board guardan los colores de las palabras con nombres propios de AACFree, y las exportaciones anteriores se siguen importando.

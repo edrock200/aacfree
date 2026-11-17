@@ -44,7 +44,7 @@
     <!-- Take photos for buttons -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- Weekly backup file in Documents/Caleb (only needed on Android 10 and older) -->
+    <!-- Weekly backup file in Documents/AACFree (only needed on Android 10 and older) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />

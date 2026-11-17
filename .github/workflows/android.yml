@@ -42,7 +42,7 @@ jobs:
       # Signing: add repository secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
       # ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD to build and sign here.
       # Pull requests never see the secrets and always build a debug-signed APK.
-      # Without the secrets, a release publishes the committed release/caleb-latest.apk, but only
+      # Without the secrets, a release publishes the committed release/aacfree-latest.apk, but only
       # if its version matches and it is signed with AACFree's release key (pinned below).
       # Other runs produce a debug-signed APK.
       - name: Build APK
@@ -83,15 +83,15 @@ jobs:
             cp app/build/outputs/apk/release/app-release.apk "../$OUT"
           elif [[ "$RELEASE" == "true" ]]; then
             BT="$ANDROID_HOME/build-tools/36.0.0"
-            APK=../release/caleb-latest.apk
+            APK=../release/aacfree-latest.apk
             NAME=$("$BT/aapt2" dump badging "$APK" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p" | head -1)
             CERT=$("$BT/apksigner" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
             if [ "$NAME" != "$VERSION" ]; then
-              echo "::error::release/caleb-latest.apk is version '$NAME', not $VERSION. Rebuild it (build-android skill) or add the signing secrets."
+              echo "::error::release/aacfree-latest.apk is version '$NAME', not $VERSION. Rebuild it (build-android skill) or add the signing secrets."
               exit 1
             fi
             if [ "$CERT" != "$RELEASE_CERT_SHA256" ]; then
-              echo "::error::release/caleb-latest.apk is not signed with AACFree's release key. Updates would fail to install."
+              echo "::error::release/aacfree-latest.apk is not signed with AACFree's release key. Updates would fail to install."
               exit 1
             fi
             cp "$APK" "../$OUT"
@@ -106,7 +106,7 @@ jobs:
           fi
           # Same file under a fixed name, so the newest release is always at
           # https://github.com/<owner>/<repo>/releases/latest/download/aacfree.apk
-          # caleb.apk is the same file under the app's former name, so old links and the Downloader code keep working.
+          # caleb.apk is the same file under a legacy name: the Downloader short link (code 5791841) points at it.
           cp "../$OUT" ../aacfree.apk
           cp "../$OUT" ../caleb.apk
       # Never leave key material on the runner, even when the build fails.
