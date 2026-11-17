@@ -56,7 +56,7 @@ export function DrawTool() {
     <div className="draw scan-exempt">
       <div className="row draw-tools">
         {COLORS.map((c) => (
-          <button key={c} className={`swatch ${color === c ? 'on' : ''}`} style={{ background: c }} onClick={() => setColor(c)} aria-label={c === '#ffffff' ? 'Eraser' : c}>{c === '#ffffff' ? '⌫' : ''}</button>
+          <button key={c} className={`swatch ${color === c ? 'on' : ''}`} style={{ background: c }} onClick={() => setColor(c)} aria-label={c === '#ffffff' ? t('Eraser') : c}>{c === '#ffffff' ? '⌫' : ''}</button>
         ))}
         <input type="range" min={2} max={24} value={size} onChange={(e) => setSize(+e.target.value)} aria-label={t('Pen size')} />
         <button className="btn" onClick={clear}>{t('Clear')}</button>

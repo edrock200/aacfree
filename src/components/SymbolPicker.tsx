@@ -118,7 +118,7 @@ export function SymbolPicker({ initialQuery = '', onPick: onPickRaw, onClose, no
           <span>{t('Also save to my symbols:')}</span>
           <select value={saveCat} onChange={(e) => setSaveCat(e.target.value)} aria-label={t('Save to category')}>
             <option value="">{t("Don't save")}</option>
-            {cats.map((c) => <option key={c.id} value={c.id}>{c.name}{c.builtIn ? '' : ' (yours)'}</option>)}
+            {cats.map((c) => <option key={c.id} value={c.id}>{c.name}{c.builtIn ? '' : t(' (yours)')}</option>)}
           </select>
           {saveCat && <input value={saveLabel} onChange={(e) => setSaveLabel(e.target.value)} placeholder={t('Word for this picture')} aria-label={t('Word for this picture')} />}
         </div>

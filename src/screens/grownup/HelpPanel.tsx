@@ -24,7 +24,7 @@ export function HelpPanel() {
       </Section>
       <Section title={t('How to…')}>
         <dl className="howto">
-          <dt>{t('Edit a button')}</dt><dd>{t('Settings → Boards → Edit (or the ✎ Edit button at the bottom while unlocked). Tap any button to change its word, picture, colour, voice or what it does.')}</dd>
+          <dt>{t('Edit a button')}</dt><dd>{t('Settings → Boards & words → Edit (or the ✎ Edit button at the bottom while unlocked). Tap any button to change its word, picture, colour, voice or what it does.')}</dd>
           <dt>{t('Add a word')}</dt><dd>{t('In edit mode, tap an empty square (+). Type the word and a matching picture is suggested. Use “Photo” for real pictures of people, places and favourite things.')}</dd>
           <dt>{t('Move a button')}</dt><dd>{t('In edit mode, tap the button → Move → tap where it should go. The two buttons swap places.')}</dd>
           <dt>{t('Hide a word for now')}</dt><dd>{t('Edit the button → “Hide from the user for now”. It keeps its place. Turn on Babble mode to show everything temporarily.')}</dd>
@@ -46,7 +46,7 @@ export function HelpPanel() {
           <dt>{t('Share a message as text')}</dt><dd>{t('Tap the share icon in the message bar to send what was typed by text or email, or to copy it.')}</dd>
           <dt>{t("Change language")}</dt><dd>{t("Display → Language. Choose English, Español, Français or Português for the board words, word forms, the keyboard and the voice. Every button stays in its place. You can use a different app language, and you can show a second language on each button.")}</dd>
           <dt>{t("Use eye gaze or a head pointer")}</dt><dd>{t("Access → Eye gaze & head pointer. Use “Dwell” with a mouse, head-mouse or hardware eye tracker, or let AACFree use the front camera. Rest the pointer on a button to select it.")}</dd>
-          <dt>{t("Keep two devices in step")}</dt><dd>{t("Backup → Sync between devices. Send makes a passcode-locked file; Receive it on the other device. The newest version of each profile wins.")}</dd>
+          <dt>{t("Keep two devices in step")}</dt><dd>{t("Backup → Sync between devices. Set up automatic sync through one shared file, or Send a passcode-locked file and Receive it on the other device. Changes from every device are combined, button by button.")}</dd>
           <dt>{t("Never lose the boards")}</dt><dd>{t("Backup → Automatic backup saves dated files daily, weekly or monthly (Android: Documents/AACFree) and keeps as many copies as you choose. On Android, “Add a cloud copy” also keeps one in Google Drive, OneDrive or Dropbox. Turn on “Lock backups with a passcode” to encrypt them.")}</dd>
           <dt>{t('Undo a mistake')}</dt><dd>{t('In edit mode press Undo. For bigger mistakes, use Backup → Automatic snapshots.')}</dd>
           <dt>{t('Move to a new device')}</dt><dd>{t('Backup → Save backup file. On the new device, tap “I have a backup” on the first screen, or use Backup → Restore from file.')}</dd>

@@ -62,7 +62,7 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
               </button>
             ))}
           </div>
-          {!results.length && <p className="muted">{t('No matching pictures. Try different words, or the “Online” or “Photo” tab.')}</p>}
+          {!results.length && <p className="muted">{t('No matching pictures. Try different words, or the “More (online)” or “Photo” tab.')}</p>}
         </>
       ) : !open ? (
         <div className="lib-folders">
@@ -76,7 +76,7 @@ export function LibraryBrowser({ mode, onPick, initialQuery = '' }: Props) {
             <button key={c.id} className={`lib-folder ${c.builtIn ? '' : 'custom'}`} onClick={() => setOpenId(c.id)} aria-label={`${c.name} folder`}>
               <span className="lib-folder-icon">{c.icon ? <Symbol value={c.icon} lazy /> : <span className="lib-folder-blank">{c.name[0]}</span>}</span>
               <b>{c.name}</b>
-              <small>{c.symbols.length} {c.builtIn ? '' : '· yours'}</small>
+              <small>{c.symbols.length} {c.builtIn ? '' : t('· yours')}</small>
             </button>
           ))}
         </div>
@@ -155,13 +155,13 @@ export function CategoryEditor({ cat, onClose, onSaved, onDeleted }: {
       if (existing) { existing.name = name.trim(); existing.icon = icon; }
       else lib.categories.unshift({ id, name: name.trim(), icon, symbols: [] });
     });
-    showToast(cat ? 'Category saved' : 'Category created. Now add symbols to it.');
+    showToast(cat ? t('Category saved') : t('Category created. Now add symbols to it.'));
     onSaved(id);
   };
 
   return (
     <>
-      <Modal title={cat ? 'Edit category' : 'New category'} onClose={onClose}
+      <Modal title={cat ? t('Edit category') : t('New category')} onClose={onClose}
         footer={<>
           {cat && <button className="btn danger-outline" onClick={() => setConfirm(true)}><IconTrash /> {t('Delete')}</button>}
           <span className="spacer" />
@@ -215,13 +215,13 @@ export function SymbolEditor({ cat, sym, categories, onClose, initial }: {
       if (target.builtIn) (lib.additions[target.id] ??= []).unshift(entry);
       else lib.categories.find((c) => c.id === target.id)?.symbols.unshift(entry);
     });
-    showToast(sym ? 'Symbol saved' : `Added to “${target.name}”`);
+    showToast(sym ? t('Symbol saved') : t('Added to “{name}”', { name: target.name }));
     onClose();
   };
 
   return (
     <>
-      <Modal title={sym ? 'Edit symbol' : 'New symbol'} onClose={onClose}
+      <Modal title={sym ? t('Edit symbol') : t('New symbol')} onClose={onClose}
         footer={<>
           {sym && <button className="btn danger-outline" onClick={() => { updateLibrary((lib) => removeFrom(lib, sym.id), { undo: `Deleted “${sym.label}”` }); onClose(); }}><IconTrash /> {t('Delete')}</button>}
           <span className="spacer" />
@@ -231,7 +231,7 @@ export function SymbolEditor({ cat, sym, categories, onClose, initial }: {
         <div className="cat-editor">
           <button className="sym-opt preview" onClick={() => setPicking(true)} aria-label={t('Choose picture')}>
             {symbol ? <Symbol value={symbol} /> : <IconPlus size={40} />}
-            <span>{symbol ? 'Change picture' : 'Add picture'}</span>
+            <span>{symbol ? t('Change picture') : t('Add picture')}</span>
           </button>
           <div className="grow">
             <label className="field"><span>{t('Word')}</span>
@@ -239,10 +239,10 @@ export function SymbolEditor({ cat, sym, categories, onClose, initial }: {
             </label>
             <label className="field"><span>{t('Category')}</span>
               <select value={catId} onChange={(e) => setCatId(e.target.value)}>
-                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}{c.builtIn ? '' : ' (yours)'}</option>)}
+                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}{c.builtIn ? '' : t(' (yours)')}</option>)}
               </select>
             </label>
-            <label className="field"><span>Word type (colour on buttons)</span>
+            <label className="field"><span>{t('Word type (colour on buttons)')}</span>
               <select value={type} onChange={(e) => setType(e.target.value as WordType)}>
                 {(Object.keys(WORD_COLORS) as WordType[]).filter((w) => w !== 'folder').map((w) => <option key={w} value={w}>{t(WORD_COLORS[w].name)}</option>)}
               </select>

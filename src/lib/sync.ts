@@ -124,9 +124,9 @@ export function parseLeadingJSON(text: string): unknown {
 
 export function peekSyncFile(text: string): SyncFile {
   let f: SyncFile;
-  try { f = parseLeadingJSON(text) as SyncFile; } catch { throw new Error('This file is damaged or is not a AACFree sync file.'); }
+  try { f = parseLeadingJSON(text) as SyncFile; } catch { throw new Error('This file is damaged or is not an AACFree sync file.'); }
   if (!f || typeof f !== 'object' || f.app !== 'caleb' || f.kind !== 'sync' || typeof f.data !== 'string' || typeof f.salt !== 'string' || typeof f.iv !== 'string') {
-    throw new Error('This is not a AACFree sync file.');
+    throw new Error('This is not an AACFree sync file.');
   }
   if (f.v !== 1 && f.v !== 2) throw new Error('This file was made by a newer version of AACFree. Please update the app first.');
   return f;
@@ -234,16 +234,16 @@ export async function openSyncFile(f: SyncFile, passcode: string): Promise<Opene
   if (f.v === 1) {
     const plain = await unseal(f, passcode);
     let backup: { app?: string; data?: AppData; assets?: unknown };
-    try { backup = JSON.parse(new TextDecoder().decode(plain)); } catch { throw new Error('This file is damaged or is not a AACFree sync file.'); }
-    if (backup?.app !== 'caleb' || !backup.data?.profiles?.length) throw new Error('This is not a AACFree sync file.');
+    try { backup = JSON.parse(new TextDecoder().decode(plain)); } catch { throw new Error('This file is damaged or is not an AACFree sync file.'); }
+    if (backup?.app !== 'caleb' || !backup.data?.profiles?.length) throw new Error('This is not an AACFree sync file.');
     const data = migrate(structuredClone(backup.data)); // validates (throws on a bad or newer file)
     await storeAssets(backup.assets);
     return { data, devices: {}, legacy: true, salt: f.salt };
   }
   const plain = await unseal(f, normalizePasscode(passcode), { aad: headerAAD(f) });
   let payload: { app?: string; kind?: string; data?: AppData; devices?: unknown; assets?: unknown };
-  try { payload = JSON.parse(strFromU8(f.z === 'deflate' ? inflateSync(plain) : plain)); } catch { throw new Error('This file is damaged or is not a AACFree sync file.'); }
-  if (payload?.app !== 'caleb' || payload.kind !== 'sync-data' || !payload.data?.profiles?.length) throw new Error('This is not a AACFree sync file.');
+  try { payload = JSON.parse(strFromU8(f.z === 'deflate' ? inflateSync(plain) : plain)); } catch { throw new Error('This file is damaged or is not an AACFree sync file.'); }
+  if (payload?.app !== 'caleb' || payload.kind !== 'sync-data' || !payload.data?.profiles?.length) throw new Error('This is not an AACFree sync file.');
   const data = migrate(structuredClone(payload.data));
   await storeAssets(payload.assets);
   return { data, devices: cleanDevices(payload.devices), legacy: false, rev: f.rev, salt: f.salt };

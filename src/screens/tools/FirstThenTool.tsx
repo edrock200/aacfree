@@ -19,7 +19,7 @@ export function FirstThenTool() {
   const slot = (which: 'first' | 'then', item: PickedItem | null) => (
     <PressButton className={`ft-slot ${which} ${which === 'first' && firstDone ? 'done' : ''}`} data-scan-item
       onPress={() => (item ? speakText(item.label) : setPicking(which))}>
-      <small>{which === 'first' ? 'First' : 'Then'}</small>
+      <small>{which === 'first' ? t('First') : t('Then')}</small>
       {item ? <><Symbol value={item.symbol} /><b>{item.label}</b></> : <span className="muted">{t('Tap to choose')}</span>}
     </PressButton>
   );
