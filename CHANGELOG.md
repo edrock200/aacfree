@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.2 — 2026-11-17
+- **User guide:** a full illustrated guide to every screen, setting and tool is at **https://aacappfree.com/guide/**. It covers moving from another AAC app (from a picture, an Open Board file or a backup) and restoring onto a new device. Settings → Help & tips links to it.
+- **More of the app is translated.** Labels and messages in Phrases, the library, the symbol editor, backups, the timer, First/Then, Draw and Insights now show in Spanish, French and Portuguese too.
+- **Better pictures:** "park" now shows a playground, not a car parking, and "story" shows a storybook, not a page with Spanish text. Buttons you already have keep their picture until you change it.
+- Help & tips now names the right places: Settings → Boards & words → Edit for editing a button, the "More (online)" tab in the picture search, and sync that combines changes button by button.
+
 ## 0.7.1 — 2026-11-16
 - **For autistic and non-verbal people.** The app, the help, the website and the store listing now describe AACFree as being for autistic **and non-verbal** people and their families, in all four languages.
 - **The About me card no longer assumes autism.** New profiles get "I use this app to communicate, because talking is hard for me…". A card that still has the old default text is left as it is, and still translates when the language is switched. Cards the family wrote are never changed.

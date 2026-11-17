@@ -1,7 +1,7 @@
 {
   "name": "aacfree",
   "private": true,
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "AACFree — a free, open-source AAC (augmentative & alternative communication) app for autistic and non-verbal people and their families.",
   "type": "module",
   "license": "AGPL-3.0-or-later",
