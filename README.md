@@ -8,6 +8,8 @@ Web app (installable PWA) · Android APK · Works offline · No ads, no subscrip
 
 AACFree is an **augmentative and alternative communication (AAC)** app: tap picture-and-word buttons to build sentences, and AACFree speaks them aloud. It is designed from what autistic AAC users, parents and speech-language pathologists say they need ([research notes](docs/research.md)).
 
+**[Read the user guide](https://aacappfree.com/guide/)**: every screen, setting and tool explained step by step, with pictures, for parents, carers, teachers and therapists.
+
 <p align="center"><img src="site/screen-tablet.webp" width="720" alt="AACFree on a tablet"></p>
 
 ## Get it
@@ -17,6 +19,8 @@ AACFree is an **augmentative and alternative communication (AAC)** app: tap pict
 | **Android** (7.0+) | Download [**aacfree.apk**](https://github.com/edrock200/caleb/releases/latest/download/aacfree.apk) (always the newest version; the old `caleb.apk` link still works; changes are on the [Releases page](https://github.com/edrock200/caleb/releases)), open it, and allow "install unknown apps". |
 | **Android phones & tablets, Fire tablets** (with the Downloader app) | In the [Downloader](https://www.aftvnews.com/downloader/) app, enter code **5791841** (or go to [aftv.news/5791841](http://aftv.news/5791841)). It downloads the newest version. |
 | **Any browser / iPad / iPhone / Chromebook / PC** | Open the web app at **[aacappfree.com/app](https://aacappfree.com/app/)** and choose **Install** / **Add to Home Screen**. No app store needed, and it then works offline. On iPhone/iPad, add it to the Home Screen so Safari keeps its data. |
+
+New to AACFree? The [user guide](https://aacappfree.com/guide/) covers installing, first-time setup, [moving from another AAC app](https://aacappfree.com/guide/#moving-from-another-app) and [restoring a backup](https://aacappfree.com/guide/#restoring).
 
 ## Features
 
@@ -75,7 +79,7 @@ npm run android:apk    # build signed release APK → release/caleb-latest.apk
 Project guide for contributors and AI agents: [CLAUDE.md](CLAUDE.md). Changing the default words: [add-vocabulary skill](.claude/skills/add-vocabulary/SKILL.md).
 
 ### Website
-`.github/workflows/pages.yml` publishes `dist-site/` to GitHub Pages on every push to `main`: the landing page at `/`, the web app at `/app/`, and the APK at `/download/caleb-latest.apk`. Enable it under **Settings → Pages → Source: GitHub Actions**; the `github-pages` environment must allow deploys from `main`. The site is served at the custom domain **https://aacappfree.com** (set in Settings → Pages), with the web app at `/app/`.
+`.github/workflows/pages.yml` publishes `dist-site/` to GitHub Pages on every push to `main`: the landing page at `/`, the user guide at `/guide/` (from `site/guide/`; regenerate its screenshots with `npm run guide:shots`), the web app at `/app/`, and the APK at `/download/caleb-latest.apk`. Enable it under **Settings → Pages → Source: GitHub Actions**; the `github-pages` environment must allow deploys from `main`. The site is served at the custom domain **https://aacappfree.com** (set in Settings → Pages), with the web app at `/app/`.
 
 ### Android builds
 `.github/workflows/android.yml` builds the APK on pull requests. When you push a tag like `v1.0.1`, it also attaches the APK to a GitHub Release.
