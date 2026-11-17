@@ -1,0 +1,1 @@
+New app id, ready for Google Play. It installs next to an Android app from before 0.8: in the older app, Settings → Backup → Save backup file, then in this app tap "I have a backup" on the first screen. After checking, uninstall the older app.

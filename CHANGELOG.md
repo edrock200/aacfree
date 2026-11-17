@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0 — 2026-11-17
+- **iPhone and iPad app.** AACFree is ready for the App Store, as an app as well as the web app. In the app, boards are never wiped (Safari can clear a website's data after about 7 days without a visit), automatic backups go to the app's folder in the Files app with an optional copy in iCloud Drive, Google Drive, OneDrive or Dropbox, and automatic sync works through one shared file. It isn't in the App Store yet.
+- **The Android app is ready for Google Play**, with a new app id. It installs **next to** an Android app from before 0.8 rather than over it. Move your boards once: in the older app, Settings → Backup → **Save backup file**; then open the new app and tap **I have a backup** on its first screen. The first screen of the new app explains this too. After checking, uninstall the older app.
+- On iPad and iPhone (in the app and in Safari), Settings → Lock shows how to use **Guided Access** to stay in the app, and the voice settings say where to download more voices.
+
 ## 0.7.4 — 2026-11-17
 - The source code has moved to **https://github.com/edrock200/aacfree**. Settings → Help & tips, the website and the guide link there. Old links still redirect.
 - Each release offers one Android file, `aacfree.apk`. The newest version is always at https://github.com/edrock200/aacfree/releases/latest/download/aacfree.apk and https://aacappfree.com/download/aacfree.apk.
