@@ -57,7 +57,7 @@ export function HelpPanel() {
         <p>{t('AACFree is a free, open-source AAC app made for autistic and non-verbal people and their families. No ads, no subscriptions, no accounts. Everything stays on this device.')}</p>
         <p className="muted small">
           {t('Pictograms: ARASAAC (arasaac.org). Author: Sergio Palao. Origin: ARASAAC, Government of Aragón (Spain). License: CC BY-NC-SA 4.0.')}{' '}
-          {t('Font: Atkinson Hyperlegible, Braille Institute (SIL OFL). App code: GNU AGPL-3.0-or-later. Source code: github.com/edrock200/caleb')}
+          {t('Font: Atkinson Hyperlegible, Braille Institute (SIL OFL). App code: GNU AGPL-3.0-or-later. Source code: github.com/edrock200/aacfree')}
         </p>
         <p className="muted small">{t('Version {v}', { v: __APP_VERSION__ })}</p>
       </Section>

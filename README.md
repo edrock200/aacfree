@@ -16,8 +16,7 @@ AACFree is an **augmentative and alternative communication (AAC)** app: tap pict
 
 | Platform | How |
 |---|---|
-| **Android** (7.0+) | Download [**aacfree.apk**](https://github.com/edrock200/caleb/releases/latest/download/aacfree.apk) (always the newest version; changes are on the [Releases page](https://github.com/edrock200/caleb/releases)), open it, and allow "install unknown apps". |
-| **Android phones & tablets, Fire tablets** (with the Downloader app) | In the [Downloader](https://www.aftvnews.com/downloader/) app, enter code **5791841** (or go to [aftv.news/5791841](http://aftv.news/5791841)). It downloads the newest version. |
+| **Android** (7.0+) | Download [**aacfree.apk**](https://github.com/edrock200/aacfree/releases/latest/download/aacfree.apk) (always the newest version; changes are on the [Releases page](https://github.com/edrock200/aacfree/releases)), open it, and allow "install unknown apps". |
 | **Any browser / iPad / iPhone / Chromebook / PC** | Open the web app at **[aacappfree.com/app](https://aacappfree.com/app/)** and choose **Install** / **Add to Home Screen**. No app store needed, and it then works offline. On iPhone/iPad, add it to the Home Screen so Safari keeps its data. |
 
 New to AACFree? The [user guide](https://aacappfree.com/guide/) covers installing, first-time setup, [moving from another AAC app](https://aacappfree.com/guide/#moving-from-another-app) and [restoring a backup](https://aacappfree.com/guide/#restoring).

@@ -1,0 +1,1 @@
+El código fuente está ahora en github.com/edrock200/aacfree, y Ayuda y consejos enlaza allí. Cada versión ofrece un solo archivo de Android: aacfree.apk.

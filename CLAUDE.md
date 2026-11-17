@@ -8,7 +8,6 @@ Everything is offline-first and stored on the device. There is no server and no 
 - the Android package id `org.calebaac.app` and its signing key (alias `caleb`);
 - the IndexedDB database `caleb`, the `caleb:` localStorage keys and other storage/cache names;
 - the `app: 'caleb'` marker inside backup and sync files (older app versions check it);
-- the repo name, and the `caleb.apk` release asset that the Downloader short link points at.
 
 Backup and sync files are named `aacfree-…` and automatic backups go to `Documents/AACFree`. Older `caleb-…` files, the older `Documents/Caleb` folder and OBF files with `ext_caleb_*` fields are still read.
 

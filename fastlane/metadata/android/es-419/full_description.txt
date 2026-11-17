@@ -40,4 +40,4 @@ Tipografía: Atkinson Hyperlegible, del Braille Institute.
 
 AACFree es una herramienta de comunicación, no un dispositivo médico. Elige y configura la CAA junto con un fonoaudiólogo o terapeuta de lenguaje.
 
-Código fuente, preguntas y sugerencias: github.com/edrock200/caleb
+Código fuente, preguntas y sugerencias: github.com/edrock200/aacfree
