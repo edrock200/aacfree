@@ -1,0 +1,1 @@
+Nuevo identificador de app, lista para Google Play. Se instala junto a una app de Android anterior a la 0.8: en la app anterior, Ajustes → Copia de seguridad → Guardar copia de seguridad, y en esta app toca "Tengo una copia de seguridad" en la primera pantalla. Después, desinstala la app anterior.

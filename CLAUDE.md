@@ -1,11 +1,11 @@
 # CLAUDE.md — AACFree
 
 AACFree (AGPL-3.0-or-later) is a free, open-source **AAC (augmentative & alternative communication)** app for autistic
-and non-verbal people and their families. It ships as a **web app / PWA** and an **Android APK** (Capacitor).
+and non-verbal people and their families. It ships as a **web app / PWA**, an **Android app** and an **iPhone/iPad app** (both Capacitor).
 Everything is offline-first and stored on the device. There is no server and no accounts.
 
 **Name:** everything users see says **AACFree** (website: https://aacappfree.com). Never write the app's earlier name in anything users see (app, website, guide, changelog, store text). A few internal identifiers still use `caleb` and must **never** change, because changing them would lose families' data or break updates:
-- the Android package id `org.calebaac.app` and its signing key (alias `caleb`);
+- the Android signing key (alias `caleb`), which every Android release must keep;
 - the IndexedDB database `caleb`, the `caleb:` localStorage keys and other storage/cache names;
 - the `app: 'caleb'` marker inside backup and sync files (older app versions check it);
 
@@ -14,7 +14,9 @@ Backup and sync files are named `aacfree-…` and automatic backups go to `Docum
 ## Stack
 - React 19, TypeScript, Vite 8 (`src/`), zustand store (`src/store.ts`), IndexedDB via `idb` (`src/lib/db.ts`)
 - PWA: `vite-plugin-pwa`, which precaches the app and every bundled symbol
-- Android: Capacitor 8 (`android/`, `capacitor.config.ts`). Native TTS uses `@capacitor-community/text-to-speech`, because the Android WebView has no `speechSynthesis`.
+- Android: Capacitor 8 (`android/`, `capacitor.config.ts`), package id **`com.aacappfree.app`** since 0.8.0 (versions before 0.8 used another id, so they install as a separate app and families move their boards with a backup file). Native TTS uses `@capacitor-community/text-to-speech`, because the Android WebView has no `speechSynthesis`.
+- iOS: Capacitor 8 (`ios/`, Swift Package Manager, iOS 16.4+), bundle id `com.aacappfree.app`. The native plugins `AACFreeFiles` (document picker + bookmarks, same JS API as Android) and `AACFreeScreen` are in `ios/App/App/AACFreePlugins.swift`, registered by `AACFreeViewController` (used by `SceneDelegate`). New Swift files must also be added to `project.pbxproj`. `.github/workflows/ios.yml` builds for the Simulator on PRs and can upload to TestFlight. Publishing: `docs/app-store.md`.
+- `src/lib/platform.ts`: `isIOSApp()`, `isAndroidApp()`, `isIOSDevice()`. `Capacitor.isNativePlatform()` means Android **or** iOS, so wording that names Android-only steps must check `isAndroidApp()`.
 - Symbols: ARASAAC pictograms (CC BY-NC-SA) bundled as WebP in `public/symbols/` and mapped in `src/data/symbols.json`
 - Font: Atkinson Hyperlegible (bundled via @fontsource)
 

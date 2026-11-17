@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "O AACFree usa a câmera para tirar fotos para os botões e, se você ativar, para apontar com a cabeça ou com os olhos. As imagens ficam neste aparelho.";
+"NSMicrophoneUsageDescription" = "O AACFree usa o microfone para gravar uma voz para um botão. As gravações ficam neste aparelho.";
+"NSPhotoLibraryUsageDescription" = "O AACFree permite escolher uma foto para um botão ou a imagem de uma prancha para importar. As fotos ficam neste aparelho.";
+"NSPhotoLibraryAddUsageDescription" = "O AACFree pode salvar nas suas fotos uma imagem que você compartilhar pelo app.";

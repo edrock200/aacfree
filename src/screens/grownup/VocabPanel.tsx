@@ -1,3 +1,4 @@
+import { isIOSApp } from '../../lib/platform';
 import { lazy, Suspense, useState } from 'react';
 import { useStore, useProfile } from '../../store';
 import { Choice, Section, Toggle } from './controls';
@@ -169,7 +170,7 @@ export function VocabPanel({ onDone }: { onDone: () => void }) {
               </label>
             ))}
           </div>
-          <p className="muted small">{t('On Android the boards are saved as a web page. Open it in Chrome and choose Print, or send it to a computer.')}</p>
+          <p className="muted small">{isIOSApp() ? t('In the iPad and iPhone app the boards are saved as a web page. In the share sheet, choose Print, or save it to Files.') : t('On Android the boards are saved as a web page. Open it in Chrome and choose Print, or send it to a computer.')}</p>
         </Modal>
       )}
       {confirmLayout && (

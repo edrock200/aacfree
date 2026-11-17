@@ -15,7 +15,8 @@ description: Cut a new AACFree release — bump versions, run checks, build the 
    node scripts/e2e/screens.mjs http://localhost:4173/ /tmp/shots   # expects "No page errors"
    ```
    Look at a few screenshots (home, food board, settings) before shipping.
-3. **AAB for Google Play:** `cd android && ./gradlew bundleRelease` → `android/app/build/outputs/bundle/release/app-release.aab` (see docs/play-store.md).
+3. **AAB for Google Play:** signed CI runs build it (artifact **aacfree-play-bundle**); locally `cd android && ./gradlew bundleRelease` → `android/app/build/outputs/bundle/release/app-release.aab` (see docs/play-store.md).
+   **iOS:** after the release is on `main`, run the **iOS app** workflow with **upload** (needs the App Store Connect secrets; see docs/app-store.md), then submit the build in App Store Connect.
 4. **APK:** follow the `build-android` skill. Copy the result to `release/aacfree-latest.apk` (committed so families can download it straight from GitHub).
 5. **Website:** `npm run build:site` builds the landing page (`site/`) plus the web app under `app/` into `dist-site/`. The GitHub Pages workflow (`.github/workflows/pages.yml`) deploys it automatically on pushes to `main`.
 6. Update `CHANGELOG.md` with a `## <version> — <date>` section (it becomes the release notes), commit, and push.

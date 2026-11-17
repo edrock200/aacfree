@@ -1,3 +1,4 @@
+import { isIOSApp } from './platform';
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import type { AppData } from '../types';
@@ -141,7 +142,7 @@ export async function chooseCloudFile(): Promise<string | null> {
 export async function forgetCloudFile() { await setPrefs({ cloudUri: undefined, cloudName: undefined }); }
 
 export async function backupFolderName(): Promise<string | null> {
-  if (native()) return 'Documents/AACFree';
+  if (native()) return isIOSApp() ? 'Files → AACFree' : 'Documents/AACFree';
   const h = await getMeta<DirHandle>('backupFolder');
   return h?.name ?? null;
 }
@@ -307,7 +308,7 @@ export async function runAutoBackup(data: AppData, opts: { force?: boolean; inte
     else {
       try {
         await writeDeviceFile(name, blob);
-        succeed('device', `Documents/AACFree/${name}`);
+        succeed('device', `${isIOSApp() ? 'Files → AACFree' : 'Documents/AACFree'}/${name}`);
         await rotateDevice(prefs.keep, period).catch((e) => console.warn('rotation failed', e));
       } catch (e) {
         console.warn('device backup failed', e);

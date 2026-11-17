@@ -64,7 +64,7 @@ New to AACFree? The [user guide](https://aacappfree.com/guide/) covers installin
 
 ## Development
 
-Requirements: Node 22+. For Android you also need JDK 21 and the Android SDK (platform 36). See [`.claude/skills/build-android`](.claude/skills/build-android/SKILL.md).
+Requirements: Node 22+. For Android you also need JDK 21 and the Android SDK (platform 36); for iOS, a Mac with Xcode 16 or GitHub's macOS runners. See [`.claude/skills/build-android`](.claude/skills/build-android/SKILL.md).
 
 ```bash
 npm install
@@ -87,10 +87,15 @@ Project guide for contributors and AI agents: [CLAUDE.md](CLAUDE.md). Changing t
 ```properties
 storeFile=signing/release.jks
 storePassword=…
-keyAlias=caleb
+keyAlias=<your key alias>
 keyPassword=…
 ```
 For CI, add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Without them, CI builds a debug-signed APK. **Always sign updates with the same key.** Android refuses to install an update signed with a different key, and uninstalling first erases the app's data. Save a backup file first (Settings → Backup).
+
+Signed runs also build the Google Play app bundle (`aacfree-v<version>.aab`, the **aacfree-play-bundle** artifact of the run). The Android package id is `com.aacappfree.app` (from 0.8.0). Publishing on Google Play: [`docs/play-store.md`](docs/play-store.md).
+
+### iPhone and iPad builds
+The iOS app is the same web app in a Capacitor shell (`ios/`, Swift Package Manager, iOS 16.4+, bundle id `com.aacappfree.app`). Its two native plugins are in `ios/App/App/AACFreePlugins.swift`. `.github/workflows/ios.yml` builds it for the Simulator on every pull request; run it by hand with **upload** to sign it and send it to TestFlight (needs the App Store Connect API key secrets). With a Mac: `npm run build && npx cap sync ios && npx cap open ios`. Publishing on the App Store: [`docs/app-store.md`](docs/app-store.md).
 
 ## Roadmap / ideas
 - More languages (each is a pack in `src/i18n/packs.ts`: UI strings, vocabulary, words, grammar, keyboard)

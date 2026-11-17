@@ -14,10 +14,10 @@ if (keystorePropsFile.exists()) {
 }
 
 android {
-    namespace = "org.calebaac.app"
+    namespace = "com.aacappfree.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "org.calebaac.app"
+        applicationId "com.aacappfree.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode appVersionCode

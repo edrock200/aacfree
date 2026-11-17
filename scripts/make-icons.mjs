@@ -58,4 +58,18 @@ try {
   }
   console.log('Android icons written');
 } catch { /* no android project yet */ }
+// iOS app icon (one 1024 px square, no transparency: iOS rounds the corners itself) and splash.
+try {
+  const set = out('ios/App/App/Assets.xcassets');
+  await access(set);
+  const full = Buffer.from(svg.toString().replace(/<rect width="512" height="512" rx="112"/, '<rect width="512" height="512"'));
+  await sharp(full).resize(1024, 1024).flatten({ background: '#1f8a75' }).removeAlpha()
+    .png().toFile(join(set, 'AppIcon.appiconset/AppIcon-512@2x.png'));
+  const logo = await sharp(svg).resize(760, 760).png().toBuffer();
+  for (const f of ['splash-2732x2732.png', 'splash-2732x2732-1.png', 'splash-2732x2732-2.png']) {
+    await sharp({ create: { width: 2732, height: 2732, channels: 3, background: '#f6f3ee' } })
+      .composite([{ input: logo, gravity: 'center' }]).png().toFile(join(set, 'Splash.imageset', f));
+  }
+  console.log('iOS icons written');
+} catch { /* no ios project yet */ }
 console.log('Icons done');

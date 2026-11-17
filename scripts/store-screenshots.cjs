@@ -14,6 +14,8 @@
  * Options (environment variables):
  *   RAW=1       also keep the unframed captures in images/raw/ (for checking; git-ignored)
  *   ONLY=phone  or ONLY=tablet or ONLY=art: regenerate one part only
+ *   IOS=1       App Store sizes instead, into fastlane/screenshots/en-US/: iPhone 6.9" (1320×2868)
+ *               and iPad 13" (2752×2064)
  *
  * Needs `playwright` (Chromium already installed; do not run `playwright install`) and `sharp` (dev dependency).
  */
@@ -24,9 +26,18 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const url = process.argv[2] || 'http://localhost:4199/';
+const ios = !!process.env.IOS;
 const outDir = path.join(root, 'fastlane/metadata/android/en-US/images');
-const phoneDir = path.join(outDir, 'phoneScreenshots');
-const tabletDir = path.join(outDir, 'tenInchScreenshots');
+const iosDir = path.join(root, 'fastlane/screenshots/en-US');
+const phoneDir = ios ? iosDir : path.join(outDir, 'phoneScreenshots');
+const tabletDir = ios ? iosDir : path.join(outDir, 'tenInchScreenshots');
+// Capture size (CSS px × scale) and framed size for each store.
+const PHONE = ios
+  ? { viewport: { width: 440, height: 956 }, scale: 3, frame: { width: 1320, height: 2868, captionSize: 96, top: 430, radius: 48 } }
+  : { viewport: { width: 432, height: 768 }, scale: 2.5, frame: { width: 1080, height: 1920, captionSize: 76, top: 300, radius: 36 } };
+const TABLET = ios
+  ? { viewport: { width: 1376, height: 1032 }, scale: 2, frame: { width: 2752, height: 2064, captionSize: 104, top: 300, radius: 40 } }
+  : { viewport: { width: 1280, height: 800 }, scale: 2, frame: { width: 2560, height: 1600, caption: '', captionSize: 92, top: 230, radius: 36 } };
 const rawDir = path.join(outDir, 'raw');
 const only = process.env.ONLY || '';
 const keepRaw = !!process.env.RAW;
@@ -47,10 +58,20 @@ const errors = [];
 // ---------- helpers for driving the app ----------
 async function newApp(browser, viewport, scale) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: scale, reducedMotion: 'reduce' });
+  // Headless Chromium has no voices; a real device does. Pretend one exists so no "no voices" notice shows.
+  await ctx.addInitScript(() => {
+    const voice = { name: 'English', lang: 'en-US', voiceURI: 'English', localService: true, default: true };
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    synth.getVoices = () => [voice];
+    synth.speak = (u) => { setTimeout(() => { u.onstart?.(new Event('start')); u.onend?.(new Event('end')); }, 50); };
+  });
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(url);
   await page.waitForSelector('.onboarding');
+  // Short notices ("Message cleared · Undo") would cover the boards in the pictures.
+  await page.addStyleTag({ content: '.toast { display: none !important; }' });
   return { ctx, page };
 }
 const tap = (page, label) => page.click(`.grid .cell[aria-label="${label}"]`);
@@ -105,10 +126,8 @@ async function frame(browser, raw, { width, height, caption, captionSize, top, r
 async function save(browser, kind, n, slug, raw, caption) {
   const phone = kind === 'phone';
   const dir = phone ? phoneDir : tabletDir;
-  const framed = await frame(browser, raw, phone
-    ? { width: 1080, height: 1920, caption, captionSize: 76, top: 300, radius: 36 }
-    : { width: 2560, height: 1600, caption, captionSize: 92, top: 230, radius: 36 });
-  const file = path.join(dir, `${n}_${slug}.png`);
+  const framed = await frame(browser, raw, { ...(phone ? PHONE : TABLET).frame, caption });
+  const file = path.join(dir, ios ? `${phone ? 'iPhone' : 'iPad'}_${n}_${slug}.png` : `${n}_${slug}.png`);
   // Play wants screenshots as 24-bit PNG (no alpha).
   await sharp(framed).removeAlpha().png({ compressionLevel: 9 }).toFile(file);
   if (keepRaw) fs.writeFileSync(path.join(rawDir, `${kind}-${n}_${slug}.png`), raw);
@@ -118,7 +137,7 @@ async function save(browser, kind, n, slug, raw, caption) {
 // ---------- phone: 432×768 CSS px at 2.5× = 1080×1920 ----------
 async function phoneShots(browser) {
   const shot = async (page) => page.screenshot({ type: 'png' });
-  const { ctx, page } = await newApp(browser, { width: 432, height: 768 }, 2.5);
+  const { ctx, page } = await newApp(browser, PHONE.viewport, PHONE.scale);
   await page.click('text=Skip setup');
   await page.waitForSelector('.grid');
   await settle(page);
@@ -146,7 +165,7 @@ async function phoneShots(browser) {
   await clearMessage(page);
 
   await page.click('.navbtn[aria-label="Phrases"]');
-  await page.click('.tabs .tab:has-text("Boundaries")');
+  await page.click('.phrase-folder:has-text("Boundaries")');
   await settle(page, 300);
   await save(browser, 'phone', 4, 'phrases', await shot(page), 'Ready-made phrases,<br>including boundaries');
 
@@ -167,7 +186,7 @@ async function phoneShots(browser) {
 // ---------- 10-inch tablet: 1280×800 CSS px at 2× = 2560×1600 ----------
 async function tabletShots(browser) {
   const shot = async (page) => page.screenshot({ type: 'png' });
-  const { ctx, page } = await newApp(browser, { width: 1280, height: 800 }, 2);
+  const { ctx, page } = await newApp(browser, TABLET.viewport, TABLET.scale);
   await page.fill('input', 'Sam');
   await page.click('text=Next');
   await page.click('.layout-card:has-text("Full core")');
@@ -260,7 +279,7 @@ async function art(browser) {
   for (const d of [outDir, phoneDir, tabletDir, ...(keepRaw ? [rawDir] : [])]) fs.mkdirSync(d, { recursive: true });
   const browser = await chromium.launch();
   try {
-    if (!only || only === 'art') await art(browser);
+    if ((!only || only === 'art') && !ios) await art(browser);
     if (!only || only === 'phone') await phoneShots(browser);
     if (!only || only === 'tablet') await tabletShots(browser);
   } finally {

@@ -14,7 +14,7 @@ Everything that doesn't need the developer account is already done and lives in 
 | Privacy policy | `site/privacy.html` → `https://aacappfree.com/privacy.html` |
 | Screenshot generator | `scripts/store-screenshots.cjs` (see [Regenerating the graphics](#regenerating-the-graphics)) |
 
-Package name: **`org.calebaac.app`**. It can never change after the first upload.
+Package name: **`com.aacappfree.app`** (since 0.8.0). It can never change after the first upload. Versions before 0.8 used a different package id, so they install as a separate app: families move their boards with a backup file (the new app's first-run screen explains how).
 
 ---
 
@@ -49,9 +49,9 @@ There are two ways to set this up. Choose before the first upload, because it ca
 1. **Test and release → Setup → App signing**: keep the default, **"Use a Google-generated key"**.
 2. Build the AAB (step 4) signed with your existing `release.jks`. The first upload registers it as the upload key.
 
-Downside: the Play version is then signed by Google's key, and the APKs on GitHub/the website by yours. Android treats them as different apps for updates. A family that installed the GitHub APK can't update to the Play version in place. They would have to **save a backup (Settings → Backup), uninstall, install from Play, and restore**. Uninstalling erases the app's data.
+Downside: the Play version is then signed by Google's key, and the APKs on GitHub/the website by yours. Android won't update one with the other. A family that installed the GitHub APK can't update to the Play version in place. They would have to **save a backup (Settings → Backup), uninstall, install from Play, and restore**. Uninstalling erases the app's data.
 
-### Option B (keeps existing installs upgradable): your existing key becomes the app signing key
+### Option B (recommended: GitHub and Play builds update each other): your existing key becomes the app signing key
 1. Create a **new** private upload key, and keep it outside git:
    ```bash
    keytool -genkeypair -v -keystore android/signing/upload.jks -alias upload \
@@ -68,7 +68,11 @@ Either way, update the CI secrets (`ANDROID_KEYSTORE_BASE64` etc., see README) i
 
 ## 4. Build the Android App Bundle (AAB)
 
-Play only accepts `.aab` files, not APKs. You need the Android SDK and JDK 21 (see `.claude/skills/build-android/SKILL.md`).
+Play only accepts `.aab` files, not APKs.
+
+**From CI:** every signed run of the **Android APK** workflow (for example a release) also builds `aacfree-v<version>.aab`. Open the run in GitHub Actions and download the **aacfree-play-bundle** artifact. It is signed with the release key from the `ANDROID_KEYSTORE_*` secrets, so it is ready to upload with option A. With option B, Play expects the upload key: either register the release key's certificate as the upload certificate, if the Console accepts it, or build the bundle locally with `upload.jks` as below.
+
+**Locally:** you need the Android SDK and JDK 21 (see `.claude/skills/build-android/SKILL.md`).
 
 ```bash
 npm ci
@@ -183,7 +187,7 @@ AACFree collects and shares nothing. Suggested answers:
 ### Optional: automate uploads with fastlane
 The metadata is already in fastlane `supply` layout. To push text, graphics and AABs from the command line later, create a Google Cloud service account with Play Console access (Setup → API access), save its JSON key **outside git**, and run:
 ```bash
-fastlane supply --package_name org.calebaac.app --json_key /path/to/key.json \
+fastlane supply --package_name com.aacappfree.app --json_key /path/to/key.json \
   --aab android/app/build/outputs/bundle/release/app-release.aab --track internal
 ```
 This is optional. Copying and pasting in the Console works fine.

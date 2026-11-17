@@ -1,4 +1,4 @@
-package org.calebaac.app;
+package com.aacappfree.app;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,9 +21,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Lets Caleb keep a backup file in any storage provider the family chooses
+ * Lets AACFree keep a backup file in any storage provider the family chooses
  * (Google Drive, OneDrive, Dropbox, an SD card…) through Android's system file
- * picker. The family picks the place once; Caleb keeps permission and
+ * picker. The family picks the place once; AACFree keeps permission and
  * overwrites that file on every automatic backup. No accounts or API keys.
  */
 @CapacitorPlugin(name = "AACFreeFiles")
@@ -35,7 +35,7 @@ public class AACFreeFilesPlugin extends Plugin {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/json");
-        intent.putExtra(Intent.EXTRA_TITLE, call.getString("name", "caleb-backup.json"));
+        intent.putExtra(Intent.EXTRA_TITLE, call.getString("name", "aacfree-backup.json"));
         startActivityForResult(call, intent, "onDocumentPicked");
     }
 
@@ -83,7 +83,7 @@ public class AACFreeFilesPlugin extends Plugin {
         if (uriStr == null) { call.reject("uri is required"); return; }
         String part = call.getString("part");
         String data = call.getString("data");
-        java.io.File tmp = new java.io.File(getContext().getCacheDir(), "caleb-cloud-backup.part");
+        java.io.File tmp = new java.io.File(getContext().getCacheDir(), "aacfree-cloud-backup.part");
         try {
             byte[] bytes = data != null
                 ? android.util.Base64.decode(data, android.util.Base64.DEFAULT)

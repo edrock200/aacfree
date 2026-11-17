@@ -6,8 +6,9 @@ import { UI as talk } from './talk';
 import { UI as sync } from './sync';
 import { UI as lead } from './lead';
 import { UI as picture } from './picture';
+import { UI as ios } from './ios';
 
 /** v0.5 strings, kept in one file per work area so parallel work never collides. */
 export function v05(id: 'es' | 'fr' | 'pt'): Record<string, string> {
-  return { ...data[id], ...access[id], ...lang[id], ...talk[id], ...sync[id], ...lead[id], ...interfaceUI[id], ...picture[id] };
+  return { ...data[id], ...access[id], ...lang[id], ...talk[id], ...sync[id], ...lead[id], ...interfaceUI[id], ...picture[id], ...ios[id] };
 }
