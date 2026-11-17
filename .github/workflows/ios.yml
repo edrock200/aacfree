@@ -43,10 +43,10 @@ jobs:
           sleep 25
           xcrun simctl io "$DEV" screenshot build/ipad.png
           xcrun simctl spawn "$DEV" log show --last 2m --style compact --predicate 'process == "App"' > build/app.log || true
-          grep -E "⚡️|error|Error" build/app.log | grep -v "Load failed for asset" | tail -n 40 || true
+          echo "--- web app messages ---"; grep "⚡️" build/app.log | tail -n 40 || true
           if ! xcrun simctl spawn "$DEV" launchctl list | grep -q com.aacappfree.app; then echo "::error::The app is not running (it crashed)."; exit 1; fi
-          python3 -m pip install --quiet --user pillow
-          python3 - <<'PY'
+          python3 -m venv "$RUNNER_TEMP/venv" && "$RUNNER_TEMP/venv/bin/pip" install --quiet pillow
+          "$RUNNER_TEMP/venv/bin/python" - <<'PY'
           from PIL import Image
           im = Image.open('build/ipad.png').convert('RGB').resize((200, 150))
           colours = len(set(im.getdata()))
