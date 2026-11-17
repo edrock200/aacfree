@@ -44,4 +44,4 @@ Font: Atkinson Hyperlegible, by the Braille Institute.
 
 AACFree is a communication tool, not a medical device. Please work with a speech-language pathologist when choosing and setting up AAC.
 
-Source code, questions and suggestions: github.com/edrock200/caleb
+Source code, questions and suggestions: github.com/edrock200/aacfree

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.4 — 2026-11-17
+- The source code has moved to **https://github.com/edrock200/aacfree**. Settings → Help & tips, the website and the guide link there. Old links still redirect.
+- Each release offers one Android file, `aacfree.apk`. The newest version is always at https://github.com/edrock200/aacfree/releases/latest/download/aacfree.apk and https://aacappfree.com/download/aacfree.apk.
+
 ## 0.7.3 — 2026-11-17
 - The app, the website, the user guide and the store text now use only the name AACFree.
 - Boards exported as Open Board files (.obz) mark AACFree's word types and colours with AACFree's own field names. Files exported by earlier versions still import with their colours and word types.

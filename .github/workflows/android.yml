@@ -106,9 +106,7 @@ jobs:
           fi
           # Same file under a fixed name, so the newest release is always at
           # https://github.com/<owner>/<repo>/releases/latest/download/aacfree.apk
-          # caleb.apk is the same file under a legacy name: the Downloader short link (code 5791841) points at it.
           cp "../$OUT" ../aacfree.apk
-          cp "../$OUT" ../caleb.apk
       # Never leave key material on the runner, even when the build fails.
       - name: Remove signing key
         if: always()
@@ -120,7 +118,6 @@ jobs:
           path: |
             aacfree-v*.apk
             aacfree.apk
-            caleb.apk
 
   release:
     needs: apk
@@ -147,8 +144,6 @@ jobs:
             echo
             echo "---"
             echo "**Install on Android (7.0+):** download \`aacfree.apk\` below, open it, and allow \"install unknown apps\". Updating keeps all boards and settings."
-            echo
-            echo "**Android phones & tablets, or Fire tablets:** in the Downloader app, enter code **5791841** (or go to http://aftv.news/5791841)."
             echo
             echo "The newest version is always at https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/aacfree.apk"
             echo
@@ -182,4 +177,3 @@ jobs:
           files: |
             aacfree.apk
             aacfree-v*.apk
-            caleb.apk
