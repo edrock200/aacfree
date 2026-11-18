@@ -28,10 +28,14 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const url = process.argv[2] || 'http://localhost:4199/';
 const ios = !!process.env.IOS;
+// AMAZON=1: Amazon Appstore, into fastlane/amazon/: 1920×1080 screenshots (run with ONLY=tablet)
+// plus the 512×512 and 114×114 icons with transparency.
+const amazon = !!process.env.AMAZON;
+const amazonDir = path.join(root, 'fastlane/amazon');
 const outDir = path.join(root, 'fastlane/metadata/android/en-US/images');
 const iosDir = path.join(root, 'fastlane/apple/screenshots/en-US');
 const phoneDir = ios ? iosDir : path.join(outDir, 'phoneScreenshots');
-const tabletDir = ios ? iosDir : path.join(outDir, 'tenInchScreenshots');
+const tabletDir = amazon ? path.join(amazonDir, 'screenshots') : ios ? iosDir : path.join(outDir, 'tenInchScreenshots');
 // Capture size (CSS px × scale) and framed size for each store.
 // IOS65=1: the iPhone 6.5" Display slot (1284 × 2778), for when App Store Connect asks for it.
 // IOS63=1: the iPhone 6.1"/6.3" Display slot (1206 × 2622).
@@ -44,7 +48,9 @@ const PHONE = ios && ios63
   : ios
   ? { viewport: { width: 440, height: 956 }, scale: 3, frame: { width: 1320, height: 2868, captionSize: 96, top: 430, radius: 48 } }
   : { viewport: { width: 432, height: 768 }, scale: 2.5, frame: { width: 1080, height: 1920, captionSize: 76, top: 300, radius: 36 } };
-const TABLET = ios
+const TABLET = amazon
+  ? { viewport: { width: 1440, height: 810 }, scale: 4 / 3, frame: { width: 1920, height: 1080, captionSize: 60, top: 150, radius: 24 } }
+  : ios
   ? { viewport: { width: 1376, height: 1032 }, scale: 2, frame: { width: 2752, height: 2064, captionSize: 104, top: 300, radius: 40 } }
   : { viewport: { width: 1280, height: 800 }, scale: 2, frame: { width: 2560, height: 1600, caption: '', captionSize: 92, top: 230, radius: 36 } };
 const rawDir = path.join(outDir, 'raw');
@@ -295,11 +301,22 @@ async function art(browser) {
   console.log('wrote fastlane/metadata/android/en-US/images/featureGraphic.png');
 }
 
+// Amazon Appstore icons: PNG with transparency (the rounded corners stay see-through).
+async function amazonIcons() {
+  fs.mkdirSync(amazonDir, { recursive: true });
+  for (const size of [512, 114]) {
+    const file = path.join(amazonDir, `icon-${size}.png`);
+    await sharp(Buffer.from(iconSvg), { density: 72 * Math.ceil((size * 2) / 512) }).resize(size, size).png().toFile(file);
+    console.log('wrote', path.relative(root, file));
+  }
+}
+
 (async () => {
   for (const d of [outDir, phoneDir, tabletDir, ...(keepRaw ? [rawDir] : [])]) fs.mkdirSync(d, { recursive: true });
   const browser = await chromium.launch();
   try {
-    if ((!only || only === 'art') && !ios) await art(browser);
+    if ((!only || only === 'art') && !ios && !amazon) await art(browser);
+    if (amazon) await amazonIcons();
     if (!only || only === 'phone') await phoneShots(browser);
     if (!only || only === 'tablet') await tabletShots(browser);
   } finally {
