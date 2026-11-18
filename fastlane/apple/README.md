@@ -6,7 +6,8 @@ Everything App Store Connect asks for, made to Apple's [asset best practices](ht
 
 | What | File(s) | Size | Where it goes in App Store Connect |
 |---|---|---|---|
-| iPhone screenshots (6) | `screenshots/en-US/iPhone_*.png` | 1320 × 2868 (iPhone 6.9") | Version page → Previews and Screenshots → iPhone 6.9" Display. Smaller iPhones use these automatically. |
+| iPhone 6.9" screenshots (6) | `screenshots/en-US/iPhone69_*.png` | 1320 × 2868 | Version page → Previews and Screenshots → **iPhone 6.9" Display**. Smaller iPhones use these automatically. |
+| iPhone 6.5" screenshots (6) | `screenshots/en-US/iPhone65_*.png` | 1284 × 2778 | Only if App Store Connect shows an **iPhone 6.5" Display** slot: that slot doesn't accept the 6.9" size. |
 | iPad screenshots (6) | `screenshots/en-US/iPad_*.png` | 2752 × 2064 (iPad 13") | Same, iPad 13" Display. Smaller iPads use these automatically. |
 | Product page header (optional) | `creative/header-21x9.png` | 3840 × 1646, 21:9 | App Store → Creative assets (where offered) |
 | Search results art (optional) | `creative/search-3x2.png` | 3840 × 2560, 3:2 | Same |

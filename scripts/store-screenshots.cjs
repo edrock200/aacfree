@@ -15,7 +15,7 @@
  *   RAW=1       also keep the unframed captures in images/raw/ (for checking; git-ignored)
  *   ONLY=phone  or ONLY=tablet or ONLY=art: regenerate one part only
  *   IOS=1       App Store sizes instead, into fastlane/apple/screenshots/en-US/: iPhone 6.9" (1320×2868)
- *               and iPad 13" (2752×2064)
+ *               and iPad 13" (2752×2064). IOS=1 IOS65=1 ONLY=phone: the iPhone 6.5" set (1284×2778)
  *
  * Needs `playwright` (Chromium already installed; do not run `playwright install`) and `sharp` (dev dependency).
  */
@@ -32,7 +32,11 @@ const iosDir = path.join(root, 'fastlane/apple/screenshots/en-US');
 const phoneDir = ios ? iosDir : path.join(outDir, 'phoneScreenshots');
 const tabletDir = ios ? iosDir : path.join(outDir, 'tenInchScreenshots');
 // Capture size (CSS px × scale) and framed size for each store.
-const PHONE = ios
+// IOS65=1: the iPhone 6.5" Display slot (1284 × 2778), for when App Store Connect asks for it.
+const ios65 = !!process.env.IOS65;
+const PHONE = ios && ios65
+  ? { viewport: { width: 428, height: 926 }, scale: 3, frame: { width: 1284, height: 2778, captionSize: 94, top: 418, radius: 46 } }
+  : ios
   ? { viewport: { width: 440, height: 956 }, scale: 3, frame: { width: 1320, height: 2868, captionSize: 96, top: 430, radius: 48 } }
   : { viewport: { width: 432, height: 768 }, scale: 2.5, frame: { width: 1080, height: 1920, captionSize: 76, top: 300, radius: 36 } };
 const TABLET = ios
@@ -127,7 +131,7 @@ async function save(browser, kind, n, slug, raw, caption) {
   const phone = kind === 'phone';
   const dir = phone ? phoneDir : tabletDir;
   const framed = await frame(browser, raw, { ...(phone ? PHONE : TABLET).frame, caption });
-  const file = path.join(dir, ios ? `${phone ? 'iPhone' : 'iPad'}_${n}_${slug}.png` : `${n}_${slug}.png`);
+  const file = path.join(dir, ios ? `${phone ? (ios65 ? 'iPhone65' : 'iPhone69') : 'iPad'}_${n}_${slug}.png` : `${n}_${slug}.png`);
   // Play wants screenshots as 24-bit PNG (no alpha).
   await sharp(framed).removeAlpha().png({ compressionLevel: 9 }).toFile(file);
   if (keepRaw) fs.writeFileSync(path.join(rawDir, `${kind}-${n}_${slug}.png`), raw);
