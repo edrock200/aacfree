@@ -1,0 +1,38 @@
+O AACFree é um app gratuito de CAA (comunicação aumentativa e alternativa) para pessoas autistas e não verbais de todas as idades, e para as famílias, professores e terapeutas que as apoiam. Toque em botões com imagem e palavra para formar uma frase, e o AACFree fala em voz alta.
+
+Ele foi feito a partir do que usuários de CAA, famílias e fonoaudiólogos pedem: palavras que nunca mudam de lugar, "não" e "pare" sempre por perto, digitação rápida e privacidade por padrão.
+
+GRÁTIS, PRIVADO E SEM INTERNET
+• Grátis para sempre. Sem anúncios, sem assinaturas, sem compras no app.
+• Sem contas, sem cadastro, sem análises, sem rastreamento.
+• Tudo fica no seu iPhone ou iPad e funciona sem internet.
+• Código aberto.
+
+PARA A PESSOA QUE SE COMUNICA
+• Palavras centrais que não saem do lugar. Escolha uma prancha inicial de 12 botões grandes a 48. Os botões nunca mudam de lugar, então as palavras são aprendidas pela memória motora.
+• 25 pastas temáticas com cerca de 770 palavras e 740 pictogramas incluídos: comida, bebidas, sentimentos, pessoas, lugares, brincadeiras, escola, corpo, saúde e mais.
+• Tipos de palavra por cores (chave Fitzgerald modificada).
+• Sim, não, pare, ajuda, espera e pausa em todas as telas. Falar nunca fica bloqueado.
+• Conjugação automática, plurais e comparativos.
+• Um teclado com previsão de palavras privada.
+• Frases prontas para necessidades, sentimentos, limites, conversa, perguntas e emergências. Salve suas próprias frases.
+• Ferramentas: rotina visual, primeiro/depois, timer visual, prancha de escolha, escalas de sentimentos e dor, mapa do corpo, cartão "Sobre mim" e bloco de desenho.
+• Use qualquer voz do aparelho e ajuste velocidade e tom. Grave a voz de alguém da família em qualquer botão.
+• Português, inglês, espanhol e francês, com rótulos bilíngues.
+• Acesso: tocar e segurar, ignorar toques repetidos, varredura com acionadores, apontar com a cabeça ou o olhar pela câmera frontal (processado no aparelho), texto grande, temas escuro e de alto contraste.
+
+PARA FAMÍLIAS, PROFESSORES E TERAPEUTAS
+• As configurações ficam protegidas por um toque de 2 segundos, um PIN ou uma conta de matemática.
+• Edite no lugar a palavra, a imagem, a cor ou a voz de qualquer botão. Desfaça qualquer mudança.
+• Traga uma prancha de outro app de CAA: tire um print ou uma foto e o AACFree a reconstrói com cada palavra no mesmo lugar. Também importa arquivos Open Board (.obz).
+• Nunca perca seu trabalho: cada mudança é salva na hora, com cópias diárias e backups automáticos no app Arquivos ou no iCloud Drive.
+• Sincronize aparelhos mudança por mudança com um arquivo compartilhado, criptografado com o código da sua família. Sem conta.
+• Imprima pranchas em papel como reserva.
+• Vários perfis em um aparelho. Funciona bem com o Acesso Guiado.
+
+CRÉDITOS
+Pictogramas de Sergio Palao. Origem: ARASAAC (arasaac.org), Governo de Aragão (Espanha). Licença: CC BY-NC-SA 4.0. Por isso o AACFree será sempre grátis.
+
+O AACFree é uma ferramenta de comunicação, não um dispositivo médico. Escolha e configure a CAA com um fonoaudiólogo.
+
+Guia de uso (em inglês): aacappfree.com/guide
