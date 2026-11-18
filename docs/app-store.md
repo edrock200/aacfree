@@ -76,7 +76,7 @@ With a Mac instead: `npm ci && npm run build && npx cap sync ios && npx cap open
 
 ## 7. The version page
 
-- **Screenshots:** required for **iPhone 6.9"** (1320 × 2868 portrait or 2868 × 1320 landscape) and **iPad 13"** (2064 × 2752 or 2752 × 2064). Ready-made ones are in **`fastlane/apple/screenshots/en-US/`** (`iPhone_*.png` and `iPad_*.png`). Regenerate them with `IOS=1 node scripts/store-screenshots.cjs <preview url>` (see the script's header).
+- **Screenshots:** required for **iPhone 6.9"** (1320 × 2868 portrait or 2868 × 1320 landscape) and **iPad 13"** (2064 × 2752 or 2752 × 2064). Ready-made ones are in **`fastlane/apple/screenshots/en-US/`** (`iPhone69_*.png` for the 6.9" slot, `iPhone65_*.png` for the 6.5" slot, and `iPad_*.png`). Regenerate them with `IOS=1 node scripts/store-screenshots.cjs <preview url>` (see the script's header).
 - **Name, subtitle, promotional text, description, keywords:** ready in `fastlane/apple/metadata/<language>/` for English, Spanish, French and Portuguese (see `fastlane/apple/README.md`).
 - **Support URL:** `https://aacappfree.com/guide/`. **Marketing URL:** `https://aacappfree.com`. **Privacy policy URL:** `https://aacappfree.com/privacy.html`.
 - **Copyright:** `2026 AACFree contributors`.
