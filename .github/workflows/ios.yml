@@ -15,7 +15,9 @@ permissions:
 # Third-party actions are pinned to commit SHAs (the tag is in the comment).
 jobs:
   ios:
-    runs-on: macos-15
+    # Intel Macs: GitHub's Apple-silicon Mac runners were often unavailable (jobs cancelled after
+    # "not acquired by Runner"). Xcode builds for iPhone, iPad and the Simulator the same way here.
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
