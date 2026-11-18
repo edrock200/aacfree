@@ -64,7 +64,7 @@ New to AACFree? The [user guide](https://aacappfree.com/guide/) covers installin
 
 ## Development
 
-Requirements: Node 22+. For Android you also need JDK 21 and the Android SDK (platform 36); for iOS, a Mac with Xcode 16 or GitHub's macOS runners. See [`.claude/skills/build-android`](.claude/skills/build-android/SKILL.md).
+Requirements: Node 22+. For Android you also need JDK 21 and the Android SDK (platform 36); for iOS, a Mac with Xcode 26 or newer (an App Store requirement) or GitHub's macOS runners. See [`.claude/skills/build-android`](.claude/skills/build-android/SKILL.md).
 
 ```bash
 npm install
