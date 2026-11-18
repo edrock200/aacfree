@@ -1,0 +1,38 @@
+AACFree est une app gratuite de CAA (communication alternative et améliorée) pour les personnes autistes et non verbales de tout âge, et pour les familles, enseignants et thérapeutes qui les accompagnent. Touche des boutons image et mot pour former une phrase, et AACFree la dit à voix haute.
+
+Elle est conçue à partir de ce que demandent les utilisateurs de CAA, les parents et les orthophonistes : des mots qui ne bougent jamais, « non » et « stop » toujours à portée, une saisie rapide et la confidentialité par défaut.
+
+GRATUITE, PRIVÉE ET HORS LIGNE
+• Gratuite pour toujours. Sans publicité, sans abonnement, sans achat intégré.
+• Sans compte, sans inscription, sans statistiques, sans pistage.
+• Tout reste sur ton iPhone ou ton iPad et fonctionne sans internet.
+• Logiciel libre.
+
+POUR LA PERSONNE QUI COMMUNIQUE
+• Des mots de base qui restent à leur place. Choisis un tableau d'accueil de 12 grands boutons à 48. Les boutons ne bougent jamais, pour apprendre les mots par la mémoire motrice.
+• 25 dossiers thématiques avec environ 770 mots et 740 pictogrammes intégrés : repas, boissons, émotions, personnes, lieux, jeux, école, corps, santé et plus.
+• Types de mots en couleurs (clé de Fitzgerald modifiée).
+• Oui, non, stop, aide, attends et pause sur chaque écran. Parler n'est jamais verrouillé.
+• Conjugaison automatique, pluriels et comparatifs.
+• Un clavier avec prédiction de mots privée.
+• Des phrases toutes prêtes pour les besoins, les émotions, les limites, la conversation, les questions et les urgences. Enregistre tes propres phrases.
+• Outils : emploi du temps visuel, d'abord/ensuite, minuteur visuel, tableau de choix, échelles d'émotions et de douleur, carte du corps, carte « À propos de moi » et bloc à dessin.
+• Utilise n'importe quelle voix de l'appareil, avec vitesse et hauteur réglables. Enregistre la voix d'un proche sur un bouton.
+• Français, anglais, espagnol et portugais, avec étiquettes bilingues.
+• Accès : maintien pour sélectionner, filtrage des touches répétées, défilement par contacteurs, pointage par la tête ou les yeux avec la caméra frontale (traité sur l'appareil), grand texte, thèmes sombre et contrasté.
+
+POUR LES PARENTS, ENSEIGNANTS ET THÉRAPEUTES
+• Les réglages sont protégés par un appui de 2 secondes, un code ou une question de calcul.
+• Modifie sur place le mot, l'image, la couleur ou la voix de n'importe quel bouton. Annule chaque changement.
+• Importe un tableau d'une autre app de CAA : fais une capture ou une photo, et AACFree le reconstruit avec chaque mot à sa place. Importe aussi les fichiers Open Board (.obz).
+• Ne perds jamais ton travail : chaque changement est enregistré aussitôt, avec des instantanés quotidiens et des sauvegardes automatiques dans l'app Fichiers ou iCloud Drive.
+• Synchronise plusieurs appareils, modification par modification, avec un fichier partagé chiffré par le code de ta famille. Sans compte.
+• Imprime des tableaux papier en secours.
+• Plusieurs profils sur un appareil. Fonctionne bien avec l'Accès guidé.
+
+CRÉDITS
+Pictogrammes de Sergio Palao. Origine : ARASAAC (arasaac.org), Gouvernement d'Aragon (Espagne). Licence : CC BY-NC-SA 4.0. C'est pourquoi AACFree restera toujours gratuite.
+
+AACFree est un outil de communication, pas un dispositif médical. Choisis et configure la CAA avec un ou une orthophoniste.
+
+Guide d'utilisation (en anglais) : aacappfree.com/guide

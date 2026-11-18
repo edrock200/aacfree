@@ -14,7 +14,7 @@
  * Options (environment variables):
  *   RAW=1       also keep the unframed captures in images/raw/ (for checking; git-ignored)
  *   ONLY=phone  or ONLY=tablet or ONLY=art: regenerate one part only
- *   IOS=1       App Store sizes instead, into fastlane/screenshots/en-US/: iPhone 6.9" (1320×2868)
+ *   IOS=1       App Store sizes instead, into fastlane/apple/screenshots/en-US/: iPhone 6.9" (1320×2868)
  *               and iPad 13" (2752×2064)
  *
  * Needs `playwright` (Chromium already installed; do not run `playwright install`) and `sharp` (dev dependency).
@@ -28,7 +28,7 @@ const root = path.join(__dirname, '..');
 const url = process.argv[2] || 'http://localhost:4199/';
 const ios = !!process.env.IOS;
 const outDir = path.join(root, 'fastlane/metadata/android/en-US/images');
-const iosDir = path.join(root, 'fastlane/screenshots/en-US');
+const iosDir = path.join(root, 'fastlane/apple/screenshots/en-US');
 const phoneDir = ios ? iosDir : path.join(outDir, 'phoneScreenshots');
 const tabletDir = ios ? iosDir : path.join(outDir, 'tenInchScreenshots');
 // Capture size (CSS px × scale) and framed size for each store.
@@ -213,15 +213,26 @@ async function tabletShots(browser) {
 
   await clearMessage(page);
   await goHome(page);
+  await page.click('.navbtn[aria-label="Phrases"]');
+  await page.click('.phrase-folder:has-text("Boundaries")');
+  await settle(page, 300);
+  await save(browser, 'tablet', 3, 'phrases', await shot(page), 'Ready-made phrases, including boundaries');
+
+  await page.click('.navbtn[aria-label="Keyboard"]');
+  await typeKeys(page, 'can we go to the pa');
+  await settle(page, 300);
+  await save(browser, 'tablet', 4, 'keyboard', await shot(page), 'Type anything, with private word prediction');
+  await clearMessage(page);
+
   await page.click('.navbtn[aria-label="Tools"]');
   await page.click('.tool-tile[aria-label="Schedule"]');
   await settle(page);
-  await save(browser, 'tablet', 3, 'schedule', await shot(page), 'Visual schedules with Now and Next');
+  await save(browser, 'tablet', 5, 'schedule', await shot(page), 'Visual schedules with Now and Next');
 
   await holdLock(page);
   await page.click('.gu-tab:has-text("Symbols")');
   await settle(page, 800);
-  await save(browser, 'tablet', 4, 'library', await shot(page), 'A symbol library you can make your own');
+  await save(browser, 'tablet', 6, 'library', await shot(page), 'A symbol library you can make your own');
   await ctx.close();
 }
 

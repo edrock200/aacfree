@@ -1,0 +1,9 @@
+No account or login is needed. Everything works offline.
+
+Settings and editing are behind the Settings button in the bottom bar: press and hold it for 2 seconds. No PIN is set by default.
+
+The camera is used to take photos for buttons, to import a board from a picture, and for the optional head or eye pointer (Settings → Access). The microphone records a voice for a button. Both are processed on the device only.
+
+Backups: Settings → Backup → Back up now saves a file to the Files app (On My iPhone or On My iPad → AACFree). "Add a cloud copy" keeps another copy in iCloud Drive.
+
+AACFree is a communication tool (augmentative and alternative communication), not a medical device.
